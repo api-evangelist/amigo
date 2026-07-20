@@ -1,0 +1,49 @@
+generated: '2026-07-17'
+method: searched
+source: openapi/amigo-classic-openapi-original.json, openapi/amigo-platform-openapi-original.json
+docs:
+  - https://docs.amigo.ai/developer-guide/getting-started/authentication.md
+  - https://docs.amigo.ai/developer-guide/platform-api/platform-api/oauth2.md
+summary:
+  types:
+  - apiKey
+  - http
+  - oauth2
+  api_key_in:
+  - header
+  oauth2_flows:
+  - clientCredentials
+  notes: >-
+    Classic API uses organization-scoped JWT bearer (obtained via sign-in-with-api-key /
+    sign-in-with-email) plus an optional X-ORG-ID header and a Basic variant. Platform API
+    uses a workspace-scoped API key as a Bearer token OR OAuth2 client_credentials (M2M) at
+    https://identity.platform.amigo.ai/token (3600s access tokens, 53 scopes — see
+    scopes/amigo-scopes.yml). The published OpenAPI declares http bearer schemes only; the
+    OAuth2 flow is documented in the auth docs and OIDC discovery, not the spec.
+schemes:
+- name: Bearer-Authorization
+  type: http
+  scheme: bearer
+  bearerFormat: JWT
+  description: Amigo issued JWT token that identifies an user. It's issued either after logging
+    in through the frontend, or manually through the [`SignInWithAPIKey`](sign-in-with-api-key)
+    endpoint.
+  sources:
+  - openapi/amigo-classic-openapi-original.json
+  - openapi/amigo-platform-openapi-original.json
+- name: Bearer-Authorization-Organization
+  type: apiKey
+  in: header
+  parameter: X-ORG-ID
+  description: An optional organization identifier that indicates from which organization the
+    token is issued. This is used in rare cases where the user to authenticate is making a request
+    for resources in another organization.
+  sources:
+  - openapi/amigo-classic-openapi-original.json
+- name: Basic
+  type: http
+  scheme: basic
+  description: The username should be set to {org_id}_{user_id}, and the password should be
+    the Amigo issued JWT token that identifies the user.
+  sources:
+  - openapi/amigo-classic-openapi-original.json
