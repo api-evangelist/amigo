@@ -1,0 +1,981 @@
+openapi: 3.1.0
+info:
+  title: Amigo Account Role API
+  version: 0.1.0
+servers:
+- url: https://api.amigo.ai
+- url: https://internal-api.amigo.ai
+- url: https://api-eu-central-1.amigo.ai
+- url: https://api-ap-southeast-2.amigo.ai
+- url: https://api-ca-central-1.amigo.ai
+security:
+- Bearer-Authorization: []
+  Bearer-Authorization-Organization: []
+  Basic: []
+tags:
+- name: Role
+paths:
+  /v1/{organization}/role/temporary_permission_grant/:
+    post:
+      tags:
+      - Role
+      summary: Create a temporary permission grant
+      description: 'Create a new temporary permission grant.
+
+
+        The user that is given the grant will be able to perform actions permitted by the grant for a limited amount of time. Note that any actions that
+
+        require comparing the permissions of the user and the permissions of another entity would still use the user and the other entity''s role, without
+
+        factoring into the temporary permission grants.
+
+
+        #### Permissions
+
+        This endpoint requires the following permissions:
+
+        * `Role:CreateTemporaryPermissionGrant` for the grant to create.'
+      operationId: create-temporary-permission-grant
+      parameters:
+      - name: organization
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Organization
+      - name: x-mongo-cluster-name
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.
+          title: X-Mongo-Cluster-Name
+        description: The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.
+      - name: Sec-WebSocket-Protocol
+        in: header
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+          default: []
+          title: Sec-Websocket-Protocol
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/src__app__endpoints__role__create_temporary_permission_grant__Request'
+      responses:
+        '201':
+          description: Succeeded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/src__app__endpoints__role__create_temporary_permission_grant__Response'
+        '404':
+          description: Specified organization or user is not found.
+        '422':
+          description: Invalid request path parameter or request body failed validation.
+        '401':
+          description: Invalid authorization credentials.
+        '403':
+          description: Missing required permissions.
+        '503':
+          description: The service is going through temporary maintenance.
+        '429':
+          description: The user has exceeded the rate limit of 100 requests per minute for this endpoint.
+  /v1/{organization}/role/temporary_permission_grants/:
+    get:
+      tags:
+      - Role
+      summary: Get temporary permission grants
+      description: 'Retrieve the temporary permission grants that match the given filters.
+
+
+        #### Permissions
+
+        This endpoint may be impacted by the following permissions:
+
+        * Only temporary permission grants that the authenticated user has `Role:GetTemporaryPermissionGrant` permission for will be returned.'
+      operationId: get-temporary-permission-grants
+      parameters:
+      - name: organization
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Organization
+      - name: id
+        in: query
+        required: false
+        schema:
+          type: array
+          uniqueItems: true
+          items:
+            type: string
+            pattern: ^[a-f0-9]{24}$
+          description: The IDs of the temporary permission grants to retrieve.
+          default: []
+          title: Id
+        description: The IDs of the temporary permission grants to retrieve.
+      - name: user_id
+        in: query
+        required: false
+        schema:
+          type: array
+          uniqueItems: true
+          items:
+            type: string
+          description: The user IDs of the temporary permission grants to retrieve.
+          default: []
+          title: User Id
+        description: The user IDs of the temporary permission grants to retrieve.
+      - name: permission_grant_name
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The permission name of the grants.
+          title: Permission Grant Name
+        description: The permission name of the grants.
+      - name: is_expired
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Whether to only return expired or unexpired temporary permission grants.
+          title: Is Expired
+        description: Whether to only return expired or unexpired temporary permission grants.
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 10
+          minimum: 0
+          description: The maximum number of temporary permission grants to return.
+          default: 10
+          title: Limit
+        description: The maximum number of temporary permission grants to return.
+      - name: continuation_token
+        in: query
+        required: false
+        schema:
+          type: integer
+          description: The continuation token to use to retrieve the next set of temporary permission grants.
+          default: 0
+          title: Continuation Token
+        description: The continuation token to use to retrieve the next set of temporary permission grants.
+      - name: creator
+        in: query
+        required: false
+        schema:
+          type: array
+          uniqueItems: true
+          items:
+            type: string
+          description: The creators of the temporary permission grants.
+          default: []
+          title: Creator
+        description: The creators of the temporary permission grants.
+      - name: tag
+        in: query
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+          description: The tags of the temporary permission grants. Must be specified using the syntax `key:value`, which means to match all sets with the given `key` and `value` pair among its tags. If `value` is `*`, it means the `value` does not matter. If `value` is empty, it matches against when the value is `None`.
+          default: []
+          title: Tag
+        description: The tags of the temporary permission grants. Must be specified using the syntax `key:value`, which means to match all sets with the given `key` and `value` pair among its tags. If `value` is `*`, it means the `value` does not matter. If `value` is empty, it matches against when the value is `None`.
+      - name: sort_by
+        in: query
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+          description: The fields to sort the sets by. Supported fields are `user_id`, `expires_at`, and `permission_grant.permission_name`. Specify a `+` before the field name to indicate ascending sorting and `-` for descending sorting. Multiple fields can be specified to break ties.
+          default: []
+          title: Sort By
+        description: The fields to sort the sets by. Supported fields are `user_id`, `expires_at`, and `permission_grant.permission_name`. Specify a `+` before the field name to indicate ascending sorting and `-` for descending sorting. Multiple fields can be specified to break ties.
+      - name: x-mongo-cluster-name
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.
+          title: X-Mongo-Cluster-Name
+        description: The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.
+      - name: Sec-WebSocket-Protocol
+        in: header
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+          default: []
+          title: Sec-Websocket-Protocol
+      responses:
+        '200':
+          description: Succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/src__app__endpoints__role__get_temporary_permission_grants__Response'
+        '404':
+          description: Specified organization is not found.
+        '422':
+          description: Invalid request path parameter or request query parameter failed validation.
+        '401':
+          description: Invalid authorization credentials.
+        '403':
+          description: Missing required permissions.
+        '503':
+          description: The service is going through temporary maintenance.
+        '429':
+          description: The user has exceeded the rate limit of 100 requests per minute for this endpoint.
+  /v1/{organization}/role/:
+    post:
+      tags:
+      - Role
+      summary: Create a role
+      description: 'Create a new role.
+
+
+        #### Permissions
+
+        This endpoint requires the following permissions:
+
+        * `Role:CreateRole` for the role.'
+      operationId: create-role
+      parameters:
+      - name: organization
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Organization
+      - name: x-mongo-cluster-name
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.
+          title: X-Mongo-Cluster-Name
+        description: The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.
+      - name: Sec-WebSocket-Protocol
+        in: header
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+          default: []
+          title: Sec-Websocket-Protocol
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/src__app__endpoints__role__create_role__Request'
+      responses:
+        '201':
+          description: Succeeded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/src__app__endpoints__role__create_role__Response'
+        '409':
+          description: Role with the same name already exists in this organization.
+        '404':
+          description: Specified organization or inherited role is not found.
+        '422':
+          description: Invalid request path parameter or request body failed validation.
+        '401':
+          description: Invalid authorization credentials.
+        '403':
+          description: Missing required permissions.
+        '503':
+          description: The service is going through temporary maintenance.
+        '429':
+          description: The user has exceeded the rate limit of 20 requests per minute for this endpoint.
+    get:
+      tags:
+      - Role
+      summary: Get roles
+      description: 'Return a list of roles in this organization.
+
+
+        #### Permissions
+
+        This endpoint may be impacted by the following permissions:
+
+        * Only roles that the authenticated user has the `Role:GetRole` permission on will be returned.'
+      operationId: get_roles_v1__organization__role__get
+      parameters:
+      - name: organization
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Organization
+      - name: return_permission_grants
+        in: query
+        required: false
+        schema:
+          type: boolean
+          description: Whether to return permission grants.
+          default: false
+          title: Return Permission Grants
+        description: Whether to return permission grants.
+      - name: id
+        in: query
+        required: false
+        schema:
+          type: array
+          uniqueItems: true
+          items:
+            type: string
+            pattern: ^[a-f0-9]{24}$
+          description: The IDs of the roles to retrieve.
+          default: []
+          title: Id
+        description: The IDs of the roles to retrieve.
+      - name: name
+        in: query
+        required: false
+        schema:
+          type: array
+          uniqueItems: true
+          items:
+            type: string
+          description: The names of the roles to retrieve.
+          default: []
+          title: Name
+        description: The names of the roles to retrieve.
+      - name: x-mongo-cluster-name
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.
+          title: X-Mongo-Cluster-Name
+        description: The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.
+      - name: Sec-WebSocket-Protocol
+        in: header
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+          default: []
+          title: Sec-Websocket-Protocol
+      responses:
+        '200':
+          description: Succeeded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/src__app__endpoints__role__get_roles__Response'
+        '404':
+          description: Specified organization is not found.
+        '422':
+          description: Invalid request path parameter or request query parameter failed validation.
+        '401':
+          description: Invalid authorization credentials.
+        '403':
+          description: Missing required permissions.
+        '503':
+          description: The service is going through temporary maintenance.
+        '429':
+          description: The user has exceeded the rate limit of 20 requests per minute for this endpoint.
+  /v1/{organization}/role/{role_name}:
+    post:
+      tags:
+      - Role
+      summary: Modify a role
+      description: 'Modify an existing role. The roles are modified in-place unless immutable fields are modified, in which case a new role with the same name
+
+        is created, and all users/API keys assigned to the previous role are switched to the new role. The old role document will expire after 1 day.
+
+
+        #### Permissions
+
+        This endpoint requires the following permissions:
+
+        * `Role:ModifyRole` for the role.
+
+
+        This endpoint may require the authenticated user to have great privileges than the new role if a new role document is created as a result of
+
+        immutable field changes.'
+      operationId: modify-role
+      parameters:
+      - name: role_name
+        in: path
+        required: true
+        schema:
+          type: string
+          description: The name of the role.
+          title: Role Name
+        description: The name of the role.
+      - name: organization
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Organization
+      - name: x-mongo-cluster-name
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.
+          title: X-Mongo-Cluster-Name
+        description: The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.
+      - name: Sec-WebSocket-Protocol
+        in: header
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+          default: []
+          title: Sec-Websocket-Protocol
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/src__app__endpoints__role__modify_role__Request'
+      responses:
+        '200':
+          description: Succeeded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/src__app__endpoints__role__modify_role__Response'
+        '404':
+          description: Specified organization, role, or inherited role is not found.
+        '400':
+          description: Base roles cannot inherit from other roles.
+        '422':
+          description: Invalid request path parameter or request body failed validation.
+        '401':
+          description: Invalid authorization credentials.
+        '403':
+          description: Missing required permissions.
+        '503':
+          description: The service is going through temporary maintenance.
+        '429':
+          description: The user has exceeded the rate limit of 10 requests per minute for this endpoint.
+  /v1/{organization}/role/{role_name}/assign:
+    post:
+      tags:
+      - Role
+      summary: Assign a role to user
+      description: 'Assign a role to a user.
+
+
+        #### Permissions
+
+        This endpoint requires the following permissions:
+
+        * The authenticated user to have greater privileges than the role being assigned.'
+      operationId: assign-role
+      parameters:
+      - name: organization
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Organization
+      - name: role_name
+        in: path
+        required: true
+        schema:
+          type: string
+          description: The name of the role to assign.
+          title: Role Name
+        description: The name of the role to assign.
+      - name: x-mongo-cluster-name
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.
+          title: X-Mongo-Cluster-Name
+        description: The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.
+      - name: Sec-WebSocket-Protocol
+        in: header
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+          default: []
+          title: Sec-Websocket-Protocol
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/src__app__endpoints__role__assign_role__Request'
+      responses:
+        '200':
+          description: Succeeded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/src__app__endpoints__role__assign_role__Response'
+        '404':
+          description: Specified organization, role, or user is not found.
+        '422':
+          description: Invalid request path parameter or request body failed validation.
+        '401':
+          description: Invalid authorization credentials.
+        '403':
+          description: Missing required permissions.
+        '503':
+          description: The service is going through temporary maintenance.
+        '429':
+          description: The user has exceeded the rate limit of 1000 requests per minute for this endpoint.
+components:
+  schemas:
+    src__app__endpoints__role__create_role__Request:
+      properties:
+        role_name:
+          $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__2'
+          description: The name of the role to create. The role must have a max length of 256 characters.
+        description:
+          $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
+          description: A description about the role.
+        permission_grants:
+          items:
+            $ref: '#/components/schemas/PermissionGrant-Input'
+          type: array
+          title: Permission Grants
+          description: A list of permission grants associated with this role.
+        frontend_view:
+          $ref: '#/components/schemas/FrontendView'
+          description: The frontend view for users of this role.
+      type: object
+      required:
+      - role_name
+      - description
+      - permission_grants
+      - frontend_view
+      title: Request
+    src__app__endpoints__role__get_roles__Response:
+      properties:
+        roles:
+          items:
+            $ref: '#/components/schemas/RoleInstance'
+          type: array
+          title: Roles
+          description: A list of roles in this organization.
+      type: object
+      required:
+      - roles
+      title: Response
+    RoleInstance:
+      properties:
+        id:
+          type: string
+          title: Id
+          description: The ID of the role.
+        name:
+          type: string
+          title: Name
+          description: The name of the role.
+        description:
+          type: string
+          title: Description
+          description: A description of the role.
+        frontend_view:
+          $ref: '#/components/schemas/FrontendView'
+          description: The frontend view of the role. This determines the UI that all users of a role will see.
+        permission_grants:
+          items:
+            $ref: '#/components/schemas/PermissionGrant-Output'
+          type: array
+          title: Permission Grants
+          description: 'The permission grants given to the role. Only returned if the `return_permission_grants` query parameter is True. '
+      type: object
+      required:
+      - id
+      - name
+      - description
+      - frontend_view
+      - permission_grants
+      title: RoleInstance
+    src__app__endpoints__role__create_temporary_permission_grant__Request:
+      properties:
+        user_id:
+          type: string
+          title: User Id
+          description: The ID of the user to grant the temporary permission to.
+        duration:
+          type: string
+          format: duration
+          title: Duration
+          description: In ISO8601 format, the duration that this permission grant will last.
+        permission_grant:
+          $ref: '#/components/schemas/PermissionGrantInstance'
+          description: The permission grant to give to the user.
+        tags:
+          additionalProperties:
+            anyOf:
+            - $ref: '#/components/schemas/StrippedNonemptyString___w__s_____'
+            - type: 'null'
+          propertyNames:
+            $ref: '#/components/schemas/StrippedNonemptyString___w__s_____'
+          type: object
+          maxProperties: 20
+          title: Tags
+          description: The tags of the permission grant. Both the key and the value can only contain alphanumeric characters, underscores, or spaces.
+        justification:
+          $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__5'
+          description: A justification for why this grant is made.
+      type: object
+      required:
+      - user_id
+      - duration
+      - permission_grant
+      - tags
+      - justification
+      title: Request
+    amigo_lib__pydantic__base_model__StrippedNonemptyString__1:
+      type: string
+      minLength: 1
+    EqualCondition:
+      properties:
+        type:
+          type: string
+          const: Equals
+          title: Type
+          default: Equals
+        value:
+          title: Value
+          description: The value that the attribute must be equal to. It must be of the same type as the type of this attribute in the permission.
+      type: object
+      required:
+      - value
+      title: EqualCondition
+      description: Requires that the attribute value in the request to be equal to a specific value.
+    amigo_lib__mongo__collections__temporary_permission_grant__TemporaryPermissionGrant__UserInfo:
+      properties:
+        org_id:
+          type: string
+          title: Org Id
+        user_id:
+          type: string
+          title: User Id
+      type: object
+      required:
+      - org_id
+      - user_id
+      title: UserInfo
+    src__app__endpoints__role__assign_role__Request:
+      properties:
+        user_id:
+          type: string
+          title: User Id
+          description: The identifier of the user to assign the role to.
+      type: object
+      required:
+      - user_id
+      title: Request
+    src__app__endpoints__role__assign_role__Response:
+      properties:
+        role_id:
+          type: string
+          title: Role Id
+          description: The identifier of the role assigned to the user.
+      type: object
+      required:
+      - role_id
+      title: Response
+    amigo_lib__pydantic__base_model__StrippedNonemptyString__2:
+      type: string
+      maxLength: 256
+      minLength: 1
+    PermissionGrantInstance:
+      properties:
+        permission_name:
+          type: string
+          title: Permission Name
+          description: The name of the permission.
+        conditions:
+          additionalProperties:
+            $ref: '#/components/schemas/Condition'
+          type: object
+          title: Conditions
+          description: A dictionary of attribute name to condition that must be met for this grant to be applicable.
+      type: object
+      required:
+      - permission_name
+      - conditions
+      title: PermissionGrantInstance
+    src__app__endpoints__role__create_temporary_permission_grant__Response:
+      properties:
+        temporary_permission_grant_id:
+          type: string
+          title: Temporary Permission Grant Id
+          description: The ID of the created temporary permission grant.
+        expires_at:
+          type: string
+          format: date-time
+          title: Expires At
+          description: The time in UTC at which the permission grant expires.
+      type: object
+      required:
+      - temporary_permission_grant_id
+      - expires_at
+      title: Response
+    src__app__endpoints__role__modify_role__Response:
+      properties:
+        role_id:
+          type: string
+          title: Role Id
+          description: The identifier of the updated role.
+      type: object
+      required:
+      - role_id
+      title: Response
+    src__app__endpoints__role__create_role__Response:
+      properties:
+        role_id:
+          type: string
+          title: Role Id
+          description: The ID of the newly created role.
+      type: object
+      required:
+      - role_id
+      title: Response
+    InCondition:
+      properties:
+        type:
+          type: string
+          const: In
+          title: Type
+          default: In
+        values:
+          items: {}
+          type: array
+          title: Values
+          description: A list of values, one of which the attribute must be equal to. All values must be of the same type as the type of this attribute in the permission.
+      type: object
+      required:
+      - values
+      title: InCondition
+      description: Requires that the attribute value in the request to be one of the specified values.
+    FrontendView:
+      type: string
+      enum:
+      - client
+      - admin
+    PermissionGrant-Input:
+      properties:
+        permission_name:
+          type: string
+          title: Permission Name
+          description: The name of the permission.
+        conditions:
+          additionalProperties:
+            $ref: '#/components/schemas/Condition'
+          type: object
+          title: Conditions
+          description: A dictionary of attribute name to condition that must be met for this grant to be applicable.
+      type: object
+      required:
+      - permission_name
+      - conditions
+      title: PermissionGrant
+    NotEqualCondition:
+      properties:
+        type:
+          type: string
+          const: NotEquals
+          title: Type
+          default: NotEquals
+        value:
+          title: Value
+          description: The value that the attribute must be unequal to. It must be of the same type as the type of this attribute in the permission.
+      type: object
+      required:
+      - value
+      title: NotEqualCondition
+      description: Requires that the attribute value in the request to be not equal to a specific value.
+    src__app__endpoints__role__modify_role__Request:
+      properties:
+        description:
+          anyOf:
+          - $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
+          - type: 'null'
+          description: A description about the role. Only updated if specified. This field is a mutable field.
+        permission_grants:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/PermissionGrant-Input'
+            type: array
+          - type: 'null'
+          title: Permission Grants
+          description: A list of permission grants associated with this role. Only updated if specified. This field is an immutable field.
+        frontend_view:
+          anyOf:
+          - $ref: '#/components/schemas/FrontendView'
+          - type: 'null'
+          description: The frontend view for the user of this role. Only updated if specified. This field is an immutable field.
+      type: object
+      title: Request
+    src__app__endpoints__role__get_temporary_permission_grants__Response:
+      properties:
+        temporary_permission_grants:
+          items:
+            $ref: '#/components/schemas/TemporaryPermissionGrant'
+          type: array
+          title: Temporary Permission Grants
+          description: The retrieved temporary permission grants.
+        has_more:
+          type: boolean
+          title: Has More
+          description: Whether there are more temporary permission grants to retrieve.
+        continuation_token:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Continuation Token
+          description: The continuation token to use to retrieve the next set of temporary permission grants.
+      type: object
+      required:
+      - temporary_permission_grants
+      - has_more
+      - continuation_token
+      title: Response
+    TemporaryPermissionGrant:
+      properties:
+        _id:
+          type: string
+          title: Id
+          description: The ID of the document.
+        org_id:
+          type: string
+          title: Org Id
+          description: The ID of the organization.
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+        user_id:
+          type: string
+          title: User Id
+          description: The ID of the user that this grant applies to.
+        expires_at:
+          type: string
+          format: date-time
+          title: Expires At
+          description: The time at which this temporary permission grant expires.
+        permission_grant:
+          $ref: '#/components/schemas/PermissionGrant-Output'
+          description: The permission grant to give to the user.
+        justification:
+          type: string
+          title: Justification
+          description: The reason for offering this permission grant.
+        creator:
+          $ref: '#/components/schemas/amigo_lib__mongo__collections__temporary_permission_grant__TemporaryPermissionGrant__UserInfo'
+          description: The creator of this permission grant.
+        tags:
+          additionalProperties:
+            anyOf:
+            - type: string
+            - type: 'null'
+          type: object
+          title: Tags
+          description: The tags of the permission grant.
+      type: object
+      required:
+      - _id
+      - org_id
+      - user_id
+      - expires_at
+      - permission_grant
+      - justification
+      - creator
+      - tags
+      title: TemporaryPermissionGrant
+      description: A temporary permission grant provides an user additional permission grants beyond what their role allows for a limited amount of time.
+    PermissionGrant-Output:
+      properties:
+        permission_name:
+          type: string
+          title: Permission Name
+          description: The name of the permission.
+        conditions:
+          additionalProperties:
+            $ref: '#/components/schemas/Condition'
+          type: object
+          title: Conditions
+          description: A dictionary of attribute name to condition that must be met for this grant to be applicable.
+      type: object
+      required:
+      - permission_name
+      - conditions
+      title: PermissionGrant
+    StrippedNonemptyString___w__s_____:
+      type: string
+      minLength: 1
+      pattern: ^[\w\s]+$
+    amigo_lib__pydantic__base_model__StrippedNonemptyString__5:
+      type: string
+      minLength: 10
+    Condition:
+      oneOf:
+      - $ref: '#/components/schemas/EqualCondition'
+      - $ref: '#/components/schemas/InCondition'
+      - $ref: '#/components/schemas/NotEqualCondition'
+      discriminator:
+        propertyName: type
+        mapping:
+          Equals: '#/components/schemas/EqualCondition'
+          In: '#/components/schemas/InCondition'
+          NotEquals: '#/components/schemas/NotEqualCondition'
+  securitySchemes:
+    Bearer-Authorization:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Amigo issued JWT token that identifies an user. It's issued either after logging in through the frontend, or manually through the [`SignInWithAPIKey`](sign-in-with-api-key) endpoint.
+    Bearer-Authorization-Organization:
+      type: apiKey
+      in: header
+      name: X-ORG-ID
+      description: An optional organization identifier that indicates from which organization the token is issued. This is used in rare cases where the user to authenticate is making a request for resources in another organization.
+    Basic:
+      type: http
+      scheme: basic
+      description: The username should be set to {org_id}_{user_id}, and the password should be the Amigo issued JWT token that identifies the user.

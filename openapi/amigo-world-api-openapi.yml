@@ -1,0 +1,2762 @@
+openapi: 3.1.0
+info:
+  title: Amigo Account World API
+  version: 0.1.0
+servers:
+- url: https://api.amigo.ai
+- url: https://internal-api.amigo.ai
+- url: https://api-eu-central-1.amigo.ai
+- url: https://api-ap-southeast-2.amigo.ai
+- url: https://api-ca-central-1.amigo.ai
+security:
+- Bearer-Authorization: []
+  Bearer-Authorization-Organization: []
+  Basic: []
+tags:
+- name: World
+paths:
+  /v1/{workspace_id}/world/dashboard:
+    get:
+      tags:
+      - World
+      summary: World model dashboard composite
+      description: Composite world health dashboard — entity counts by type, event velocity (24h/7d), average confidence, and source breakdown. All computation server-side.
+      operationId: world-dashboard
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorldDashboardResponse'
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+  /v1/{workspace_id}/world/entity-types:
+    get:
+      tags:
+      - World
+      summary: List entity types
+      description: Returns distinct entity types in the workspace with counts and projection availability. Powers the World Explorer's auto-discovery of new entity types created by agents (L4 self-extending schema).
+      operationId: list-entity-types
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EntityTypeRegistryResponse'
+        '401':
+          description: Missing or invalid API key.
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+  /v1/{workspace_id}/world/event-types:
+    get:
+      tags:
+      - World
+      summary: List event types
+      description: Returns distinct event types in the workspace with counts, domains, and source breakdown. Enables the World Explorer to show what kinds of events flow through the world model.
+      operationId: list-event-types
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventTypeRegistryResponse'
+        '401':
+          description: Missing or invalid API key.
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+  /v1/{workspace_id}/world/entity-stats:
+    get:
+      tags:
+      - World
+      summary: Entity stats with sync breakdown
+      description: Aggregate stats for entities including sync status breakdown (pending, synced, failed). Filter by entity_type to get stats for a specific type (e.g. appointment, patient). Generic — works for any entity type in the Liquid World Model.
+      operationId: entity-stats
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: entity_type
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filter by entity type
+          title: Entity Type
+        description: Filter by entity type
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EntityStatsSummary'
+        '401':
+          description: Missing or invalid API key.
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/world/connectors:
+    get:
+      tags:
+      - World
+      summary: Connected data sources overview
+      description: All active data sources with entity counts by type, sync status, and health. Powers the EHR/FHIR connector cards in the frontend. Each item includes connector_type (charmhealth, fhir_store) and a breakdown of entities by type (patient, practitioner, etc.).
+      operationId: connector-overview
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConnectorOverviewResponse'
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+  /v1/{workspace_id}/world/connectors/{data_source_id}/entities:
+    get:
+      tags:
+      - World
+      summary: List entities from a data source
+      description: Paginated entity list from a specific connected data source. Filter by entity_type and search by display name. Uses EXISTS subquery on events.data_source_id for accurate scoping.
+      operationId: connector-entities
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: data_source_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Data Source Id
+      - name: entity_type
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filter by entity type
+          title: Entity Type
+        description: Filter by entity type
+      - name: q
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Search by display name
+          title: Q
+        description: Search by display name
+      - name: sort_by
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - enum:
+            - +display_name
+            - -display_name
+            - +last_event_at
+            - -last_event_at
+            type: string
+          - type: 'null'
+          description: 'Sort order: `+display_name` (default) or `-display_name` for alphabetical, `+last_event_at` for oldest activity first, `-last_event_at` for most recent first. All sort orders use entity id as a final tiebreaker for stable pagination.'
+          title: Sort By
+        description: 'Sort order: `+display_name` (default) or `-display_name` for alphabetical, `+last_event_at` for oldest activity first, `-last_event_at` for most recent first. All sort orders use entity id as a final tiebreaker for stable pagination.'
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 100
+          minimum: 1
+          default: 20
+          title: Limit
+      - name: offset
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 0
+          default: 0
+          title: Offset
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EntityListResponse'
+        '400':
+          description: Invalid data source ID format.
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/world/connectors/{data_source_id}/resources:
+    get:
+      tags:
+      - World
+      summary: Search FHIR resources from a data source
+      description: FHIR resource search scoped to a specific data source. Returns raw FHIR resource data (Condition, MedicationRequest, Coverage, etc.) from the specified connector. Powers the per-connector clinical resource tables (FHIR Store tab, EHR tab).
+      operationId: connector-resources
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: data_source_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Data Source Id
+      - name: resource_type
+        in: query
+        required: true
+        schema:
+          type: string
+          description: FHIR resource type (e.g. Patient, Condition, MedicationRequest)
+          title: Resource Type
+        description: FHIR resource type (e.g. Patient, Condition, MedicationRequest)
+      - name: _count
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 100
+          minimum: 1
+          default: 20
+          title: ' Count'
+      - name: _offset
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 0
+          default: 0
+          title: ' Offset'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConnectorResourcesResponse'
+        '400':
+          description: Invalid data source ID or resource type.
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/world/source-breakdown:
+    get:
+      tags:
+      - World
+      summary: Entity counts by source system
+      description: Breakdown of entity counts by source system (e.g. charmhealth, gcp_fhir, voice_agent). Powers the EHR/FHIR view in the frontend. Filter by entity_type (e.g. person, place) for focused views.
+      operationId: source-breakdown
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: entity_type
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filter by entity type
+          title: Entity Type
+        description: Filter by entity type
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SourceBreakdownResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/world/sync/by-sink:
+    get:
+      tags:
+      - World
+      summary: Outbound sync status per data source
+      description: Multi-sink outbound sync progress. Shows total/synced/failed/pending counts per data source for workspaces with multiple outbound sinks.
+      operationId: outbound-sync-by-sink
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OutboundSyncBySinkResponse'
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+  /v1/{workspace_id}/world/entities/{entity_id}/enrichment/{key}:
+    put:
+      tags:
+      - World
+      summary: Set an enrichment value on an entity
+      description: Writes a single per-key entity.enriched event for the given entity. Validates against the workspace's enrichment_keys registry — unknown key, wrong value type, enum violation, or confidence below the key's floor all return 400. SDP picks winners by confidence class.
+      operationId: put-entity-enrichment
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: entity_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Entity Id
+      - name: key
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 128
+          pattern: ^[a-z0-9][a-z0-9_\-]*$
+          title: Key
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EnrichmentWriteBody'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnrichmentValueResponse'
+        '400':
+          description: Registry validation failed.
+        '404':
+          description: Entity not found.
+        '403':
+          description: Insufficient permissions.
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/world/entities/{entity_id}/enrichment:
+    get:
+      tags:
+      - World
+      summary: List current enrichment values for an entity
+      description: Current winners per (entity, key) from world.entity_enrichment_out_synced (Synced-Table-populated view of SDP's entity_enrichment_out). Each row carries value, value_type, confidence, source, effective_at.
+      operationId: list-entity-enrichment
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: entity_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Entity Id
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 500
+          minimum: 1
+          description: Max enrichment rows
+          default: 200
+          title: Limit
+        description: Max enrichment rows
+      - name: offset
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 0
+          description: Page offset
+          default: 0
+          title: Offset
+        description: Page offset
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnrichmentListResponse'
+        '404':
+          description: Entity not found.
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/world/entities/{entity_id}/enrichment/{key}/history:
+    get:
+      tags:
+      - World
+      summary: Enrichment supersedes chain for audit
+      description: 'Returns every entity.enriched event for (entity, key), newest first, including superseded entries. Each entry carries the full provenance: source, confidence, effective_at, supersedes pointer, is_current flag.'
+      operationId: get-entity-enrichment-history
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: entity_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Entity Id
+      - name: key
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 128
+          pattern: ^[a-z0-9][a-z0-9_\-]*$
+          title: Key
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 200
+          minimum: 1
+          default: 50
+          title: Limit
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnrichmentHistoryResponse'
+        '404':
+          description: Entity not found.
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/world/migration/conversations:
+    post:
+      tags:
+      - World
+      summary: Bulk-import v1 conversation envelopes for migrated patients
+      description: Writes one terminal world.conversations row per v1 conversation (real dates, provider='v1-migration'), giving the returning-user greeting and the real conversation list. Admin-only, idempotent + correctable per (workspace, v1 conversation id), memory-safe (no world events emitted → the memory extractor never re-derives from these). Transcript content (turns) is a separate follow-up. Batch size <= 500.
+      operationId: bulk-import-migration-conversations
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MigrationConversationsBody'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MigrationConversationsResponse'
+        '400':
+          description: Naive/future timestamps, bad window, or non-person entity_id.
+        '403':
+          description: Insufficient permissions.
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+  /v1/{workspace_id}/world/enrichment-keys:
+    post:
+      tags:
+      - World
+      summary: Register an enrichment key
+      description: Registers a new (entity_type, key) in this workspace's enrichment key registry. Future writes against this key will pass validation. value_type governs what values are accepted; enum types require allowed_values. Tag a person key with 'memory_extract' (description required) to make it a workspace-custom memory dimension the conversation extractor infers from transcripts.
+      operationId: create-enrichment-key
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EnrichmentKeyCreateBody'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnrichmentKeyResponse'
+        '400':
+          description: Invalid request body.
+        '409':
+          description: Key already exists for (entity_type, key).
+        '403':
+          description: Insufficient permissions.
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+    get:
+      tags:
+      - World
+      summary: List enrichment keys registered for this workspace
+      description: Optionally filter by entity_type.
+      operationId: list-enrichment-keys
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: entity_type
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filter by entity type.
+          title: Entity Type
+        description: Filter by entity type.
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 500
+          minimum: 1
+          description: Max keys to return
+          default: 200
+          title: Limit
+        description: Max keys to return
+      - name: offset
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 0
+          description: Page offset
+          default: 0
+          title: Offset
+        description: Page offset
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnrichmentKeyListResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/world/enrichment-keys/{key_id}:
+    patch:
+      tags:
+      - World
+      summary: Update a registered enrichment key
+      description: Update allowed_values, source_hint, description, min_confidence, is_pii, or tags. key and value_type are immutable.
+      operationId: patch-enrichment-key
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: key_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Key Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EnrichmentKeyPatchBody'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnrichmentKeyResponse'
+        '404':
+          description: Enrichment key not found.
+        '403':
+          description: Insufficient permissions.
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    delete:
+      tags:
+      - World
+      summary: Delete a registered enrichment key
+      description: Existing entity.enriched events are not deleted (append-only); only future writes against this key will be rejected.
+      operationId: delete-enrichment-key
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: key_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Key Id
+      responses:
+        '204':
+          description: Successful Response
+        '404':
+          description: Enrichment key not found.
+        '403':
+          description: Insufficient permissions.
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/world/entities:
+    get:
+      tags:
+      - World
+      summary: List entities
+      description: List entities filtered by type with optional name search. Works for any entity type — patients, operators, calls, or any type created by T3 agents. Returns full projected state.
+      operationId: list-entities
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: entity_type
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: array
+            items:
+              type: string
+          - type: 'null'
+          description: Filter by entity type (repeatable)
+          title: Entity Type
+        description: Filter by entity type (repeatable)
+      - name: q
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Search by name, type, canonical ID, phone, or entity ID
+          title: Q
+        description: Search by name, type, canonical ID, phone, or entity ID
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 100
+          minimum: 1
+          default: 20
+          title: Limit
+      - name: offset
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 0
+          default: 0
+          title: Offset
+      - name: order
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            maxLength: 128
+          - type: 'null'
+          description: Sort order (PostgREST-style, e.g. last_event_at.desc, display_name.asc)
+          title: Order
+        description: Sort order (PostgREST-style, e.g. last_event_at.desc, display_name.asc)
+      - name: has_projection
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Filter by has_projection flag
+          title: Has Projection
+        description: Filter by has_projection flag
+      - name: source
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filter by event source (e.g. voice_agent, connector_runner)
+          title: Source
+        description: Filter by event source (e.g. voice_agent, connector_runner)
+      - name: source_system
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filter by source system name (e.g. charmhealth, gcp_fhir)
+          title: Source System
+        description: Filter by source system name (e.g. charmhealth, gcp_fhir)
+      - name: fhir_resource_type
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            maxLength: 64
+          - type: 'null'
+          description: Filter by FHIR resource type (e.g. Patient, Practitioner)
+          title: Fhir Resource Type
+        description: Filter by FHIR resource type (e.g. Patient, Practitioner)
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EntityListResponse'
+        '401':
+          description: Missing or invalid API key.
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/world/entities/resolve:
+    post:
+      tags:
+      - World
+      summary: Resolve entity by identifier
+      description: 'Polymorphic identifier → ranked entity candidates. Accepts any subset of {phone, email, canonical_id, external_id, entity_id} plus a required ``entity_type``. Served from the SDP serving surfaces: entity rows from ``world.entities_synced``; canonical_id and external_id resolve through ``world.canonical_entity_map_synced`` point reads. Returns matches ranked by confidence + number of identifiers matched. Summary narrowing: ``external_ids`` is always ``{}``, ``tags`` is always ``[]``, and ``canonical_id`` is the canonical-map value or the entity''s MRN.'
+      operationId: resolve-entity
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EntityResolveRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EntityResolveResponse'
+        '400':
+          description: No identifier provided or invalid input.
+        '401':
+          description: Missing or invalid API key.
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+  /v1/{workspace_id}/world/entities/{entity_id}:
+    get:
+      tags:
+      - World
+      summary: Get entity
+      description: Fetch a single entity with its full projected state. The state is a computed projection from all events — never mutated directly. Enhanced entity types (patient, operator, call) have richer projections.
+      operationId: get-entity
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: entity_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Entity Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EntityResponse'
+        '400':
+          description: Invalid entity ID format.
+        '404':
+          description: Entity not found.
+        '401':
+          description: Missing or invalid API key.
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/world/entities/{entity_id}/timeline:
+    get:
+      tags:
+      - World
+      summary: Entity timeline
+      description: Get the event timeline for an entity — all current events ordered by effective date. The entity's state is always a projection of these events. Filter by domain (clinical, operational, audit, etc.).
+      operationId: get-entity-timeline
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: entity_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Entity Id
+      - name: domain
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filter by domain
+          title: Domain
+        description: Filter by domain
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 200
+          minimum: 1
+          default: 50
+          title: Limit
+      - name: offset
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 0
+          default: 0
+          title: Offset
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EntityTimelineResponse'
+        '400':
+          description: Invalid entity ID format.
+        '404':
+          description: Entity not found.
+        '401':
+          description: Missing or invalid API key.
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/world/entities/{entity_id}/relationships:
+    get:
+      tags:
+      - World
+      summary: Entity relationships
+      description: Get relationships for an entity — links to other entities in the knowledge graph. Filter by relationship type.
+      operationId: get-entity-relationships
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: entity_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Entity Id
+      - name: relationship
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filter by relationship type
+          title: Relationship
+        description: Filter by relationship type
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EntityRelationshipsResponse'
+        '400':
+          description: Invalid entity ID format.
+        '404':
+          description: Entity not found.
+        '401':
+          description: Missing or invalid API key.
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/world/entities/{entity_id}/merged:
+    get:
+      tags:
+      - World
+      summary: Get merged entities (same_as links)
+      description: Returns entities linked via same_as edges — historical merge edges where different data sources refer to the same real-world entity (written by the pre-SDP resolver; merge detection now lives in the Databricks pipeline — new edges are not produced).
+      operationId: merged-entities
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: entity_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Entity Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MergedEntitiesResponse'
+        '400':
+          description: Invalid entity ID format.
+        '404':
+          description: Entity not found.
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+components:
+  schemas:
+    EntityStatsSummary:
+      properties:
+        total_entities:
+          type: integer
+          title: Total Entities
+        total_events:
+          type: integer
+          title: Total Events
+        sync_pending:
+          type: integer
+          title: Sync Pending
+        sync_synced:
+          type: integer
+          title: Sync Synced
+        sync_failed:
+          type: integer
+          title: Sync Failed
+        by_event_type:
+          additionalProperties:
+            type: integer
+          type: object
+          title: By Event Type
+        event_type_window_days:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Event Type Window Days
+          description: Window applied to by_event_type counts when an entity_type filter is supplied.
+      type: object
+      required:
+      - total_entities
+      - total_events
+      - sync_pending
+      - sync_synced
+      - sync_failed
+      title: EntityStatsSummary
+    MigrationConversationItem:
+      properties:
+        entity_id:
+          type: string
+          format: uuid
+          title: Entity Id
+        source_conversation_id:
+          type: string
+          maxLength: 128
+          minLength: 1
+          title: Source Conversation Id
+        started_at:
+          type: string
+          format: date-time
+          title: Started At
+        ended_at:
+          type: string
+          format: date-time
+          title: Ended At
+        channel_kind:
+          $ref: '#/components/schemas/ChannelKind'
+          default: web
+        turn_count:
+          type: integer
+          minimum: 0.0
+          title: Turn Count
+          default: 0
+      type: object
+      required:
+      - entity_id
+      - source_conversation_id
+      - started_at
+      - ended_at
+      title: MigrationConversationItem
+    EnrichmentKeyCreateBody:
+      properties:
+        entity_type:
+          type: string
+          maxLength: 64
+          minLength: 1
+          title: Entity Type
+        key:
+          type: string
+          maxLength: 128
+          minLength: 1
+          pattern: ^[a-z0-9][a-z0-9_\-]*$
+          title: Key
+        value_type:
+          type: string
+          enum:
+          - string
+          - number
+          - boolean
+          - date
+          - enum
+          - json
+          title: Value Type
+        allowed_values:
+          anyOf:
+          - items: {}
+            type: array
+          - type: 'null'
+          title: Allowed Values
+          description: Required when value_type=enum. Ignored otherwise.
+        source_hint:
+          anyOf:
+          - $ref: '#/components/schemas/DescriptionString'
+          - type: 'null'
+        description:
+          anyOf:
+          - $ref: '#/components/schemas/DescriptionString'
+          - type: 'null'
+        min_confidence:
+          type: number
+          maximum: 1.0
+          minimum: 0.0
+          title: Min Confidence
+          default: 0.0
+        is_pii:
+          type: boolean
+          title: Is Pii
+          default: false
+        tags:
+          items:
+            type: string
+            const: memory_extract
+          type: array
+          title: Tags
+          description: Routing tags. 'memory_extract' opts this key into memory extraction — the conversation extractor will infer it from transcripts as a workspace-custom memory dimension (person keys with a description only).
+      type: object
+      required:
+      - entity_type
+      - key
+      - value_type
+      title: EnrichmentKeyCreateBody
+    SourceBreakdownResponse:
+      properties:
+        breakdown:
+          items:
+            $ref: '#/components/schemas/SourceBreakdownItem'
+          type: array
+          title: Breakdown
+        total:
+          type: integer
+          title: Total
+      type: object
+      required:
+      - breakdown
+      - total
+      title: SourceBreakdownResponse
+    ConnectorResourcesResponse:
+      properties:
+        resource_type:
+          type: string
+          maxLength: 256
+          title: Resource Type
+          description: FHIR resource type (e.g. Patient, Condition, MedicationRequest)
+        data_source_id:
+          type: string
+          format: uuid
+          title: Data Source Id
+          description: UUID of the connected data source
+        total:
+          type: integer
+          title: Total
+          description: Total number of matching resources
+        entries:
+          items:
+            additionalProperties: true
+            type: object
+          type: array
+          maxItems: 100
+          title: Entries
+          description: Raw FHIR resource JSON objects
+      type: object
+      required:
+      - resource_type
+      - data_source_id
+      - total
+      - entries
+      title: ConnectorResourcesResponse
+      description: FHIR resources from a specific connected data source.
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    MigrationConversationsBody:
+      properties:
+        conversations:
+          items:
+            $ref: '#/components/schemas/MigrationConversationItem'
+          type: array
+          maxItems: 500
+          minItems: 1
+          title: Conversations
+      type: object
+      required:
+      - conversations
+      title: MigrationConversationsBody
+    SourceBreakdownItem:
+      properties:
+        source_system:
+          type: string
+          title: Source System
+        entity_type:
+          type: string
+          title: Entity Type
+        count:
+          type: integer
+          title: Count
+      type: object
+      required:
+      - source_system
+      - entity_type
+      - count
+      title: SourceBreakdownItem
+    EntityRelationshipsResponse:
+      properties:
+        entity_id:
+          type: string
+          format: uuid
+          title: Entity Id
+        relationships:
+          items:
+            $ref: '#/components/schemas/EntityRelationshipResponse'
+          type: array
+          title: Relationships
+        total:
+          type: integer
+          title: Total
+      type: object
+      required:
+      - entity_id
+      - relationships
+      - total
+      title: EntityRelationshipsResponse
+    MigrationConversationsResponse:
+      properties:
+        imported:
+          type: integer
+          title: Imported
+        created:
+          type: integer
+          title: Created
+        updated:
+          type: integer
+          title: Updated
+      type: object
+      required:
+      - imported
+      - created
+      - updated
+      title: MigrationConversationsResponse
+    EnrichmentHistoryResponse:
+      properties:
+        entity_id:
+          type: string
+          format: uuid
+          title: Entity Id
+        key:
+          type: string
+          maxLength: 128
+          minLength: 1
+          pattern: ^[a-z0-9][a-z0-9_\-]*$
+          title: Key
+        history:
+          items:
+            $ref: '#/components/schemas/EnrichmentHistoryEntry'
+          type: array
+          title: History
+        dropped_count:
+          type: integer
+          title: Dropped Count
+          default: 0
+      type: object
+      required:
+      - entity_id
+      - key
+      - history
+      title: EnrichmentHistoryResponse
+    EntityResolveExternalId:
+      properties:
+        system:
+          $ref: '#/components/schemas/ExternalSystemString'
+          description: External system label (lowercase, e.g. 'epic').
+        value:
+          $ref: '#/components/schemas/ExternalValueString'
+          description: System-issued identifier.
+      type: object
+      required:
+      - system
+      - value
+      title: EntityResolveExternalId
+      description: 'Reference to an external-system identifier.
+
+
+        ``system`` labels which system minted the value (``epic``, ``charm``,
+
+        ``charmhealth``, …). Resolution probes the canonical entity map
+
+        (``world.canonical_entity_map_synced``) with the candidate key forms
+
+        ``{system}:{ResourceType}:{value}`` (Patient / Practitioner /
+
+        Organization / Appointment) plus the bare ``value`` — so ``system``
+
+        constrains the probe keys, and the request''s ``entity_type``
+
+        constrains the map slice. External aliases that were never minted as
+
+        canonical keys (the legacy ``external_ids`` JSONB junk-drawer
+
+        entries) are no longer resolvable.'
+    EnrichmentWriteBody:
+      properties:
+        value:
+          title: Value
+          description: Scalar or JSON-compatible value to store.
+        value_type:
+          anyOf:
+          - type: string
+            enum:
+            - string
+            - number
+            - boolean
+            - date
+            - enum
+            - json
+          - type: 'null'
+          title: Value Type
+          description: Overrides the registry value_type when set. Rarely needed.
+        source:
+          type: string
+          maxLength: 64
+          minLength: 1
+          title: Source
+          description: Write source — e.g. manual, forms, auto_enrich.
+          default: manual
+        source_system:
+          anyOf:
+          - type: string
+            maxLength: 128
+            minLength: 1
+          - type: 'null'
+          title: Source System
+          description: Subsystem / connector identifier.
+        confidence:
+          type: number
+          maximum: 1.0
+          minimum: 0.0
+          title: Confidence
+          description: Write confidence. Must be >= registry min_confidence for the key.
+          default: 1.0
+        effective_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Effective At
+          description: When the value became true (UTC). Defaults to ingested_at.
+      type: object
+      required:
+      - value
+      title: EnrichmentWriteBody
+    EnrichmentHistoryEntry:
+      properties:
+        event_id:
+          type: string
+          format: uuid
+          title: Event Id
+        value:
+          title: Value
+        value_type:
+          type: string
+          enum:
+          - string
+          - number
+          - boolean
+          - date
+          - enum
+          - json
+          title: Value Type
+        confidence:
+          type: number
+          title: Confidence
+        source:
+          type: string
+          title: Source
+        source_system:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Source System
+        effective_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Effective At
+        ingested_at:
+          type: string
+          format: date-time
+          title: Ingested At
+        supersedes:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Supersedes
+        is_current:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Current
+      type: object
+      required:
+      - event_id
+      - value
+      - value_type
+      - confidence
+      - source
+      - ingested_at
+      - is_current
+      title: EnrichmentHistoryEntry
+    ConnectorOverviewItem:
+      properties:
+        data_source_id:
+          type: string
+          format: uuid
+          title: Data Source Id
+        name:
+          type: string
+          title: Name
+        display_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Display Name
+        source_type:
+          type: string
+          title: Source Type
+        connector_type:
+          type: string
+          title: Connector Type
+        entity_count:
+          type: integer
+          title: Entity Count
+        entities_by_type:
+          additionalProperties:
+            type: integer
+          type: object
+          title: Entities By Type
+        last_sync_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Last Sync At
+        last_sync_status:
+          anyOf:
+          - type: string
+            enum:
+            - success
+            - error
+          - type: 'null'
+          title: Last Sync Status
+        last_sync_event_count:
+          type: integer
+          title: Last Sync Event Count
+          default: 0
+        health_status:
+          type: string
+          enum:
+          - unknown
+          - healthy
+          - degraded
+          title: Health Status
+          default: unknown
+        is_active:
+          type: boolean
+          title: Is Active
+          default: true
+      type: object
+      required:
+      - data_source_id
+      - name
+      - source_type
+      - connector_type
+      - entity_count
+      title: ConnectorOverviewItem
+    OutboundSyncBySinkResponse:
+      properties:
+        sinks:
+          items:
+            $ref: '#/components/schemas/SinkSyncStatus'
+          type: array
+          title: Sinks
+      type: object
+      required:
+      - sinks
+      title: OutboundSyncBySinkResponse
+    EntityRelationshipResponse:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        source_entity_id:
+          type: string
+          format: uuid
+          title: Source Entity Id
+        source_entity_type:
+          type: string
+          title: Source Entity Type
+        target_entity_id:
+          type: string
+          format: uuid
+          title: Target Entity Id
+        target_entity_type:
+          type: string
+          title: Target Entity Type
+        relationship:
+          type: string
+          title: Relationship
+        data:
+          additionalProperties: true
+          type: object
+          title: Data
+        confidence:
+          type: number
+          title: Confidence
+          default: 1.0
+        discovered_by:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Discovered By
+        is_current:
+          type: boolean
+          title: Is Current
+          default: true
+        created_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Created At
+          description: When the relationship was created
+      type: object
+      required:
+      - id
+      - source_entity_id
+      - source_entity_type
+      - target_entity_id
+      - target_entity_type
+      - relationship
+      title: EntityRelationshipResponse
+    PhoneE164:
+      type: string
+      maxLength: 16
+      minLength: 2
+    EntityResolveRequest:
+      properties:
+        entity_type:
+          $ref: '#/components/schemas/EntityTypeString'
+          description: Required entity type filter (e.g. 'person'). Narrows the scan to the right index.
+        phone:
+          anyOf:
+          - $ref: '#/components/schemas/PhoneE164'
+          - type: 'null'
+          description: E.164 phone number.
+        email:
+          anyOf:
+          - type: string
+            format: email
+          - type: 'null'
+          title: Email
+          description: Primary email (case-insensitive match).
+        canonical_id:
+          anyOf:
+          - $ref: '#/components/schemas/CanonicalIdLookupString'
+          - type: 'null'
+          description: Canonical identifier as carried by the canonical entity map (e.g. 'charm:Patient:42'; a raw MRN resolves only when a producer minted it as the canonical_id).
+        external_id:
+          anyOf:
+          - $ref: '#/components/schemas/EntityResolveExternalId'
+          - type: 'null'
+          description: External-system identifier reference.
+        entity_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Entity Id
+          description: Direct UUID lookup. Useful for confirming an entity exists / re-fetching summary.
+        limit:
+          type: integer
+          maximum: 50.0
+          minimum: 1.0
+          title: Limit
+          description: Maximum candidates to return.
+          default: 25
+      type: object
+      required:
+      - entity_type
+      title: EntityResolveRequest
+      description: 'Polymorphic identifier query.
+
+
+        Provide ``entity_type`` plus any subset of identifier fields. Each
+
+        identifier is OR-ed in SQL; matches are ranked by confidence and
+
+        by the number of identifiers that actually matched the row.
+
+        Returns at most ``limit`` candidates (default 25, max 50).
+
+
+        For latency-sensitive callers (inbound voice, webhook handlers),
+
+        pass exactly one identifier — the indexed lookup is sub-10ms.
+
+        Multi-identifier queries are useful for confirming a row matches
+
+        on more than one signal (phone + email + MRN).'
+    EventTypeRegistryResponse:
+      properties:
+        event_types:
+          items:
+            $ref: '#/components/schemas/EventTypeSummary'
+          type: array
+          title: Event Types
+        total_events:
+          type: integer
+          title: Total Events
+      type: object
+      required:
+      - event_types
+      - total_events
+      title: EventTypeRegistryResponse
+    EnrichmentKeyPatchBody:
+      properties:
+        allowed_values:
+          anyOf:
+          - items: {}
+            type: array
+          - type: 'null'
+          title: Allowed Values
+        source_hint:
+          anyOf:
+          - $ref: '#/components/schemas/DescriptionString'
+          - type: 'null'
+        description:
+          anyOf:
+          - $ref: '#/components/schemas/DescriptionString'
+          - type: 'null'
+        min_confidence:
+          anyOf:
+          - type: number
+            maximum: 1.0
+            minimum: 0.0
+          - type: 'null'
+          title: Min Confidence
+        is_pii:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Pii
+        tags:
+          anyOf:
+          - items:
+              type: string
+              const: memory_extract
+            type: array
+          - type: 'null'
+          title: Tags
+          description: Replaces the full tags list when set. Pass [] to remove all tags.
+      type: object
+      title: EnrichmentKeyPatchBody
+    EventCallSidString:
+      type: string
+      maxLength: 128
+    EntityListResponse:
+      properties:
+        entities:
+          items:
+            $ref: '#/components/schemas/EntityResponse'
+          type: array
+          title: Entities
+        total:
+          type: integer
+          title: Total
+        has_more:
+          type: boolean
+          title: Has More
+        next_offset:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Next Offset
+      type: object
+      required:
+      - entities
+      - total
+      - has_more
+      title: EntityListResponse
+    EventOutcomeString:
+      type: string
+      maxLength: 256
+    EntityResponse:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        workspace_id:
+          type: string
+          format: uuid
+          title: Workspace Id
+        entity_type:
+          type: string
+          title: Entity Type
+        display_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Display Name
+        canonical_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Canonical Id
+        external_ids:
+          additionalProperties: true
+          type: object
+          title: External Ids
+        state:
+          additionalProperties: true
+          type: object
+          title: State
+          description: Full JSONB state blob. Prefer typed fields below.
+          deprecated: true
+        has_projection:
+          type: boolean
+          title: Has Projection
+          default: false
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+          description: Display name (person, organization)
+        phone:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Phone
+          description: Primary phone number (E.164)
+        email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Email
+          description: Primary email address
+        birth_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Birth Date
+          description: Date of birth (YYYY-MM-DD)
+        gender:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Gender
+          description: Gender
+        mrn:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Mrn
+          description: Medical record number
+        appointment_status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Appointment Status
+          description: Appointment status (booked, confirmed, cancelled)
+        appointment_start:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Appointment Start
+          description: Appointment start time (UTC)
+        appointment_end:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Appointment End
+          description: Appointment end time (UTC)
+        appointment_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Appointment Type
+          description: Appointment/visit type
+        domain:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Domain
+          description: Organization domain
+        industry:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Industry
+          description: Organization industry
+        call_sid:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Call Sid
+          description: Twilio call SID
+        direction:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Direction
+          description: Call direction (inbound, outbound)
+        duration_seconds:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Duration Seconds
+          description: Call duration in seconds
+        status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Status
+          description: Entity status
+        source:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Source
+          description: Primary data source
+        first_seen_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: First Seen At
+        last_event_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Last Event At
+        event_count:
+          type: integer
+          title: Event Count
+          default: 0
+        confidence:
+          type: number
+          title: Confidence
+          default: 1.0
+        tags:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          title: Tags
+        created_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Created At
+          description: When the entity was created
+        updated_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Updated At
+          description: When the entity was last updated
+      type: object
+      required:
+      - id
+      - workspace_id
+      - entity_type
+      title: EntityResponse
+    EntityResolveSummary:
+      properties:
+        display_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Display Name
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        phone:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Phone
+        email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Email
+        birth_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Birth Date
+        mrn:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Mrn
+        canonical_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Canonical Id
+          description: Canonical-map value when resolved through the map, else the entity's MRN.
+        external_ids:
+          additionalProperties: true
+          type: object
+          title: External Ids
+          description: Always {} — external aliases live in the canonical entity map, not on the serving row.
+        last_event_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Last Event At
+        event_count:
+          type: integer
+          title: Event Count
+          default: 0
+        tags:
+          items:
+            type: string
+          type: array
+          title: Tags
+          description: Always [] — no tags column on the synced serving table.
+      type: object
+      title: EntityResolveSummary
+      description: 'Compact identity card returned for each match.
+
+
+        Excludes full entity state — fetch via
+
+        ``GET /v1/{ws}/entities/{entity_id}`` if needed. The fields here are
+
+        the ones a UI / agent needs to confirm "yes, that''s the right
+
+        person" before paying for the full state read.
+
+
+        Stage-7 narrowing (resolver serves from ``entities_synced`` +
+
+        the canonical entity map; fields retained for wire compatibility):
+
+        ``external_ids`` is always ``{}`` and ``tags`` is always ``[]`` —
+
+        neither survives on the synced serving table. ``canonical_id`` is
+
+        the canonical-map value when the row resolved through the map, else
+
+        the entity''s MRN.'
+    ExternalSystemString:
+      type: string
+      maxLength: 64
+      minLength: 1
+      pattern: ^[a-z0-9_\-]+$
+    EntityTypeSummary:
+      properties:
+        entity_type:
+          type: string
+          title: Entity Type
+        count:
+          type: integer
+          title: Count
+        last_updated:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Last Updated
+        has_projection:
+          type: boolean
+          title: Has Projection
+      type: object
+      required:
+      - entity_type
+      - count
+      - last_updated
+      - has_projection
+      title: EntityTypeSummary
+    SinkSyncStatus:
+      properties:
+        data_source_id:
+          type: string
+          format: uuid
+          title: Data Source Id
+        name:
+          type: string
+          title: Name
+        source_type:
+          type: string
+          title: Source Type
+        total:
+          type: integer
+          title: Total
+        synced:
+          type: integer
+          title: Synced
+        failed:
+          type: integer
+          title: Failed
+        pending:
+          type: integer
+          title: Pending
+      type: object
+      required:
+      - data_source_id
+      - name
+      - source_type
+      - total
+      - synced
+      - failed
+      - pending
+      title: SinkSyncStatus
+    WorldDashboardResponse:
+      properties:
+        entity_counts:
+          $ref: '#/components/schemas/EntityStatsSummary'
+        events_24h:
+          anyOf:
+          - type: integer
+            minimum: 0.0
+          - type: 'null'
+          title: Events 24H
+          description: Event count from the Lakebase read model; null when the projection is empty or unavailable.
+        events_7d:
+          anyOf:
+          - type: integer
+            minimum: 0.0
+          - type: 'null'
+          title: Events 7D
+          description: Event count from the Lakebase read model; null when the projection is empty or unavailable.
+        avg_confidence:
+          anyOf:
+          - type: number
+            maximum: 1.0
+            minimum: 0.0
+          - type: 'null'
+          title: Avg Confidence
+        event_read_model_status:
+          type: string
+          enum:
+          - ready
+          - empty
+          - unavailable
+          title: Event Read Model Status
+          description: ready = Lakebase projection returned a row; empty = no summary row; unavailable = read failed.
+          default: empty
+        event_read_model_synced_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Event Read Model Synced At
+          description: platform.event_velocity_summary synced_at for this workspace.
+        sources:
+          items:
+            $ref: '#/components/schemas/SourceBreakdownItem'
+          type: array
+          maxItems: 500
+          title: Sources
+      type: object
+      required:
+      - entity_counts
+      title: WorldDashboardResponse
+    EventDisplayNameString:
+      type: string
+      maxLength: 512
+    EntityTimelineResponse:
+      properties:
+        entity_id:
+          type: string
+          format: uuid
+          title: Entity Id
+        events:
+          items:
+            $ref: '#/components/schemas/EntityEventResponse'
+          type: array
+          title: Events
+        total:
+          type: integer
+          title: Total
+        has_more:
+          type: boolean
+          title: Has More
+        next_offset:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Next Offset
+      type: object
+      required:
+      - entity_id
+      - events
+      - total
+      - has_more
+      title: EntityTimelineResponse
+    ExternalValueString:
+      type: string
+      maxLength: 256
+      minLength: 1
+    EnrichmentValueResponse:
+      properties:
+        key:
+          type: string
+          maxLength: 128
+          minLength: 1
+          pattern: ^[a-z0-9][a-z0-9_\-]*$
+          title: Key
+        value:
+          title: Value
+        value_type:
+          type: string
+          enum:
+          - string
+          - number
+          - boolean
+          - date
+          - enum
+          - json
+          title: Value Type
+        confidence:
+          type: number
+          title: Confidence
+        source:
+          type: string
+          title: Source
+        source_system:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Source System
+        effective_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Effective At
+        ingested_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Ingested At
+        event_id:
+          type: string
+          format: uuid
+          title: Event Id
+      type: object
+      required:
+      - key
+      - value
+      - value_type
+      - confidence
+      - source
+      - event_id
+      title: EnrichmentValueResponse
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    EventDirectionString:
+      type: string
+      maxLength: 64
+    EventTypeSummary:
+      properties:
+        event_type:
+          type: string
+          title: Event Type
+        count:
+          type: integer
+          title: Count
+        domains:
+          items:
+            type: string
+          type: array
+          title: Domains
+        sources:
+          items:
+            type: string
+          type: array
+          title: Sources
+      type: object
+      required:
+      - event_type
+      - count
+      - domains
+      - sources
+      title: EventTypeSummary
+    EnrichmentKeyResponse:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        workspace_id:
+          type: string
+          format: uuid
+          title: Workspace Id
+        entity_type:
+          type: string
+          maxLength: 64
+          minLength: 1
+          title: Entity Type
+        key:
+          type: string
+          maxLength: 128
+          minLength: 1
+          pattern: ^[a-z0-9][a-z0-9_\-]*$
+          title: Key
+        value_type:
+          type: string
+          enum:
+          - string
+          - number
+          - boolean
+          - date
+          - enum
+          - json
+          title: Value Type
+        allowed_values:
+          anyOf:
+          - items: {}
+            type: array
+          - type: 'null'
+          title: Allowed Values
+        source_hint:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Source Hint
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        min_confidence:
+          type: number
+          title: Min Confidence
+        is_pii:
+          type: boolean
+          title: Is Pii
+        tags:
+          items:
+            type: string
+          type: array
+          title: Tags
+          default: []
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+      type: object
+      required:
+      - id
+      - workspace_id
+      - entity_type
+      - key
+      - value_type
+      - min_confidence
+      - is_pii
+      - created_at
+      - updated_at
+      title: EnrichmentKeyResponse
+    ConnectorOverviewResponse:
+      properties:
+        connectors:
+          items:
+            $ref: '#/components/schemas/ConnectorOverviewItem'
+          type: array
+          title: Connectors
+        total_entities:
+          type: integer
+          title: Total Entities
+      type: object
+      required:
+      - connectors
+      - total_entities
+      title: ConnectorOverviewResponse
+    EventStatusString:
+      type: string
+      maxLength: 128
+    CanonicalIdLookupString:
+      type: string
+      maxLength: 256
+      minLength: 1
+    EntityResolveMatch:
+      properties:
+        entity_id:
+          type: string
+          format: uuid
+          title: Entity Id
+        entity_type:
+          type: string
+          title: Entity Type
+        confidence:
+          type: number
+          maximum: 1.0
+          minimum: 0.0
+          title: Confidence
+          description: Match confidence (0-1).
+        matched_on:
+          items:
+            type: string
+            enum:
+            - entity_id
+            - phone
+            - email
+            - canonical_id
+            - external_id
+          type: array
+          title: Matched On
+          description: Identifier kinds that actually matched this row.
+        summary:
+          $ref: '#/components/schemas/EntityResolveSummary'
+      type: object
+      required:
+      - entity_id
+      - entity_type
+      - confidence
+      - summary
+      title: EntityResolveMatch
+      description: One candidate match with provenance + confidence.
+    DescriptionString:
+      type: string
+      maxLength: 2000
+    EntityResolveResponse:
+      properties:
+        matches:
+          items:
+            $ref: '#/components/schemas/EntityResolveMatch'
+          type: array
+          title: Matches
+        total:
+          type: integer
+          minimum: 0.0
+          title: Total
+          description: Number of candidates returned.
+      type: object
+      required:
+      - total
+      title: EntityResolveResponse
+    EntityTypeString:
+      type: string
+      maxLength: 64
+      minLength: 1
+      pattern: ^[a-z0-9_]+$
+    EntityTypeRegistryResponse:
+      properties:
+        entity_types:
+          items:
+            $ref: '#/components/schemas/EntityTypeSummary'
+          type: array
+          title: Entity Types
+        total_entities:
+          type: integer
+          title: Total Entities
+      type: object
+      required:
+      - entity_types
+      - total_entities
+      title: EntityTypeRegistryResponse
+    EventDescriptionString:
+      type: string
+      maxLength: 4096
+    EntityEventResponse:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        domain:
+          type: string
+          title: Domain
+        entity_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Entity Type
+        event_type:
+          type: string
+          title: Event Type
+        event_subtype:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Event Subtype
+        fhir_resource_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Fhir Resource Type
+        fhir_resource_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Fhir Resource Id
+        data:
+          additionalProperties: true
+          type: object
+          title: Data
+        source:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Source
+          default: manual
+        source_system:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Source System
+        confidence:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Confidence
+          default: 1.0
+        produced_by_agent:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Produced By Agent
+        display_name:
+          anyOf:
+          - $ref: '#/components/schemas/EventDisplayNameString'
+          - type: 'null'
+        status:
+          anyOf:
+          - $ref: '#/components/schemas/EventStatusString'
+          - type: 'null'
+        description:
+          anyOf:
+          - $ref: '#/components/schemas/EventDescriptionString'
+          - type: 'null'
+        outcome:
+          anyOf:
+          - $ref: '#/components/schemas/EventOutcomeString'
+          - type: 'null'
+        channel:
+          anyOf:
+          - $ref: '#/components/schemas/EventChannelString'
+          - type: 'null'
+        call_sid:
+          anyOf:
+          - $ref: '#/components/schemas/EventCallSidString'
+          - type: 'null'
+        direction:
+          anyOf:
+          - $ref: '#/components/schemas/EventDirectionString'
+          - type: 'null'
+        duration_seconds:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Duration Seconds
+        amount:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Amount
+        supersedes:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Supersedes
+        is_current:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Current
+          default: true
+        effective_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Effective At
+        ingested_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Ingested At
+        synced_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Synced At
+        sync_error:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Sync Error
+        sync_status:
+          anyOf:
+          - type: string
+            enum:
+            - pending
+            - synced
+            - failed
+            - processing
+            - not_applicable
+          - type: 'null'
+          title: Sync Status
+        created_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Created At
+          description: When the event was created
+      type: object
+      required:
+      - id
+      - domain
+      - event_type
+      title: EntityEventResponse
+    EventChannelString:
+      type: string
+      maxLength: 64
+    EnrichmentListResponse:
+      properties:
+        entity_id:
+          type: string
+          format: uuid
+          title: Entity Id
+        values:
+          items:
+            $ref: '#/components/schemas/EnrichmentValueResponse'
+          type: array
+          title: Values
+      type: object
+      required:
+      - entity_id
+      - values
+      title: EnrichmentListResponse
+    MergedEntitiesResponse:
+      properties:
+        entity_id:
+          type: string
+          format: uuid
+          title: Entity Id
+        linked_entities:
+          items:
+            $ref: '#/components/schemas/EntityResponse'
+          type: array
+          title: Linked Entities
+        total:
+          type: integer
+          title: Total
+      type: object
+      required:
+      - entity_id
+      - linked_entities
+      - total
+      title: MergedEntitiesResponse
+    EnrichmentKeyListResponse:
+      properties:
+        keys:
+          items:
+            $ref: '#/components/schemas/EnrichmentKeyResponse'
+          type: array
+          title: Keys
+      type: object
+      required:
+      - keys
+      title: EnrichmentKeyListResponse
+    ChannelKind:
+      type: string
+      enum:
+      - voice
+      - sms
+      - whatsapp
+      - email
+      - web
+      - imessage
+      title: ChannelKind
+      description: 'HSM execution channel type.
+
+
+        Determines how the HSM engine communicates with end users.
+
+        Each kind maps to one or more providers.'
+  securitySchemes:
+    Bearer-Authorization:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Amigo issued JWT token that identifies an user. It's issued either after logging in through the frontend, or manually through the [`SignInWithAPIKey`](sign-in-with-api-key) endpoint.
+    Bearer-Authorization-Organization:
+      type: apiKey
+      in: header
+      name: X-ORG-ID
+      description: An optional organization identifier that indicates from which organization the token is issued. This is used in rare cases where the user to authenticate is making a request for resources in another organization.
+    Basic:
+      type: http
+      scheme: basic
+      description: The username should be set to {org_id}_{user_id}, and the password should be the Amigo issued JWT token that identifies the user.

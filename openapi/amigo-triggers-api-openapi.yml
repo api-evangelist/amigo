@@ -1,0 +1,862 @@
+openapi: 3.1.0
+info:
+  title: Amigo Account Triggers API
+  version: 0.1.0
+servers:
+- url: https://api.amigo.ai
+- url: https://internal-api.amigo.ai
+- url: https://api-eu-central-1.amigo.ai
+- url: https://api-ap-southeast-2.amigo.ai
+- url: https://api-ca-central-1.amigo.ai
+security:
+- Bearer-Authorization: []
+  Bearer-Authorization-Organization: []
+  Basic: []
+tags:
+- name: Triggers
+paths:
+  /v1/{workspace_id}/triggers:
+    post:
+      tags:
+      - Triggers
+      summary: Create a trigger
+      operationId: create-trigger
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTriggerRequest'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TriggerResponse'
+        '422':
+          description: Validation error
+        '429':
+          description: Rate limited
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+    get:
+      tags:
+      - Triggers
+      summary: List triggers
+      operationId: list-triggers
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: is_active
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Active
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 100
+          exclusiveMinimum: 0
+          default: 10
+          title: Limit
+      - name: continuation_token
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 0
+          title: Continuation Token
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedResponse_TriggerResponse_'
+        '429':
+          description: Rate limited
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/triggers/{trigger_id}:
+    get:
+      tags:
+      - Triggers
+      summary: Get a trigger
+      operationId: get-trigger
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: trigger_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Trigger Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TriggerResponse'
+        '429':
+          description: Rate limited
+        '404':
+          description: Trigger not found
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    put:
+      tags:
+      - Triggers
+      summary: Update a trigger
+      operationId: update-trigger
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: trigger_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Trigger Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateTriggerRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TriggerResponse'
+        '422':
+          description: Validation error
+        '429':
+          description: Rate limited
+        '404':
+          description: Trigger not found
+    delete:
+      tags:
+      - Triggers
+      summary: Delete a trigger
+      operationId: delete-trigger
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: trigger_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Trigger Id
+      responses:
+        '204':
+          description: Successful Response
+        '429':
+          description: Rate limited
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/triggers/{trigger_id}/pause:
+    post:
+      tags:
+      - Triggers
+      summary: Pause a trigger
+      operationId: pause-trigger
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: trigger_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Trigger Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TriggerResponse'
+        '422':
+          description: Validation error
+        '429':
+          description: Rate limited
+        '404':
+          description: Trigger not found
+  /v1/{workspace_id}/triggers/{trigger_id}/resume:
+    post:
+      tags:
+      - Triggers
+      summary: Resume a trigger
+      operationId: resume-trigger
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: trigger_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Trigger Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TriggerResponse'
+        '422':
+          description: Validation error
+        '429':
+          description: Rate limited
+        '404':
+          description: Trigger not found
+  /v1/{workspace_id}/triggers/{trigger_id}/fire:
+    post:
+      tags:
+      - Triggers
+      summary: Manually fire a trigger now
+      operationId: fire-trigger
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: trigger_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Trigger Id
+      requestBody:
+        content:
+          application/json:
+            schema:
+              anyOf:
+              - $ref: '#/components/schemas/FireTriggerRequest'
+              - type: 'null'
+              title: Body
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TriggerFireResponse'
+        '422':
+          description: Validation error
+        '429':
+          description: Rate limited
+        '404':
+          description: Trigger not found
+        '503':
+          description: Trigger scheduler not initialized
+  /v1/{workspace_id}/triggers/{trigger_id}/runs:
+    get:
+      tags:
+      - Triggers
+      summary: List trigger execution history
+      description: Execution history from the durable trigger run table.
+      operationId: list-trigger-runs
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: trigger_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Trigger Id
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 100
+          exclusiveMinimum: 0
+          default: 10
+          title: Limit
+      - name: continuation_token
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 0
+          title: Continuation Token
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedResponse_TriggerRunResponse_'
+        '429':
+          description: Rate limited
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+components:
+  schemas:
+    TriggerResponse:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        workspace_id:
+          type: string
+          format: uuid
+          title: Workspace Id
+        name:
+          type: string
+          title: Name
+          description: Trigger display name
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+          description: Human-readable description
+        event_type:
+          type: string
+          title: Event Type
+          description: Event type pattern to match
+        event_filter:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Event Filter
+          description: JSONPath filter on event data
+        action_id:
+          type: string
+          format: uuid
+          title: Action Id
+          description: Action (skill) to invoke when fired
+        input_template:
+          additionalProperties: true
+          type: object
+          title: Input Template
+          description: Input template merged with event data
+        schedule:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Schedule
+          description: Cron schedule expression (e.g. '0 9 * * 1-5')
+        timezone:
+          type: string
+          title: Timezone
+          description: IANA timezone for schedule evaluation
+        next_fire_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Next Fire At
+          description: Next scheduled fire time
+        is_active:
+          type: boolean
+          title: Is Active
+          description: Whether the trigger is active
+        created_by:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Created By
+          description: Entity ID of the creator
+        created_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Created At
+          description: When the trigger was created
+        updated_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Updated At
+          description: When the trigger was last updated
+      type: object
+      required:
+      - id
+      - workspace_id
+      - name
+      - event_type
+      - action_id
+      - input_template
+      - timezone
+      - is_active
+      title: TriggerResponse
+    NameString:
+      type: string
+      maxLength: 256
+      minLength: 1
+    DescriptionString:
+      type: string
+      maxLength: 2000
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    PaginatedResponse_TriggerResponse_:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/TriggerResponse'
+          type: array
+          title: Items
+        has_more:
+          type: boolean
+          title: Has More
+        continuation_token:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Continuation Token
+        total:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Total
+      type: object
+      required:
+      - items
+      - has_more
+      title: PaginatedResponse[TriggerResponse]
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    TriggerFireResponse:
+      properties:
+        fired_event_id:
+          type: string
+          format: uuid
+          title: Fired Event Id
+        trigger_id:
+          type: string
+          format: uuid
+          title: Trigger Id
+        status:
+          type: string
+          const: fired
+          title: Status
+          default: fired
+      type: object
+      required:
+      - fired_event_id
+      - trigger_id
+      title: TriggerFireResponse
+    CreateTriggerRequest:
+      properties:
+        name:
+          $ref: '#/components/schemas/NameString'
+        description:
+          anyOf:
+          - $ref: '#/components/schemas/DescriptionString'
+          - type: 'null'
+        event_type:
+          $ref: '#/components/schemas/TriggerableEvent'
+        event_filter:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Event Filter
+        action_id:
+          type: string
+          format: uuid
+          title: Action Id
+        input_template:
+          additionalProperties: true
+          type: object
+          title: Input Template
+        schedule:
+          anyOf:
+          - type: string
+            maxLength: 128
+            minLength: 1
+          - type: 'null'
+          title: Schedule
+        timezone:
+          type: string
+          maxLength: 64
+          minLength: 1
+          title: Timezone
+          default: UTC
+      type: object
+      required:
+      - name
+      - event_type
+      - action_id
+      title: CreateTriggerRequest
+    TriggerableEvent:
+      type: string
+      enum:
+      - amigo.trigger.cron
+      - appointment.booked
+      - appointment.cancelled
+      - appointment.confirmed
+      - booking.requested
+      - call.intelligence
+      - call.outcome
+      - channel.email.bounced
+      - channel.email.clicked
+      - channel.email.complained
+      - channel.email.delayed
+      - channel.email.delivered
+      - channel.email.opened
+      - channel.email.received
+      - channel.email.rejected
+      - channel.message.received
+      - channel.voice.voicemail_status
+      - conversation.channel_switched
+      - conversation.started
+      - conversation.turn_recorded
+      - coverage.created
+      - entity.enriched
+      - entity.resolved
+      - intake.file.received
+      - medication.refill_requested
+      - outbound.initiated
+      - outbound.scheduled
+      - patient.created
+      - patient.updated
+      - relationship.established
+      - review.approve
+      - review.correct
+      - review.reject
+      - surface.created
+      - surface.submitted
+      - ticket.created
+      - triage.completed
+      - trigger.completed
+      - trigger.failed
+      - trigger.fired
+      title: TriggerableEvent
+      description: 'Closed set of world events that trigger definitions may subscribe to.
+
+
+        The database column intentionally remains text for compatibility with old
+
+        rows, but API writes must choose from this list so typoed event names do
+
+        not silently create never-matching triggers.'
+    FireTriggerRequest:
+      properties:
+        input:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Input
+          description: Optional overrides merged into the trigger's input_template at fire time.
+      type: object
+      title: FireTriggerRequest
+    UpdateTriggerRequest:
+      properties:
+        name:
+          anyOf:
+          - $ref: '#/components/schemas/NameString'
+          - type: 'null'
+        description:
+          anyOf:
+          - $ref: '#/components/schemas/DescriptionString'
+          - type: 'null'
+        event_type:
+          anyOf:
+          - $ref: '#/components/schemas/TriggerableEvent'
+          - type: 'null'
+        event_filter:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Event Filter
+        action_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Action Id
+        input_template:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Input Template
+        schedule:
+          anyOf:
+          - type: string
+            maxLength: 128
+            minLength: 1
+          - type: 'null'
+          title: Schedule
+        timezone:
+          anyOf:
+          - type: string
+            maxLength: 64
+            minLength: 1
+          - type: 'null'
+          title: Timezone
+      type: object
+      title: UpdateTriggerRequest
+    TriggerRunResponse:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        workspace_id:
+          type: string
+          format: uuid
+          title: Workspace Id
+        trigger_id:
+          type: string
+          format: uuid
+          title: Trigger Id
+        fired_event_id:
+          type: string
+          format: uuid
+          title: Fired Event Id
+        source:
+          type: string
+          enum:
+          - cron
+          - manual
+          - webhook
+          - event
+          title: Source
+          description: Source that fired the trigger
+        input_override:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Input Override
+          description: Per-run input overrides
+        status:
+          type: string
+          enum:
+          - queued
+          - running
+          - succeeded
+          - failed
+          - dead
+          title: Status
+          description: Run status
+        attempt_count:
+          type: integer
+          title: Attempt Count
+          description: Number of claim attempts
+        max_attempts:
+          type: integer
+          title: Max Attempts
+          description: Maximum claim attempts before dead-lettering
+        next_attempt_at:
+          type: string
+          format: date-time
+          title: Next Attempt At
+          description: Next eligible claim time
+        claimed_by:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Claimed By
+          description: Dispatcher consumer that claimed the run
+        claimed_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Claimed At
+          description: When the run was claimed
+        lease_expires_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Lease Expires At
+          description: When the running lease expires
+        result_text:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Result Text
+          description: Text result emitted by the action
+        error:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Error
+          description: Failure detail, if any
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+          description: When the run was enqueued
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+          description: When the run row last changed
+      type: object
+      required:
+      - id
+      - workspace_id
+      - trigger_id
+      - fired_event_id
+      - source
+      - status
+      - attempt_count
+      - max_attempts
+      - next_attempt_at
+      - created_at
+      - updated_at
+      title: TriggerRunResponse
+    PaginatedResponse_TriggerRunResponse_:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/TriggerRunResponse'
+          type: array
+          title: Items
+        has_more:
+          type: boolean
+          title: Has More
+        continuation_token:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Continuation Token
+        total:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Total
+      type: object
+      required:
+      - items
+      - has_more
+      title: PaginatedResponse[TriggerRunResponse]
+  securitySchemes:
+    Bearer-Authorization:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Amigo issued JWT token that identifies an user. It's issued either after logging in through the frontend, or manually through the [`SignInWithAPIKey`](sign-in-with-api-key) endpoint.
+    Bearer-Authorization-Organization:
+      type: apiKey
+      in: header
+      name: X-ORG-ID
+      description: An optional organization identifier that indicates from which organization the token is issued. This is used in rare cases where the user to authenticate is making a request for resources in another organization.
+    Basic:
+      type: http
+      scheme: basic
+      description: The username should be set to {org_id}_{user_id}, and the password should be the Amigo issued JWT token that identifies the user.

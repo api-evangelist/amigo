@@ -1,0 +1,1630 @@
+openapi: 3.1.0
+info:
+  title: Amigo Account Context Graphs API
+  version: 0.1.0
+servers:
+- url: https://api.amigo.ai
+- url: https://internal-api.amigo.ai
+- url: https://api-eu-central-1.amigo.ai
+- url: https://api-ap-southeast-2.amigo.ai
+- url: https://api-ca-central-1.amigo.ai
+security:
+- Bearer-Authorization: []
+  Bearer-Authorization-Organization: []
+  Basic: []
+tags:
+- name: Context Graphs
+paths:
+  /v1/{workspace_id}/context-graphs:
+    post:
+      tags:
+      - Context Graphs
+      summary: Create a context graph
+      description: Create a new context graph in a workspace. Requires `ContextGraph.create` permission.
+      operationId: create-context_graph
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateContextGraphRequest'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContextGraphResponse'
+        '404':
+          description: Not found.
+        '409':
+          description: Name already taken.
+        '403':
+          description: Insufficient permissions.
+        '401':
+          description: Missing or invalid API key.
+        '422':
+          description: Invalid request body.
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+    get:
+      tags:
+      - Context Graphs
+      summary: List context graphs
+      description: List context graphs in a workspace with pagination. Requires `ContextGraph.view` permission.
+      operationId: list-context_graphs
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: search
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - $ref: '#/components/schemas/SearchString'
+          - type: 'null'
+          title: Search
+      - name: sort_by
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Sort By
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 100
+          exclusiveMinimum: 0
+          default: 10
+          title: Limit
+      - name: continuation_token
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 0
+          title: Continuation Token
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedResponse_ContextGraphResponse_'
+        '404':
+          description: Not found.
+        '403':
+          description: Insufficient permissions.
+        '401':
+          description: Missing or invalid API key.
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/context-graphs/{context_graph_id}:
+    get:
+      tags:
+      - Context Graphs
+      summary: Get a context graph
+      description: Retrieve a context graph by ID. Requires `ContextGraph.view` permission.
+      operationId: get-context_graph
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: context_graph_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Context Graph Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContextGraphResponse'
+        '404':
+          description: Not found.
+        '403':
+          description: Insufficient permissions.
+        '401':
+          description: Missing or invalid API key.
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    put:
+      tags:
+      - Context Graphs
+      summary: Update a context graph
+      description: Update a context graph's name or description. Requires `ContextGraph.update` permission.
+      operationId: update-context_graph
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: context_graph_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Context Graph Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateContextGraphRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContextGraphResponse'
+        '404':
+          description: Not found.
+        '409':
+          description: Name already taken.
+        '403':
+          description: Insufficient permissions.
+        '401':
+          description: Missing or invalid API key.
+        '422':
+          description: Invalid request body.
+    delete:
+      tags:
+      - Context Graphs
+      summary: Delete a context graph
+      description: Delete a context graph. context graph versions are retained. Requires `ContextGraph.delete` permission.
+      operationId: delete-context_graph
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: context_graph_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Context Graph Id
+      responses:
+        '204':
+          description: Successful Response
+        '404':
+          description: Not found.
+        '403':
+          description: Insufficient permissions.
+        '401':
+          description: Missing or invalid API key.
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/context-graphs/{context_graph_id}/versions:
+    post:
+      tags:
+      - Context Graphs
+      summary: Create a context graph version
+      description: Create a new version of a context graph. Version number is auto-incremented. Requires `ContextGraph.create` permission for the first version and `ContextGraph.update` permission afterward.
+      operationId: create-context_graph-version
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: context_graph_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Context Graph Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateContextGraphVersionRequest'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContextGraphVersionResponse'
+        '404':
+          description: Not found.
+        '409':
+          description: Name already taken.
+        '403':
+          description: Insufficient permissions.
+        '401':
+          description: Missing or invalid API key.
+        '422':
+          description: Invalid request body.
+    get:
+      tags:
+      - Context Graphs
+      summary: List context graph versions
+      description: List versions of a context graph with pagination. Requires `ContextGraph.view` permission.
+      operationId: list-context_graph-versions
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: context_graph_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Context Graph Id
+      - name: sort_by
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Sort By
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 100
+          exclusiveMinimum: 0
+          default: 10
+          title: Limit
+      - name: continuation_token
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 0
+          title: Continuation Token
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedResponse_ContextGraphVersionResponse_'
+        '404':
+          description: Not found.
+        '403':
+          description: Insufficient permissions.
+        '401':
+          description: Missing or invalid API key.
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/context-graphs/{context_graph_id}/versions/{version}:
+    get:
+      tags:
+      - Context Graphs
+      summary: Get a context graph version
+      description: Retrieve a specific context graph version by number, or 'latest'. Requires `ContextGraph.view` permission.
+      operationId: get-context_graph-version
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: context_graph_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Context Graph Id
+      - name: version
+        in: path
+        required: true
+        schema:
+          anyOf:
+          - type: integer
+          - type: string
+          title: Version
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContextGraphVersionResponse'
+        '404':
+          description: Not found.
+        '403':
+          description: Insufficient permissions.
+        '401':
+          description: Missing or invalid API key.
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+components:
+  schemas:
+    FailureClass:
+      type: string
+      enum:
+      - timeout
+      - input_rejected
+      - rounds_exhausted
+      - generic
+      title: FailureClass
+      description: 'Why a tool result is a failure — produced by the executor at RUN time.
+
+
+        Unlike ``ResultDelivery`` (a fixed config-time axis), this is a runtime
+
+        classification the executor knows at the moment of failure. It flavors the
+
+        agent-facing failure wording and the world-event / status-tool observability,
+
+        and it is ALSO an optional routing key: a state x tool binding may set
+
+        ``ToolCallSpec.failure_delivery_by_class`` to deliver differently per class
+
+        (e.g. interrupt on timeout, queue on a generic error). With no per-class map
+
+        (the default), failed results route by the ``failure_delivery`` floor,
+
+        unchanged. Add a member only in the same change that wires a producer for it —
+
+        adding one also widens the per-class routing surface, so it must be a
+
+        deliberate, produced class.'
+    AnnotationState:
+      properties:
+        type:
+          type: string
+          const: annotation
+          title: Type
+        name:
+          type: string
+          title: Name
+        inner_thought:
+          type: string
+          title: Inner Thought
+        next_state:
+          type: string
+          title: Next State
+      type: object
+      required:
+      - type
+      - name
+      - inner_thought
+      - next_state
+      title: AnnotationState
+      description: Injects a hardcoded inner thought (no LLM call).
+    ChannelOverride:
+      properties:
+        objective:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Objective
+        action_guidelines:
+          items:
+            type: string
+          type: array
+          title: Action Guidelines
+          default: []
+        progress:
+          anyOf:
+          - $ref: '#/components/schemas/ProgressHint'
+          - type: 'null'
+      type: object
+      title: ChannelOverride
+      description: Per-channel behavior override for a state.
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    ContextGraphState-Input:
+      oneOf:
+      - $ref: '#/components/schemas/ActionState-Input'
+      - $ref: '#/components/schemas/DecisionState-Input'
+      - $ref: '#/components/schemas/AnnotationState'
+      - $ref: '#/components/schemas/DataCollectionState-Input'
+      discriminator:
+        propertyName: type
+        mapping:
+          action: '#/components/schemas/ActionState-Input'
+          annotation: '#/components/schemas/AnnotationState'
+          data_collection: '#/components/schemas/DataCollectionState-Input'
+          decision: '#/components/schemas/DecisionState-Input'
+    ProgressHint:
+      properties:
+        deterministic:
+          type: boolean
+          title: Deterministic
+          default: false
+        phrases:
+          anyOf:
+          - items:
+              type: string
+            type: array
+            maxItems: 10
+            minItems: 1
+            description: 'Filler phrases. deterministic=true: played verbatim in order. deterministic=false: used as hints for early attempts.'
+          - type: 'null'
+          title: Phrases
+        trigger_delay_ms:
+          anyOf:
+          - type: integer
+            maximum: 30000.0
+            minimum: 0.0
+          - type: 'null'
+          title: Trigger Delay Ms
+        interval_ms:
+          anyOf:
+          - type: integer
+            maximum: 30000.0
+            minimum: 100.0
+          - type: 'null'
+          title: Interval Ms
+        mode:
+          type: string
+          enum:
+          - auto
+          - silent
+          - backchannel
+          - verbal
+          title: Mode
+          default: auto
+        progress_class:
+          anyOf:
+          - type: string
+            enum:
+            - lookup
+            - write
+            - external_call
+            - compute
+            - multi_step
+          - type: 'null'
+          title: Progress Class
+        expected_latency_ms:
+          anyOf:
+          - type: integer
+            maximum: 60000.0
+            minimum: 0.0
+          - type: 'null'
+          title: Expected Latency Ms
+        custom_phrase:
+          anyOf:
+          - type: string
+            maxLength: 500
+            description: 'Legacy: use phrases instead.'
+          - type: 'null'
+          title: Custom Phrase
+      additionalProperties: false
+      type: object
+      title: ProgressHint
+      description: 'How the agent narrates waiting on a tool.
+
+
+        ``deterministic=true``: scripted — ``phrases`` play verbatim in order.
+
+        ``deterministic=false``: engine picks — ``phrases`` are hints.
+
+        ``trigger_delay_ms``: milliseconds before first filler (0 = immediate).
+
+        ``interval_ms``: milliseconds between subsequent fillers.'
+    ActionState-Input:
+      properties:
+        type:
+          type: string
+          const: action
+          title: Type
+        name:
+          type: string
+          title: Name
+        objective:
+          type: string
+          title: Objective
+        actions:
+          items:
+            $ref: '#/components/schemas/Action'
+          type: array
+          title: Actions
+        intra_state_navigation_guidelines:
+          items:
+            type: string
+          type: array
+          title: Intra State Navigation Guidelines
+        action_guidelines:
+          items:
+            type: string
+          type: array
+          title: Action Guidelines
+        boundary_constraints:
+          items:
+            type: string
+          type: array
+          title: Boundary Constraints
+        exit_conditions:
+          items:
+            $ref: '#/components/schemas/ExitCondition'
+          type: array
+          title: Exit Conditions
+        action_tool_call_specs:
+          items:
+            $ref: '#/components/schemas/ToolCallSpec'
+          type: array
+          title: Action Tool Call Specs
+          default: []
+        exit_condition_tool_call_specs:
+          items:
+            $ref: '#/components/schemas/ToolCallSpec'
+          type: array
+          title: Exit Condition Tool Call Specs
+          default: []
+        wait_for:
+          anyOf:
+          - type: string
+            enum:
+            - surface_submission
+            - human_approval
+          - type: 'null'
+          title: Wait For
+        guardrails:
+          items:
+            $ref: '#/components/schemas/Guardrail'
+          type: array
+          title: Guardrails
+          default: []
+        channel_overrides:
+          additionalProperties:
+            $ref: '#/components/schemas/ChannelOverride'
+          type: object
+          title: Channel Overrides
+        surface_spec_template:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Surface Spec Template
+        turn_policy:
+          anyOf:
+          - $ref: '#/components/schemas/TurnPolicy'
+          - type: 'null'
+        preload:
+          items:
+            $ref: '#/components/schemas/PreloadSpec'
+          type: array
+          maxItems: 20
+          title: Preload
+      type: object
+      required:
+      - type
+      - name
+      - objective
+      - actions
+      - intra_state_navigation_guidelines
+      - action_guidelines
+      - boundary_constraints
+      - exit_conditions
+      title: ActionState
+      description: User-facing engagement state with actions and exit conditions.
+    UpdateContextGraphRequest:
+      properties:
+        name:
+          anyOf:
+          - $ref: '#/components/schemas/NameString'
+          - type: 'null'
+        description:
+          anyOf:
+          - $ref: '#/components/schemas/DescriptionString'
+          - type: 'null'
+      type: object
+      title: UpdateContextGraphRequest
+    ExitCondition:
+      properties:
+        description:
+          type: string
+          title: Description
+        next_state:
+          type: string
+          title: Next State
+        filler_hint:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Filler Hint
+      type: object
+      required:
+      - description
+      - next_state
+      title: ExitCondition
+    DecisionState-Input:
+      properties:
+        type:
+          type: string
+          const: decision
+          title: Type
+        name:
+          type: string
+          title: Name
+        objective:
+          type: string
+          title: Objective
+        exit_conditions:
+          items:
+            $ref: '#/components/schemas/ExitCondition'
+          type: array
+          title: Exit Conditions
+        decision_guidelines:
+          items:
+            type: string
+          type: array
+          title: Decision Guidelines
+          default: []
+        tool_call_specs:
+          items:
+            $ref: '#/components/schemas/ToolCallSpec'
+          type: array
+          title: Tool Call Specs
+          default: []
+        wait_for:
+          anyOf:
+          - type: string
+            enum:
+            - surface_submission
+            - human_approval
+          - type: 'null'
+          title: Wait For
+        guardrails:
+          items:
+            $ref: '#/components/schemas/Guardrail'
+          type: array
+          title: Guardrails
+          default: []
+        channel_overrides:
+          additionalProperties:
+            $ref: '#/components/schemas/ChannelOverride'
+          type: object
+          title: Channel Overrides
+        turn_policy:
+          anyOf:
+          - $ref: '#/components/schemas/TurnPolicy'
+          - type: 'null'
+      type: object
+      required:
+      - type
+      - name
+      - objective
+      - exit_conditions
+      title: DecisionState
+      description: Passthrough routing state — Agent picks an exit condition, no user interaction.
+    DecisionState-Output:
+      properties:
+        type:
+          type: string
+          const: decision
+          title: Type
+        name:
+          type: string
+          title: Name
+        objective:
+          type: string
+          title: Objective
+        exit_conditions:
+          items:
+            $ref: '#/components/schemas/ExitCondition'
+          type: array
+          title: Exit Conditions
+        decision_guidelines:
+          items:
+            type: string
+          type: array
+          title: Decision Guidelines
+          default: []
+        tool_call_specs:
+          items:
+            $ref: '#/components/schemas/ToolCallSpec'
+          type: array
+          title: Tool Call Specs
+          default: []
+        wait_for:
+          anyOf:
+          - type: string
+            enum:
+            - surface_submission
+            - human_approval
+          - type: 'null'
+          title: Wait For
+        guardrails:
+          items:
+            $ref: '#/components/schemas/Guardrail'
+          type: array
+          title: Guardrails
+          default: []
+        channel_overrides:
+          additionalProperties:
+            $ref: '#/components/schemas/ChannelOverride'
+          type: object
+          title: Channel Overrides
+        turn_policy:
+          anyOf:
+          - $ref: '#/components/schemas/TurnPolicy'
+          - type: 'null'
+      type: object
+      required:
+      - type
+      - name
+      - objective
+      - exit_conditions
+      title: DecisionState
+      description: Passthrough routing state — Agent picks an exit condition, no user interaction.
+    PaginatedResponse_ContextGraphVersionResponse_:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/ContextGraphVersionResponse'
+          type: array
+          title: Items
+        has_more:
+          type: boolean
+          title: Has More
+        continuation_token:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Continuation Token
+        total:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Total
+      type: object
+      required:
+      - items
+      - has_more
+      title: PaginatedResponse[ContextGraphVersionResponse]
+    DataCollectionState-Input:
+      properties:
+        type:
+          type: string
+          const: data_collection
+          title: Type
+        name:
+          type: string
+          title: Name
+        objective:
+          type: string
+          title: Objective
+        fields:
+          items:
+            $ref: '#/components/schemas/CollectionField'
+          type: array
+          title: Fields
+        on_complete:
+          type: string
+          title: On Complete
+        action_guidelines:
+          items:
+            type: string
+          type: array
+          title: Action Guidelines
+          default: []
+        boundary_constraints:
+          items:
+            type: string
+          type: array
+          title: Boundary Constraints
+          default: []
+        surface_fallback:
+          type: boolean
+          title: Surface Fallback
+          default: false
+        surface_fallback_after_turns:
+          type: integer
+          title: Surface Fallback After Turns
+          default: 6
+        max_turns:
+          type: integer
+          title: Max Turns
+          default: 10
+        guardrails:
+          items:
+            $ref: '#/components/schemas/Guardrail'
+          type: array
+          title: Guardrails
+          default: []
+        channel_overrides:
+          additionalProperties:
+            $ref: '#/components/schemas/ChannelOverride'
+          type: object
+          title: Channel Overrides
+        turn_policy:
+          anyOf:
+          - $ref: '#/components/schemas/TurnPolicy'
+          - type: 'null'
+        tool_call_specs:
+          items:
+            $ref: '#/components/schemas/ToolCallSpec'
+          type: array
+          title: Tool Call Specs
+          default: []
+      type: object
+      required:
+      - type
+      - name
+      - objective
+      - fields
+      - on_complete
+      title: DataCollectionState
+      description: 'Structured voice/text data collection with field tracking.
+
+
+        The engine presents fields conversationally, tracks completion, and
+
+        optionally falls back to a Surface form after N turns. Each collected
+
+        field produces a world.event with confidence 0.5.'
+    DataCollectionState-Output:
+      properties:
+        type:
+          type: string
+          const: data_collection
+          title: Type
+        name:
+          type: string
+          title: Name
+        objective:
+          type: string
+          title: Objective
+        fields:
+          items:
+            $ref: '#/components/schemas/CollectionField'
+          type: array
+          title: Fields
+        on_complete:
+          type: string
+          title: On Complete
+        action_guidelines:
+          items:
+            type: string
+          type: array
+          title: Action Guidelines
+          default: []
+        boundary_constraints:
+          items:
+            type: string
+          type: array
+          title: Boundary Constraints
+          default: []
+        surface_fallback:
+          type: boolean
+          title: Surface Fallback
+          default: false
+        surface_fallback_after_turns:
+          type: integer
+          title: Surface Fallback After Turns
+          default: 6
+        max_turns:
+          type: integer
+          title: Max Turns
+          default: 10
+        guardrails:
+          items:
+            $ref: '#/components/schemas/Guardrail'
+          type: array
+          title: Guardrails
+          default: []
+        channel_overrides:
+          additionalProperties:
+            $ref: '#/components/schemas/ChannelOverride'
+          type: object
+          title: Channel Overrides
+        turn_policy:
+          anyOf:
+          - $ref: '#/components/schemas/TurnPolicy'
+          - type: 'null'
+        tool_call_specs:
+          items:
+            $ref: '#/components/schemas/ToolCallSpec'
+          type: array
+          title: Tool Call Specs
+          default: []
+      type: object
+      required:
+      - type
+      - name
+      - objective
+      - fields
+      - on_complete
+      title: DataCollectionState
+      description: 'Structured voice/text data collection with field tracking.
+
+
+        The engine presents fields conversationally, tracks completion, and
+
+        optionally falls back to a Surface form after N turns. Each collected
+
+        field produces a world.event with confidence 0.5.'
+    PaginatedResponse_ContextGraphResponse_:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/ContextGraphResponse'
+          type: array
+          title: Items
+        has_more:
+          type: boolean
+          title: Has More
+        continuation_token:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Continuation Token
+        total:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Total
+      type: object
+      required:
+      - items
+      - has_more
+      title: PaginatedResponse[ContextGraphResponse]
+    PreloadSpec:
+      properties:
+        tool_id:
+          type: string
+          maxLength: 256
+          title: Tool Id
+        params:
+          additionalProperties: true
+          type: object
+          maxProperties: 20
+          title: Params
+      type: object
+      required:
+      - tool_id
+      title: PreloadSpec
+      description: 'A tool call executed deterministically by the engine on state entry.
+
+
+        Unlike LLM-driven tool calls, preloads run before any LLM turn —
+
+        the results appear in the interaction log so the engage LLM sees
+
+        them as pre-loaded context.  All preloads in a state execute in
+
+        parallel.  Param values support ``{caller_mrn}`` and ``{entity_id}``
+
+        template variables resolved from the session''s caller context.'
+    ActionState-Output:
+      properties:
+        type:
+          type: string
+          const: action
+          title: Type
+        name:
+          type: string
+          title: Name
+        objective:
+          type: string
+          title: Objective
+        actions:
+          items:
+            $ref: '#/components/schemas/Action'
+          type: array
+          title: Actions
+        intra_state_navigation_guidelines:
+          items:
+            type: string
+          type: array
+          title: Intra State Navigation Guidelines
+        action_guidelines:
+          items:
+            type: string
+          type: array
+          title: Action Guidelines
+        boundary_constraints:
+          items:
+            type: string
+          type: array
+          title: Boundary Constraints
+        exit_conditions:
+          items:
+            $ref: '#/components/schemas/ExitCondition'
+          type: array
+          title: Exit Conditions
+        action_tool_call_specs:
+          items:
+            $ref: '#/components/schemas/ToolCallSpec'
+          type: array
+          title: Action Tool Call Specs
+          default: []
+        exit_condition_tool_call_specs:
+          items:
+            $ref: '#/components/schemas/ToolCallSpec'
+          type: array
+          title: Exit Condition Tool Call Specs
+          default: []
+        wait_for:
+          anyOf:
+          - type: string
+            enum:
+            - surface_submission
+            - human_approval
+          - type: 'null'
+          title: Wait For
+        guardrails:
+          items:
+            $ref: '#/components/schemas/Guardrail'
+          type: array
+          title: Guardrails
+          default: []
+        channel_overrides:
+          additionalProperties:
+            $ref: '#/components/schemas/ChannelOverride'
+          type: object
+          title: Channel Overrides
+        surface_spec_template:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Surface Spec Template
+        turn_policy:
+          anyOf:
+          - $ref: '#/components/schemas/TurnPolicy'
+          - type: 'null'
+        preload:
+          items:
+            $ref: '#/components/schemas/PreloadSpec'
+          type: array
+          maxItems: 20
+          title: Preload
+      type: object
+      required:
+      - type
+      - name
+      - objective
+      - actions
+      - intra_state_navigation_guidelines
+      - action_guidelines
+      - boundary_constraints
+      - exit_conditions
+      title: ActionState
+      description: User-facing engagement state with actions and exit conditions.
+    CreateContextGraphRequest:
+      properties:
+        name:
+          $ref: '#/components/schemas/NameString'
+        description:
+          $ref: '#/components/schemas/DescriptionString'
+          default: ''
+      type: object
+      required:
+      - name
+      title: CreateContextGraphRequest
+    ToolCallSpec:
+      properties:
+        tool_id:
+          type: string
+          title: Tool Id
+        additional_instruction:
+          type: string
+          title: Additional Instruction
+          default: ''
+        navigate_on_completion:
+          type: boolean
+          title: Navigate On Completion
+          default: false
+        progress:
+          anyOf:
+          - $ref: '#/components/schemas/ProgressHint'
+          - type: 'null'
+        result_persistence:
+          type: string
+          enum:
+          - accumulate
+          - override
+          title: Result Persistence
+          default: accumulate
+        delivery:
+          type: string
+          enum:
+          - interrupt
+          - queue
+          title: Delivery
+          default: interrupt
+        failure_delivery:
+          anyOf:
+          - type: string
+            enum:
+            - interrupt
+            - queue
+          - type: 'null'
+          title: Failure Delivery
+        failure_delivery_by_class:
+          anyOf:
+          - additionalProperties:
+              type: string
+              enum:
+              - interrupt
+              - queue
+            propertyNames:
+              $ref: '#/components/schemas/FailureClass'
+            type: object
+          - type: 'null'
+          title: Failure Delivery By Class
+        execution:
+          type: string
+          enum:
+          - blocking
+          - background
+          title: Execution
+          default: blocking
+        lifecycle:
+          type: string
+          enum:
+          - coupled
+          - independent
+          title: Lifecycle
+          default: independent
+        audio_fillers:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          title: Audio Fillers
+        audio_filler_triggered_after:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Audio Filler Triggered After
+      type: object
+      required:
+      - tool_id
+      title: ToolCallSpec
+      description: A tool call that the agent can make in a state.
+    SearchString:
+      type: string
+      maxLength: 200
+      minLength: 1
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    ContextGraphVersionResponse:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        workspace_id:
+          type: string
+          format: uuid
+          title: Workspace Id
+        context_graph_id:
+          type: string
+          format: uuid
+          title: Context Graph Id
+        version:
+          type: integer
+          title: Version
+        description:
+          type: string
+          title: Description
+        states:
+          items:
+            $ref: '#/components/schemas/ContextGraphState-Output'
+          type: array
+          title: States
+        new_user_initial_state:
+          type: string
+          title: New User Initial State
+        returning_user_initial_state:
+          type: string
+          title: Returning User Initial State
+        terminal_state:
+          type: string
+          title: Terminal State
+        global_intra_state_navigation_guidelines:
+          items:
+            type: string
+          type: array
+          title: Global Intra State Navigation Guidelines
+        global_action_guidelines:
+          items:
+            type: string
+          type: array
+          title: Global Action Guidelines
+        global_boundary_constraints:
+          items:
+            type: string
+          type: array
+          title: Global Boundary Constraints
+        topology_description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Topology Description
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+      type: object
+      required:
+      - id
+      - workspace_id
+      - context_graph_id
+      - version
+      - description
+      - states
+      - new_user_initial_state
+      - returning_user_initial_state
+      - terminal_state
+      - global_intra_state_navigation_guidelines
+      - global_action_guidelines
+      - global_boundary_constraints
+      - topology_description
+      - created_at
+      - updated_at
+      title: ContextGraphVersionResponse
+    CreateContextGraphVersionRequest:
+      properties:
+        description:
+          $ref: '#/components/schemas/DescriptionString'
+          default: ''
+        states:
+          items:
+            $ref: '#/components/schemas/ContextGraphState-Input'
+          type: array
+          title: States
+        new_user_initial_state:
+          type: string
+          title: New User Initial State
+        returning_user_initial_state:
+          type: string
+          title: Returning User Initial State
+        terminal_state:
+          type: string
+          title: Terminal State
+        global_intra_state_navigation_guidelines:
+          items:
+            type: string
+          type: array
+          title: Global Intra State Navigation Guidelines
+          default: []
+        global_action_guidelines:
+          items:
+            type: string
+          type: array
+          title: Global Action Guidelines
+          default: []
+        global_boundary_constraints:
+          items:
+            type: string
+          type: array
+          title: Global Boundary Constraints
+          default: []
+        topology_description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Topology Description
+      type: object
+      required:
+      - states
+      - new_user_initial_state
+      - returning_user_initial_state
+      - terminal_state
+      title: CreateContextGraphVersionRequest
+    DescriptionString:
+      type: string
+      maxLength: 2000
+    Action:
+      properties:
+        description:
+          type: string
+          title: Description
+        filler_hint:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Filler Hint
+      type: object
+      required:
+      - description
+      title: Action
+      description: A single action the agent can take within a state.
+    TurnPolicy:
+      properties:
+        barge_in_enabled:
+          type: boolean
+          title: Barge In Enabled
+          default: true
+        greeting_shield_s:
+          type: number
+          title: Greeting Shield S
+          default: 0.0
+        safety_response:
+          type: string
+          enum:
+          - suspend_forward
+          - stay_empathize
+          - alert
+          title: Safety Response
+          default: stay_empathize
+        context_strategy:
+          type: string
+          enum:
+          - full
+          - compact
+          title: Context Strategy
+          default: full
+        degradation_threshold:
+          type: integer
+          minimum: -1.0
+          title: Degradation Threshold
+          default: -1
+        block_forward_call:
+          type: boolean
+          title: Block Forward Call
+          default: false
+        block_forward_call_after_turns:
+          type: integer
+          minimum: -1.0
+          title: Block Forward Call After Turns
+          default: -1
+        stt_eot_threshold:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Stt Eot Threshold
+        stt_eager_eot_threshold:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Stt Eager Eot Threshold
+        stt_eot_timeout_ms:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Stt Eot Timeout Ms
+      type: object
+      title: TurnPolicy
+      description: 'Voice pipeline parameters declared per HSM state.
+
+
+        Lives on ActionState/DecisionState alongside guardrails, wait_for, and
+
+        channel_overrides.  The HSM state IS the policy — no shadow state machine.
+
+        All fields optional with safe defaults (production behavior unchanged
+
+        when no turn_policy is set).'
+    CollectionField:
+      properties:
+        key:
+          type: string
+          title: Key
+        type:
+          type: string
+          title: Type
+        label:
+          type: string
+          title: Label
+        required:
+          type: boolean
+          title: Required
+          default: true
+        options:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          title: Options
+        validation:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Validation
+        ask_prompt:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Ask Prompt
+        fhir_path:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Fhir Path
+      type: object
+      required:
+      - key
+      - type
+      - label
+      title: CollectionField
+      description: A single field to collect during a data collection state.
+    NameString:
+      type: string
+      maxLength: 256
+      minLength: 1
+    ContextGraphState-Output:
+      oneOf:
+      - $ref: '#/components/schemas/ActionState-Output'
+      - $ref: '#/components/schemas/DecisionState-Output'
+      - $ref: '#/components/schemas/AnnotationState'
+      - $ref: '#/components/schemas/DataCollectionState-Output'
+      discriminator:
+        propertyName: type
+        mapping:
+          action: '#/components/schemas/ActionState-Output'
+          annotation: '#/components/schemas/AnnotationState'
+          data_collection: '#/components/schemas/DataCollectionState-Output'
+          decision: '#/components/schemas/DecisionState-Output'
+    ContextGraphResponse:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        workspace_id:
+          type: string
+          format: uuid
+          title: Workspace Id
+        name:
+          type: string
+          title: Name
+        description:
+          type: string
+          title: Description
+        latest_version:
+          type: integer
+          title: Latest Version
+          default: 0
+        state_count:
+          type: integer
+          title: State Count
+          default: 0
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+      type: object
+      required:
+      - id
+      - workspace_id
+      - name
+      - description
+      - created_at
+      - updated_at
+      title: ContextGraphResponse
+    Guardrail:
+      properties:
+        name:
+          type: string
+          maxLength: 128
+          title: Name
+        description:
+          type: string
+          maxLength: 1000
+          title: Description
+        enforcement:
+          type: string
+          enum:
+          - hard
+          - soft
+          title: Enforcement
+          default: hard
+      type: object
+      required:
+      - name
+      - description
+      title: Guardrail
+      description: Typed safety rule enforced per-state (not just global freetext guidelines).
+  securitySchemes:
+    Bearer-Authorization:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Amigo issued JWT token that identifies an user. It's issued either after logging in through the frontend, or manually through the [`SignInWithAPIKey`](sign-in-with-api-key) endpoint.
+    Bearer-Authorization-Organization:
+      type: apiKey
+      in: header
+      name: X-ORG-ID
+      description: An optional organization identifier that indicates from which organization the token is issued. This is used in rare cases where the user to authenticate is making a request for resources in another organization.
+    Basic:
+      type: http
+      scheme: basic
+      description: The username should be set to {org_id}_{user_id}, and the password should be the Amigo issued JWT token that identifies the user.

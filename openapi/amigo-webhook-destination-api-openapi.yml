@@ -1,0 +1,757 @@
+openapi: 3.1.0
+info:
+  title: Amigo Account Webhook Destination API
+  version: 0.1.0
+servers:
+- url: https://api.amigo.ai
+- url: https://internal-api.amigo.ai
+- url: https://api-eu-central-1.amigo.ai
+- url: https://api-ap-southeast-2.amigo.ai
+- url: https://api-ca-central-1.amigo.ai
+security:
+- Bearer-Authorization: []
+  Bearer-Authorization-Organization: []
+  Basic: []
+tags:
+- name: Webhook Destination
+paths:
+  /v1/{organization}/webhook_destination/:
+    post:
+      tags:
+      - Webhook Destination
+      summary: Create a webhook destination
+      description: 'Create a new webhook destination. At most 10 webhook destinations can be defined per organization.
+
+
+        A secret will immediately be issued for the webhook destination. Every webhook sent to this destination will be signed using this secret.
+
+        This secret is one-view only and cannot be retrieved later.
+
+
+        #### Permissions
+
+        This endpoint requires the following permissions:
+
+        * `Webhook:CreateWebhookDestination` for the webhook destination.'
+      operationId: create-webhook-destination
+      parameters:
+      - name: organization
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Organization
+      - name: x-mongo-cluster-name
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.
+          title: X-Mongo-Cluster-Name
+        description: The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.
+      - name: Sec-WebSocket-Protocol
+        in: header
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+          default: []
+          title: Sec-Websocket-Protocol
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/src__app__endpoints__webhook_destination__create_webhook_destination__Request'
+      responses:
+        '201':
+          description: Succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/src__app__endpoints__webhook_destination__create_webhook_destination__Response'
+        '422':
+          description: Invalid request path parameter or request body failed validation.
+        '404':
+          description: Specified organization is not found.
+        '409':
+          description: A related operation is in progress.
+        '400':
+          description: The organization already has the maximum amount of webhook destinations defined.
+        '401':
+          description: Invalid authorization credentials.
+        '403':
+          description: Missing required permissions.
+        '503':
+          description: The service is going through temporary maintenance.
+        '429':
+          description: The user has exceeded the rate limit of 20 requests per minute for this endpoint.
+    get:
+      tags:
+      - Webhook Destination
+      summary: Get webhook destinations
+      description: 'Retrieve this organization''s webhook destinations.
+
+
+        #### Permissions
+
+        This endpoint may be impacted by the following permissions:
+
+        * `Webhook:GetWebhookDestination` on the webhook destinations to retrieve.'
+      operationId: get_webhook_destinations
+      parameters:
+      - name: organization
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Organization
+      - name: id
+        in: query
+        required: false
+        schema:
+          type: array
+          uniqueItems: true
+          items:
+            type: string
+            pattern: ^[a-f0-9]{24}$
+          description: The IDs of the webhook destinations to retrieve.
+          default: []
+          title: Id
+        description: The IDs of the webhook destinations to retrieve.
+      - name: x-mongo-cluster-name
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.
+          title: X-Mongo-Cluster-Name
+        description: The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.
+      - name: Sec-WebSocket-Protocol
+        in: header
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+          default: []
+          title: Sec-Websocket-Protocol
+      responses:
+        '200':
+          description: Succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/src__app__endpoints__webhook_destination__get_webhook_destinations__Response'
+        '422':
+          description: Invalid request path parameter or request query parameter failed validation.
+        '404':
+          description: Specified organization is not found.
+        '401':
+          description: Invalid authorization credentials.
+        '403':
+          description: Missing required permissions.
+        '503':
+          description: The service is going through temporary maintenance.
+        '429':
+          description: The user has exceeded the rate limit of 20 requests per minute for this endpoint.
+  /v1/{organization}/webhook_destination/{webhook_destination_id}:
+    post:
+      tags:
+      - Webhook Destination
+      summary: Update a webhook destination
+      description: 'Update certain configs for a webhook destination. The changes will only take effect a few seconds after this endpoint returns.
+
+
+        The URL of a webhook destination cannot be changed. Use [`Create a webhook destination`](create-webhook-destination) instead.
+
+
+        #### Permissions
+
+        This endpoint requires the following permissions:
+
+        * `Webhook:UpdateWebhookDestination` for the webhook destination.'
+      operationId: update-webhook-destination
+      parameters:
+      - name: webhook_destination_id
+        in: path
+        required: true
+        schema:
+          type: string
+          pattern: ^[a-f0-9]{24}$
+          description: The identifier of the webhook destination to update.
+          title: Webhook Destination Id
+        description: The identifier of the webhook destination to update.
+      - name: organization
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Organization
+      - name: x-mongo-cluster-name
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.
+          title: X-Mongo-Cluster-Name
+        description: The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.
+      - name: Sec-WebSocket-Protocol
+        in: header
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+          default: []
+          title: Sec-Websocket-Protocol
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/src__app__endpoints__webhook_destination__update_webhook_destination__Request'
+      responses:
+        '204':
+          description: Succeeded.
+        '422':
+          description: Invalid request path parameter or request body failed validation.
+        '404':
+          description: Specified organization or webhook destination is not found.
+        '409':
+          description: A related operation is in progress.
+        '401':
+          description: Invalid authorization credentials.
+        '403':
+          description: Missing required permissions.
+        '503':
+          description: The service is going through temporary maintenance.
+        '429':
+          description: The user has exceeded the rate limit of 20 requests per minute for this endpoint.
+    delete:
+      tags:
+      - Webhook Destination
+      summary: Delete a webhook destination
+      description: 'Remove a webhook destination from the organization. The webhook destination might still be active for a few seconds after this endpoint returns.
+
+
+        #### Permissions
+
+        This endpoint requires the following permissions:
+
+        * `Webhook:DeleteWebhookDestination` for the webhook destination.'
+      operationId: delete-webhook-destination
+      parameters:
+      - name: webhook_destination_id
+        in: path
+        required: true
+        schema:
+          type: string
+          pattern: ^[a-f0-9]{24}$
+          description: The identifier of the webhook destination to update.
+          title: Webhook Destination Id
+        description: The identifier of the webhook destination to update.
+      - name: organization
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Organization
+      - name: x-mongo-cluster-name
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.
+          title: X-Mongo-Cluster-Name
+        description: The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.
+      - name: Sec-WebSocket-Protocol
+        in: header
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+          default: []
+          title: Sec-Websocket-Protocol
+      responses:
+        '204':
+          description: Succeeded.
+        '422':
+          description: Invalid request path parameter failed validation.
+        '404':
+          description: Specified organization or webhook destination is not found.
+        '409':
+          description: A related operation is in progress.
+        '401':
+          description: Invalid authorization credentials.
+        '403':
+          description: Missing required permissions.
+        '503':
+          description: The service is going through temporary maintenance.
+        '429':
+          description: The user has exceeded the rate limit of 20 requests per minute for this endpoint.
+  /v1/{organization}/webhook_destination/{webhook_destination_id}/rotate-secret:
+    post:
+      tags:
+      - Webhook Destination
+      summary: Rotate the secret of a webhook destination
+      description: 'Replace the secret for the given webhook destination. The new secret will be returned and cannot be retrieved later.
+
+
+        Until the `dual_signing_stops_at` timestamp in the response, which is roughly 30 minutes after the generation of the new secret, the webhook
+
+        will be signed by both the old and the new secret. This allows the webhook consumer to transition to the new secret without downtime.
+
+
+        The webhook rotation can occur at most once per hour for each webhook destination.
+
+
+        #### Permissions
+
+        This endpoint requires the following permissions:
+
+        * `Webhook:UpdateWebhookDestination` for the webhook destination.'
+      operationId: rotate-webhook-destination-secret
+      parameters:
+      - name: webhook_destination_id
+        in: path
+        required: true
+        schema:
+          type: string
+          pattern: ^[a-f0-9]{24}$
+          description: The ID for the webhook destination to rotate the secret for.
+          title: Webhook Destination Id
+        description: The ID for the webhook destination to rotate the secret for.
+      - name: organization
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Organization
+      - name: x-mongo-cluster-name
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.
+          title: X-Mongo-Cluster-Name
+        description: The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.
+      - name: Sec-WebSocket-Protocol
+        in: header
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+          default: []
+          title: Sec-Websocket-Protocol
+      responses:
+        '200':
+          description: Succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/src__app__endpoints__webhook_destination__rotate_webhook_destination_secret__Response'
+        '422':
+          description: Invalid request path parameter failed validation.
+        '404':
+          description: Specified organization or webhook destination is not found.
+        '409':
+          description: A related operation is in progress.
+        '400':
+          description: The frequency of secret rotation is limited to once per hour.
+        '401':
+          description: Invalid authorization credentials.
+        '403':
+          description: Missing required permissions.
+        '503':
+          description: The service is going through temporary maintenance.
+        '429':
+          description: The user has exceeded the rate limit of 20 requests per minute for this endpoint.
+  /v1/{organization}/webhook_destination/{webhook_destination_id}/delivery:
+    get:
+      tags:
+      - Webhook Destination
+      summary: Get webhook deliveries
+      description: 'Retrieve the webhook deliveries to a webhook destination.
+
+
+        #### Permissions
+
+        This endpoint may be impacted by the following permissions:
+
+        * `Webhook:GetWebhookDeliveries` on the webhook deliveries to retrieve.'
+      operationId: get-webhook-deliveries
+      parameters:
+      - name: webhook_destination_id
+        in: path
+        required: true
+        schema:
+          type: string
+          pattern: ^[a-f0-9]{24}$
+          description: The ID of the webhook destination whose deliveries to retrieve.
+          title: Webhook Destination Id
+        description: The ID of the webhook destination whose deliveries to retrieve.
+      - name: organization
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Organization
+      - name: status
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - $ref: '#/components/schemas/WebhookDeliveryStatus'
+          - type: 'null'
+          description: The status of the webhook delivery.
+          title: Status
+        description: The status of the webhook delivery.
+      - name: type
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The type of the webhook.
+          title: Type
+        description: The type of the webhook.
+      - name: created_after
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          description: An ISO8601 timestamp in UTC of the earliest creation time of the webhook deliveries to retrieve.
+          title: Created After
+        description: An ISO8601 timestamp in UTC of the earliest creation time of the webhook deliveries to retrieve.
+      - name: created_before
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          description: An ISO8601 timestamp in UTC of the latest creation time of the webhook deliveries to retrieve.
+          title: Created Before
+        description: An ISO8601 timestamp in UTC of the latest creation time of the webhook deliveries to retrieve.
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 50
+          minimum: 0
+          description: The maximum number of webhook deliveries to retrieve.
+          default: 50
+          title: Limit
+        description: The maximum number of webhook deliveries to retrieve.
+      - name: continuation_token
+        in: query
+        required: false
+        schema:
+          type: integer
+          description: The token from the previous request to return the next page of webhook deliveries.
+          default: 0
+          title: Continuation Token
+        description: The token from the previous request to return the next page of webhook deliveries.
+      - name: sort_by
+        in: query
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+          description: The fields to sort the sets by. Supported fields are `type`, `status`, and `created_at`. Specify a `+` before the field name to indicate ascending sorting and `-` for descending sorting. Multiple fields can be specified to break ties.
+          default: []
+          title: Sort By
+        description: The fields to sort the sets by. Supported fields are `type`, `status`, and `created_at`. Specify a `+` before the field name to indicate ascending sorting and `-` for descending sorting. Multiple fields can be specified to break ties.
+      - name: x-mongo-cluster-name
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.
+          title: X-Mongo-Cluster-Name
+        description: The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.
+      - name: Sec-WebSocket-Protocol
+        in: header
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+          default: []
+          title: Sec-Websocket-Protocol
+      responses:
+        '200':
+          description: Succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/src__app__endpoints__webhook_destination__get_webhook_deliveries__Response'
+        '404':
+          description: Specified organization or webhook destination is not found.
+        '422':
+          description: Invalid request path parameter or request query parameter failed validation.
+        '401':
+          description: Invalid authorization credentials.
+        '403':
+          description: Missing required permissions.
+        '503':
+          description: The service is going through temporary maintenance.
+        '429':
+          description: The user has exceeded the rate limit of 5 requests per minute for this endpoint.
+components:
+  schemas:
+    WebhookDeliveryInstance:
+      properties:
+        id:
+          type: string
+          title: Id
+          description: The ID of the webhook delivery.
+        type:
+          type: string
+          title: Type
+          description: The type of the webhook.
+        webhook_content:
+          additionalProperties: true
+          type: object
+          title: Webhook Content
+          description: The body of the webhook.
+        status:
+          $ref: '#/components/schemas/WebhookDeliveryStatus'
+          description: The status of the webhook delivery.
+        delivery_attempts:
+          items:
+            $ref: '#/components/schemas/DeliveryAttempt'
+          type: array
+          title: Delivery Attempts
+          description: The delivery attempts of the webhook.
+        dual_signed:
+          type: boolean
+          title: Dual Signed
+          description: Whether the webhook was signed with two secrets.
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+          description: In UTC time, when the webhook send request was received.
+      type: object
+      required:
+      - id
+      - type
+      - webhook_content
+      - status
+      - delivery_attempts
+      - dual_signed
+      - created_at
+      title: WebhookDeliveryInstance
+    WebhookDestination:
+      properties:
+        id:
+          type: string
+          title: Id
+        url:
+          type: string
+          title: Url
+          description: The URL to which the webhook events are sent.
+        secret_generated_at:
+          type: string
+          format: date-time
+          title: Secret Generated At
+          description: The UTC time at which the webhook secret was generated.
+        retry_attempts:
+          type: integer
+          title: Retry Attempts
+          description: The number of attempts to retry sending the webhook event in case of failure.
+        accepted_types:
+          items:
+            type: string
+          type: array
+          title: Accepted Types
+          description: A list of webhook types to receive.
+      type: object
+      required:
+      - id
+      - url
+      - secret_generated_at
+      - retry_attempts
+      - accepted_types
+      title: WebhookDestination
+    src__app__endpoints__webhook_destination__create_webhook_destination__Response:
+      properties:
+        webhook_destination_id:
+          type: string
+          title: Webhook Destination Id
+          description: The ID of the created webhook destination.
+        secret:
+          type: string
+          title: Secret
+          description: The secret used to sign the webhook event. This is only visible once and cannot be retrieved later.
+      type: object
+      required:
+      - webhook_destination_id
+      - secret
+      title: Response
+    src__app__endpoints__webhook_destination__update_webhook_destination__Request:
+      properties:
+        retry_attempts:
+          anyOf:
+          - type: integer
+            maximum: 5.0
+            exclusiveMinimum: 0.0
+          - type: 'null'
+          title: Retry Attempts
+          description: The number of attempts to retry sending the webhook event in case of failure. If not specified, this field is not updated.
+        accepted_types:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/WebhookType'
+            type: array
+          - type: 'null'
+          title: Accepted Types
+          description: A list of webhook types to receive. If not specified, this field is not updated.
+      type: object
+      title: Request
+    DeliveryAttempt:
+      properties:
+        delivery_time:
+          type: string
+          format: date-time
+          title: Delivery Time
+          description: The time of the delivery attempt in UTC.
+        status_code:
+          type: integer
+          title: Status Code
+          description: The HTTP status code of the delivery attempt.
+      type: object
+      required:
+      - delivery_time
+      - status_code
+      title: DeliveryAttempt
+    src__app__endpoints__webhook_destination__rotate_webhook_destination_secret__Response:
+      properties:
+        secret:
+          type: string
+          title: Secret
+          description: 'The new secret used to sign the webhook event. This is only visible once and cannot be retrieved later. For the next 30 minutes, the webhook will be signed by both
+
+            the old and the new secret.'
+        dual_signing_stops_at:
+          type: string
+          format: date-time
+          title: Dual Signing Stops At
+          description: A UTC time where the dual-signing behavior stops. After this time, webhooks will only be signed using the new secret from this endpoint.
+      type: object
+      required:
+      - secret
+      - dual_signing_stops_at
+      title: Response
+    src__app__endpoints__webhook_destination__create_webhook_destination__Request:
+      properties:
+        url:
+          type: string
+          minLength: 1
+          format: uri
+          title: Url
+          description: The URL to which the webhook will be sent. The URL must be in HTTPS.
+        accepted_types:
+          items:
+            $ref: '#/components/schemas/WebhookType'
+          type: array
+          title: Accepted Types
+          description: A list of webhook types to receive.
+        retry_attempts:
+          type: integer
+          maximum: 5.0
+          exclusiveMinimum: 0.0
+          title: Retry Attempts
+          description: The number of attempts to retry sending the webhook event in case of failure.
+          default: 3
+      type: object
+      required:
+      - url
+      - accepted_types
+      title: Request
+    src__app__endpoints__webhook_destination__get_webhook_deliveries__Response:
+      properties:
+        webhook_deliveries:
+          items:
+            $ref: '#/components/schemas/WebhookDeliveryInstance'
+          type: array
+          title: Webhook Deliveries
+          description: The retrieved webhook deliveries.
+        has_more:
+          type: boolean
+          title: Has More
+          description: Whether there are more webhook deliveries to retrieve.
+        continuation_token:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Continuation Token
+          description: A token to supply to the next request to retrieve the next page of webhook deliveries. Only populated if `has_more` is `True`.
+      type: object
+      required:
+      - webhook_deliveries
+      - has_more
+      - continuation_token
+      title: Response
+    WebhookType:
+      type: string
+      enum:
+      - conversation-post-processing-complete
+      - api-key-expiration-soon
+      - agent-framework-resource-updated
+    src__app__endpoints__webhook_destination__get_webhook_destinations__Response:
+      properties:
+        webhook_destinations:
+          items:
+            $ref: '#/components/schemas/WebhookDestination'
+          type: array
+          title: Webhook Destinations
+          description: The retrieved webhook destinations.
+      type: object
+      required:
+      - webhook_destinations
+      title: Response
+    WebhookDeliveryStatus:
+      type: string
+      enum:
+      - success
+      - failed
+  securitySchemes:
+    Bearer-Authorization:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Amigo issued JWT token that identifies an user. It's issued either after logging in through the frontend, or manually through the [`SignInWithAPIKey`](sign-in-with-api-key) endpoint.
+    Bearer-Authorization-Organization:
+      type: apiKey
+      in: header
+      name: X-ORG-ID
+      description: An optional organization identifier that indicates from which organization the token is issued. This is used in rare cases where the user to authenticate is making a request for resources in another organization.
+    Basic:
+      type: http
+      scheme: basic
+      description: The username should be set to {org_id}_{user_id}, and the password should be the Amigo issued JWT token that identifies the user.

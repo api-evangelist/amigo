@@ -1,0 +1,1572 @@
+openapi: 3.1.0
+info:
+  title: Amigo Account Dynamic Behavior Set API
+  version: 0.1.0
+servers:
+- url: https://api.amigo.ai
+- url: https://internal-api.amigo.ai
+- url: https://api-eu-central-1.amigo.ai
+- url: https://api-ap-southeast-2.amigo.ai
+- url: https://api-ca-central-1.amigo.ai
+security:
+- Bearer-Authorization: []
+  Bearer-Authorization-Organization: []
+  Basic: []
+tags:
+- name: Dynamic Behavior Set
+paths:
+  /v1/{organization}/dynamic_behavior_set/:
+    post:
+      tags:
+      - Dynamic Behavior Set
+      summary: Create a dynamic behavior set
+      description: 'Create a new dynamic behavior set as well as its initial version.
+
+
+        #### Permissions
+
+        This endpoint requires the following permissions:
+
+        * `DynamicBehaviorInstruction:CreateDynamicBehaviorInstruction` on the set to create.
+
+        * `DynamicBehaviorInstruction:UpdateDynamicBehaviorInstruction` on the set to create.'
+      operationId: create-dynamic-behavior-set
+      parameters:
+      - name: organization
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Organization
+      - name: x-mongo-cluster-name
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.
+          title: X-Mongo-Cluster-Name
+        description: The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.
+      - name: Sec-WebSocket-Protocol
+        in: header
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+          default: []
+          title: Sec-Websocket-Protocol
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/src__app__endpoints__dynamic_behavior_set__create_dynamic_behavior_set__Request'
+      responses:
+        '201':
+          description: Succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/src__app__endpoints__dynamic_behavior_set__create_dynamic_behavior_set__Response'
+        '422':
+          description: Invalid request path parameter or request body failed validation.
+        '404':
+          description: The specified organization, service, or tool does not exist.
+        '409':
+          description: If the initial version is defined and `is_active` is set to `True`, an active dynamic behavior set with the same name already exists.
+        '401':
+          description: Invalid authorization credentials.
+        '403':
+          description: Missing required permissions.
+        '503':
+          description: The service is going through temporary maintenance.
+        '429':
+          description: The user has exceeded the rate limit of 200 requests per minute for this endpoint.
+    get:
+      tags:
+      - Dynamic Behavior Set
+      summary: Get dynamic behavior sets
+      description: 'Retrieve dynamic behavior sets that match the given filters.
+
+
+        #### Permissions
+
+        This endpoint may be impacted by the following permissions:
+
+        * Only dynamic behavior sets that the authenticated user has `DynamicBehaviorInstruction:GetDynamicBehaviorInstruction` permission for will be retrieved.'
+      operationId: get-dynamic-behavior-sets
+      parameters:
+      - name: organization
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Organization
+      - name: id
+        in: query
+        required: false
+        schema:
+          type: array
+          uniqueItems: true
+          items:
+            type: string
+            pattern: ^[a-f0-9]{24}$
+          description: The IDs of the dynamic behavior sets to retrieve.
+          default: []
+          title: Id
+        description: The IDs of the dynamic behavior sets to retrieve.
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 50
+          minimum: 0
+          description: The maximum number of dynamic behavior sets to return.
+          default: 50
+          title: Limit
+        description: The maximum number of dynamic behavior sets to return.
+      - name: continuation_token
+        in: query
+        required: false
+        schema:
+          type: integer
+          description: The continuation token to use to retrieve the next set of dynamic behavior sets.
+          default: 0
+          title: Continuation Token
+        description: The continuation token to use to retrieve the next set of dynamic behavior sets.
+      - name: is_active
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Whether the dynamic behavior set is active.
+          title: Is Active
+        description: Whether the dynamic behavior set is active.
+      - name: applied_to_service
+        in: query
+        required: false
+        schema:
+          type: array
+          uniqueItems: true
+          items:
+            type: string
+            pattern: ^[a-f0-9]{24}$
+          description: The IDs of the services that the dynamic behavior set is applied to.
+          default: []
+          title: Applied To Service
+        description: The IDs of the services that the dynamic behavior set is applied to.
+      - name: creator
+        in: query
+        required: false
+        schema:
+          type: array
+          uniqueItems: true
+          items:
+            type: string
+          description: The creators of the dynamic behavior sets.
+          default: []
+          title: Creator
+        description: The creators of the dynamic behavior sets.
+      - name: tag
+        in: query
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+          description: The tags of the dynamic behavior sets. Must be specified using the syntax `key:value`, which means to match all sets with the given `key` and `value` pair among its tags. If `value` is `*`, it means the `value` does not matter. If `value` is empty, it matches against when the value is `None`.
+          default: []
+          title: Tag
+        description: The tags of the dynamic behavior sets. Must be specified using the syntax `key:value`, which means to match all sets with the given `key` and `value` pair among its tags. If `value` is `*`, it means the `value` does not matter. If `value` is empty, it matches against when the value is `None`.
+      - name: sort_by
+        in: query
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+          description: The fields to sort the sets by. Supported fields are `updated_at`. Specify a `+` before the field name to indicate ascending sorting and `-` for descending sorting. Multiple fields can be specified to break ties.
+          default: []
+          title: Sort By
+        description: The fields to sort the sets by. Supported fields are `updated_at`. Specify a `+` before the field name to indicate ascending sorting and `-` for descending sorting. Multiple fields can be specified to break ties.
+      - name: x-mongo-cluster-name
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.
+          title: X-Mongo-Cluster-Name
+        description: The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.
+      - name: Sec-WebSocket-Protocol
+        in: header
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+          default: []
+          title: Sec-Websocket-Protocol
+      responses:
+        '200':
+          description: Succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/src__app__endpoints__dynamic_behavior_set__get_dynamic_behavior_sets__Response'
+        '404':
+          description: Specified organization is not found.
+        '422':
+          description: Invalid request path parameter or request query parameter failed validation.
+        '401':
+          description: Invalid authorization credentials.
+        '403':
+          description: Missing required permissions.
+        '503':
+          description: The service is going through temporary maintenance.
+        '429':
+          description: The user has exceeded the rate limit of 500 requests per minute for this endpoint.
+  /v1/{organization}/dynamic_behavior_set/{dynamic_behavior_set_id}/:
+    delete:
+      tags:
+      - Dynamic Behavior Set
+      summary: Delete a dynamic behavior instruction
+      description: 'Delete a dynamic behavior set.
+
+
+        #### Permissions
+
+        This endpoint requires the following permissions:
+
+        * `DynamicBehaviorInstruction:DeleteDynamicBehaviorInstruction` on the dynamic behavior set to delete.'
+      operationId: delete-dynamic-behavior-instruction
+      parameters:
+      - name: organization
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Organization
+      - name: dynamic_behavior_set_id
+        in: path
+        required: true
+        schema:
+          type: string
+          pattern: ^[a-f0-9]{24}$
+          description: The ID of the dynamic behavior set to delete.
+          title: Dynamic Behavior Set Id
+        description: The ID of the dynamic behavior set to delete.
+      - name: x-mongo-cluster-name
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.
+          title: X-Mongo-Cluster-Name
+        description: The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.
+      - name: Sec-WebSocket-Protocol
+        in: header
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+          default: []
+          title: Sec-Websocket-Protocol
+      responses:
+        '200':
+          description: Succeeded.
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Invalid request path parameter failed validation.
+        '404':
+          description: The specified organization or dynamic behavior set does not exist.
+        '401':
+          description: Invalid authorization credentials.
+        '403':
+          description: Missing required permissions.
+        '503':
+          description: The service is going through temporary maintenance.
+        '429':
+          description: The user has exceeded the rate limit of 500 requests per minute for this endpoint.
+    post:
+      tags:
+      - Dynamic Behavior Set
+      summary: Update a dynamic behavior set
+      description: 'Update a dynamic behavior set.
+
+
+        #### Permissions
+
+        This endpoint requires the following permissions:
+
+        * `DynamicBehaviorInstruction:UpdateDynamicBehaviorInstruction` on the dynamic behavior set to update.'
+      operationId: update-dynamic-behavior-set
+      parameters:
+      - name: organization
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Organization
+      - name: dynamic_behavior_set_id
+        in: path
+        required: true
+        schema:
+          type: string
+          pattern: ^[a-f0-9]{24}$
+          description: The ID of the dynamic behavior set to delete.
+          title: Dynamic Behavior Set Id
+        description: The ID of the dynamic behavior set to delete.
+      - name: x-mongo-cluster-name
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.
+          title: X-Mongo-Cluster-Name
+        description: The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.
+      - name: Sec-WebSocket-Protocol
+        in: header
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+          default: []
+          title: Sec-Websocket-Protocol
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/src__app__endpoints__dynamic_behavior_set__update_dynamic_behavior_set__Request'
+      responses:
+        '204':
+          description: Succeeded.
+        '422':
+          description: Invalid request path parameter or request body failed validation.
+        '404':
+          description: The specified organization, dynamic behavior set, or service does not exist.
+        '409':
+          description: Another active set with the same name already exists.
+        '401':
+          description: Invalid authorization credentials.
+        '403':
+          description: Missing required permissions.
+        '503':
+          description: The service is going through temporary maintenance.
+        '429':
+          description: The user has exceeded the rate limit of 500 requests per minute for this endpoint.
+  /v1/{organization}/dynamic_behavior_set/{dynamic_behavior_set_id}/version/:
+    post:
+      tags:
+      - Dynamic Behavior Set
+      summary: Create a new version of a dynamic behavior set.
+      description: 'Create a new version of the given dynamic behavior set.
+
+
+        #### Permissions
+
+        This endpoint requires the following permissions:
+
+        * `DynamicBehaviorInstruction:UpdateDynamicBehaviorInstruction` on the dynamic behavior set to create a new version for.'
+      operationId: create-dynamic-behavior-set-version
+      parameters:
+      - name: organization
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Organization
+      - name: dynamic_behavior_set_id
+        in: path
+        required: true
+        schema:
+          type: string
+          pattern: ^[a-f0-9]{24}$
+          description: The ID of the dynamic behavior set to delete.
+          title: Dynamic Behavior Set Id
+        description: The ID of the dynamic behavior set to delete.
+      - name: version
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: integer
+            exclusiveMinimum: 1
+          - type: 'null'
+          description: The version number of the new version. If specified, this endpoint throws an error if the next version in the database doesn't equal to the value of this parameter.
+          title: Version
+        description: The version number of the new version. If specified, this endpoint throws an error if the next version in the database doesn't equal to the value of this parameter.
+      - name: x-mongo-cluster-name
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.
+          title: X-Mongo-Cluster-Name
+        description: The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.
+      - name: Sec-WebSocket-Protocol
+        in: header
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+          default: []
+          title: Sec-Websocket-Protocol
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/src__app__endpoints__dynamic_behavior_set__create_dynamic_behavior_set_version__Request'
+      responses:
+        '201':
+          description: Succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/src__app__endpoints__dynamic_behavior_set__create_dynamic_behavior_set_version__Response'
+        '422':
+          description: Invalid request path parameter, request query parameter, or request body failed validation.
+        '404':
+          description: The specified organization, dynamic behavior set, or tool does not exist.
+        '400':
+          description: The specified version number is not the expected next version to be created.
+        '401':
+          description: Invalid authorization credentials.
+        '403':
+          description: Missing required permissions.
+        '503':
+          description: The service is going through temporary maintenance.
+        '429':
+          description: The user has exceeded the rate limit of 200 requests per minute for this endpoint.
+    get:
+      tags:
+      - Dynamic Behavior Set
+      summary: Get dynamic behavior set versions
+      description: 'Get the versions of a dynamic behavior set.
+
+
+        #### Permissions
+
+        This endpoint requires the following permissions:
+
+        * `DynamicBehaviorInstruction:GetDynamicBehaviorInstruction` for the dynamic behavior set to retrieve.'
+      operationId: get-dynamic-behavior-set-versions
+      parameters:
+      - name: organization
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Organization
+      - name: dynamic_behavior_set_id
+        in: path
+        required: true
+        schema:
+          type: string
+          pattern: ^[a-f0-9]{24}$
+          description: The ID of the dynamic behavior set.
+          title: Dynamic Behavior Set Id
+        description: The ID of the dynamic behavior set.
+      - name: version
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: 'The versions of the dynamic behavior set to retrieve. One can specify an exact version to retrieve, which is either the version number or `latest`,
+
+            which retrieves the latest version. Alternatively, one can specify a range of inclusive lower and upper bound for the version number separated by `-`,
+
+            and every version within the range would be retrieved.'
+          examples:
+          - '1'
+          - 1-latest
+          - 2-5
+          - latest
+          title: Version
+        description: 'The versions of the dynamic behavior set to retrieve. One can specify an exact version to retrieve, which is either the version number or `latest`,
+
+          which retrieves the latest version. Alternatively, one can specify a range of inclusive lower and upper bound for the version number separated by `-`,
+
+          and every version within the range would be retrieved.'
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 10
+          exclusiveMinimum: 0
+          description: The maximum number of dynamic behavior set versions to return.
+          default: 10
+          title: Limit
+        description: The maximum number of dynamic behavior set versions to return.
+      - name: continuation_token
+        in: query
+        required: false
+        schema:
+          type: integer
+          description: The continuation token from the previous request used to retrieve the next page of dynamic behavior set versions.
+          default: 0
+          title: Continuation Token
+        description: The continuation token from the previous request used to retrieve the next page of dynamic behavior set versions.
+      - name: sort_by
+        in: query
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+          description: 'The fields to sort the versions by. Supported fields are `version`. Specify a `+` before the field name to indicate ascending sorting and `-`
+
+            for descending sorting. Multiple fields can be specified to break ties.'
+          default: []
+          title: Sort By
+        description: 'The fields to sort the versions by. Supported fields are `version`. Specify a `+` before the field name to indicate ascending sorting and `-`
+
+          for descending sorting. Multiple fields can be specified to break ties.'
+      - name: x-mongo-cluster-name
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.
+          title: X-Mongo-Cluster-Name
+        description: The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.
+      - name: Sec-WebSocket-Protocol
+        in: header
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+          default: []
+          title: Sec-Websocket-Protocol
+      responses:
+        '200':
+          description: Succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/src__app__endpoints__dynamic_behavior_set__get_dynamic_behavior_set_versions__Response'
+        '404':
+          description: Specified organization or dynamic behavior set is not found.
+        '422':
+          description: Invalid request path parameter or request query parameter failed validation.
+        '401':
+          description: Invalid authorization credentials.
+        '403':
+          description: Missing required permissions.
+        '503':
+          description: The service is going through temporary maintenance.
+        '429':
+          description: The user has exceeded the rate limit of 1000 requests per minute for this endpoint.
+  /v1/{organization}/dynamic_behavior_set/search:
+    get:
+      tags:
+      - Dynamic Behavior Set
+      summary: Search dynamic behavior sets
+      description: 'Search for dynamic behavior sets that match the given filters and contain the given query in its name and the triggers of its latest version. Only the top 50 results will be returned. The results
+
+        will be sorted by the relevance of the search query.
+
+
+        #### Permissions
+
+        This endpoint may be impacted by the following permissions:
+
+        * Only dynamic behavior sets that the authenticated user has `DynamicBehaviorInstruction:GetDynamicBehaviorInstruction` permission for will be retrieved.'
+      operationId: search-dynamic-behavior-sets
+      parameters:
+      - name: organization
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Organization
+      - name: query
+        in: query
+        required: true
+        schema:
+          $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
+          description: The query to search for. Any sets containing the terms in its name and the triggers of its latest version would be returned.
+        description: The query to search for. Any sets containing the terms in its name and the triggers of its latest version would be returned.
+      - name: is_active
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Whether the dynamic behavior set is active.
+          title: Is Active
+        description: Whether the dynamic behavior set is active.
+      - name: applied_to_service
+        in: query
+        required: false
+        schema:
+          type: array
+          uniqueItems: true
+          items:
+            type: string
+            pattern: ^[a-f0-9]{24}$
+          description: The IDs of the services that the dynamic behavior set is applied to.
+          default: []
+          title: Applied To Service
+        description: The IDs of the services that the dynamic behavior set is applied to.
+      - name: creator
+        in: query
+        required: false
+        schema:
+          type: array
+          uniqueItems: true
+          items:
+            type: string
+          description: The creators of the dynamic behavior sets. Each value must be of the format `org_id,user_id`.
+          default: []
+          title: Creator
+        description: The creators of the dynamic behavior sets. Each value must be of the format `org_id,user_id`.
+      - name: tag
+        in: query
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+          description: 'The tags of the dynamic behavior sets. Must be specified using the syntax `key:value`, which means to match all sets with the given `key` and `value` pair among its tags.
+
+            If `value` is `*`, it means the `value` does not matter. If `value` is empty, it matches against when the value is `None`.'
+          default: []
+          title: Tag
+        description: 'The tags of the dynamic behavior sets. Must be specified using the syntax `key:value`, which means to match all sets with the given `key` and `value` pair among its tags.
+
+          If `value` is `*`, it means the `value` does not matter. If `value` is empty, it matches against when the value is `None`.'
+      - name: x-mongo-cluster-name
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.
+          title: X-Mongo-Cluster-Name
+        description: The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.
+      - name: Sec-WebSocket-Protocol
+        in: header
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+          default: []
+          title: Sec-Websocket-Protocol
+      responses:
+        '200':
+          description: Succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/src__app__endpoints__dynamic_behavior_set__search_dynamic_behavior_sets__Response'
+        '404':
+          description: Specified organization is not found.
+        '422':
+          description: Invalid request path parameter or request query parameter failed validation.
+        '401':
+          description: Invalid authorization credentials.
+        '403':
+          description: Missing required permissions.
+        '503':
+          description: The service is going through temporary maintenance.
+        '429':
+          description: The user has exceeded the rate limit of 50 requests per minute for this endpoint.
+  /v1/{organization}/dynamic_behavior_set/{dynamic_behavior_set_id}/invocation/:
+    get:
+      tags:
+      - Dynamic Behavior Set
+      summary: Get dynamic behavior invocations
+      description: 'Retrieve the dynamic behavior invocations for a dynamic behavior set.
+
+
+        #### Permissions
+
+        This endpoint requires the following permissions:
+
+        * `DynamicBehaviorInstruction:GetDynamicBehaviorInstruction` for the dynamic behavior set.
+
+
+        This endpoint is impacted by the following permissions:
+
+        * Only invocations from messages that the authenticated user has the `Conversation:GetMessage` permission for are returned.'
+      operationId: get-dynamic-behavior-invocations
+      parameters:
+      - name: organization
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Organization
+      - name: dynamic_behavior_set_id
+        in: path
+        required: true
+        schema:
+          type: string
+          pattern: ^[a-f0-9]{24}$
+          description: The ID of the dynamic behavior set.
+          title: Dynamic Behavior Set Id
+        description: The ID of the dynamic behavior set.
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 30
+          exclusiveMinimum: 0
+          description: The maximum number of dynamic behavior invocations to return.
+          default: 30
+          title: Limit
+        description: The maximum number of dynamic behavior invocations to return.
+      - name: continuation_token
+        in: query
+        required: false
+        schema:
+          type: integer
+          description: The continuation token from the previous request used to retrieve the next page of dynamic behavior invocations.
+          default: 0
+          title: Continuation Token
+        description: The continuation token from the previous request used to retrieve the next page of dynamic behavior invocations.
+      - name: sort_by
+        in: query
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+          description: The fields to sort the versions by. Supported fields are `invoked_at`. Specify a `+` before the field name to indicate ascending sorting and `-` for descending sorting. Multiple fields can be specified to break ties.
+          default: []
+          title: Sort By
+        description: The fields to sort the versions by. Supported fields are `invoked_at`. Specify a `+` before the field name to indicate ascending sorting and `-` for descending sorting. Multiple fields can be specified to break ties.
+      - name: x-mongo-cluster-name
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.
+          title: X-Mongo-Cluster-Name
+        description: The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.
+      - name: Sec-WebSocket-Protocol
+        in: header
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+          default: []
+          title: Sec-Websocket-Protocol
+      responses:
+        '200':
+          description: Succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/src__app__endpoints__dynamic_behavior_set__get_dynamic_behavior_invocations__Response'
+        '404':
+          description: Specified organization or dynamic behavior set is not found.
+        '422':
+          description: Invalid request path parameter or request query parameter failed validation.
+        '401':
+          description: Invalid authorization credentials.
+        '403':
+          description: Missing required permissions.
+        '503':
+          description: The service is going through temporary maintenance.
+        '429':
+          description: The user has exceeded the rate limit of 50 requests per minute for this endpoint.
+components:
+  schemas:
+    ResultPersistence:
+      type: string
+      enum:
+      - ephemeral
+      - persisted-preferred
+      - persisted
+    amigo_lib__mongo__collections__dynamic_behavior_set__DynamicBehaviorSet__UserInfo:
+      properties:
+        org_id:
+          type: string
+          title: Org Id
+        user_id:
+          type: string
+          title: User Id
+      type: object
+      required:
+      - org_id
+      - user_id
+      title: UserInfo
+    amigo_lib__pydantic__base_model__StrippedNonemptyString__1:
+      type: string
+      minLength: 1
+    amigo_lib__mongo__collections__dynamic_behavior_set_version__Action:
+      oneOf:
+      - $ref: '#/components/schemas/InjectInstructionAction-Output'
+      - $ref: '#/components/schemas/ChangeToolCandidatesAction-Output'
+      discriminator:
+        propertyName: type
+        mapping:
+          change-tool-candidates: '#/components/schemas/ChangeToolCandidatesAction-Output'
+          inject-instruction: '#/components/schemas/InjectInstructionAction-Output'
+    src__app__endpoints__dynamic_behavior_set__create_dynamic_behavior_set_version__Request__ChangeToolCandidatesAction:
+      properties:
+        type:
+          type: string
+          const: change-tool-candidates
+          title: Type
+        tool_call_specs:
+          items:
+            $ref: '#/components/schemas/src__app__endpoints__dynamic_behavior_set__create_dynamic_behavior_set_version__Request__ChangeToolCandidatesAction__ToolCallSpec'
+          type: array
+          title: Tool Call Specs
+        overrides_existing_tool_call_specs:
+          type: boolean
+          title: Overrides Existing Tool Call Specs
+          description: During injection, whether the existing tool call specs are overriden with these new specs.
+      type: object
+      required:
+      - type
+      - tool_call_specs
+      - overrides_existing_tool_call_specs
+      title: ChangeToolCandidatesAction
+    src__app__endpoints__dynamic_behavior_set__get_dynamic_behavior_invocations__Response:
+      properties:
+        dynamic_behavior_invocations:
+          items:
+            $ref: '#/components/schemas/DynamicBehaviorInvocation'
+          type: array
+          title: Dynamic Behavior Invocations
+          description: The retrieved dynamic behavior invocations.
+        has_more:
+          type: boolean
+          title: Has More
+          description: Whether there are more dynamic behavior invocations to retrieve.
+        continuation_token:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Continuation Token
+          description: A token to supply to the next request to retrieve the next page of dynamic behavior invocations. Only populated if `has_more` is `True`.
+      type: object
+      required:
+      - dynamic_behavior_invocations
+      - has_more
+      - continuation_token
+      title: Response
+    ? amigo_lib__mongo__collections__dynamic_behavior_set_version__DynamicBehaviorSetVersion__ChangeToolCandidatesAction__ToolCallSpec
+    : properties:
+        tool_id:
+          type: string
+          title: Tool Id
+          description: The ID of the tool.
+        version_constraint:
+          type: string
+          title: Version Constraint
+          description: A [Python packaging version constraint](https://packaging.python.org/en/latest/specifications/version-specifiers/#id5) of the tool.
+        additional_instruction:
+          type: string
+          title: Additional Instruction
+          description: Additional instruction to be supplied to the LLM in addition to the tool's description.
+        audio_fillers:
+          items:
+            type: string
+          type: array
+          title: Audio Fillers
+          description: A list of audio fillers to play in audio mode if the tool is taking a long time.
+        audio_filler_triggered_after:
+          type: number
+          title: Audio Filler Triggered After
+          description: The number of seconds to wait before playing an audio filler.
+        result_persistence:
+          $ref: '#/components/schemas/ResultPersistence'
+          description: 'The type of result persistence for this tool call.
+
+
+            - If `ephemeral`, the result of the tool call is only provided to the current LLM interaction. Any future LLM interactions will not see this tool result.
+
+            - If `persisted-preferred`, the result of the tool call is reflected in all future LLM interactions if it''s less than 5000 characters long. Otherwise, it''s only visible in the current LLM interaction.
+
+            - If `persisted`, the result of the tool call is reflected in all future LLM interactions, unless it''s more than 5000 characters long, in which case an error is thrown.'
+        tool_name:
+          type: string
+          title: Tool Name
+          description: 'An identifier of the tool that will be displayed in the description of this dynamic behavior set. This could be simply the name of the tool, or one augmented with
+
+            the context of the dynamic behavior.'
+      type: object
+      required:
+      - tool_id
+      - version_constraint
+      - additional_instruction
+      - audio_fillers
+      - audio_filler_triggered_after
+      - result_persistence
+      - tool_name
+      title: ToolCallSpec
+    DynamicBehaviorInvocation:
+      properties:
+        _id:
+          type: string
+          title: Id
+          description: The ID of the document.
+        org_id:
+          type: string
+          title: Org Id
+          description: The ID of the organization.
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+        conversation_id:
+          type: string
+          title: Conversation Id
+          description: The ID of the conversation.
+        service_id:
+          type: string
+          title: Service Id
+          description: The ID of the service that the conversation belongs to.
+        user_id:
+          type: string
+          title: User Id
+          description: The ID of the user that triggered the dynamic behavior.
+        initial_message_id:
+          type: string
+          title: Initial Message Id
+          description: The ID of the initial message that led to the dynamic behavior invocation.
+        agent_message_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Agent Message Id
+          description: The ID of the agent message that led to the dynamic behavior invocation.
+        agent_inner_thoughts_ids:
+          items:
+            type: string
+          type: array
+          title: Agent Inner Thoughts Ids
+          description: The IDs of the agent inner thoughts that led to the dynamic behavior invocation.
+        dynamic_behavior_set_version_info:
+          prefixItems:
+          - type: string
+          - type: integer
+          type: array
+          maxItems: 2
+          minItems: 2
+          title: Dynamic Behavior Set Version Info
+          description: The ID and version number of the dynamic behavior set version that was activated.
+        invoked_at:
+          type: string
+          format: date-time
+          title: Invoked At
+          description: The time when the dynamic behavior was invoked.
+        external_event_message_ids:
+          items:
+            type: string
+          type: array
+          title: External Event Message Ids
+          description: The IDs of the external event messages that were considered during the invocation. These do not include the initial message if it's an external event.
+          default: []
+      type: object
+      required:
+      - _id
+      - org_id
+      - conversation_id
+      - service_id
+      - user_id
+      - initial_message_id
+      - agent_message_id
+      - agent_inner_thoughts_ids
+      - dynamic_behavior_set_version_info
+      - invoked_at
+      title: DynamicBehaviorInvocation
+    src__app__endpoints__dynamic_behavior_set__search_dynamic_behavior_sets__Response:
+      properties:
+        dynamic_behavior_sets:
+          items:
+            $ref: '#/components/schemas/DynamicBehaviorSetInstance'
+          type: array
+          title: Dynamic Behavior Sets
+          description: The retrieved dynamic behavior sets.
+      type: object
+      required:
+      - dynamic_behavior_sets
+      title: Response
+    InjectInstructionAction-Output:
+      properties:
+        type:
+          type: string
+          const: inject-instruction
+          title: Type
+        instruction:
+          type: string
+          title: Instruction
+        overrides_instructions:
+          type: boolean
+          title: Overrides Instructions
+          description: During injection, whether the original instruction of the state is overriden with this instruction.
+      type: object
+      required:
+      - type
+      - instruction
+      - overrides_instructions
+      title: InjectInstructionAction
+    src__app__endpoints__dynamic_behavior_set__create_dynamic_behavior_set__Request:
+      properties:
+        name:
+          $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
+          description: The name of the dynamic behavior set.
+        tags:
+          additionalProperties:
+            anyOf:
+            - $ref: '#/components/schemas/StrippedNonemptyString___w__s_____'
+            - type: 'null'
+          propertyNames:
+            $ref: '#/components/schemas/StrippedNonemptyString___w__s_____'
+          type: object
+          maxProperties: 20
+          title: Tags
+          description: The tags of the dynamic behavior set. Both the key and the value can only contain alphanumeric characters, underscores, or spaces.
+        applied_to_services:
+          items:
+            type: string
+            pattern: ^[a-f0-9]{24}$
+          type: array
+          title: Applied To Services
+          description: The services that the dynamic behavior set should be applied to.
+        initial_version:
+          $ref: '#/components/schemas/src__app__endpoints__dynamic_behavior_set__create_dynamic_behavior_set__Request__InitialVersion'
+          description: The configuration for the initial version of the dynamic behavior set.
+      type: object
+      required:
+      - name
+      - tags
+      - applied_to_services
+      - initial_version
+      title: Request
+    DynamicBehaviorSetVersion:
+      properties:
+        _id:
+          type: string
+          title: Id
+          description: The ID of the document.
+        org_id:
+          type: string
+          title: Org Id
+          description: The ID of the organization.
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+        dynamic_behavior_set_id:
+          type: string
+          title: Dynamic Behavior Set Id
+        version:
+          type: integer
+          title: Version
+        conversation_triggers:
+          items:
+            type: string
+          type: array
+          title: Conversation Triggers
+        actions:
+          items:
+            $ref: '#/components/schemas/amigo_lib__mongo__collections__dynamic_behavior_set_version__Action'
+          type: array
+          title: Actions
+        creator:
+          $ref: '#/components/schemas/amigo_lib__mongo__collections__dynamic_behavior_set_version__DynamicBehaviorSetVersion__UserInfo'
+          description: The user who created this version of the dynamic behavior set.
+      type: object
+      required:
+      - _id
+      - org_id
+      - dynamic_behavior_set_id
+      - version
+      - conversation_triggers
+      - actions
+      - creator
+      title: DynamicBehaviorSetVersion
+    src__app__endpoints__dynamic_behavior_set__create_dynamic_behavior_set_version__Response:
+      properties:
+        new_version_number:
+          type: integer
+          title: New Version Number
+          description: The version number of the new version.
+      type: object
+      required:
+      - new_version_number
+      title: Response
+    InjectInstructionAction-Input:
+      properties:
+        type:
+          type: string
+          const: inject-instruction
+          title: Type
+        instruction:
+          $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
+        overrides_instructions:
+          type: boolean
+          title: Overrides Instructions
+          description: During injection, whether the original instruction of the state is overriden with this instruction.
+      type: object
+      required:
+      - type
+      - instruction
+      - overrides_instructions
+      title: InjectInstructionAction
+    ? src__app__endpoints__dynamic_behavior_set__create_dynamic_behavior_set_version__Request__ChangeToolCandidatesAction__ToolCallSpec
+    : properties:
+        tool_id:
+          type: string
+          pattern: ^[a-f0-9]{24}$
+          title: Tool Id
+          description: The ID of the tool.
+        version_constraint:
+          type: string
+          title: Version Constraint
+          description: A [Python packaging version constraint](https://packaging.python.org/en/latest/specifications/version-specifiers/#id5) of the tool.
+        additional_instruction:
+          $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
+          description: Additional instruction to be supplied to the LLM in addition to the tool's description.
+        audio_fillers:
+          items:
+            $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
+          type: array
+          maxItems: 5
+          title: Audio Fillers
+          description: A list of audio fillers to play in audio mode if the tool is taking a long time.
+        audio_filler_triggered_after:
+          type: number
+          maximum: 10.0
+          exclusiveMinimum: 0.0
+          title: Audio Filler Triggered After
+          description: The number of seconds to wait before playing an audio filler.
+        result_persistence:
+          $ref: '#/components/schemas/ResultPersistence'
+          description: 'The type of result persistence for this tool call.
+
+
+            - If `ephemeral`, the result of the tool call is only provided to the current LLM interaction. Any future LLM interactions will not see this tool result.
+
+            - If `persisted-preferred`, the result of the tool call is reflected in all future LLM interactions if it''s less than 5000 characters long. Otherwise, it''s only visible in the current LLM interaction.
+
+            - If `persisted`, the result of the tool call is reflected in all future LLM interactions, unless it''s more than 5000 characters long, in which case an error is thrown.'
+        tool_name:
+          $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
+          description: 'An identifier of the tool that will be displayed in the description of this dynamic behavior set. This could be simply the name of the tool, or one augmented with
+
+            the context of the dynamic behavior.'
+      type: object
+      required:
+      - tool_id
+      - version_constraint
+      - additional_instruction
+      - audio_fillers
+      - audio_filler_triggered_after
+      - result_persistence
+      - tool_name
+      title: ToolCallSpec
+    ? src__app__endpoints__dynamic_behavior_set__create_dynamic_behavior_set__Request__InitialVersion__ChangeToolCandidatesAction__ToolCallSpec
+    : properties:
+        tool_id:
+          type: string
+          pattern: ^[a-f0-9]{24}$
+          title: Tool Id
+          description: The ID of the tool.
+        version_constraint:
+          type: string
+          title: Version Constraint
+          description: A [Python packaging version constraint](https://packaging.python.org/en/latest/specifications/version-specifiers/#id5) of the tool.
+        additional_instruction:
+          $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
+          description: Additional instruction to be supplied to the LLM in addition to the tool's description.
+        audio_fillers:
+          items:
+            $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
+          type: array
+          maxItems: 5
+          title: Audio Fillers
+          description: A list of audio fillers to play in audio mode if the tool is taking a long time.
+        audio_filler_triggered_after:
+          type: number
+          maximum: 10.0
+          exclusiveMinimum: 0.0
+          title: Audio Filler Triggered After
+          description: The number of seconds to wait before playing an audio filler.
+        result_persistence:
+          $ref: '#/components/schemas/ResultPersistence'
+          description: 'The type of result persistence for this tool call.
+
+
+            - If `ephemeral`, the result of the tool call is only provided to the current LLM interaction. Any future LLM interactions will not see this tool result.
+
+            - If `persisted-preferred`, the result of the tool call is reflected in all future LLM interactions if it''s less than 5000 characters long. Otherwise, it''s only visible in the current LLM interaction.
+
+            - If `persisted`, the result of the tool call is reflected in all future LLM interactions, unless it''s more than 5000 characters long, in which case an error is thrown.'
+        tool_name:
+          $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
+          description: 'An identifier of the tool that will be displayed in the description of this dynamic behavior set. This could be simply the name of the tool, or one augmented with
+
+            the context of the dynamic behavior.'
+      type: object
+      required:
+      - tool_id
+      - version_constraint
+      - additional_instruction
+      - audio_fillers
+      - audio_filler_triggered_after
+      - result_persistence
+      - tool_name
+      title: ToolCallSpec
+    amigo_lib__mongo__collections__dynamic_behavior_set_version__DynamicBehaviorSetVersion__UserInfo:
+      properties:
+        org_id:
+          type: string
+          title: Org Id
+        user_id:
+          type: string
+          title: User Id
+      type: object
+      required:
+      - org_id
+      - user_id
+      title: UserInfo
+    src__app__endpoints__dynamic_behavior_set__create_dynamic_behavior_set__Request__InitialVersion:
+      properties:
+        is_active:
+          type: boolean
+          title: Is Active
+          description: After adding this initial version, whether the dynamic behavior set should be activated.
+        conversation_triggers:
+          items:
+            $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
+          type: array
+          maxItems: 50
+          minItems: 1
+          title: Conversation Triggers
+          description: The conversation triggers for the dynamic behavior set version.
+        actions:
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/InjectInstructionAction-Input'
+            - $ref: '#/components/schemas/src__app__endpoints__dynamic_behavior_set__create_dynamic_behavior_set__Request__InitialVersion__ChangeToolCandidatesAction'
+            discriminator:
+              propertyName: type
+              mapping:
+                change-tool-candidates: '#/components/schemas/src__app__endpoints__dynamic_behavior_set__create_dynamic_behavior_set__Request__InitialVersion__ChangeToolCandidatesAction'
+                inject-instruction: '#/components/schemas/InjectInstructionAction-Input'
+          type: array
+          title: Actions
+          description: The action to perform when the dynamic behavior set version is activated.
+      type: object
+      required:
+      - is_active
+      - conversation_triggers
+      - actions
+      title: InitialVersion
+    ? src__app__endpoints__dynamic_behavior_set__create_dynamic_behavior_set__Request__InitialVersion__ChangeToolCandidatesAction
+    : properties:
+        type:
+          type: string
+          const: change-tool-candidates
+          title: Type
+        tool_call_specs:
+          items:
+            $ref: '#/components/schemas/src__app__endpoints__dynamic_behavior_set__create_dynamic_behavior_set__Request__InitialVersion__ChangeToolCandidatesAction__ToolCallSpec'
+          type: array
+          title: Tool Call Specs
+        overrides_existing_tool_call_specs:
+          type: boolean
+          title: Overrides Existing Tool Call Specs
+          description: During injection, whether the existing tool call specs are overriden with these new specs.
+      type: object
+      required:
+      - type
+      - tool_call_specs
+      - overrides_existing_tool_call_specs
+      title: ChangeToolCandidatesAction
+    src__app__endpoints__dynamic_behavior_set__create_dynamic_behavior_set__Response:
+      properties:
+        dynamic_behavior_set_id:
+          type: string
+          title: Dynamic Behavior Set Id
+          description: The ID of the newly created dynamic behavior set.
+      type: object
+      required:
+      - dynamic_behavior_set_id
+      title: Response
+    src__app__endpoints__dynamic_behavior_set__update_dynamic_behavior_set__Request:
+      properties:
+        name:
+          anyOf:
+          - $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
+          - type: 'null'
+          description: The name of the dynamic behavior set.
+        tags:
+          anyOf:
+          - additionalProperties:
+              anyOf:
+              - $ref: '#/components/schemas/StrippedNonemptyString___w__s_____'
+              - type: 'null'
+            propertyNames:
+              $ref: '#/components/schemas/StrippedNonemptyString___w__s_____'
+            type: object
+            maxProperties: 20
+          - type: 'null'
+          title: Tags
+          description: The tags of the dynamic behavior set. Both the key and the value can only contain alphanumeric characters, underscores, or spaces.
+        applied_to_services:
+          anyOf:
+          - items:
+              type: string
+              pattern: ^[a-f0-9]{24}$
+            type: array
+          - type: 'null'
+          title: Applied To Services
+          description: The services that the dynamic behavior set should be applied to.
+        is_active:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Active
+          description: Whether the dynamic behavior set is active.
+      type: object
+      title: Request
+    src__app__endpoints__dynamic_behavior_set__get_dynamic_behavior_set_versions__Response:
+      properties:
+        dynamic_behavior_set_versions:
+          items:
+            $ref: '#/components/schemas/DynamicBehaviorSetVersion'
+          type: array
+          title: Dynamic Behavior Set Versions
+          description: The retrieved dynamic behavior set versions.
+        has_more:
+          type: boolean
+          title: Has More
+          description: Whether there are more dynamic behavior set versions to retrieve.
+        continuation_token:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Continuation Token
+          description: A token to supply to the next request to retrieve the next page of dynamic behavior set versions. Only populated if `has_more` is `True`.
+      type: object
+      required:
+      - dynamic_behavior_set_versions
+      - has_more
+      - continuation_token
+      title: Response
+    src__app__endpoints__dynamic_behavior_set__get_dynamic_behavior_sets__Response:
+      properties:
+        dynamic_behavior_sets:
+          items:
+            $ref: '#/components/schemas/DynamicBehaviorSetInstance'
+          type: array
+          title: Dynamic Behavior Sets
+          description: The retrieved dynamic behavior sets.
+        has_more:
+          type: boolean
+          title: Has More
+          description: Whether there are more dynamic behavior sets to retrieve.
+        continuation_token:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Continuation Token
+          description: The continuation token to use to retrieve the next set of dynamic behavior sets.
+        filter_values:
+          anyOf:
+          - $ref: '#/components/schemas/src__app__endpoints__dynamic_behavior_set__get_dynamic_behavior_sets__Response__FilterValues'
+          - type: 'null'
+          description: 'For each filter that this endpoint supports that can take on dynamic values, this field includes what these values are. This is only provided for the first page in the pagination results.
+
+
+            Note that the values are counted assuming the authenticated user has access to all the dynamic behavior sets, so they might differ from how many sets are actually
+
+            retrieved.'
+      type: object
+      required:
+      - dynamic_behavior_sets
+      - has_more
+      - continuation_token
+      - filter_values
+      title: Response
+    src__app__endpoints__dynamic_behavior_set__get_dynamic_behavior_sets__Response__FilterValues:
+      properties:
+        applied_to_services_ids:
+          items:
+            type: string
+          type: array
+          title: Applied To Services Ids
+          description: A set of service IDs that have dynamic behavior sets applied to the service.
+        creators:
+          items:
+            $ref: '#/components/schemas/amigo_lib__mongo__collections__dynamic_behavior_set__DynamicBehaviorSet__UserInfo'
+          type: array
+          title: Creators
+          description: A set of creator infos that created the dynamic behavior sets under the current filters.
+        tags:
+          items:
+            type: string
+          type: array
+          title: Tags
+          description: A set of tag keys that exist in the dynamic behavior sets under the current filters.
+      type: object
+      required:
+      - applied_to_services_ids
+      - creators
+      - tags
+      title: FilterValues
+    StrippedNonemptyString___w__s_____:
+      type: string
+      minLength: 1
+      pattern: ^[\w\s]+$
+    DynamicBehaviorSetInstance:
+      properties:
+        id:
+          type: string
+          title: Id
+        name:
+          type: string
+          title: Name
+        is_active:
+          type: boolean
+          title: Is Active
+        applied_to_services:
+          items:
+            type: string
+          type: array
+          title: Applied To Services
+        tags:
+          additionalProperties:
+            anyOf:
+            - type: string
+            - type: 'null'
+          type: object
+          title: Tags
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        creator:
+          $ref: '#/components/schemas/amigo_lib__mongo__collections__dynamic_behavior_set__DynamicBehaviorSet__UserInfo'
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+        updated_by:
+          $ref: '#/components/schemas/amigo_lib__mongo__collections__dynamic_behavior_set__DynamicBehaviorSet__UserInfo'
+      type: object
+      required:
+      - id
+      - name
+      - is_active
+      - applied_to_services
+      - tags
+      - created_at
+      - creator
+      - updated_at
+      - updated_by
+      title: DynamicBehaviorSetInstance
+    ChangeToolCandidatesAction-Output:
+      properties:
+        type:
+          type: string
+          const: change-tool-candidates
+          title: Type
+        tool_call_specs:
+          items:
+            $ref: '#/components/schemas/amigo_lib__mongo__collections__dynamic_behavior_set_version__DynamicBehaviorSetVersion__ChangeToolCandidatesAction__ToolCallSpec'
+          type: array
+          title: Tool Call Specs
+          description: Additional tool call specs that will be made available to LLMs.
+        overrides_existing_tool_call_specs:
+          type: boolean
+          title: Overrides Existing Tool Call Specs
+          description: During injection, whether the existing tool call specs are overriden with these new specs.
+      type: object
+      required:
+      - type
+      - tool_call_specs
+      - overrides_existing_tool_call_specs
+      title: ChangeToolCandidatesAction
+    src__app__endpoints__dynamic_behavior_set__create_dynamic_behavior_set_version__Request:
+      properties:
+        conversation_triggers:
+          items:
+            $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
+          type: array
+          maxItems: 50
+          minItems: 1
+          title: Conversation Triggers
+          description: The conversation triggers for the dynamic behavior set version.
+        actions:
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/InjectInstructionAction-Input'
+            - $ref: '#/components/schemas/src__app__endpoints__dynamic_behavior_set__create_dynamic_behavior_set_version__Request__ChangeToolCandidatesAction'
+            discriminator:
+              propertyName: type
+              mapping:
+                change-tool-candidates: '#/components/schemas/src__app__endpoints__dynamic_behavior_set__create_dynamic_behavior_set_version__Request__ChangeToolCandidatesAction'
+                inject-instruction: '#/components/schemas/InjectInstructionAction-Input'
+          type: array
+          title: Actions
+          description: The action to perform when the dynamic behavior set version is activated.
+      type: object
+      required:
+      - conversation_triggers
+      - actions
+      title: Request
+  securitySchemes:
+    Bearer-Authorization:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Amigo issued JWT token that identifies an user. It's issued either after logging in through the frontend, or manually through the [`SignInWithAPIKey`](sign-in-with-api-key) endpoint.
+    Bearer-Authorization-Organization:
+      type: apiKey
+      in: header
+      name: X-ORG-ID
+      description: An optional organization identifier that indicates from which organization the token is issued. This is used in rare cases where the user to authenticate is making a request for resources in another organization.
+    Basic:
+      type: http
+      scheme: basic
+      description: The username should be set to {org_id}_{user_id}, and the password should be the Amigo issued JWT token that identifies the user.

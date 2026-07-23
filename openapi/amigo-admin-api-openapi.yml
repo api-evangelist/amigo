@@ -1,0 +1,330 @@
+openapi: 3.1.0
+info:
+  title: Amigo Account Admin API
+  version: 0.1.0
+servers:
+- url: https://api.amigo.ai
+- url: https://internal-api.amigo.ai
+- url: https://api-eu-central-1.amigo.ai
+- url: https://api-ap-southeast-2.amigo.ai
+- url: https://api-ca-central-1.amigo.ai
+security:
+- Bearer-Authorization: []
+  Bearer-Authorization-Organization: []
+  Basic: []
+tags:
+- name: Admin
+paths:
+  /v1/{organization}/admin/get_prompt_logs/:
+    get:
+      tags:
+      - Admin
+      summary: Get prompt logs
+      description: 'Download all rendered prompt logs whose log keys match the supplied prefix that are produced in the past 30 days. Only prefixes corresponding to less than or equal to 1000 prompt logs are allowed.
+
+        The prompt logs will be returned in a zip file format, with each prompt log corresponding to at most 2 files -- `{log_key}-system` for the rendered system prompt, and `{log_key}-history` for the
+
+        rendered history prompts, where each history prompt is separated by `---`.
+
+
+        If an error is encountered during the download stream that is scoped to an individual prompt log, a `{log_key}-error` file will be generated which contains a description of the error.
+
+        If an error is encountered that causes the generation to stop completely, no error message will be returned. Instead, the stream will end, and the transmitted bytes wouldn''t constitute
+
+        a valid zip file.
+
+
+        #### Permissions
+
+        This endpoint may be impacted by the following permissions:
+
+        * Each prompt log requires its own set of permissions. If the authenticated user does not have the required permissions, a `{log_key}-error` file will be generated in place of the actual
+
+        prompt log.'
+      operationId: get-prompt-logs
+      parameters:
+      - name: organization
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Organization
+      - name: prompt_log_prefix
+        in: query
+        required: true
+        schema:
+          type: string
+          description: The prefix of the prompt log to retrieve.
+          title: Prompt Log Prefix
+        description: The prefix of the prompt log to retrieve.
+      - name: x-mongo-cluster-name
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.
+          title: X-Mongo-Cluster-Name
+        description: The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.
+      - name: Sec-WebSocket-Protocol
+        in: header
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+          default: []
+          title: Sec-Websocket-Protocol
+      responses:
+        '200':
+          description: Succeeded.
+          content:
+            application/zip:
+              schema:
+                type: string
+        '422':
+          description: Invalid request path parameter or query parameter failed validation.
+        '404':
+          description: No prompt logs found matching the supplied prefix
+        '401':
+          description: Invalid authorization credentials.
+        '403':
+          description: Missing required permissions.
+        '503':
+          description: The service is going through temporary maintenance.
+        '429':
+          description: The user has exceeded the rate limit of 20 requests per minute for this endpoint.
+  /v1/{organization}/admin/sql_query:
+    post:
+      tags:
+      - Admin
+      summary: Submit a SQL query
+      description: 'Execute a read-only SQL query on Amigo''s databases for the specified organization.
+
+
+        #### Permissions
+
+        This endpoint requires the authenticated user to have greater privileges than the `DefaultAdministratorRole`.'
+      operationId: submit-sql-query
+      parameters:
+      - name: organization
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Organization
+      - name: x-mongo-cluster-name
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.
+          title: X-Mongo-Cluster-Name
+        description: The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.
+      - name: Sec-WebSocket-Protocol
+        in: header
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+          default: []
+          title: Sec-Websocket-Protocol
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/src__app__endpoints__admin__submit_sql_query__Request'
+      responses:
+        '200':
+          description: Succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/src__app__endpoints__admin__submit_sql_query__Response'
+        '422':
+          description: Invalid request path parameter or request body failed validation.
+        '404':
+          description: The specified organization does not exist.
+        '401':
+          description: Invalid authorization credentials.
+        '403':
+          description: Missing required permissions.
+        '408':
+          description: The supplied query cannot be executed within the time limit.
+        '503':
+          description: The service is going through temporary maintenance.
+        '429':
+          description: The user has exceeded the rate limit of 6 requests per minute for this endpoint.
+        '400':
+          description: This endpoint is not supported in the current environment, or the SQL query is invalid.
+  /v1/{organization}/admin/get_models/:
+    get:
+      tags:
+      - Admin
+      summary: Get models
+      description: 'Get a list of LLM models supported by the Amigo platform at this moment.
+
+
+        #### Permissions:
+
+        This endpoint requires the following permissions:
+
+        * `Admin:GetModels`.'
+      operationId: get-models
+      parameters:
+      - name: organization
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Organization
+      - name: x-mongo-cluster-name
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.
+          title: X-Mongo-Cluster-Name
+        description: The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.
+      - name: Sec-WebSocket-Protocol
+        in: header
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+          default: []
+          title: Sec-Websocket-Protocol
+      responses:
+        '200':
+          description: Succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/src__app__endpoints__admin__get_models__Response'
+        '422':
+          description: Invalid request path parameter failed validation.
+        '401':
+          description: Invalid authorization credentials.
+        '403':
+          description: Missing required permissions.
+        '503':
+          description: The service is going through temporary maintenance.
+        '429':
+          description: The user has exceeded the rate limit of 20 requests per minute for this endpoint.
+components:
+  schemas:
+    src__app__endpoints__admin__submit_sql_query__Response:
+      properties:
+        execution_time_ms:
+          type: integer
+          title: Execution Time Ms
+          description: The time taken to execute the query in milliseconds.
+        result:
+          items:
+            items: {}
+            type: array
+          type: array
+          title: Result
+          description: The result of the query as a list of rows, where each row is a list of column values.
+        truncated:
+          type: boolean
+          title: Truncated
+          description: Whether the result was truncated due to the row limit.
+        columns:
+          items:
+            $ref: '#/components/schemas/Column'
+          type: array
+          title: Columns
+          description: Description of the columns in the result.
+      type: object
+      required:
+      - execution_time_ms
+      - result
+      - truncated
+      - columns
+      title: SyncQueryResponse
+    src__app__endpoints__admin__get_models__Response:
+      properties:
+        models:
+          items:
+            $ref: '#/components/schemas/Model'
+          type: array
+          title: Models
+      additionalProperties: true
+      type: object
+      required:
+      - models
+      title: Response
+    amigo_lib__pydantic__base_model__StrippedNonemptyString__1:
+      type: string
+      minLength: 1
+    src__app__endpoints__admin__submit_sql_query__Request:
+      properties:
+        sql_query:
+          $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
+          description: The SQL query to execute.
+        async_query:
+          type: boolean
+          const: false
+          title: Async Query
+          description: 'Whether the query is asynchronous. If true, a signed URL will be returned to download the results once the query is complete. If false, the results will be returned in the response, but at most
+
+            1000 rows will be returned, and the query is subject to a 30 second execution timeout.'
+      type: object
+      required:
+      - sql_query
+      - async_query
+      title: Request
+    Model:
+      properties:
+        name:
+          type: string
+          title: Name
+        params_model_schema:
+          additionalProperties: true
+          type: object
+          title: Params Model Schema
+      additionalProperties: true
+      type: object
+      required:
+      - name
+      - params_model_schema
+      title: Model
+    Column:
+      properties:
+        name:
+          type: string
+          title: Name
+          description: The name of the column.
+        type:
+          type: string
+          title: Type
+          description: The data type of the column.
+      type: object
+      required:
+      - name
+      - type
+      title: Column
+  securitySchemes:
+    Bearer-Authorization:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Amigo issued JWT token that identifies an user. It's issued either after logging in through the frontend, or manually through the [`SignInWithAPIKey`](sign-in-with-api-key) endpoint.
+    Bearer-Authorization-Organization:
+      type: apiKey
+      in: header
+      name: X-ORG-ID
+      description: An optional organization identifier that indicates from which organization the token is issued. This is used in rare cases where the user to authenticate is making a request for resources in another organization.
+    Basic:
+      type: http
+      scheme: basic
+      description: The username should be set to {org_id}_{user_id}, and the password should be the Amigo issued JWT token that identifies the user.

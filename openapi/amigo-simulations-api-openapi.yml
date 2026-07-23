@@ -1,0 +1,4472 @@
+openapi: 3.1.0
+info:
+  title: Amigo Account Simulations API
+  version: 0.1.0
+servers:
+- url: https://api.amigo.ai
+- url: https://internal-api.amigo.ai
+- url: https://api-eu-central-1.amigo.ai
+- url: https://api-ap-southeast-2.amigo.ai
+- url: https://api-ca-central-1.amigo.ai
+security:
+- Bearer-Authorization: []
+  Bearer-Authorization-Organization: []
+  Basic: []
+tags:
+- name: Simulations
+paths:
+  /v1/{workspace_id}/simulations/runs:
+    post:
+      tags:
+      - Simulations
+      summary: Create Simulation Run
+      description: Create a simulation coverage run with an optional Lakebase branch.
+      operationId: create-simulation-run
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateRunRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response Create-Simulation-Run
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+    get:
+      tags:
+      - Simulations
+      summary: List Simulation Runs
+      operationId: list-simulation-runs
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: service_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Service Id
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 20
+          title: Limit
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response List-Simulation-Runs
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/simulations/runs/summary:
+    get:
+      tags:
+      - Simulations
+      summary: Get Simulation Runs Summary
+      description: 'Aggregate run counts (total + by status) for the Runs summary strip.
+
+
+        Registered *before* ``/runs/{run_id}`` so the static ``summary`` path
+
+        segment is matched here rather than parsed as a run UUID (which would 422).'
+      operationId: get-simulation-runs-summary
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: service_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Service Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SimulationRunSummaryResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/simulations/suites:
+    get:
+      tags:
+      - Simulations
+      summary: List Simulation Suites
+      description: List first-class simulation suites.
+      operationId: list-simulation-suites
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListSimulationSuitesResponse'
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+    post:
+      tags:
+      - Simulations
+      summary: Create Simulation Suite
+      description: Create a reusable suite definition for saved simulation cases.
+      operationId: create-simulation-suite
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSimulationSuiteRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SimulationSuiteResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+  /v1/{workspace_id}/simulations/suites/{suite_id}:
+    get:
+      tags:
+      - Simulations
+      summary: Get Simulation Suite
+      operationId: get-simulation-suite
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: suite_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Suite Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SimulationSuiteResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    patch:
+      tags:
+      - Simulations
+      summary: Update Simulation Suite
+      operationId: update-simulation-suite
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: suite_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Suite Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateSimulationSuiteRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SimulationSuiteResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    delete:
+      tags:
+      - Simulations
+      summary: Delete Simulation Suite
+      operationId: delete-simulation-suite
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: suite_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Suite Id
+      responses:
+        '204':
+          description: Successful Response
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/simulations/suites/{suite_id}/runs:
+    get:
+      tags:
+      - Simulations
+      summary: List Simulation Suite Runs
+      description: List durable suite-run groups for a first-class suite.
+      operationId: list-simulation-suite-runs
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: suite_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Suite Id
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 50
+          minimum: 1
+          default: 20
+          title: Limit
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListSimulationSuiteRunsResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/simulations/cases:
+    get:
+      tags:
+      - Simulations
+      summary: List Simulation Cases
+      description: List durable simulation cases for case-library inspection.
+      operationId: list-simulation-cases
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: service_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Service Id
+      - name: tags
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: array
+            items:
+              type: string
+              maxLength: 128
+            maxItems: 20
+          - type: 'null'
+          title: Tags
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 100
+          exclusiveMinimum: 0
+          default: 10
+          title: Limit
+      - name: continuation_token
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 0
+          title: Continuation Token
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedResponse_SimulationCaseResponse_'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    post:
+      tags:
+      - Simulations
+      summary: Create Simulation Cases
+      description: Create durable simulation cases for an internal benchmark suite.
+      operationId: create-simulation-cases
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSimulationCasesRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateSimulationCasesResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+  /v1/{workspace_id}/simulations/cases/{case_id}:
+    get:
+      tags:
+      - Simulations
+      summary: Get Simulation Case
+      description: Fetch one durable simulation case for case-library inspection.
+      operationId: get-simulation-case
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: case_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Case Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SimulationCaseResponse'
+        '404':
+          description: Simulation case not found
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    patch:
+      tags:
+      - Simulations
+      summary: Update Simulation Case
+      description: Update editable fields on one durable simulation case.
+      operationId: update-simulation-case
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: case_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Case Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateSimulationCaseRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SimulationCaseResponse'
+        '404':
+          description: Simulation case not found
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    delete:
+      tags:
+      - Simulations
+      summary: Delete Simulation Case
+      description: Delete one durable simulation case.
+      operationId: delete-simulation-case
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: case_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Case Id
+      responses:
+        '204':
+          description: Successful Response
+        '404':
+          description: Simulation case not found
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/simulations/runs/{run_id}:
+    get:
+      tags:
+      - Simulations
+      summary: Get Simulation Run
+      description: 'Fetch a single run including objective / bridge_request / scenarios.
+
+
+        Use the bridge_request payload to re-POST /bridge and replay the run.'
+      operationId: get-simulation-run
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: run_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Run Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SimulationRunResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/simulations/performance:
+    get:
+      tags:
+      - Simulations
+      summary: Get Simulation Performance
+      description: 'Aggregate recent graded (case/suite) runs into the Simulations overview:
+
+        overall pass rate, per-metric trend series, and per-case / per-suite rollups
+
+        (each with its per-conversation verdicts).
+
+
+        ``limit`` bounds how many recent runs are read (capped at 50). One request
+
+        replaces the console''s former one-fetch-per-run fan-out.'
+      operationId: get-simulation-performance
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: service_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Service Id
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 15
+          title: Limit
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SimulationPerformanceResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/simulations/runs/{run_id}/complete:
+    post:
+      tags:
+      - Simulations
+      summary: Complete Simulation Run
+      operationId: complete-simulation-run
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: run_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Run Id
+      - name: error
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Error
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: string
+                title: Response Complete-Simulation-Run
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/simulations/sessions/{session_id}/promote:
+    post:
+      tags:
+      - Simulations
+      summary: Promote Simulation Session
+      description: 'Promote a run-less (interactive playground) session into a coverage run.
+
+
+        Interactive text sessions are created run-less, so ``fork`` — which requires
+
+        a ``run_id`` — 404s on them. This creates a coverage run, binds the existing
+
+        agent-engine session to it (``adopt-run``, a Valkey meta update — the session
+
+        itself is not recreated), and writes the platform-api ``SimulationCoverageSession``
+
+        record that ``get_session_metadata`` returns, unblocking fork/score.
+
+
+        Idempotent: a session that already has a coverage record returns its existing
+
+        run with ``already_bound=True``.'
+      operationId: promote-simulation-session
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: session_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Session Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PromoteSessionResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/simulations/runs/{run_id}/sessions:
+    post:
+      tags:
+      - Simulations
+      summary: Create Simulation Session
+      description: 'Create a simulation session within a run. Proxies to agent-engine.
+
+
+        entity_id ownership: agent-engine''s _resolve_caller queries the entity
+
+        with workspace_id scoping — a workspace-A entity_id resolves to None in
+
+        workspace-B, so no cross-tenant data is exposed.'
+      operationId: create-simulation-session
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: run_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Run Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSessionRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SimulationSessionResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/simulations/sessions/{session_id}/step:
+    post:
+      tags:
+      - Simulations
+      summary: Simulation Step
+      description: Step a simulation session and auto-store the turn observation.
+      operationId: simulation-step
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: session_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Session Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StepRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SimulationStepResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/simulations/sessions/{session_id}/fork:
+    post:
+      tags:
+      - Simulations
+      summary: Simulation Fork
+      description: Fork a session into N branches — clone + step each alternative atomically.
+      operationId: simulation-fork
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: session_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Session Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ForkRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response Simulation-Fork
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/simulations/sessions/{session_id}/score:
+    post:
+      tags:
+      - Simulations
+      summary: Score Simulation Session
+      description: ASI assigns a score to a completed simulation session.
+      operationId: score-simulation-session
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: session_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Session Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScoreSessionRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: string
+                title: Response Score-Simulation-Session
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/simulations/sessions:
+    post:
+      tags:
+      - Simulations
+      summary: Create Test Conversation
+      description: Create a test conversation session (no coverage run required).
+      operationId: create-test-conversation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSessionRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SimulationSessionResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+  /v1/{workspace_id}/simulations/sessions/step:
+    post:
+      tags:
+      - Simulations
+      summary: Test Conversation Step
+      description: Step a test conversation (no coverage auto-store).
+      operationId: test-conversation-step
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StepRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SimulationStepResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+  /v1/{workspace_id}/simulations/sessions/recommend:
+    post:
+      tags:
+      - Simulations
+      summary: Simulation Recommend
+      operationId: simulation-recommend
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RecommendRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecommendResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+  /v1/{workspace_id}/simulations/sessions/{session_id}:
+    get:
+      tags:
+      - Simulations
+      summary: Simulation Observe
+      operationId: simulation-observe
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: session_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Session Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SimulationSnapshotResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    delete:
+      tags:
+      - Simulations
+      summary: Simulation Destroy
+      operationId: simulation-destroy
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: session_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Session Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DestroySessionResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/simulations/sessions/{session_id}/intelligence:
+    get:
+      tags:
+      - Simulations
+      summary: Simulation Intelligence
+      operationId: simulation-intelligence
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: session_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Session Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SimulationIntelligenceResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/simulations/services/{service_id}/graph:
+    get:
+      tags:
+      - Simulations
+      summary: Get Simulation Coverage Graph
+      description: Get the B&B knowledge graph for a service — topology + observations merged.
+      operationId: get-simulation-coverage-graph
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: service_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Service Id
+      - name: run_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Run Id
+      - name: include_turns
+        in: query
+        required: false
+        schema:
+          type: boolean
+          default: false
+          title: Include Turns
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response Get-Simulation-Coverage-Graph
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    delete:
+      tags:
+      - Simulations
+      summary: Delete Simulation Coverage Graph
+      operationId: delete-simulation-coverage-graph
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: service_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Service Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response Delete-Simulation-Coverage-Graph
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/simulations/services/{service_id}/graph/paths:
+    get:
+      tags:
+      - Simulations
+      summary: Get Simulation Coverage Paths
+      description: Get distinct trajectories from simulation sessions.
+      operationId: get-simulation-coverage-paths
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: service_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Service Id
+      - name: run_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Run Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response Get-Simulation-Coverage-Paths
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/simulations/services/{service_id}/sessions:
+    get:
+      tags:
+      - Simulations
+      summary: List Simulation Sessions
+      operationId: list-simulation-sessions
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: service_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Service Id
+      - name: run_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Run Id
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 50
+          title: Limit
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response List-Simulation-Sessions
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/simulations/sessions/{session_id}/turns:
+    get:
+      tags:
+      - Simulations
+      summary: Get Simulation Session Turns
+      operationId: get-simulation-session-turns
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: session_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Session Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response Get-Simulation-Session-Turns
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/simulations/services/{service_id}/turns:
+    get:
+      tags:
+      - Simulations
+      summary: Query Simulation Turns
+      operationId: query-simulation-turns
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: service_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Service Id
+      - name: state
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: State
+      - name: from_state
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: From State
+      - name: to_state
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: To State
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 100
+          title: Limit
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response Query-Simulation-Turns
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/simulations/config-to-policy:
+    post:
+      tags:
+      - Simulations
+      summary: Config To Turn Policy
+      operationId: config-to-turn-policy
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfigToPolicyRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+                title: Response Config-To-Turn-Policy
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+  /v1/{workspace_id}/simulations/bridge:
+    post:
+      tags:
+      - Simulations
+      summary: Simulation Bridge
+      description: 'NL objective to N autonomous scenarios against the tracked simulation primitives.
+
+
+        Returns immediately with run_id + generated scenarios. Scenarios run in
+
+        the background via BridgeExecutor (lifecycle-managed, shutdown-drained).
+
+        Completion events are emitted to Delta via world_emitter for SDP
+
+        observability.'
+      operationId: simulation-bridge
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BridgeRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BridgeResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+  /v1/{workspace_id}/simulations/benchmarks/run:
+    post:
+      tags:
+      - Simulations
+      summary: Run Simulation Benchmark
+      description: Run a suite or tag-selected benchmark batch as one saved-case run per case.
+      operationId: run-simulation-benchmark
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RunSimulationBenchmarkRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SimulationBenchmarkRunResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+  /v1/{workspace_id}/simulations/suites/{suite_id}/run:
+    post:
+      tags:
+      - Simulations
+      summary: Run Simulation Suite
+      description: Run a first-class suite definition.
+      operationId: run-simulation-suite
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: suite_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Suite Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RunSimulationBenchmarkRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SimulationBenchmarkRunResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/simulations/benchmarks/results:
+    post:
+      tags:
+      - Simulations
+      summary: Get Simulation Benchmark Results
+      description: Aggregate benchmark results over the run ids returned by benchmark start.
+      operationId: get-simulation-benchmark-results
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GetSimulationBenchmarkResultsRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SimulationBenchmarkResultsResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+  /v1/{workspace_id}/simulations/suite-runs/{suite_run_id}:
+    get:
+      tags:
+      - Simulations
+      summary: Get Simulation Suite Run Results
+      description: Fetch aggregate results for a durable suite run.
+      operationId: get-simulation-suite-run-results
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: suite_run_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Suite Run Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SimulationSuiteRunResultsResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/simulations/cases/{case_id}/run:
+    post:
+      tags:
+      - Simulations
+      summary: Run Simulation Case
+      description: Run the current saved simulation case through the bridge executor.
+      operationId: run-simulation-case
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: case_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Case Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RunSimulationCaseRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BridgeResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/simulations/bridge/plan:
+    post:
+      tags:
+      - Simulations
+      summary: Simulation Bridge Plan
+      description: 'Infer a TargetSpec from an NL objective — preview before running /bridge.
+
+
+        UX: user types "test scheduling failures in 20 different ways", we return
+
+        a structured target_spec + rationale. The frontend shows both, lets the
+
+        user edit (add/remove states, tighten pathways), then POSTs the final
+
+        spec to /bridge. Same LLM, same Vertex cost structure as /bridge, but
+
+        no run is created — pure inference.'
+      operationId: simulation-bridge-plan
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BridgePlanRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BridgePlanResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+components:
+  schemas:
+    RunSimulationBenchmarkRequest:
+      properties:
+        suite_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Suite Id
+        required_tags:
+          items:
+            type: string
+            maxLength: 128
+          type: array
+          maxItems: 20
+          title: Required Tags
+        service_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Service Id
+        entity_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Entity Id
+          description: Optional world entity UUID to bind caller context for every selected saved-case run. When omitted, each case falls back to fixtures.case_specific.entity_id if present.
+        max_cases:
+          type: integer
+          maximum: 200.0
+          minimum: 1.0
+          title: Max Cases
+          default: 20
+        max_turns:
+          type: integer
+          maximum: 40.0
+          minimum: 1.0
+          title: Max Turns
+          default: 20
+        concurrency:
+          type: integer
+          maximum: 20.0
+          minimum: 1.0
+          title: Concurrency
+          default: 1
+        branch_name:
+          anyOf:
+          - type: string
+            maxLength: 64
+          - type: 'null'
+          title: Branch Name
+        tags:
+          items:
+            type: string
+            maxLength: 128
+          type: array
+          maxItems: 20
+          title: Tags
+        exploration:
+          anyOf:
+          - $ref: '#/components/schemas/ExplorationConfig'
+          - type: 'null'
+      type: object
+      title: RunSimulationBenchmarkRequest
+    ListSimulationSuitesResponse:
+      properties:
+        suites:
+          items:
+            $ref: '#/components/schemas/SimulationSuiteResponse'
+          type: array
+          title: Suites
+      type: object
+      required:
+      - suites
+      title: ListSimulationSuitesResponse
+    GetSimulationBenchmarkResultsRequest:
+      properties:
+        run_ids:
+          items:
+            type: string
+            format: uuid
+          type: array
+          maxItems: 100
+          minItems: 1
+          title: Run Ids
+      type: object
+      required:
+      - run_ids
+      title: GetSimulationBenchmarkResultsRequest
+    ConfigToPolicyRequest:
+      properties:
+        config:
+          additionalProperties: true
+          type: object
+          title: Config
+      type: object
+      required:
+      - config
+      title: ConfigToPolicyRequest
+    SimSuitePerfResponse:
+      properties:
+        suite_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Suite Id
+        suite_name:
+          type: string
+          maxLength: 512
+          title: Suite Name
+        pass_rate:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Pass Rate
+        passed:
+          type: integer
+          title: Passed
+          default: 0
+        measured:
+          type: integer
+          title: Measured
+          default: 0
+        latest_run_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Latest Run At
+        cases:
+          items:
+            $ref: '#/components/schemas/SimCasePerfResponse'
+          type: array
+          title: Cases
+      type: object
+      required:
+      - suite_name
+      title: SimSuitePerfResponse
+    SimulationEvalResultResponse:
+      properties:
+        id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Id
+        run_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Run Id
+        case_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Case Id
+        session_id:
+          anyOf:
+          - type: string
+            maxLength: 128
+          - type: 'null'
+          title: Session Id
+        eval_key:
+          type: string
+          maxLength: 128
+          title: Eval Key
+        eval_type:
+          type: string
+          enum:
+          - assertion
+          - metric
+          title: Eval Type
+        assertion_kind:
+          anyOf:
+          - type: string
+            maxLength: 128
+          - type: 'null'
+          title: Assertion Kind
+        metric_key:
+          anyOf:
+          - type: string
+            maxLength: 128
+          - type: 'null'
+          title: Metric Key
+        status:
+          type: string
+          enum:
+          - passed
+          - failed
+          - pending
+          - skipped
+          - error
+          title: Status
+        passed:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Passed
+        score:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Score
+        expected:
+          anyOf:
+          - {}
+          - type: 'null'
+          title: Expected
+        actual:
+          anyOf:
+          - {}
+          - type: 'null'
+          title: Actual
+        rationale:
+          anyOf:
+          - type: string
+            maxLength: 4000
+          - type: 'null'
+          title: Rationale
+        justification:
+          anyOf:
+          - type: string
+            maxLength: 8000
+          - type: 'null'
+          title: Justification
+        references:
+          items:
+            type: integer
+          type: array
+          maxItems: 100
+          title: References
+        details:
+          additionalProperties: true
+          type: object
+          title: Details
+        definition:
+          additionalProperties: true
+          type: object
+          title: Definition
+        created_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Created At
+      type: object
+      required:
+      - eval_key
+      - eval_type
+      - status
+      title: SimulationEvalResultResponse
+    SimPerformanceOverviewResponse:
+      properties:
+        overall_pass_rate:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Overall Pass Rate
+        evals_run:
+          type: integer
+          title: Evals Run
+          default: 0
+        needs_attention_count:
+          type: integer
+          title: Needs Attention Count
+          default: 0
+        runs_analyzed:
+          type: integer
+          title: Runs Analyzed
+          default: 0
+      type: object
+      title: SimPerformanceOverviewResponse
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    CreateRunRequest:
+      properties:
+        service_id:
+          type: string
+          format: uuid
+          title: Service Id
+        branch_name:
+          anyOf:
+          - type: string
+            maxLength: 64
+          - type: 'null'
+          title: Branch Name
+        tags:
+          items:
+            type: string
+          type: array
+          maxItems: 20
+          title: Tags
+      type: object
+      required:
+      - service_id
+      title: CreateRunRequest
+    SimulationSuiteResponse:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        workspace_id:
+          type: string
+          format: uuid
+          title: Workspace Id
+        name:
+          type: string
+          maxLength: 128
+          title: Name
+        description:
+          type: string
+          maxLength: 2000
+          title: Description
+          default: ''
+        case_ids:
+          items:
+            type: string
+            format: uuid
+          type: array
+          title: Case Ids
+        required_tags:
+          items:
+            type: string
+            maxLength: 128
+          type: array
+          title: Required Tags
+        tags:
+          items:
+            type: string
+            maxLength: 128
+          type: array
+          title: Tags
+        metadata:
+          additionalProperties: true
+          type: object
+          title: Metadata
+        case_count:
+          type: integer
+          minimum: 0.0
+          title: Case Count
+        created_by:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Created By
+        created_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Created At
+        updated_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Updated At
+      type: object
+      required:
+      - id
+      - workspace_id
+      - name
+      - case_count
+      title: SimulationSuiteResponse
+      description: HTTP response shape for first-class simulation suites.
+    SimCaseAssertionResponse:
+      properties:
+        eval_key:
+          type: string
+          maxLength: 128
+          title: Eval Key
+        eval_type:
+          type: string
+          enum:
+          - assertion
+          - metric
+          title: Eval Type
+        passed:
+          type: integer
+          title: Passed
+          default: 0
+        failed:
+          type: integer
+          title: Failed
+          default: 0
+        pending:
+          type: integer
+          title: Pending
+          default: 0
+        pass_rate:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Pass Rate
+        results:
+          items:
+            $ref: '#/components/schemas/SimulationEvalResultResponse'
+          type: array
+          title: Results
+        checks:
+          items:
+            $ref: '#/components/schemas/EvaluationResultView'
+          type: array
+          title: Checks
+          description: 'Normalized per-check view of ``results`` (metric + assertion verdicts),
+
+            so the console renders each drill-down verdict without parsing raw shapes.'
+          readOnly: true
+      type: object
+      required:
+      - eval_key
+      - eval_type
+      - checks
+      title: SimCaseAssertionResponse
+    SimulationSessionResponse:
+      properties:
+        session_id:
+          type: string
+          title: Session Id
+        greeting:
+          type: string
+          title: Greeting
+        is_terminal:
+          type: boolean
+          title: Is Terminal
+        snapshot:
+          $ref: '#/components/schemas/SimulationSnapshotResponse'
+      type: object
+      required:
+      - session_id
+      - greeting
+      - is_terminal
+      - snapshot
+      title: SimulationSessionResponse
+    SimulationRunSummaryResponse:
+      properties:
+        total:
+          type: integer
+          title: Total
+        running:
+          type: integer
+          title: Running
+        completed:
+          type: integer
+          title: Completed
+        failed:
+          type: integer
+          title: Failed
+        by_status:
+          additionalProperties:
+            type: integer
+          type: object
+          title: By Status
+        total_sessions:
+          type: integer
+          title: Total Sessions
+        total_turns:
+          type: integer
+          title: Total Turns
+        last_created_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Last Created At
+      type: object
+      required:
+      - total
+      - running
+      - completed
+      - failed
+      - by_status
+      - total_sessions
+      - total_turns
+      title: SimulationRunSummaryResponse
+      description: 'Aggregate counts across a workspace''s simulation runs, for the Runs page
+
+        summary strip.
+
+
+        A cheap ``GROUP BY status`` over ``world.simulation_coverage_runs`` — honest
+
+        totals the 50-row list view cannot derive client-side. ``by_status`` carries
+
+        the full breakdown (incl. any status beyond the three named convenience
+
+        fields) so a new lifecycle state surfaces without a schema change.'
+    SimCasePerfResponse:
+      properties:
+        case_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Case Id
+        case_name:
+          type: string
+          maxLength: 512
+          title: Case Name
+        pass_rate:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Pass Rate
+        passed:
+          type: integer
+          title: Passed
+          default: 0
+        measured:
+          type: integer
+          title: Measured
+          default: 0
+        latest_run_id:
+          type: string
+          format: uuid
+          title: Latest Run Id
+        latest_run_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Latest Run At
+        assertions:
+          items:
+            $ref: '#/components/schemas/SimCaseAssertionResponse'
+          type: array
+          title: Assertions
+      type: object
+      required:
+      - case_name
+      - latest_run_id
+      title: SimCasePerfResponse
+    SimulationPerformanceResponse:
+      properties:
+        overview:
+          $ref: '#/components/schemas/SimPerformanceOverviewResponse'
+        metrics:
+          items:
+            $ref: '#/components/schemas/SimMetricPerfResponse'
+          type: array
+          title: Metrics
+        by_case:
+          items:
+            $ref: '#/components/schemas/SimCasePerfResponse'
+          type: array
+          title: By Case
+        by_suite:
+          items:
+            $ref: '#/components/schemas/SimSuitePerfResponse'
+          type: array
+          title: By Suite
+      type: object
+      required:
+      - overview
+      title: SimulationPerformanceResponse
+      description: 'Aggregated Simulations overview: one request in place of the console''s
+
+        former one-detail-fetch-per-run fan-out.'
+    SimulationCaseScenario:
+      properties:
+        instructions:
+          type: string
+          maxLength: 10000
+          minLength: 1
+          title: Instructions
+        initial_message:
+          type: string
+          maxLength: 2000
+          title: Initial Message
+          default: ''
+        temperament:
+          anyOf:
+          - type: string
+            maxLength: 128
+          - type: 'null'
+          title: Temperament
+      type: object
+      required:
+      - instructions
+      title: SimulationCaseScenario
+      description: Runnable patient-side scenario content for a saved case.
+    BridgePlanRequest:
+      properties:
+        service_id:
+          type: string
+          format: uuid
+          title: Service Id
+        objective:
+          type: string
+          maxLength: 2000
+          minLength: 1
+          title: Objective
+      type: object
+      required:
+      - service_id
+      - objective
+      title: BridgePlanRequest
+    BridgeRequest:
+      properties:
+        service_id:
+          type: string
+          format: uuid
+          title: Service Id
+        objective:
+          type: string
+          maxLength: 2000
+          minLength: 1
+          title: Objective
+        num_scenarios:
+          type: integer
+          maximum: 50.0
+          minimum: 1.0
+          title: Num Scenarios
+          default: 5
+        max_turns:
+          type: integer
+          maximum: 40.0
+          minimum: 1.0
+          title: Max Turns
+          default: 20
+        concurrency:
+          type: integer
+          maximum: 20.0
+          minimum: 1.0
+          title: Concurrency
+          default: 3
+        branch_name:
+          anyOf:
+          - type: string
+            maxLength: 64
+          - type: 'null'
+          title: Branch Name
+        entity_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Entity Id
+          description: Optional world entity UUID to bind caller context for every scenario session created by this bridge run. The value is forwarded to each scenario's session-create call and inherited by any forks; identical precedence rules apply per-session (entity match wins over phone, stale UUID falls back to phone lookup, malformed UUID returns 422). Use this to pin an entire regression suite to a specific test patient.
+        tags:
+          items:
+            type: string
+            maxLength: 128
+          type: array
+          maxItems: 20
+          title: Tags
+        target_spec:
+          anyOf:
+          - $ref: '#/components/schemas/TargetSpec'
+          - type: 'null'
+        exploration:
+          anyOf:
+          - $ref: '#/components/schemas/ExplorationConfig'
+          - type: 'null'
+        auto_target_spec:
+          type: boolean
+          title: Auto Target Spec
+          default: false
+        async_generation:
+          type: boolean
+          title: Async Generation
+          default: false
+      type: object
+      required:
+      - service_id
+      - objective
+      title: BridgeRequest
+    ForkRequest:
+      properties:
+        alternatives:
+          items:
+            $ref: '#/components/schemas/ForkAlternative'
+          type: array
+          maxItems: 20
+          minItems: 1
+          title: Alternatives
+      type: object
+      required:
+      - alternatives
+      title: ForkRequest
+    SimulationBenchmarkAggregateSummary:
+      properties:
+        selected_count:
+          type: integer
+          title: Selected Count
+        started_count:
+          type: integer
+          title: Started Count
+        skipped_count:
+          type: integer
+          title: Skipped Count
+        failed_to_start_count:
+          type: integer
+          title: Failed To Start Count
+        status_counts:
+          additionalProperties:
+            type: integer
+          type: object
+          title: Status Counts
+        scored_count:
+          type: integer
+          title: Scored Count
+          default: 0
+        average_score:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Average Score
+      type: object
+      required:
+      - selected_count
+      - started_count
+      - skipped_count
+      - failed_to_start_count
+      title: SimulationBenchmarkAggregateSummary
+    SimulationObservation:
+      properties:
+        state_before:
+          type: string
+          title: State Before
+        state_after:
+          type: string
+          title: State After
+        state_changed:
+          type: boolean
+          title: State Changed
+        agent_text:
+          type: string
+          title: Agent Text
+        is_terminal:
+          type: boolean
+          title: Is Terminal
+        tools_called:
+          items:
+            type: string
+          type: array
+          title: Tools Called
+          default: []
+        tool_call_details:
+          items:
+            $ref: '#/components/schemas/ToolCallDetail'
+          type: array
+          title: Tool Call Details
+          default: []
+        selected_action:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Selected Action
+        empathy_tier:
+          type: integer
+          title: Empathy Tier
+          default: 0
+        has_pause:
+          type: boolean
+          title: Has Pause
+          default: false
+        engine_ms:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Engine Ms
+        nav_ms:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Nav Ms
+      type: object
+      required:
+      - state_before
+      - state_after
+      - state_changed
+      - agent_text
+      - is_terminal
+      title: SimulationObservation
+    ScenarioPersona:
+      properties:
+        name:
+          type: string
+          maxLength: 128
+          title: Name
+          default: ''
+        role:
+          type: string
+          maxLength: 64
+          title: Role
+          default: patient
+        communication_style:
+          type: string
+          maxLength: 512
+          title: Communication Style
+          default: ''
+        default_language:
+          type: string
+          maxLength: 16
+          title: Default Language
+          default: en-US
+        background:
+          type: string
+          maxLength: 2000
+          title: Background
+          default: ''
+      type: object
+      title: ScenarioPersona
+    SimulationBenchmarkBreakdownSummary:
+      properties:
+        run_count:
+          type: integer
+          title: Run Count
+          default: 0
+        status_counts:
+          additionalProperties:
+            type: integer
+          type: object
+          title: Status Counts
+        completed_count:
+          type: integer
+          title: Completed Count
+          default: 0
+        failed_count:
+          type: integer
+          title: Failed Count
+          default: 0
+        scored_count:
+          type: integer
+          title: Scored Count
+          default: 0
+        average_score:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Average Score
+        pass_count:
+          type: integer
+          title: Pass Count
+          default: 0
+        fail_count:
+          type: integer
+          title: Fail Count
+          default: 0
+      type: object
+      title: SimulationBenchmarkBreakdownSummary
+    SimulationBenchmarkRunResponse:
+      properties:
+        batch_id:
+          type: string
+          format: uuid
+          title: Batch Id
+        suite_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Suite Id
+        required_tags:
+          items:
+            type: string
+            maxLength: 128
+          type: array
+          title: Required Tags
+        selected_case_ids:
+          items:
+            type: string
+            format: uuid
+          type: array
+          title: Selected Case Ids
+        run_ids:
+          items:
+            type: string
+            format: uuid
+          type: array
+          title: Run Ids
+        cases:
+          items:
+            $ref: '#/components/schemas/SimulationBenchmarkCaseResult'
+          type: array
+          title: Cases
+        skipped_cases:
+          items:
+            $ref: '#/components/schemas/SimulationBenchmarkCaseResult'
+          type: array
+          title: Skipped Cases
+        failed_to_start_cases:
+          items:
+            $ref: '#/components/schemas/SimulationBenchmarkCaseResult'
+          type: array
+          title: Failed To Start Cases
+        aggregate_summary:
+          $ref: '#/components/schemas/SimulationBenchmarkAggregateSummary'
+      type: object
+      required:
+      - batch_id
+      - required_tags
+      - selected_case_ids
+      - run_ids
+      - cases
+      - skipped_cases
+      - failed_to_start_cases
+      - aggregate_summary
+      title: SimulationBenchmarkRunResponse
+    ForkAlternative:
+      properties:
+        caller_text:
+          type: string
+          maxLength: 2000
+          title: Caller Text
+        emotion:
+          anyOf:
+          - type: string
+            maxLength: 50
+          - type: 'null'
+          title: Emotion
+        valence:
+          anyOf:
+          - type: number
+            maximum: 1.0
+            minimum: -1.0
+          - type: 'null'
+          title: Valence
+      type: object
+      required:
+      - caller_text
+      title: ForkAlternative
+    SimulationCaseResponse:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        workspace_id:
+          type: string
+          format: uuid
+          title: Workspace Id
+        service_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Service Id
+        description:
+          type: string
+          maxLength: 2000
+          title: Description
+        persona:
+          additionalProperties: true
+          type: object
+          title: Persona
+        scenario:
+          $ref: '#/components/schemas/SimulationCaseScenario'
+        grounding:
+          $ref: '#/components/schemas/SimulationCaseGrounding'
+        evals:
+          items:
+            anyOf:
+            - $ref: '#/components/schemas/SimulationCaseMetricEval'
+            - $ref: '#/components/schemas/SimulationCaseAssertionEval'
+          type: array
+          title: Evals
+        tags:
+          items:
+            type: string
+            maxLength: 128
+          type: array
+          title: Tags
+        metadata:
+          additionalProperties: true
+          type: object
+          title: Metadata
+        created_by:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Created By
+        created_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Created At
+        updated_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Updated At
+      type: object
+      required:
+      - id
+      - workspace_id
+      - description
+      - scenario
+      title: SimulationCaseResponse
+      description: HTTP response shape for durable simulation cases.
+    RecommendRequest:
+      properties:
+        session_id:
+          type: string
+          maxLength: 64
+          title: Session Id
+        n:
+          type: integer
+          maximum: 20.0
+          minimum: 1.0
+          title: N
+          default: 5
+      type: object
+      required:
+      - session_id
+      title: RecommendRequest
+    SimulationRunResponse:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        service_id:
+          type: string
+          format: uuid
+          title: Service Id
+        branch_name:
+          anyOf:
+          - type: string
+            maxLength: 64
+          - type: 'null'
+          title: Branch Name
+        status:
+          type: string
+          enum:
+          - running
+          - completed
+          - failed
+          title: Status
+        error:
+          anyOf:
+          - type: string
+            maxLength: 500
+          - type: 'null'
+          title: Error
+        tags:
+          items:
+            type: string
+            maxLength: 128
+          type: array
+          title: Tags
+        total_sessions:
+          type: integer
+          title: Total Sessions
+          default: 0
+        total_turns:
+          type: integer
+          title: Total Turns
+          default: 0
+        objective:
+          anyOf:
+          - type: string
+            maxLength: 2000
+          - type: 'null'
+          title: Objective
+        bridge_request:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Bridge Request
+        scenarios:
+          anyOf:
+          - items:
+              additionalProperties: true
+              type: object
+            type: array
+          - type: 'null'
+          title: Scenarios
+        snapshot:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Snapshot
+        total_scenarios_requested:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Total Scenarios Requested
+        created_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Created At
+        completed_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Completed At
+        metric_status:
+          type: string
+          enum:
+          - pending
+          - available
+          - unavailable
+          title: Metric Status
+          default: pending
+        metric_result_count:
+          type: integer
+          title: Metric Result Count
+          default: 0
+        metrics_last_checked_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Metrics Last Checked At
+        eval_results:
+          items:
+            $ref: '#/components/schemas/SimulationEvalResultResponse'
+          type: array
+          title: Eval Results
+        eval_result_count:
+          type: integer
+          title: Eval Result Count
+          default: 0
+        eval_pass_count:
+          type: integer
+          title: Eval Pass Count
+          default: 0
+        eval_fail_count:
+          type: integer
+          title: Eval Fail Count
+          default: 0
+        eval_error_count:
+          type: integer
+          title: Eval Error Count
+          default: 0
+        checks:
+          items:
+            $ref: '#/components/schemas/EvaluationResultView'
+          type: array
+          title: Checks
+          description: 'Normalized per-check view of ``eval_results``. Raw ``eval_results``
+
+            stay intact; this rides alongside so the console renders checks without
+
+            reverse-engineering actual.latest vs actual.judge vs score.'
+          readOnly: true
+      type: object
+      required:
+      - id
+      - service_id
+      - status
+      - checks
+      title: SimulationRunResponse
+      description: Full run payload — used by GET /runs/{run_id} for replay flows.
+    SimulationSnapshotResponse:
+      properties:
+        current_state:
+          $ref: '#/components/schemas/SimulationStateResponse'
+        reachable_states:
+          items:
+            additionalProperties: true
+            type: object
+          type: array
+          title: Reachable States
+          default: []
+        turn_policy:
+          $ref: '#/components/schemas/SimulationTurnPolicyResponse'
+          default:
+            barge_in_enabled: true
+            greeting_shield_s: 0.0
+            safety_response: suspend_forward
+            context_strategy: full
+            block_forward_call: false
+            block_forward_call_after_turns: -1
+        conversation_history:
+          items:
+            additionalProperties: true
+            type: object
+          type: array
+          title: Conversation History
+          default: []
+        states_visited:
+          items:
+            type: string
+          type: array
+          title: States Visited
+          default: []
+        state_transitions:
+          items:
+            items:
+              type: string
+            type: array
+          type: array
+          title: State Transitions
+          default: []
+        total_turns:
+          type: integer
+          title: Total Turns
+          default: 0
+        tools_called:
+          items:
+            type: string
+          type: array
+          title: Tools Called
+          default: []
+        terminal_reached:
+          type: boolean
+          title: Terminal Reached
+          default: false
+        context_graph_topology:
+          items:
+            additionalProperties:
+              type: string
+            type: object
+          type: array
+          title: Context Graph Topology
+          default: []
+        terminal_state:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Terminal State
+      additionalProperties: true
+      type: object
+      required:
+      - current_state
+      title: SimulationSnapshotResponse
+    PromoteSessionResponse:
+      properties:
+        run_id:
+          type: string
+          format: uuid
+          title: Run Id
+          description: The coverage run the session is now bound to
+        session_id:
+          type: string
+          title: Session Id
+          description: The promoted session id (unchanged)
+        already_bound:
+          type: boolean
+          title: Already Bound
+          description: True when the session was already run-scoped; the existing run is returned unchanged
+      type: object
+      required:
+      - run_id
+      - session_id
+      - already_bound
+      title: PromoteSessionResponse
+      description: Result of binding a run-less session to a (newly created) coverage run.
+    UpdateSimulationSuiteRequest:
+      properties:
+        name:
+          anyOf:
+          - type: string
+            maxLength: 128
+            minLength: 1
+          - type: 'null'
+          title: Name
+        description:
+          anyOf:
+          - type: string
+            maxLength: 2000
+          - type: 'null'
+          title: Description
+        case_ids:
+          anyOf:
+          - items:
+              type: string
+              format: uuid
+            type: array
+            maxItems: 500
+          - type: 'null'
+          title: Case Ids
+        required_tags:
+          anyOf:
+          - items:
+              type: string
+              maxLength: 128
+            type: array
+            maxItems: 20
+          - type: 'null'
+          title: Required Tags
+        tags:
+          anyOf:
+          - items:
+              type: string
+              maxLength: 128
+            type: array
+            maxItems: 20
+          - type: 'null'
+          title: Tags
+        metadata:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Metadata
+      additionalProperties: false
+      type: object
+      title: UpdateSimulationSuiteRequest
+    SimulationCaseAssertionEval:
+      properties:
+        type:
+          type: string
+          const: assertion
+          title: Type
+        key:
+          type: string
+          maxLength: 128
+          minLength: 1
+          title: Key
+        assertion_kind:
+          type: string
+          maxLength: 128
+          minLength: 1
+          title: Assertion Kind
+        description:
+          anyOf:
+          - type: string
+            maxLength: 2000
+          - type: 'null'
+          title: Description
+        expected:
+          anyOf:
+          - {}
+          - type: 'null'
+          title: Expected
+        params:
+          additionalProperties: true
+          type: object
+          title: Params
+        weight:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Weight
+      type: object
+      required:
+      - type
+      - key
+      - assertion_kind
+      title: SimulationCaseAssertionEval
+    SimulationSuiteRunResultsResponse:
+      properties:
+        run_ids:
+          items:
+            type: string
+            format: uuid
+          type: array
+          title: Run Ids
+        total_runs:
+          type: integer
+          title: Total Runs
+        status_counts:
+          additionalProperties:
+            type: integer
+          type: object
+          title: Status Counts
+        completed_count:
+          type: integer
+          title: Completed Count
+          default: 0
+        failed_count:
+          type: integer
+          title: Failed Count
+          default: 0
+        scored_count:
+          type: integer
+          title: Scored Count
+          default: 0
+        average_score:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Average Score
+        pass_count:
+          type: integer
+          title: Pass Count
+          default: 0
+        fail_count:
+          type: integer
+          title: Fail Count
+          default: 0
+        metric_status:
+          type: string
+          enum:
+          - pending
+          - available
+          - unavailable
+          title: Metric Status
+          default: pending
+        metric_result_count:
+          type: integer
+          title: Metric Result Count
+          default: 0
+        metrics_last_checked_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Metrics Last Checked At
+        per_run:
+          items:
+            $ref: '#/components/schemas/SimulationBenchmarkPerRunSummary'
+          type: array
+          title: Per Run
+        capability_breakdown:
+          additionalProperties:
+            $ref: '#/components/schemas/SimulationBenchmarkBreakdownSummary'
+          type: object
+          title: Capability Breakdown
+        missing_run_ids:
+          items:
+            type: string
+            format: uuid
+          type: array
+          title: Missing Run Ids
+        suite_run_id:
+          type: string
+          format: uuid
+          title: Suite Run Id
+        suite_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Suite Id
+        summary:
+          $ref: '#/components/schemas/SimulationSuiteRunSummary'
+      type: object
+      required:
+      - run_ids
+      - total_runs
+      - suite_run_id
+      - summary
+      title: SimulationSuiteRunResultsResponse
+    RecommendResponse:
+      properties:
+        suggestions:
+          items:
+            type: string
+          type: array
+          maxItems: 100
+          title: Suggestions
+          description: LLM-generated caller message suggestions
+      type: object
+      required:
+      - suggestions
+      title: RecommendResponse
+    ScoreSessionRequest:
+      properties:
+        score:
+          type: number
+          maximum: 100.0
+          minimum: 0.0
+          title: Score
+        score_rationale:
+          anyOf:
+          - type: string
+            maxLength: 2000
+          - type: 'null'
+          title: Score Rationale
+      type: object
+      required:
+      - score
+      title: ScoreSessionRequest
+    ListSimulationSuiteRunsResponse:
+      properties:
+        suite_id:
+          type: string
+          format: uuid
+          title: Suite Id
+        runs:
+          items:
+            $ref: '#/components/schemas/SimulationSuiteRunSummary'
+          type: array
+          title: Runs
+      type: object
+      required:
+      - suite_id
+      - runs
+      title: ListSimulationSuiteRunsResponse
+    PaginatedResponse_SimulationCaseResponse_:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/SimulationCaseResponse'
+          type: array
+          title: Items
+        has_more:
+          type: boolean
+          title: Has More
+        continuation_token:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Continuation Token
+        total:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Total
+      type: object
+      required:
+      - items
+      - has_more
+      title: PaginatedResponse[SimulationCaseResponse]
+    ExplorationConfig:
+      properties:
+        coverage_driven_selection:
+          type: boolean
+          title: Coverage Driven Selection
+          default: false
+        enable_forking:
+          type: boolean
+          title: Enable Forking
+          default: false
+        max_forks_per_scenario:
+          type: integer
+          maximum: 5.0
+          minimum: 0.0
+          title: Max Forks Per Scenario
+          default: 2
+        recommend_candidates:
+          type: integer
+          maximum: 10.0
+          minimum: 1.0
+          title: Recommend Candidates
+          default: 3
+      type: object
+      title: ExplorationConfig
+    CompletionCriteria:
+      properties:
+        state_based:
+          items:
+            type: string
+            maxLength: 128
+          type: array
+          maxItems: 50
+          title: State Based
+        tool_based:
+          items:
+            type: string
+            maxLength: 128
+          type: array
+          maxItems: 50
+          title: Tool Based
+      type: object
+      title: CompletionCriteria
+    TargetSpec:
+      properties:
+        desired_states:
+          items:
+            type: string
+            maxLength: 128
+          type: array
+          maxItems: 50
+          title: Desired States
+        non_desired_states:
+          items:
+            $ref: '#/components/schemas/NonDesiredState'
+          type: array
+          maxItems: 50
+          title: Non Desired States
+        ordered_pathways:
+          items:
+            $ref: '#/components/schemas/OrderedPathway'
+          type: array
+          maxItems: 20
+          title: Ordered Pathways
+        completion_criteria:
+          $ref: '#/components/schemas/CompletionCriteria'
+      type: object
+      title: TargetSpec
+    BridgeResponse:
+      properties:
+        run_id:
+          type: string
+          format: uuid
+          title: Run Id
+        status:
+          type: string
+          enum:
+          - running
+          - completed
+          - failed
+          title: Status
+        scenarios:
+          items:
+            $ref: '#/components/schemas/Scenario'
+          type: array
+          title: Scenarios
+        case_ids:
+          items:
+            type: string
+            format: uuid
+          type: array
+          title: Case Ids
+        inferred_target_spec:
+          anyOf:
+          - $ref: '#/components/schemas/TargetSpec'
+          - type: 'null'
+        inferred_target_spec_rationale:
+          anyOf:
+          - type: string
+            maxLength: 1000
+          - type: 'null'
+          title: Inferred Target Spec Rationale
+      type: object
+      required:
+      - run_id
+      - status
+      - scenarios
+      title: BridgeResponse
+    SimulationTurnPolicyResponse:
+      properties:
+        barge_in_enabled:
+          type: boolean
+          title: Barge In Enabled
+          default: true
+        greeting_shield_s:
+          type: number
+          title: Greeting Shield S
+          default: 0.0
+        safety_response:
+          type: string
+          title: Safety Response
+          default: suspend_forward
+        context_strategy:
+          type: string
+          title: Context Strategy
+          default: full
+        block_forward_call:
+          type: boolean
+          title: Block Forward Call
+          default: false
+        block_forward_call_after_turns:
+          type: integer
+          title: Block Forward Call After Turns
+          default: -1
+      type: object
+      title: SimulationTurnPolicyResponse
+    NonDesiredState:
+      properties:
+        state:
+          type: string
+          maxLength: 128
+          title: State
+        mode:
+          type: string
+          enum:
+          - hard
+          - soft
+          title: Mode
+          default: hard
+      type: object
+      required:
+      - state
+      title: NonDesiredState
+    ToolCallDetail:
+      properties:
+        tool_name:
+          type: string
+          title: Tool Name
+        input:
+          type: string
+          title: Input
+          default: ''
+        result:
+          type: string
+          title: Result
+          default: ''
+        call_id:
+          type: string
+          title: Call Id
+          default: ''
+        succeeded:
+          type: boolean
+          title: Succeeded
+          default: true
+      type: object
+      required:
+      - tool_name
+      title: ToolCallDetail
+      description: Rich tool call data from a simulation step.
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    SimulationCaseGrounding:
+      properties:
+        patient_entity_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Patient Entity Id
+      type: object
+      title: SimulationCaseGrounding
+      description: Optional bindings that start the sim from existing workspace data.
+    CreateSimulationSuiteRequest:
+      properties:
+        name:
+          type: string
+          maxLength: 128
+          minLength: 1
+          title: Name
+        description:
+          type: string
+          maxLength: 2000
+          title: Description
+          default: ''
+        case_ids:
+          items:
+            type: string
+            format: uuid
+          type: array
+          maxItems: 500
+          title: Case Ids
+        required_tags:
+          items:
+            type: string
+            maxLength: 128
+          type: array
+          maxItems: 20
+          title: Required Tags
+        tags:
+          items:
+            type: string
+            maxLength: 128
+          type: array
+          maxItems: 20
+          title: Tags
+        metadata:
+          additionalProperties: true
+          type: object
+          title: Metadata
+      additionalProperties: false
+      type: object
+      required:
+      - name
+      title: CreateSimulationSuiteRequest
+    Scenario:
+      properties:
+        description:
+          type: string
+          maxLength: 512
+          title: Description
+        temperament:
+          type: string
+          maxLength: 32
+          title: Temperament
+          default: neutral
+        initial_message:
+          type: string
+          maxLength: 1000
+          title: Initial Message
+        scenario_instructions:
+          type: string
+          maxLength: 2000
+          title: Scenario Instructions
+        persona:
+          $ref: '#/components/schemas/ScenarioPersona'
+        case_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Case Id
+      type: object
+      required:
+      - description
+      - initial_message
+      - scenario_instructions
+      title: Scenario
+    SimulationStepResponse:
+      properties:
+        observation:
+          $ref: '#/components/schemas/SimulationObservation'
+        snapshot:
+          $ref: '#/components/schemas/SimulationSnapshotResponse'
+      type: object
+      required:
+      - observation
+      - snapshot
+      title: SimulationStepResponse
+    SimulationBenchmarkPerRunSummary:
+      properties:
+        run_id:
+          type: string
+          format: uuid
+          title: Run Id
+        service_id:
+          type: string
+          format: uuid
+          title: Service Id
+        status:
+          type: string
+          enum:
+          - running
+          - completed
+          - failed
+          title: Status
+        error:
+          anyOf:
+          - type: string
+            maxLength: 500
+          - type: 'null'
+          title: Error
+        tags:
+          items:
+            type: string
+            maxLength: 128
+          type: array
+          title: Tags
+        case_ids:
+          items:
+            type: string
+            format: uuid
+          type: array
+          title: Case Ids
+        session_ids:
+          items:
+            type: string
+            maxLength: 128
+          type: array
+          title: Session Ids
+        total_sessions:
+          type: integer
+          title: Total Sessions
+          default: 0
+        total_turns:
+          type: integer
+          title: Total Turns
+          default: 0
+        terminal_session_count:
+          type: integer
+          title: Terminal Session Count
+          default: 0
+        scored_session_count:
+          type: integer
+          title: Scored Session Count
+          default: 0
+        average_score:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Average Score
+        passed:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Passed
+        pass_count:
+          type: integer
+          title: Pass Count
+          default: 0
+        fail_count:
+          type: integer
+          title: Fail Count
+          default: 0
+        score_rationales:
+          items:
+            type: string
+            maxLength: 2000
+          type: array
+          title: Score Rationales
+        capability_tags:
+          items:
+            type: string
+            maxLength: 128
+          type: array
+          title: Capability Tags
+        created_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Created At
+        completed_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Completed At
+        result_pointer:
+          additionalProperties: true
+          type: object
+          title: Result Pointer
+        immediate_average_score:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Immediate Average Score
+        immediate_passed:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Immediate Passed
+        immediate_pass_count:
+          type: integer
+          title: Immediate Pass Count
+          default: 0
+        immediate_fail_count:
+          type: integer
+          title: Immediate Fail Count
+          default: 0
+        metric_status:
+          type: string
+          enum:
+          - pending
+          - available
+          - unavailable
+          title: Metric Status
+          default: pending
+        metric_result_count:
+          type: integer
+          title: Metric Result Count
+          default: 0
+        metrics_last_checked_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Metrics Last Checked At
+      type: object
+      required:
+      - run_id
+      - service_id
+      - status
+      title: SimulationBenchmarkPerRunSummary
+    CreateSimulationCaseItem:
+      properties:
+        service_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Service Id
+        description:
+          type: string
+          maxLength: 2000
+          minLength: 1
+          title: Description
+        persona:
+          additionalProperties: true
+          type: object
+          title: Persona
+        scenario:
+          $ref: '#/components/schemas/SimulationCaseScenario'
+        grounding:
+          $ref: '#/components/schemas/SimulationCaseGrounding'
+        evals:
+          items:
+            anyOf:
+            - $ref: '#/components/schemas/SimulationCaseMetricEval'
+            - $ref: '#/components/schemas/SimulationCaseAssertionEval'
+          type: array
+          maxItems: 100
+          title: Evals
+        tags:
+          items:
+            type: string
+            maxLength: 128
+          type: array
+          maxItems: 20
+          title: Tags
+        metadata:
+          additionalProperties: true
+          type: object
+          title: Metadata
+      additionalProperties: false
+      type: object
+      required:
+      - description
+      - scenario
+      title: CreateSimulationCaseItem
+      description: One durable simulation case to create.
+    StepRequest:
+      properties:
+        session_id:
+          type: string
+          maxLength: 64
+          title: Session Id
+        caller_text:
+          type: string
+          maxLength: 2000
+          title: Caller Text
+        emotion:
+          anyOf:
+          - type: string
+            maxLength: 50
+          - type: 'null'
+          title: Emotion
+        valence:
+          anyOf:
+          - type: number
+            maximum: 1.0
+            minimum: -1.0
+          - type: 'null'
+          title: Valence
+      type: object
+      required:
+      - session_id
+      - caller_text
+      title: StepRequest
+    SimulationCaseMetricEval:
+      properties:
+        type:
+          type: string
+          const: metric
+          title: Type
+        metric_key:
+          type: string
+          maxLength: 128
+          minLength: 1
+          title: Metric Key
+        expected:
+          anyOf:
+          - {}
+          - type: 'null'
+          title: Expected
+        params:
+          additionalProperties: true
+          type: object
+          title: Params
+        weight:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Weight
+      type: object
+      required:
+      - type
+      - metric_key
+      title: SimulationCaseMetricEval
+    SimulationSuiteRunSummary:
+      properties:
+        suite_run_id:
+          type: string
+          format: uuid
+          title: Suite Run Id
+        suite_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Suite Id
+        run_ids:
+          items:
+            type: string
+            format: uuid
+          type: array
+          title: Run Ids
+        total_runs:
+          type: integer
+          title: Total Runs
+        expected_case_count:
+          anyOf:
+          - type: integer
+            minimum: 0.0
+          - type: 'null'
+          title: Expected Case Count
+        status:
+          type: string
+          enum:
+          - running
+          - completed
+          - failed
+          title: Status
+        status_counts:
+          additionalProperties:
+            type: integer
+          type: object
+          title: Status Counts
+        case_ids:
+          items:
+            type: string
+            format: uuid
+          type: array
+          title: Case Ids
+        total_sessions:
+          type: integer
+          title: Total Sessions
+          default: 0
+        total_turns:
+          type: integer
+          title: Total Turns
+          default: 0
+        tags:
+          items:
+            type: string
+            maxLength: 128
+          type: array
+          title: Tags
+        created_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Created At
+        completed_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Completed At
+        result_pointer:
+          additionalProperties: true
+          type: object
+          title: Result Pointer
+      type: object
+      required:
+      - suite_run_id
+      - run_ids
+      - total_runs
+      - status
+      title: SimulationSuiteRunSummary
+    SimulationBenchmarkResultsResponse:
+      properties:
+        run_ids:
+          items:
+            type: string
+            format: uuid
+          type: array
+          title: Run Ids
+        total_runs:
+          type: integer
+          title: Total Runs
+        status_counts:
+          additionalProperties:
+            type: integer
+          type: object
+          title: Status Counts
+        completed_count:
+          type: integer
+          title: Completed Count
+          default: 0
+        failed_count:
+          type: integer
+          title: Failed Count
+          default: 0
+        scored_count:
+          type: integer
+          title: Scored Count
+          default: 0
+        average_score:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Average Score
+        pass_count:
+          type: integer
+          title: Pass Count
+          default: 0
+        fail_count:
+          type: integer
+          title: Fail Count
+          default: 0
+        metric_status:
+          type: string
+          enum:
+          - pending
+          - available
+          - unavailable
+          title: Metric Status
+          default: pending
+        metric_result_count:
+          type: integer
+          title: Metric Result Count
+          default: 0
+        metrics_last_checked_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Metrics Last Checked At
+        per_run:
+          items:
+            $ref: '#/components/schemas/SimulationBenchmarkPerRunSummary'
+          type: array
+          title: Per Run
+        capability_breakdown:
+          additionalProperties:
+            $ref: '#/components/schemas/SimulationBenchmarkBreakdownSummary'
+          type: object
+          title: Capability Breakdown
+        missing_run_ids:
+          items:
+            type: string
+            format: uuid
+          type: array
+          title: Missing Run Ids
+      type: object
+      required:
+      - run_ids
+      - total_runs
+      title: SimulationBenchmarkResultsResponse
+    SimulationBenchmarkCaseResult:
+      properties:
+        case_id:
+          type: string
+          format: uuid
+          title: Case Id
+        status:
+          type: string
+          enum:
+          - started
+          - skipped
+          - failed_to_start
+          title: Status
+        run_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Run Id
+        service_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Service Id
+        result_pointer:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Result Pointer
+        reason:
+          anyOf:
+          - type: string
+            maxLength: 500
+          - type: 'null'
+          title: Reason
+      type: object
+      required:
+      - case_id
+      - status
+      title: SimulationBenchmarkCaseResult
+    CreateSimulationCasesResponse:
+      properties:
+        cases:
+          items:
+            $ref: '#/components/schemas/SimulationCaseResponse'
+          type: array
+          title: Cases
+      type: object
+      required:
+      - cases
+      title: CreateSimulationCasesResponse
+    SimMetricRunPointResponse:
+      properties:
+        at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: At
+        value:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Value
+        passed:
+          type: integer
+          title: Passed
+          default: 0
+        measured:
+          type: integer
+          title: Measured
+          default: 0
+      type: object
+      title: SimMetricRunPointResponse
+      description: 'One run''s contribution to a metric: the mean value that run (null for
+
+        non-numeric metrics) plus how many conversations passed / were measured.'
+    UpdateSimulationCaseRequest:
+      properties:
+        service_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Service Id
+        persona:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Persona
+        description:
+          anyOf:
+          - type: string
+            maxLength: 2000
+            minLength: 1
+          - type: 'null'
+          title: Description
+        scenario:
+          anyOf:
+          - $ref: '#/components/schemas/SimulationCaseScenario'
+          - type: 'null'
+        grounding:
+          anyOf:
+          - $ref: '#/components/schemas/SimulationCaseGrounding'
+          - type: 'null'
+        evals:
+          anyOf:
+          - items:
+              anyOf:
+              - $ref: '#/components/schemas/SimulationCaseMetricEval'
+              - $ref: '#/components/schemas/SimulationCaseAssertionEval'
+            type: array
+            maxItems: 100
+          - type: 'null'
+          title: Evals
+        tags:
+          anyOf:
+          - items:
+              type: string
+              maxLength: 128
+            type: array
+            maxItems: 20
+          - type: 'null'
+          title: Tags
+        metadata:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Metadata
+      additionalProperties: false
+      type: object
+      title: UpdateSimulationCaseRequest
+      description: 'Partial update for one durable simulation case.
+
+
+        Mirrors the nested ``CreateSimulationCaseItem`` shape with every field
+
+        optional so ``model_dump(exclude_unset=True)`` only emits the keys the
+
+        caller actually sent. Reuses the same nested submodels as create so the
+
+        durable fields (``scenario``, ``grounding``, ``evals``, ``metadata``) can
+
+        be PATCHed. ``extra="forbid"`` rejects the retired pre-V192 flat fields
+
+        (scenario_instructions, initial_message, temperament, fixtures,
+
+        constraints, target_spec, assertions, provenance) with 422 instead of
+
+        silently dropping them.'
+    OrderedPathway:
+      properties:
+        id:
+          type: string
+          maxLength: 64
+          title: Id
+        sequence:
+          items:
+            type: string
+            maxLength: 128
+          type: array
+          maxItems: 50
+          minItems: 1
+          title: Sequence
+      type: object
+      required:
+      - id
+      - sequence
+      title: OrderedPathway
+    SimulationIntelligenceResponse:
+      properties:
+        session_id:
+          type: string
+          title: Session Id
+        intelligence:
+          additionalProperties: true
+          type: object
+          title: Intelligence
+      type: object
+      required:
+      - session_id
+      - intelligence
+      title: SimulationIntelligenceResponse
+    RunSimulationCaseRequest:
+      properties:
+        service_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Service Id
+        entity_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Entity Id
+          description: Optional world entity UUID to bind caller context for this saved-case run. When omitted, the runner falls back to fixtures.case_specific.entity_id if present.
+        max_turns:
+          type: integer
+          maximum: 40.0
+          minimum: 1.0
+          title: Max Turns
+          default: 20
+        concurrency:
+          type: integer
+          maximum: 20.0
+          minimum: 1.0
+          title: Concurrency
+          default: 1
+        branch_name:
+          anyOf:
+          - type: string
+            maxLength: 64
+          - type: 'null'
+          title: Branch Name
+        tags:
+          items:
+            type: string
+            maxLength: 128
+          type: array
+          maxItems: 20
+          title: Tags
+        exploration:
+          anyOf:
+          - $ref: '#/components/schemas/ExplorationConfig'
+          - type: 'null'
+      type: object
+      title: RunSimulationCaseRequest
+    CreateSimulationCasesRequest:
+      properties:
+        cases:
+          items:
+            $ref: '#/components/schemas/CreateSimulationCaseItem'
+          type: array
+          maxItems: 100
+          minItems: 1
+          title: Cases
+      additionalProperties: false
+      type: object
+      required:
+      - cases
+      title: CreateSimulationCasesRequest
+    BridgePlanResponse:
+      properties:
+        target_spec:
+          $ref: '#/components/schemas/TargetSpec'
+        rationale:
+          type: string
+          maxLength: 1000
+          title: Rationale
+        available_states:
+          items:
+            type: string
+            maxLength: 128
+          type: array
+          maxItems: 200
+          title: Available States
+        available_tools:
+          items:
+            type: string
+            maxLength: 128
+          type: array
+          maxItems: 200
+          title: Available Tools
+      type: object
+      required:
+      - target_spec
+      - rationale
+      title: BridgePlanResponse
+    SimMetricPerfResponse:
+      properties:
+        metric_key:
+          type: string
+          maxLength: 128
+          title: Metric Key
+        label:
+          type: string
+          maxLength: 128
+          title: Label
+        per_run:
+          items:
+            $ref: '#/components/schemas/SimMetricRunPointResponse'
+          type: array
+          title: Per Run
+      type: object
+      required:
+      - metric_key
+      - label
+      title: SimMetricPerfResponse
+    SimulationStateResponse:
+      properties:
+        name:
+          type: string
+          title: Name
+        type:
+          type: string
+          title: Type
+        objective:
+          type: string
+          title: Objective
+          default: ''
+        actions:
+          items:
+            additionalProperties: true
+            type: object
+          type: array
+          title: Actions
+          default: []
+        exit_conditions:
+          items:
+            additionalProperties: true
+            type: object
+          type: array
+          title: Exit Conditions
+          default: []
+        action_guidelines:
+          items:
+            type: string
+          type: array
+          title: Action Guidelines
+          default: []
+        boundary_constraints:
+          items:
+            type: string
+          type: array
+          title: Boundary Constraints
+          default: []
+        guardrails:
+          items:
+            additionalProperties: true
+            type: object
+          type: array
+          title: Guardrails
+          default: []
+        tools:
+          items:
+            type: string
+          type: array
+          title: Tools
+          default: []
+      additionalProperties: true
+      type: object
+      required:
+      - name
+      - type
+      title: SimulationStateResponse
+    CreateSessionRequest:
+      properties:
+        service_id:
+          type: string
+          format: uuid
+          title: Service Id
+        branch_name:
+          anyOf:
+          - type: string
+            maxLength: 64
+          - type: 'null'
+          title: Branch Name
+        tags:
+          items:
+            type: string
+          type: array
+          maxItems: 20
+          title: Tags
+        caller_id:
+          anyOf:
+          - type: string
+            maxLength: 64
+          - type: 'null'
+          title: Caller Id
+          description: Simulated caller phone number used to resolve patient context when `entity_id` is not provided (or does not match a row). Omitted/blank values are normalized to the `sim-orchestrator` sentinel, which yields no phone match and an empty caller context — same default the voice test-call WebSocket uses, so patient lookups resolve consistently across modalities.
+        entity_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Entity Id
+          description: 'Optional world entity UUID to bind caller context directly. Precedence rules: (1) when this resolves to a world entity in the workspace, it WINS — `caller_id` is not used for identity resolution, and the resolution provenance is `entity_id_lookup`; (2) when this is a well-formed UUID with no matching entity (stale, deleted, wrong workspace), the session falls back to phone lookup against `caller_id` (provenance `phone_lookup`) — no error is raised, the sim is survivable; (3) malformed UUIDs are rejected with HTTP 422 before the request reaches agent-engine. The supplied `caller_id` is still recorded on the active call and surfaced in the greeting metadata in case (1).'
+      type: object
+      required:
+      - service_id
+      title: CreateSessionRequest
+    EvaluationResultView:
+      properties:
+        source_type:
+          type: string
+          enum:
+          - metric
+          - assertion
+          title: Source Type
+        key:
+          type: string
+          maxLength: 128
+          title: Key
+        label:
+          anyOf:
+          - type: string
+            maxLength: 512
+          - type: 'null'
+          title: Label
+        value_type:
+          anyOf:
+          - type: string
+            enum:
+            - numeric
+            - boolean
+            - categorical
+            - text
+            - structured
+          - type: 'null'
+          title: Value Type
+        evaluation_method:
+          anyOf:
+          - type: string
+            enum:
+            - threshold
+            - equals
+            - contains
+            - regex
+            - tool_called
+            - llm_judge
+            - custom
+          - type: 'null'
+          title: Evaluation Method
+        expected:
+          anyOf:
+          - {}
+          - type: 'null'
+          title: Expected
+        actual:
+          anyOf:
+          - {}
+          - type: 'null'
+          title: Actual
+        expected_display:
+          anyOf:
+          - type: string
+            maxLength: 2000
+          - type: 'null'
+          title: Expected Display
+        actual_display:
+          anyOf:
+          - type: string
+            maxLength: 2000
+          - type: 'null'
+          title: Actual Display
+        verdict:
+          type: string
+          enum:
+          - passed
+          - failed
+          - pending
+          - skipped
+          - error
+          title: Verdict
+        score:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Score
+        score_label:
+          anyOf:
+          - type: string
+            maxLength: 128
+          - type: 'null'
+          title: Score Label
+        rationale:
+          anyOf:
+          - type: string
+            maxLength: 8000
+          - type: 'null'
+          title: Rationale
+        references:
+          items:
+            type: integer
+          type: array
+          maxItems: 100
+          title: References
+        run_id:
+          anyOf:
+          - type: string
+            maxLength: 128
+          - type: 'null'
+          title: Run Id
+        case_id:
+          anyOf:
+          - type: string
+            maxLength: 128
+          - type: 'null'
+          title: Case Id
+        session_id:
+          anyOf:
+          - type: string
+            maxLength: 128
+          - type: 'null'
+          title: Session Id
+        trace_id:
+          anyOf:
+          - type: string
+            maxLength: 128
+          - type: 'null'
+          title: Trace Id
+      type: object
+      required:
+      - source_type
+      - key
+      - verdict
+      title: EvaluationResultView
+      description: 'One check as the console renders it, derived from a single eval result.
+
+
+        Both metric and assertion verdicts normalize to this shape so the frontend
+
+        renders a check without knowing where the value was stored.'
+    DestroySessionResponse:
+      properties:
+        status:
+          type: string
+          const: destroyed
+          title: Status
+          description: Session destruction status
+      type: object
+      required:
+      - status
+      title: DestroySessionResponse
+  securitySchemes:
+    Bearer-Authorization:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Amigo issued JWT token that identifies an user. It's issued either after logging in through the frontend, or manually through the [`SignInWithAPIKey`](sign-in-with-api-key) endpoint.
+    Bearer-Authorization-Organization:
+      type: apiKey
+      in: header
+      name: X-ORG-ID
+      description: An optional organization identifier that indicates from which organization the token is issued. This is used in rare cases where the user to authenticate is making a request for resources in another organization.
+    Basic:
+      type: http
+      scheme: basic
+      description: The username should be set to {org_id}_{user_id}, and the password should be the Amigo issued JWT token that identifies the user.

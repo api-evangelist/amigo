@@ -1,0 +1,2170 @@
+openapi: 3.1.0
+info:
+  title: Amigo Account Tool API
+  version: 0.1.0
+servers:
+- url: https://api.amigo.ai
+- url: https://internal-api.amigo.ai
+- url: https://api-eu-central-1.amigo.ai
+- url: https://api-ap-southeast-2.amigo.ai
+- url: https://api-ca-central-1.amigo.ai
+security:
+- Bearer-Authorization: []
+  Bearer-Authorization-Organization: []
+  Basic: []
+tags:
+- name: Tool
+paths:
+  /v1/{organization}/tool/amigo_tool_scaffold.tar.gz:
+    get:
+      tags:
+      - Tool
+      summary: Get the latest tool scaffold release
+      operationId: get-tool-scaffold-release
+      parameters:
+      - name: organization
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Organization
+      - name: x-mongo-cluster-name
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.
+          title: X-Mongo-Cluster-Name
+        description: The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.
+      - name: Sec-WebSocket-Protocol
+        in: header
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+          default: []
+          title: Sec-Websocket-Protocol
+      responses:
+        '200':
+          description: Succeeded.
+          content:
+            application/gzip:
+              schema:
+                type: string
+        '404':
+          description: Specified organization is not found.
+        '422':
+          description: Invalid request path parameter failed validation.
+        '401':
+          description: Invalid authorization credentials.
+        '403':
+          description: Missing required permissions.
+        '503':
+          description: The service is going through temporary maintenance.
+        '429':
+          description: The user has exceeded the rate limit of 50 requests per minute for this endpoint.
+  /v1/{organization}/tool/:
+    post:
+      tags:
+      - Tool
+      summary: Create a new tool
+      description: 'Create a new tool. The tool will not contain any versions initially so is not usable until at least one version is published.
+
+
+        #### Permissions
+
+        This endpoint requires the following permissions:
+
+        * `Tool:CreateTool` for the tool to create.'
+      operationId: create-tool
+      parameters:
+      - name: organization
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Organization
+      - name: x-mongo-cluster-name
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.
+          title: X-Mongo-Cluster-Name
+        description: The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.
+      - name: Sec-WebSocket-Protocol
+        in: header
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+          default: []
+          title: Sec-Websocket-Protocol
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/src__app__endpoints__tool__create_tool__Request'
+      responses:
+        '201':
+          description: Succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/src__app__endpoints__tool__create_tool__Response'
+        '404':
+          description: The specified organization does not exist.
+        '409':
+          description: A tool with the same name already exists.
+        '422':
+          description: Invalid request path parameter or request body failed validation.
+        '400':
+          description: The tool name is too long.
+        '401':
+          description: Invalid authorization credentials.
+        '403':
+          description: Missing required permissions.
+        '503':
+          description: The service is going through temporary maintenance.
+        '429':
+          description: The user has exceeded the rate limit of 20 requests per minute for this endpoint.
+    get:
+      tags:
+      - Tool
+      summary: Get tools
+      operationId: get-tools
+      parameters:
+      - name: organization
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Organization
+      - name: id
+        in: query
+        required: false
+        schema:
+          type: array
+          uniqueItems: true
+          items:
+            type: string
+            pattern: ^[a-f0-9]{24}$
+          description: The IDs of the tools to retrieve.
+          default: []
+          title: Id
+        description: The IDs of the tools to retrieve.
+      - name: deprecated
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Whether the tools are deprecated.
+          title: Deprecated
+        description: Whether the tools are deprecated.
+      - name: sort_by
+        in: query
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+          description: The fields to sort the versions by. Supported fields are `name` and `deprecated`. Specify a `+` before the field name to indicate ascending sorting and `-` for descending sorting. Multiple fields can be specified to break ties.
+          default: []
+          title: Sort By
+        description: The fields to sort the versions by. Supported fields are `name` and `deprecated`. Specify a `+` before the field name to indicate ascending sorting and `-` for descending sorting. Multiple fields can be specified to break ties.
+      - name: tag
+        in: query
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+          description: The tags of the simulation personas. Must be specified using the syntax `key:value`, which means to match all sets with the given `key` and `value` pair among its tags. If `value` is `*`, it means the `value` does not matter. If `value` is empty, it matches against when the value is `None`.
+          default: []
+          title: Tag
+        description: The tags of the simulation personas. Must be specified using the syntax `key:value`, which means to match all sets with the given `key` and `value` pair among its tags. If `value` is `*`, it means the `value` does not matter. If `value` is empty, it matches against when the value is `None`.
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 20
+          exclusiveMinimum: 0
+          description: The maximum number of tools to return.
+          default: 10
+          title: Limit
+        description: The maximum number of tools to return.
+      - name: continuation_token
+        in: query
+        required: false
+        schema:
+          type: integer
+          description: The continuation token from the previous request used to retrieve the next page of tools.
+          default: 0
+          title: Continuation Token
+        description: The continuation token from the previous request used to retrieve the next page of tools.
+      - name: x-mongo-cluster-name
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.
+          title: X-Mongo-Cluster-Name
+        description: The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.
+      - name: Sec-WebSocket-Protocol
+        in: header
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+          default: []
+          title: Sec-Websocket-Protocol
+      responses:
+        '200':
+          description: Succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/src__app__endpoints__tool__get_tools__Response'
+        '404':
+          description: Specified organization is not found.
+        '422':
+          description: Invalid request path parameter or request query parameter failed validation.
+        '401':
+          description: Invalid authorization credentials.
+        '403':
+          description: Missing required permissions.
+        '503':
+          description: The service is going through temporary maintenance.
+        '429':
+          description: The user has exceeded the rate limit of 50 requests per minute for this endpoint.
+  /v1/{organization}/tool/{tool_id}/version/{versions}:
+    delete:
+      tags:
+      - Tool
+      summary: Deprecate tool versions
+      description: 'Deprecate tool versions that match the specified semver constraint.
+
+
+        #### Permissions
+
+        This endpoint requires the following permissions:
+
+        * `Tool:ModifyTool` on the tool whose versions to deprecate.'
+      operationId: deprecate-tool-version
+      parameters:
+      - name: organization
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Organization
+      - name: tool_id
+        in: path
+        required: true
+        schema:
+          type: string
+          pattern: ^[a-f0-9]{24}$
+          description: The ID of the tool to deprecate.
+          title: Tool Id
+        description: The ID of the tool to deprecate.
+      - name: versions
+        in: path
+        required: true
+        schema:
+          type: string
+          description: A semver constraint that specifies the version to deprecate in the [Python packaging specification](https://packaging.python.org/en/latest/specifications/version-specifiers/#id5). All versions that match this constraint will be deprecated.
+          title: Versions
+        description: A semver constraint that specifies the version to deprecate in the [Python packaging specification](https://packaging.python.org/en/latest/specifications/version-specifiers/#id5). All versions that match this constraint will be deprecated.
+      - name: x-mongo-cluster-name
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.
+          title: X-Mongo-Cluster-Name
+        description: The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.
+      - name: Sec-WebSocket-Protocol
+        in: header
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+          default: []
+          title: Sec-Websocket-Protocol
+      responses:
+        '204':
+          description: Succeeded.
+        '404':
+          description: The specified organization or tool does not exist.
+        '422':
+          description: Invalid request path parameter or request body failed validation.
+        '401':
+          description: Invalid authorization credentials.
+        '403':
+          description: Missing required permissions.
+        '503':
+          description: The service is going through temporary maintenance.
+        '429':
+          description: The user has exceeded the rate limit of 20 requests per minute for this endpoint.
+  /v1/{organization}/tool/{tool_id}:
+    delete:
+      tags:
+      - Tool
+      summary: Deprecate a tool
+      description: 'Deprecate the specified tool. All versions of the tool will be deprecated and the tool will no longer be used.
+
+
+        After the endpoint concludes, the deprecation will take around 1 minute to propagate across the system.
+
+
+        #### Permissions
+
+        This endpoint requires the following permissions:
+
+        * `Tool:DeleteTool` on the tool to deprecate.'
+      operationId: deprecate-tool
+      parameters:
+      - name: organization
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Organization
+      - name: tool_id
+        in: path
+        required: true
+        schema:
+          type: string
+          pattern: ^[a-f0-9]{24}$
+          description: The ID of the tool to deprecate.
+          title: Tool Id
+        description: The ID of the tool to deprecate.
+      - name: x-mongo-cluster-name
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.
+          title: X-Mongo-Cluster-Name
+        description: The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.
+      - name: Sec-WebSocket-Protocol
+        in: header
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+          default: []
+          title: Sec-Websocket-Protocol
+      responses:
+        '204':
+          description: Succeeded.
+        '404':
+          description: The specified organization or tool does not exist.
+        '409':
+          description: A related operation is in progress.
+        '422':
+          description: Invalid request path parameter or request body failed validation.
+        '401':
+          description: Invalid authorization credentials.
+        '403':
+          description: Missing required permissions.
+        '503':
+          description: The service is going through temporary maintenance.
+        '429':
+          description: The user has exceeded the rate limit of 20 requests per minute for this endpoint.
+    post:
+      tags:
+      - Tool
+      summary: Modify a tool
+      description: 'Modify basic properties of a tool, such as its description and tags.
+
+
+        #### Permissions
+
+        This endpoint requires the following permissions:
+
+        * `Tool:ModifyTool` for the tool to modify.'
+      operationId: modify-tool
+      parameters:
+      - name: organization
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Organization
+      - name: tool_id
+        in: path
+        required: true
+        schema:
+          type: string
+          pattern: ^[a-f0-9]{24}$
+          description: The ID of the tool to modify
+          title: Tool Id
+        description: The ID of the tool to modify
+      - name: x-mongo-cluster-name
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.
+          title: X-Mongo-Cluster-Name
+        description: The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.
+      - name: Sec-WebSocket-Protocol
+        in: header
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+          default: []
+          title: Sec-Websocket-Protocol
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/src__app__endpoints__tool__modify_tool__Request'
+      responses:
+        '204':
+          description: Succeeded.
+        '404':
+          description: The specified organization or tool does not exist.
+        '422':
+          description: Invalid request path parameter or request body failed validation.
+        '401':
+          description: Invalid authorization credentials.
+        '403':
+          description: Missing required permissions.
+        '503':
+          description: The service is going through temporary maintenance.
+        '429':
+          description: The user has exceeded the rate limit of 20 requests per minute for this endpoint.
+  /v1/{organization}/tool/test:
+    post:
+      tags:
+      - Tool
+      summary: Test a tool
+      operationId: test-tool
+      parameters:
+      - name: organization
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Organization
+      - name: x-mongo-cluster-name
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.
+          title: X-Mongo-Cluster-Name
+        description: The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.
+      - name: Sec-WebSocket-Protocol
+        in: header
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+          default: []
+          title: Sec-Websocket-Protocol
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/src__app__endpoints__tool__test_tool__Request'
+      responses:
+        '200':
+          description: Succeeded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/src__app__endpoints__tool__test_tool__Response'
+        '404':
+          description: The specified organization or tool commit does not exist.
+        '400':
+          description: "This error can occur due to the following reasons:\n            * An environment variable is specified as both secret and non-secret.\n            * The specified tool commit failed CI checks.\n            * Required environment variables in the tool are not declared in the reqeust.\n            * Input parameters do not conform to the tool's input schema.\n            * Tool build failed.\n            "
+        '422':
+          description: Invalid request path parameter or request body failed validation.
+        '401':
+          description: Invalid authorization credentials.
+        '403':
+          description: Missing required permissions.
+        '503':
+          description: The service is going through temporary maintenance.
+        '429':
+          description: The user has exceeded the rate limit of 1 request per minute for this endpoint.
+  /v1/{organization}/tool/{tool_id}/envvar:
+    post:
+      tags:
+      - Tool
+      summary: Modify the environment variables of a tool
+      description: 'Add, update, or delete the environment variables of a tool. Environment variables must be present in the tool before any versions requiring them can be published.
+
+
+        You cannot delete variables that are required by non-deprecated tool versions.
+
+
+        #### Permissions
+
+        This endpoint requires the following permissions:
+
+        * `Tool:ModifyTool` for the tool whose environment variables to modify.'
+      operationId: modify-tool-envvars
+      parameters:
+      - name: organization
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Organization
+      - name: tool_id
+        in: path
+        required: true
+        schema:
+          type: string
+          pattern: ^[a-f0-9]{24}$
+          description: The ID of the tool to modify
+          title: Tool Id
+        description: The ID of the tool to modify
+      - name: x-mongo-cluster-name
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.
+          title: X-Mongo-Cluster-Name
+        description: The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.
+      - name: Sec-WebSocket-Protocol
+        in: header
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+          default: []
+          title: Sec-Websocket-Protocol
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/src__app__endpoints__tool__modify_tool_envvars__Request'
+      responses:
+        '204':
+          description: Succeeded.
+        '404':
+          description: The specified organization or tool does not exist.
+        '409':
+          description: An environment variable with the same name as the one to insert exists or has been recently deleted.
+        '400':
+          description: The specified environment variables to update or delete do not exist, or the environment variables to delete are used by non-deprecated tool versions.
+        '422':
+          description: Invalid request body or request path parameter.
+        '401':
+          description: Invalid authorization credentials.
+        '403':
+          description: Missing required permissions.
+        '503':
+          description: The service is going through temporary maintenance.
+        '429':
+          description: The user has exceeded the rate limit of 20 requests per minute for this endpoint.
+  /v1/{organization}/tool/{tool_id}/version:
+    post:
+      tags:
+      - Tool
+      summary: Publish a new version of a tool
+      description: 'Publish a new version of the specified tool. After this endpoint finishes, the new version will be immediately available for use.
+
+
+        This endpoint will take roughly 1-5 minutes to complete, so please adjust the timeout settings of your HTTP client accordingly.
+
+
+        #### Permissions
+
+        This endpoint requires the following permissions:
+
+        * `Tool:ModifyTool` for the tool.'
+      operationId: publish-tool-version
+      parameters:
+      - name: organization
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Organization
+      - name: tool_id
+        in: path
+        required: true
+        schema:
+          type: string
+          pattern: ^[a-f0-9]{24}$
+          description: The ID of the tool to publish
+          title: Tool Id
+        description: The ID of the tool to publish
+      - name: x-mongo-cluster-name
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.
+          title: X-Mongo-Cluster-Name
+        description: The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.
+      - name: Sec-WebSocket-Protocol
+        in: header
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+          default: []
+          title: Sec-Websocket-Protocol
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/src__app__endpoints__tool__publish_tool_version__Request'
+      responses:
+        '201':
+          description: Succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/src__app__endpoints__tool__publish_tool_version__Response'
+        '404':
+          description: The specified organization, tool, commit, or project directory does not exist.
+        '400':
+          description: Specified commit is older than the last valid commit, or the environment variables required by the tool version do not exist on the tool, or more than 3 active versions of the tool exist, or tool build has failed.
+        '409':
+          description: A related operation is in progress.
+        '422':
+          description: Invalid request path parameter or request body failed validation.
+        '401':
+          description: Invalid authorization credentials.
+        '403':
+          description: Missing required permissions.
+        '503':
+          description: The service is going through temporary maintenance.
+        '429':
+          description: The user has exceeded the rate limit of 10 requests per minute for this endpoint.
+    get:
+      tags:
+      - Tool
+      summary: Get tool versions
+      operationId: get-tool-versions
+      parameters:
+      - name: organization
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Organization
+      - name: tool_id
+        in: path
+        required: true
+        schema:
+          type: string
+          pattern: ^[a-f0-9]{24}$
+          description: The ID of the tool to retrieve versions for.
+          title: Tool Id
+        description: The ID of the tool to retrieve versions for.
+      - name: deprecated
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Whether to filter by deprecated tool versions.
+          title: Deprecated
+        description: Whether to filter by deprecated tool versions.
+      - name: versions
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: A semver constraint that specifies the versions to retrieve.
+          title: Versions
+        description: A semver constraint that specifies the versions to retrieve.
+      - name: sort_by
+        in: query
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+          description: 'The fields to sort the versions by. Supported fields are `created_at`, `version.major`, `version.minor`, `version.patch`, and `deprecated`. Specify a `+` before the field name to indicate ascending sorting and `-` for descending sorting. Multiple fields can be specified to break ties.    '
+          default: []
+          title: Sort By
+        description: 'The fields to sort the versions by. Supported fields are `created_at`, `version.major`, `version.minor`, `version.patch`, and `deprecated`. Specify a `+` before the field name to indicate ascending sorting and `-` for descending sorting. Multiple fields can be specified to break ties.    '
+      - name: creator
+        in: query
+        required: false
+        schema:
+          type: array
+          uniqueItems: true
+          items:
+            type: string
+          description: The creators of the tool versions. Each value must be of the format `org_id,user_id`.
+          default: []
+          title: Creator
+        description: The creators of the tool versions. Each value must be of the format `org_id,user_id`.
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 50
+          minimum: 0
+          description: The maximum number of tool versions to return.
+          default: 50
+          title: Limit
+        description: The maximum number of tool versions to return.
+      - name: continuation_token
+        in: query
+        required: false
+        schema:
+          type: integer
+          description: The continuation token from the previous request used to retrieve the next page of tool versions.
+          default: 0
+          title: Continuation Token
+        description: The continuation token from the previous request used to retrieve the next page of tool versions.
+      - name: x-mongo-cluster-name
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.
+          title: X-Mongo-Cluster-Name
+        description: The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.
+      - name: Sec-WebSocket-Protocol
+        in: header
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+          default: []
+          title: Sec-Websocket-Protocol
+      responses:
+        '200':
+          description: Succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/src__app__endpoints__tool__get_tool_versions__Response'
+        '404':
+          description: Specified organization or tool is not found.
+        '422':
+          description: Invalid request path parameter or request query parameter failed validation.
+        '401':
+          description: Invalid authorization credentials.
+        '403':
+          description: Missing required permissions.
+        '503':
+          description: The service is going through temporary maintenance.
+        '429':
+          description: The user has exceeded the rate limit of 50 requests per minute for this endpoint.
+  /v1/{organization}/tool/invocation:
+    get:
+      tags:
+      - Tool
+      summary: Get tool invocations
+      description: 'Retrieve tool invocations under the specified filters.
+
+
+        #### Permissions
+
+        This endpoint may require the following permission:
+
+        * `Conversation:GetInteractionInsights` for `ToolInvocation`s from a regular conversation.
+
+        * `Simulation:GetSimulationUnitTestSetRun` for `ToolInvocation`s from a simulation conversation.'
+      operationId: get-tool-invocations
+      parameters:
+      - name: organization
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Organization
+      - name: tool_id
+        in: query
+        required: false
+        schema:
+          type: array
+          uniqueItems: true
+          items:
+            type: string
+            pattern: ^[a-f0-9]{24}$
+          description: The IDs of the tools to get invocations for.
+          default: []
+          title: Tool Id
+        description: The IDs of the tools to get invocations for.
+      - name: version
+        in: query
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+          description: A list of semver constraints that specifies the versions to retrieve in the [Python packaging specification](https://packaging.python.org/en/latest/specifications/version-specifiers/#id5). This must be the exact same length as `tool_id`, and each entry corresponds to the tool ID at the same index.
+          default: []
+          title: Version
+        description: A list of semver constraints that specifies the versions to retrieve in the [Python packaging specification](https://packaging.python.org/en/latest/specifications/version-specifiers/#id5). This must be the exact same length as `tool_id`, and each entry corresponds to the tool ID at the same index.
+      - name: invocation_source_type
+        in: query
+        required: false
+        schema:
+          type: array
+          uniqueItems: true
+          items:
+            enum:
+            - regular-conversation
+            - simulation-conversation
+            type: string
+          description: The source types of the invocations.
+          default: []
+          title: Invocation Source Type
+        description: The source types of the invocations.
+      - name: conversation_id
+        in: query
+        required: false
+        schema:
+          type: array
+          uniqueItems: true
+          items:
+            type: string
+            pattern: ^[a-f0-9]{24}$
+          description: The conversation IDs associated with the invocations if they are of invocation source `regular-conversation`.
+          default: []
+          title: Conversation Id
+        description: The conversation IDs associated with the invocations if they are of invocation source `regular-conversation`.
+      - name: simulation_unit_test_set_run_id
+        in: query
+        required: false
+        schema:
+          type: array
+          uniqueItems: true
+          items:
+            type: string
+            pattern: ^[a-f0-9]{24}$
+          description: The simulation unit test set run IDs associated with the invocations if they are of invocation source `simulation-conversation`.
+          default: []
+          title: Simulation Unit Test Set Run Id
+        description: The simulation unit test set run IDs associated with the invocations if they are of invocation source `simulation-conversation`.
+      - name: succeeded
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Whether the invocation succeeded.
+          title: Succeeded
+        description: Whether the invocation succeeded.
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 100
+          minimum: 0
+          description: The maximum number of tool invocations to retrieve.
+          default: 100
+          title: Limit
+        description: The maximum number of tool invocations to retrieve.
+      - name: continuation_token
+        in: query
+        required: false
+        schema:
+          type: integer
+          description: The token from the previous request to return the next page of tool invocations.
+          default: 0
+          title: Continuation Token
+        description: The token from the previous request to return the next page of tool invocations.
+      - name: sort_by
+        in: query
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+          description: The fields to sort the sets by. Supported fields are `created_at`, `version.major`, `version.minor`, `version.patch`, `tool_id`, `invocation_source.type`, and `invocation_status.succeeded`. Specify a `+` before the field name to indicate ascending sorting and `-` for descending sorting. Multiple fields can be specified to break ties.
+          default: []
+          title: Sort By
+        description: The fields to sort the sets by. Supported fields are `created_at`, `version.major`, `version.minor`, `version.patch`, `tool_id`, `invocation_source.type`, and `invocation_status.succeeded`. Specify a `+` before the field name to indicate ascending sorting and `-` for descending sorting. Multiple fields can be specified to break ties.
+      - name: x-mongo-cluster-name
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.
+          title: X-Mongo-Cluster-Name
+        description: The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.
+      - name: Sec-WebSocket-Protocol
+        in: header
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+          default: []
+          title: Sec-Websocket-Protocol
+      responses:
+        '200':
+          description: Succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/src__app__endpoints__tool__get_tool_invocations__Response'
+        '404':
+          description: Specified organization does not exist.
+        '400':
+          description: The `tool_id` and `version` query parameters are not the same length.
+        '422':
+          description: Invalid request path parameter or request query parameter failed validation.
+        '401':
+          description: Invalid authorization credentials.
+        '403':
+          description: Missing required permissions.
+        '503':
+          description: The service is going through temporary maintenance.
+        '429':
+          description: The user has exceeded the rate limit of 50 requests per minute for this endpoint.
+  /v1/{organization}/tool/{tool_id}/version/{version}/invoke:
+    post:
+      tags:
+      - Tool
+      summary: Invoke a tool version
+      description: 'Invoke a specified tool version with the given input parameters.
+
+
+        #### Permissions
+
+        This endpoint requires the following permissions:
+
+        * `Tool:InvokeTool` for the tool to invoke.'
+      operationId: invoke-tool-version
+      parameters:
+      - name: organization
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Organization
+      - name: tool_id
+        in: path
+        required: true
+        schema:
+          type: string
+          pattern: ^[a-f0-9]{24}$
+          description: The ID of the tool to invoke
+          title: Tool Id
+        description: The ID of the tool to invoke
+      - name: version
+        in: path
+        required: true
+        schema:
+          type: string
+          description: The version of the tool to invoke
+          title: Version
+        description: The version of the tool to invoke
+      - name: x-mongo-cluster-name
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.
+          title: X-Mongo-Cluster-Name
+        description: The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.
+      - name: Sec-WebSocket-Protocol
+        in: header
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+          default: []
+          title: Sec-Websocket-Protocol
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/src__app__endpoints__tool__invoke_tool_version__Request'
+      responses:
+        '200':
+          description: Succeeded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/src__app__endpoints__tool__invoke_tool_version__Response'
+        '404':
+          description: The specified organization, tool, or tool version does not exist.
+        '400':
+          description: The input parameters do not conform to the tool's input schema.
+        '422':
+          description: Invalid request path parameter or request body failed validation.
+        '401':
+          description: Invalid authorization credentials.
+        '403':
+          description: Missing required permissions.
+        '503':
+          description: The service is going through temporary maintenance.
+        '429':
+          description: The user has exceeded the rate limit of 10 requests per minute for this endpoint.
+  /v1/{organization}/tool/invocation/search:
+    get:
+      tags:
+      - Tool
+      summary: Search tool invocations
+      operationId: search-tool-invocations
+      parameters:
+      - name: organization
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Organization
+      - name: query
+        in: query
+        required: true
+        schema:
+          type: string
+          description: The search query.
+          title: Query
+        description: The search query.
+      - name: query_against
+        in: query
+        required: true
+        schema:
+          type: array
+          uniqueItems: true
+          items:
+            enum:
+            - invocation_status.exception_message
+            - invocation_status.exception_type
+            - invocation_status.exception_stack_trace
+            - invocation_status.output
+            type: string
+          minItems: 1
+          description: The fields to query against. By default, all supported fields are queried against.
+          title: Query Against
+        description: The fields to query against. By default, all supported fields are queried against.
+      - name: tool_id
+        in: query
+        required: false
+        schema:
+          type: array
+          uniqueItems: true
+          items:
+            type: string
+            pattern: ^[a-f0-9]{24}$
+          description: The IDs of the tools to get invocations for.
+          default: []
+          title: Tool Id
+        description: The IDs of the tools to get invocations for.
+      - name: invocation_source_type
+        in: query
+        required: false
+        schema:
+          type: array
+          uniqueItems: true
+          items:
+            enum:
+            - regular-conversation
+            - simulation-conversation
+            type: string
+          description: The source of the invocation.
+          default: []
+          title: Invocation Source Type
+        description: The source of the invocation.
+      - name: conversation_id
+        in: query
+        required: false
+        schema:
+          type: array
+          uniqueItems: true
+          items:
+            type: string
+            pattern: ^[a-f0-9]{24}$
+          description: The conversation ID associated with the invocation if it's of invocation source `regular-conversation`.
+          default: []
+          title: Conversation Id
+        description: The conversation ID associated with the invocation if it's of invocation source `regular-conversation`.
+      - name: simulation_unit_test_set_run_id
+        in: query
+        required: false
+        schema:
+          type: array
+          uniqueItems: true
+          items:
+            type: string
+            pattern: ^[a-f0-9]{24}$
+          description: The simulation unit test set run ID associated with the invocation if it's of invocation source `simulation-conversation`.
+          default: []
+          title: Simulation Unit Test Set Run Id
+        description: The simulation unit test set run ID associated with the invocation if it's of invocation source `simulation-conversation`.
+      - name: succeeded
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Whether the invocation succeeded.
+          title: Succeeded
+        description: Whether the invocation succeeded.
+      - name: x-mongo-cluster-name
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.
+          title: X-Mongo-Cluster-Name
+        description: The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.
+      - name: Sec-WebSocket-Protocol
+        in: header
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+          default: []
+          title: Sec-Websocket-Protocol
+      responses:
+        '200':
+          description: Succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/src__app__endpoints__tool__search_tool_invocations__Response'
+        '404':
+          description: The organization is not found.
+        '422':
+          description: Invalid request path parameter or request query parameter failed validation.
+        '401':
+          description: Invalid authorization credentials.
+        '403':
+          description: Missing required permissions.
+        '503':
+          description: The service is going through temporary maintenance.
+        '429':
+          description: The user has exceeded the rate limit of 50 requests per minute for this endpoint.
+components:
+  schemas:
+    InvocationStatus:
+      oneOf:
+      - $ref: '#/components/schemas/SucceededInvocationStatus'
+      - $ref: '#/components/schemas/FailedInvocationStatus'
+      discriminator:
+        propertyName: succeeded
+        mapping:
+          'False': '#/components/schemas/FailedInvocationStatus'
+          'True': '#/components/schemas/SucceededInvocationStatus'
+    amigo_lib__pydantic__base_model__StrippedNonemptyString__1:
+      type: string
+      minLength: 1
+    Input:
+      properties:
+        input_parameters:
+          additionalProperties: true
+          type: object
+          title: Input Parameters
+          description: The input parameters for the tool invocation.
+        invocation_mode:
+          type: string
+          enum:
+          - regular
+          - conversation-simulation
+          title: Invocation Mode
+          description: The mode of invocation.
+        nonsensitive_user_variables:
+          additionalProperties:
+            type: string
+          propertyNames:
+            $ref: '#/components/schemas/StrippedNonemptyString_a-z___a-z0-9_______'
+          type: object
+          maxProperties: 20
+          title: Nonsensitive User Variables
+          description: The nonsensitive user variables to provide to the tool during invocation.
+        sensitive_user_variables:
+          additionalProperties:
+            type: string
+          propertyNames:
+            $ref: '#/components/schemas/StrippedNonemptyString_a-z___a-z0-9_______'
+          type: object
+          maxProperties: 20
+          title: Sensitive User Variables
+          description: The sensitive user variables to provide to the tool during invocation.
+      type: object
+      required:
+      - input_parameters
+      - invocation_mode
+      - nonsensitive_user_variables
+      - sensitive_user_variables
+      title: Input
+    src__app__endpoints__tool__create_tool__Request:
+      properties:
+        name:
+          $ref: '#/components/schemas/StrippedNonemptyString_a-z0-9______'
+          description: The name of the tool. It must be unique among all non-deprecated tools in the organization.
+        description:
+          $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
+          description: A description of the tool.
+        tags:
+          additionalProperties:
+            anyOf:
+            - $ref: '#/components/schemas/StrippedNonemptyString___w__s_____'
+            - type: 'null'
+          propertyNames:
+            $ref: '#/components/schemas/StrippedNonemptyString___w__s_____'
+          type: object
+          maxProperties: 20
+          title: Tags
+          description: The tags of this tool.
+      type: object
+      required:
+      - name
+      - description
+      - tags
+      title: Request
+    ToolInstance:
+      properties:
+        id:
+          type: string
+          title: Id
+          description: The identifier fo the tool.
+        org_id:
+          type: string
+          title: Org Id
+          description: The ID of the organization.
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+        name:
+          type: string
+          title: Name
+          description: The name of the tool.
+        description:
+          type: string
+          title: Description
+          description: A description of the tool. This description will be used to describe the tool to the LLM.
+        deprecated:
+          type: boolean
+          title: Deprecated
+          description: Whether the tool is deprecated. Deprecated tools are not usable.
+        envvars:
+          items:
+            type: string
+          type: array
+          title: Envvars
+          description: A list of environment variables that some versions of this tool uses.
+        secret_envvars:
+          items:
+            type: string
+          type: array
+          title: Secret Envvars
+          description: A list of encrypted environment variables that some versions of this tool uses.
+        tags:
+          items:
+            $ref: '#/components/schemas/Tag'
+          type: array
+          title: Tags
+          description: The tags of the simulation persona.
+        creator:
+          $ref: '#/components/schemas/amigo_lib__mongo__collections__tool__Tool__UserInfo'
+          description: The user who created this tool.
+        updated_by:
+          $ref: '#/components/schemas/amigo_lib__mongo__collections__tool__Tool__UserInfo'
+          description: The user who last updated this tool.
+      type: object
+      required:
+      - id
+      - org_id
+      - name
+      - description
+      - deprecated
+      - envvars
+      - secret_envvars
+      - tags
+      - creator
+      - updated_by
+      title: ToolInstance
+    src__app__endpoints__tool__get_tools__Response__FilterValues:
+      properties:
+        tags:
+          items:
+            type: string
+          type: array
+          title: Tags
+          description: A list of tags of the tools.
+      type: object
+      required:
+      - tags
+      title: FilterValues
+    src__app__endpoints__tool__test_tool__Response:
+      properties:
+        invocation_results:
+          items:
+            $ref: '#/components/schemas/InvocationResult'
+          type: array
+          title: Invocation Results
+      type: object
+      required:
+      - invocation_results
+      title: Response
+    src__app__endpoints__tool__publish_tool_version__Response:
+      properties:
+        new_version:
+          type: string
+          title: New Version
+          description: The new version of the tool.
+      type: object
+      required:
+      - new_version
+      title: Response
+    FailedInvocationResult:
+      properties:
+        succeeded:
+          type: boolean
+          const: false
+          title: Succeeded
+          default: false
+        exception_message:
+          type: string
+          title: Exception Message
+          description: The message of the exception during the tool invocation.
+        exception_type:
+          type: string
+          title: Exception Type
+          description: The type of the exception during the tool invocation.
+        exception_stack_trace:
+          items:
+            type: string
+          type: array
+          title: Exception Stack Trace
+          description: The stack trace of the exception during the tool invocation.
+        duration_ms:
+          type: integer
+          title: Duration Ms
+          description: The duration of the tool invocation in milliseconds.
+      type: object
+      required:
+      - exception_message
+      - exception_type
+      - exception_stack_trace
+      - duration_ms
+      title: FailedInvocationResult
+    ToolVersionInstance:
+      properties:
+        id:
+          type: string
+          title: Id
+          description: The identifier of the tool version.
+        org_id:
+          type: string
+          title: Org Id
+          description: The ID of the organization.
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+        tool_id:
+          type: string
+          title: Tool Id
+          description: The ID of the tool that this version belongs to.
+        version:
+          $ref: '#/components/schemas/Version'
+          description: The version of the tool.
+        required_envvars:
+          items:
+            type: string
+          type: array
+          title: Required Envvars
+          description: The environment variables that are required to run the tool.
+        required_secret_envvars:
+          items:
+            type: string
+          type: array
+          title: Required Secret Envvars
+          description: The secret environment variables that are required to run the tool.
+        input_schema:
+          additionalProperties: true
+          type: object
+          title: Input Schema
+          description: The input schema of the tool.
+        tool_commit_hash:
+          type: string
+          title: Tool Commit Hash
+          description: The commit hash of the tool within the repository.
+        amigo_scaffold_commit_hash:
+          type: string
+          title: Amigo Scaffold Commit Hash
+          description: The commit hash of the Amigo scaffold that this tool version was created with.
+        project_directory:
+          type: string
+          title: Project Directory
+          description: The project directory of the tool.
+        lambda_version:
+          type: integer
+          title: Lambda Version
+          description: The version of the Lambda function that corresponds to this tool version.
+        creator:
+          $ref: '#/components/schemas/amigo_lib__mongo__collections__tool_version__ToolVersion__UserInfo'
+          description: The user who created the tool version.
+        updated_by:
+          $ref: '#/components/schemas/amigo_lib__mongo__collections__tool_version__ToolVersion__UserInfo'
+          description: The user who last updated the tool version.
+        deprecated:
+          type: boolean
+          title: Deprecated
+          description: Whether the tool version is deprecated. Deprecated tool versions are not usable and do not participate in version resolution.
+      type: object
+      required:
+      - id
+      - org_id
+      - tool_id
+      - version
+      - required_envvars
+      - required_secret_envvars
+      - input_schema
+      - tool_commit_hash
+      - amigo_scaffold_commit_hash
+      - project_directory
+      - lambda_version
+      - creator
+      - updated_by
+      - deprecated
+      title: ToolVersionInstance
+    StrippedNonemptyString_A-Z______:
+      type: string
+      minLength: 1
+      pattern: '[A-Z_]+'
+    AgentFrameworkInvocationMetadata:
+      oneOf:
+      - $ref: '#/components/schemas/StateTransitionInvocationMetadata'
+      - $ref: '#/components/schemas/EngageUserInvocationMetadata'
+      - $ref: '#/components/schemas/ToolCallStateInvocationMetadata'
+      discriminator:
+        propertyName: type
+        mapping:
+          engage-user: '#/components/schemas/EngageUserInvocationMetadata'
+          state-transition: '#/components/schemas/StateTransitionInvocationMetadata'
+          tool-call-state: '#/components/schemas/ToolCallStateInvocationMetadata'
+    src__app__endpoints__tool__get_tool_invocations__Response:
+      properties:
+        tool_invocations:
+          items:
+            $ref: '#/components/schemas/ToolInvocationInstance'
+          type: array
+          title: Tool Invocations
+          description: The list of tool invocations.
+        has_more:
+          type: boolean
+          title: Has More
+          description: Whether there are more tool invocations to retrieve.
+        continuation_token:
+          anyOf:
+          - {}
+          - type: 'null'
+          title: Continuation Token
+          description: The continuation token to retrieve the next page of tool invocations, or null if there are no more tool invocations.
+      type: object
+      required:
+      - tool_invocations
+      - has_more
+      - continuation_token
+      title: Response
+    FailedInvocationStatus:
+      properties:
+        succeeded:
+          type: boolean
+          const: false
+          title: Succeeded
+          default: false
+        exception_message:
+          type: string
+          title: Exception Message
+          description: The exception message if the tool invocation failed.
+        exception_type:
+          type: string
+          title: Exception Type
+          description: The exception type if the tool invocation failed.
+        exception_stack_trace:
+          items:
+            type: string
+          type: array
+          title: Exception Stack Trace
+          description: The exception stack trace if the tool invocation failed.
+      type: object
+      required:
+      - exception_message
+      - exception_type
+      - exception_stack_trace
+      title: FailedInvocationStatus
+    src__app__endpoints__tool__publish_tool_version__Request:
+      properties:
+        project_path:
+          type: string
+          pattern: ^[-\w\d_/]+$
+          title: Project Path
+          description: The directory in the tools repo that contains the `pyproject.toml` file corresponding to the tool version to publish.
+        bump_type:
+          type: string
+          enum:
+          - major
+          - minor
+          - patch
+          title: Bump Type
+          description: The type of bump to apply to the version. For initial version of the tool, use `major`.
+      type: object
+      required:
+      - project_path
+      - bump_type
+      title: Request
+    Tag:
+      properties:
+        key:
+          type: string
+          title: Key
+        value:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Value
+      type: object
+      required:
+      - key
+      - value
+      title: Tag
+    amigo_lib__mongo__collections__tool__Tool__UserInfo:
+      properties:
+        org_id:
+          type: string
+          title: Org Id
+        user_id:
+          type: string
+          title: User Id
+      type: object
+      required:
+      - org_id
+      - user_id
+      title: UserInfo
+    ToolCallStateInvocationMetadata:
+      properties:
+        type:
+          type: string
+          const: tool-call-state
+          title: Type
+          default: tool-call-state
+        current_state_machine_and_version:
+          prefixItems:
+          - type: string
+          - type: integer
+          type: array
+          maxItems: 2
+          minItems: 2
+          title: Current State Machine And Version
+          description: The ID and version of the state machine that is currently being executed.
+        state_name:
+          type: string
+          title: State Name
+          description: The name of the state during which the tool was invoked.
+      type: object
+      required:
+      - current_state_machine_and_version
+      - state_name
+      title: ToolCallStateInvocationMetadata
+    amigo_lib__mongo__collections__tool_version__ToolVersion__UserInfo:
+      properties:
+        user_id:
+          type: string
+          title: User Id
+          description: The ID of the user.
+        user_org_id:
+          type: string
+          title: User Org Id
+          description: The ID of the user's organization.
+      type: object
+      required:
+      - user_id
+      - user_org_id
+      title: UserInfo
+    StateTransitionInvocationMetadata:
+      properties:
+        type:
+          type: string
+          const: state-transition
+          title: Type
+          default: state-transition
+        current_state_machine_and_version:
+          prefixItems:
+          - type: string
+          - type: integer
+          type: array
+          maxItems: 2
+          minItems: 2
+          title: Current State Machine And Version
+          description: The ID and version of the state machine that is currently being executed.
+        state_name:
+          type: string
+          title: State Name
+          description: The name of the state during which the tool was invoked.
+        state_transition_index:
+          type: integer
+          title: State Transition Index
+          description: The index of the state transition during which the tool was invoked. As an example, the first state processing that occurs during this state machine navigation process has index 1.
+        tool_call_round_index:
+          type: integer
+          title: Tool Call Round Index
+          description: The index of the tool call round.
+      type: object
+      required:
+      - current_state_machine_and_version
+      - state_name
+      - state_transition_index
+      - tool_call_round_index
+      title: StateTransitionInvocationMetadata
+    SucceededInvocationStatus:
+      properties:
+        succeeded:
+          type: boolean
+          const: true
+          title: Succeeded
+          default: true
+        output:
+          type: string
+          title: Output
+          description: The output produced by the tool invocation.
+      type: object
+      required:
+      - output
+      title: SucceededInvocationStatus
+    src__app__endpoints__tool__modify_tool__Request:
+      properties:
+        description:
+          anyOf:
+          - $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
+          - type: 'null'
+          description: A description of this tool. Only updates if not-null.
+        tags:
+          anyOf:
+          - additionalProperties:
+              anyOf:
+              - $ref: '#/components/schemas/StrippedNonemptyString___w__s_____'
+              - type: 'null'
+            propertyNames:
+              $ref: '#/components/schemas/StrippedNonemptyString___w__s_____'
+            type: object
+            maxProperties: 20
+          - type: 'null'
+          title: Tags
+          description: The tags of this tool. Only updates if not-null.
+      type: object
+      title: Request
+    src__app__endpoints__tool__invoke_tool_version__Response:
+      properties:
+        invocation_results:
+          items:
+            $ref: '#/components/schemas/InvocationResult'
+          type: array
+          title: Invocation Results
+      type: object
+      required:
+      - invocation_results
+      title: Response
+    StrippedNonemptyString_a-z___a-z0-9_______:
+      type: string
+      minLength: 1
+      pattern: ^[a-z_][a-z0-9_]+$
+    InsertRequest:
+      properties:
+        name:
+          $ref: '#/components/schemas/StrippedNonemptyString_A-Z______'
+          description: The name of the environment variable to insert.
+        value:
+          type: string
+          title: Value
+          description: The value of the environment variable to insert.
+        is_secret:
+          type: boolean
+          title: Is Secret
+          description: Whether the environment variable is a secret.
+      type: object
+      required:
+      - name
+      - value
+      - is_secret
+      title: InsertRequest
+    src__app__endpoints__tool__test_tool__Request:
+      properties:
+        inputs:
+          items:
+            $ref: '#/components/schemas/Input'
+          type: array
+          maxItems: 10
+          minItems: 1
+          title: Inputs
+          description: The list of inputs for the tool invocation.
+        commit_branch:
+          type: string
+          title: Commit Branch
+          description: The branch in the tools repo whose tip will be tested.
+        project_path:
+          type: string
+          pattern: ^[-\w\d_/]+$
+          title: Project Path
+          description: The directory in the tools repo that contains the `pyproject.toml` file corresponding to the tool version to publish.
+        required_envvars:
+          additionalProperties:
+            type: string
+          type: object
+          title: Required Envvars
+          description: The environment variables required for the tool to run.
+        required_secret_envvars:
+          additionalProperties:
+            type: string
+          type: object
+          title: Required Secret Envvars
+          description: The secret environment variables required for the tool to run.
+      type: object
+      required:
+      - inputs
+      - commit_branch
+      - project_path
+      - required_envvars
+      - required_secret_envvars
+      title: Request
+    src__app__endpoints__tool__get_tool_versions__Response__FilterValues:
+      properties:
+        creators:
+          items:
+            $ref: '#/components/schemas/amigo_lib__mongo__collections__tool_version__ToolVersion__UserInfo'
+          type: array
+          title: Creators
+          description: The list of users who created the simulation personas.
+      type: object
+      required:
+      - creators
+      title: FilterValues
+    src__app__endpoints__tool__search_tool_invocations__Response:
+      properties:
+        tool_invocations:
+          items:
+            $ref: '#/components/schemas/ToolInvocationInstance'
+          type: array
+          title: Tool Invocations
+          description: The list of tool invocations.
+      type: object
+      required:
+      - tool_invocations
+      title: Response
+    ToolInvocationInstance:
+      properties:
+        id:
+          type: string
+          title: Id
+          description: The ID of the tool invocation.
+        org_id:
+          type: string
+          title: Org Id
+          description: The ID of the organization.
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+        invocation_status:
+          $ref: '#/components/schemas/InvocationStatus'
+          description: The status of the tool invocation.
+        invocation_source:
+          $ref: '#/components/schemas/InvocationSource'
+          description: The source of the tool invocation.
+        duration_ms:
+          type: integer
+          title: Duration Ms
+          description: The duration of the tool invocation in milliseconds.
+        tool_id:
+          type: string
+          title: Tool Id
+          description: The ID of the tool that was invoked.
+        tool_version:
+          $ref: '#/components/schemas/Version'
+          description: The version of the tool that was invoked.
+        inputs:
+          additionalProperties: true
+          type: object
+          title: Inputs
+          description: The input parameters to the tool.
+      type: object
+      required:
+      - id
+      - org_id
+      - invocation_status
+      - invocation_source
+      - duration_ms
+      - tool_id
+      - tool_version
+      - inputs
+      title: ToolInvocationInstance
+    EngageUserInvocationMetadata:
+      properties:
+        type:
+          type: string
+          const: engage-user
+          title: Type
+          default: engage-user
+        current_state_machine_and_version:
+          prefixItems:
+          - type: string
+          - type: integer
+          type: array
+          maxItems: 2
+          minItems: 2
+          title: Current State Machine And Version
+          description: The ID and version of the state machine that is currently being executed.
+        tool_call_round_index:
+          type: integer
+          title: Tool Call Round Index
+          description: The index of the tool call round.
+      type: object
+      required:
+      - current_state_machine_and_version
+      - tool_call_round_index
+      title: EngageUserInvocationMetadata
+    src__app__endpoints__tool__get_tool_versions__Response:
+      properties:
+        tool_versions:
+          items:
+            $ref: '#/components/schemas/ToolVersionInstance'
+          type: array
+          title: Tool Versions
+          description: A list of tool versions that are found.
+        has_more:
+          type: boolean
+          title: Has More
+          description: Whether there are more tool versions to retrieve.
+        continuation_token:
+          anyOf:
+          - {}
+          - type: 'null'
+          title: Continuation Token
+          description: A token to supply to the next request to retrieve the next page of tool versions. Only populated if `has_more` is `True`.
+        filter_values:
+          anyOf:
+          - $ref: '#/components/schemas/src__app__endpoints__tool__get_tool_versions__Response__FilterValues'
+          - type: 'null'
+          description: 'For each filter that this endpoint supports that can take on dynamic values, this field includes what these values are. This is only provided for the first page in the pagination results.
+
+
+            Note that the values are counted assuming the authenticated user has access to all the tool versions, so they might differ from how many tool versions are actually
+
+            retrieved.'
+      type: object
+      required:
+      - tool_versions
+      - has_more
+      - continuation_token
+      - filter_values
+      title: Response
+    src__app__endpoints__tool__create_tool__Response:
+      properties:
+        id:
+          type: string
+          title: Id
+          description: The ID of the tool.
+      type: object
+      required:
+      - id
+      title: Response
+    SucceededInvocationResult:
+      properties:
+        succeeded:
+          type: boolean
+          const: true
+          title: Succeeded
+          default: true
+        output:
+          type: string
+          title: Output
+          description: The output of the tool invocation.
+        duration_ms:
+          type: integer
+          title: Duration Ms
+          description: The duration of the tool invocation in milliseconds.
+      type: object
+      required:
+      - output
+      - duration_ms
+      title: SucceededInvocationResult
+    src__app__endpoints__tool__modify_tool_envvars__Request__DeleteRequest:
+      properties:
+        name:
+          $ref: '#/components/schemas/StrippedNonemptyString_A-Z______'
+          description: The name of the environment variable to delete.
+      type: object
+      required:
+      - name
+      title: DeleteRequest
+    InvocationResult:
+      oneOf:
+      - $ref: '#/components/schemas/SucceededInvocationResult'
+      - $ref: '#/components/schemas/FailedInvocationResult'
+      discriminator:
+        propertyName: succeeded
+        mapping:
+          'False': '#/components/schemas/FailedInvocationResult'
+          'True': '#/components/schemas/SucceededInvocationResult'
+    UpdateRequest:
+      properties:
+        name:
+          $ref: '#/components/schemas/StrippedNonemptyString_A-Z______'
+          description: The name of the environment variable to update.
+        value:
+          type: string
+          title: Value
+          description: The value of the environment variable to update.
+      type: object
+      required:
+      - name
+      - value
+      title: UpdateRequest
+    StrippedNonemptyString_a-z0-9______:
+      type: string
+      minLength: 1
+      pattern: ^[a-z0-9_]+$
+    src__app__endpoints__tool__get_tools__Response:
+      properties:
+        tools:
+          items:
+            $ref: '#/components/schemas/ToolInstance'
+          type: array
+          title: Tools
+          description: A list of tools that are found.
+        has_more:
+          type: boolean
+          title: Has More
+          description: Whether there are more tools to retrieve.
+        continuation_token:
+          anyOf:
+          - {}
+          - type: 'null'
+          title: Continuation Token
+          description: A token to supply to the next request to retrieve the next page of tools. Only populated if `has_more` is `True`.
+        filter_values:
+          anyOf:
+          - $ref: '#/components/schemas/src__app__endpoints__tool__get_tools__Response__FilterValues'
+          - type: 'null'
+          description: 'For each filter that this endpoint supports that can take on dynamic values, this field includes what these values are. This is only provided for the first page in the pagination results.
+
+
+            Note that the values are counted assuming the authenticated user has access to all the tools, so they might differ from how many tools are actually
+
+            retrieved.'
+      type: object
+      required:
+      - tools
+      - has_more
+      - continuation_token
+      - filter_values
+      title: Response
+    src__app__endpoints__tool__modify_tool_envvars__Request:
+      properties:
+        inserts:
+          items:
+            $ref: '#/components/schemas/InsertRequest'
+          type: array
+          title: Inserts
+          default: []
+        updates:
+          items:
+            $ref: '#/components/schemas/UpdateRequest'
+          type: array
+          title: Updates
+          default: []
+        deletes:
+          items:
+            $ref: '#/components/schemas/src__app__endpoints__tool__modify_tool_envvars__Request__DeleteRequest'
+          type: array
+          title: Deletes
+          default: []
+      type: object
+      title: Request
+    Version:
+      properties:
+        major:
+          type: integer
+          title: Major
+        minor:
+          type: integer
+          title: Minor
+        patch:
+          type: integer
+          title: Patch
+      type: object
+      required:
+      - major
+      - minor
+      - patch
+      title: Version
+    SimulationConversationInvocationSource:
+      properties:
+        type:
+          type: string
+          const: simulation-conversation
+          title: Type
+          default: simulation-conversation
+        simulation_unit_test_set_run_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Simulation Unit Test Set Run Id
+        unit_test_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Unit Test Id
+        run_index:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Run Index
+        invocation_metadata:
+          $ref: '#/components/schemas/AgentFrameworkInvocationMetadata'
+          description: Metadata about the invocation.
+      type: object
+      required:
+      - simulation_unit_test_set_run_id
+      - unit_test_id
+      - run_index
+      - invocation_metadata
+      title: SimulationConversationInvocationSource
+    InvocationSource:
+      oneOf:
+      - $ref: '#/components/schemas/RegularConversationInvocationSource'
+      - $ref: '#/components/schemas/SimulationConversationInvocationSource'
+      discriminator:
+        propertyName: type
+        mapping:
+          regular-conversation: '#/components/schemas/RegularConversationInvocationSource'
+          simulation-conversation: '#/components/schemas/SimulationConversationInvocationSource'
+    StrippedNonemptyString___w__s_____:
+      type: string
+      minLength: 1
+      pattern: ^[\w\s]+$
+    src__app__endpoints__tool__invoke_tool_version__Request:
+      properties:
+        inputs:
+          items:
+            $ref: '#/components/schemas/Input'
+          type: array
+          maxItems: 10
+          minItems: 1
+          title: Inputs
+          description: The list of inputs for the tool invocation.
+      type: object
+      required:
+      - inputs
+      title: Request
+    RegularConversationInvocationSource:
+      properties:
+        type:
+          type: string
+          const: regular-conversation
+          title: Type
+          default: regular-conversation
+        user_id:
+          type: string
+          title: User Id
+          description: The ID of the user whose conversation invoked the tool.
+        conversation_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Conversation Id
+          description: The ID of the conversation where the tool was invoked. This conversation might not actually exist if later in the call the conversation is rolled back.
+        interaction_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Interaction Id
+          description: The ID of the interaction where the tool was invoked. This interaction might not actually exist if later in the call the interaction is rolled back.
+        invocation_metadata:
+          $ref: '#/components/schemas/AgentFrameworkInvocationMetadata'
+          description: Metadata about the invocation.
+      type: object
+      required:
+      - user_id
+      - conversation_id
+      - interaction_id
+      - invocation_metadata
+      title: RegularConversationInvocationSource
+  securitySchemes:
+    Bearer-Authorization:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Amigo issued JWT token that identifies an user. It's issued either after logging in through the frontend, or manually through the [`SignInWithAPIKey`](sign-in-with-api-key) endpoint.
+    Bearer-Authorization-Organization:
+      type: apiKey
+      in: header
+      name: X-ORG-ID
+      description: An optional organization identifier that indicates from which organization the token is issued. This is used in rare cases where the user to authenticate is making a request for resources in another organization.
+    Basic:
+      type: http
+      scheme: basic
+      description: The username should be set to {org_id}_{user_id}, and the password should be the Amigo issued JWT token that identifies the user.

@@ -1,0 +1,649 @@
+openapi: 3.1.0
+info:
+  title: Amigo Account Scheduling Rules API
+  version: 0.1.0
+servers:
+- url: https://api.amigo.ai
+- url: https://internal-api.amigo.ai
+- url: https://api-eu-central-1.amigo.ai
+- url: https://api-ap-southeast-2.amigo.ai
+- url: https://api-ca-central-1.amigo.ai
+security:
+- Bearer-Authorization: []
+  Bearer-Authorization-Organization: []
+  Basic: []
+tags:
+- name: Scheduling Rules
+paths:
+  /v1/{workspace_id}/scheduling-rule-sets:
+    get:
+      tags:
+      - Scheduling Rules
+      summary: List scheduling rule sets
+      description: 'List all scheduling rule sets for the workspace. Optional filters: `agent_kind` (tms / ketamine / general), `is_active`. Used by the agent-engine rules engine and by operators inspecting config.'
+      operationId: list-scheduling-rule-sets
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: agent_kind
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - enum:
+            - tms
+            - ketamine
+            - general
+            type: string
+          - type: 'null'
+          title: Agent Kind
+      - name: is_active
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Active
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 100
+          exclusiveMinimum: 0
+          default: 10
+          title: Limit
+      - name: continuation_token
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 0
+          title: Continuation Token
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedResponse_SchedulingRuleSetResponse_'
+        '403':
+          description: Insufficient permissions.
+        '401':
+          description: Missing or invalid API key.
+        '429':
+          description: Rate limited.
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    post:
+      tags:
+      - Scheduling Rules
+      summary: Create a scheduling rule set
+      description: Create one rule set for `(agent_kind, rule_kind)`. Returns 409 if a row already exists for that key — use PATCH on the existing row or DELETE first.
+      operationId: create-scheduling-rule-set
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSchedulingRuleSetRequest'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SchedulingRuleSetResponse'
+        '409':
+          description: Rule set already exists for this (agent_kind, rule_kind).
+        '422':
+          description: Invalid request body or rule_kind discriminator.
+        '403':
+          description: Insufficient permissions.
+        '401':
+          description: Missing or invalid API key.
+        '429':
+          description: Rate limited.
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+  /v1/{workspace_id}/scheduling-rule-sets/{rule_set_id}:
+    get:
+      tags:
+      - Scheduling Rules
+      summary: Get one scheduling rule set
+      description: 'Fetch one rule set by id. Returns 404 when the row doesn''t exist
+
+        in this workspace (the RLS policy means cross-workspace lookups
+
+        surface as 404, never as a row from the wrong workspace).
+
+
+        Permissions: ``Workspace.view``.'
+      operationId: get-scheduling-rule-set
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: rule_set_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Rule Set Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SchedulingRuleSetResponse'
+        '404':
+          description: Rule set not found in this workspace.
+        '403':
+          description: Insufficient permissions.
+        '401':
+          description: Missing or invalid API key.
+        '429':
+          description: Rate limited.
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    patch:
+      tags:
+      - Scheduling Rules
+      summary: Partially update a scheduling rule set
+      description: Update `params` and/or `is_active` on an existing rule set. `agent_kind` and `rule_kind` are immutable — to change either, create a new rule set and delete the old one.
+      operationId: update-scheduling-rule-set
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: rule_set_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Rule Set Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateSchedulingRuleSetRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SchedulingRuleSetResponse'
+        '404':
+          description: Rule set not found in this workspace.
+        '422':
+          description: Submitted params discriminator does not match the existing rule's rule_kind.
+        '403':
+          description: Insufficient permissions.
+        '401':
+          description: Missing or invalid API key.
+        '429':
+          description: Rate limited.
+    delete:
+      tags:
+      - Scheduling Rules
+      summary: Delete a scheduling rule set
+      description: Hard-delete. The audit log retains the deletion record.
+      operationId: delete-scheduling-rule-set
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: rule_set_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Rule Set Id
+      responses:
+        '204':
+          description: Successful Response
+        '404':
+          description: Rule set not found in this workspace.
+        '403':
+          description: Insufficient permissions.
+        '401':
+          description: Missing or invalid API key.
+        '429':
+          description: Rate limited.
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+components:
+  schemas:
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    PaginatedResponse_SchedulingRuleSetResponse_:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/SchedulingRuleSetResponse'
+          type: array
+          title: Items
+        has_more:
+          type: boolean
+          title: Has More
+        continuation_token:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Continuation Token
+        total:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Total
+      type: object
+      required:
+      - items
+      - has_more
+      title: PaginatedResponse[SchedulingRuleSetResponse]
+    TMSMappingReleaseParams:
+      properties:
+        rule_kind:
+          type: string
+          const: tms_mapping_release
+          title: Rule Kind
+          default: tms_mapping_release
+        reservation_window_hours:
+          type: integer
+          maximum: 720.0
+          minimum: 0.0
+          title: Reservation Window Hours
+        weekend_skip:
+          type: boolean
+          title: Weekend Skip
+          default: true
+      type: object
+      required:
+      - reservation_window_hours
+      title: TMSMappingReleaseParams
+      description: 'How long before a TMS mapping appointment its slot is released
+
+        back to the pool. ``weekend_skip=True`` adds Saturday + Sunday days
+
+        to the wall-clock countdown (clinic doesn''t release on weekends).'
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    ClinicOpenHoursParams:
+      properties:
+        rule_kind:
+          type: string
+          const: clinic_open_hours
+          title: Rule Kind
+          default: clinic_open_hours
+        timezone:
+          type: string
+          maxLength: 64
+          minLength: 1
+          title: Timezone
+        monday:
+          anyOf:
+          - $ref: '#/components/schemas/_DayHours'
+          - type: 'null'
+        tuesday:
+          anyOf:
+          - $ref: '#/components/schemas/_DayHours'
+          - type: 'null'
+        wednesday:
+          anyOf:
+          - $ref: '#/components/schemas/_DayHours'
+          - type: 'null'
+        thursday:
+          anyOf:
+          - $ref: '#/components/schemas/_DayHours'
+          - type: 'null'
+        friday:
+          anyOf:
+          - $ref: '#/components/schemas/_DayHours'
+          - type: 'null'
+        saturday:
+          anyOf:
+          - $ref: '#/components/schemas/_DayHours'
+          - type: 'null'
+        sunday:
+          anyOf:
+          - $ref: '#/components/schemas/_DayHours'
+          - type: 'null'
+      type: object
+      required:
+      - timezone
+      title: ClinicOpenHoursParams
+      description: 'Workspace clinic open-hours by weekday.
+
+
+        Days not present mean "closed." Used by the rules engine to skip
+
+        slots outside open hours and (combined with ``weekend_skip``) by the
+
+        TMS-mapping release calculator.'
+    KetamineBlockOverlapParams:
+      properties:
+        rule_kind:
+          type: string
+          const: ketamine_block_overlap
+          title: Rule Kind
+          default: ketamine_block_overlap
+        window_days:
+          type: integer
+          maximum: 365.0
+          minimum: 1.0
+          title: Window Days
+      type: object
+      required:
+      - window_days
+      title: KetamineBlockOverlapParams
+      description: 'How many days after a ketamine session to block follow-up
+
+        appointments (clinical safety window).'
+    TMSSessionGridParams:
+      properties:
+        rule_kind:
+          type: string
+          const: tms_session_grid
+          title: Rule Kind
+          default: tms_session_grid
+        interval_minutes:
+          type: integer
+          maximum: 120.0
+          minimum: 5.0
+          title: Interval Minutes
+        boundary_minutes:
+          items:
+            type: integer
+          type: array
+          maxItems: 60
+          minItems: 1
+          title: Boundary Minutes
+      type: object
+      required:
+      - interval_minutes
+      - boundary_minutes
+      title: TMSSessionGridParams
+      description: 'TMS sessions only start at fixed minute-of-hour boundaries
+
+        (e.g. ``:00`` and ``:30``) so the technician can run them
+
+        back-to-back without gaps.'
+    NinetyDayRollingParams:
+      properties:
+        rule_kind:
+          type: string
+          const: ninety_day_rolling
+          title: Rule Kind
+          default: ninety_day_rolling
+        days:
+          type: integer
+          maximum: 365.0
+          minimum: 1.0
+          title: Days
+      type: object
+      required:
+      - days
+      title: NinetyDayRollingParams
+      description: 'Rolling-window cap on appointments per patient (e.g. 90 days
+
+        between TMS sessions).'
+    _DayHours:
+      properties:
+        start:
+          type: string
+          pattern: ^([01]\d|2[0-3]):[0-5]\d$
+          title: Start
+        end:
+          type: string
+          pattern: ^([01]\d|2[0-3]):[0-5]\d$
+          title: End
+      type: object
+      required:
+      - start
+      - end
+      title: _DayHours
+      description: 'Open-hours window for one weekday. Times in 24h ``HH:MM`` form,
+
+        interpreted in the rule set''s ``timezone``.'
+    CreateSchedulingRuleSetRequest:
+      properties:
+        agent_kind:
+          type: string
+          enum:
+          - tms
+          - ketamine
+          - general
+          title: Agent Kind
+        params:
+          oneOf:
+          - $ref: '#/components/schemas/ClinicOpenHoursParams'
+          - $ref: '#/components/schemas/TMSMappingReleaseParams'
+          - $ref: '#/components/schemas/TMSSessionGridParams'
+          - $ref: '#/components/schemas/KetamineBlockOverlapParams'
+          - $ref: '#/components/schemas/NinetyDayRollingParams'
+          - $ref: '#/components/schemas/ConcurrentStartBlockParams'
+          title: Params
+          description: Per-rule-kind typed parameters. The ``rule_kind`` discriminator field selects the params shape; one row per (agent_kind, rule_kind) per workspace.
+          discriminator:
+            propertyName: rule_kind
+            mapping:
+              clinic_open_hours: '#/components/schemas/ClinicOpenHoursParams'
+              concurrent_start_block: '#/components/schemas/ConcurrentStartBlockParams'
+              ketamine_block_overlap: '#/components/schemas/KetamineBlockOverlapParams'
+              ninety_day_rolling: '#/components/schemas/NinetyDayRollingParams'
+              tms_mapping_release: '#/components/schemas/TMSMappingReleaseParams'
+              tms_session_grid: '#/components/schemas/TMSSessionGridParams'
+        is_active:
+          type: boolean
+          title: Is Active
+          default: true
+      type: object
+      required:
+      - agent_kind
+      - params
+      title: CreateSchedulingRuleSetRequest
+    ConcurrentStartBlockParams:
+      properties:
+        rule_kind:
+          type: string
+          const: concurrent_start_block
+          title: Rule Kind
+          default: concurrent_start_block
+      type: object
+      title: ConcurrentStartBlockParams
+      description: 'Disallow two slots starting at the same time within a TMS scope.
+
+        No additional params — the discriminator is the whole config.'
+    SchedulingRuleSetResponse:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        workspace_id:
+          type: string
+          format: uuid
+          title: Workspace Id
+        agent_kind:
+          type: string
+          enum:
+          - tms
+          - ketamine
+          - general
+          title: Agent Kind
+        rule_kind:
+          type: string
+          enum:
+          - clinic_open_hours
+          - tms_mapping_release
+          - tms_session_grid
+          - ketamine_block_overlap
+          - ninety_day_rolling
+          - concurrent_start_block
+          title: Rule Kind
+        params:
+          additionalProperties: true
+          type: object
+          title: Params
+        is_active:
+          type: boolean
+          title: Is Active
+        created_by:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Created By
+        created_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Created At
+        updated_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Updated At
+      type: object
+      required:
+      - id
+      - workspace_id
+      - agent_kind
+      - rule_kind
+      - params
+      - is_active
+      - created_by
+      - created_at
+      - updated_at
+      title: SchedulingRuleSetResponse
+      description: 'Wire shape for a single rule set. ``params`` stays as ``dict``
+
+        here (not the discriminated union) so add-a-new-kind doesn''t break
+
+        older clients still on the previous SDK version — the SDK''s typed
+
+        helpers can re-validate into ``RuleParams`` when needed.'
+    UpdateSchedulingRuleSetRequest:
+      properties:
+        params:
+          anyOf:
+          - oneOf:
+            - $ref: '#/components/schemas/ClinicOpenHoursParams'
+            - $ref: '#/components/schemas/TMSMappingReleaseParams'
+            - $ref: '#/components/schemas/TMSSessionGridParams'
+            - $ref: '#/components/schemas/KetamineBlockOverlapParams'
+            - $ref: '#/components/schemas/NinetyDayRollingParams'
+            - $ref: '#/components/schemas/ConcurrentStartBlockParams'
+            discriminator:
+              propertyName: rule_kind
+              mapping:
+                clinic_open_hours: '#/components/schemas/ClinicOpenHoursParams'
+                concurrent_start_block: '#/components/schemas/ConcurrentStartBlockParams'
+                ketamine_block_overlap: '#/components/schemas/KetamineBlockOverlapParams'
+                ninety_day_rolling: '#/components/schemas/NinetyDayRollingParams'
+                tms_mapping_release: '#/components/schemas/TMSMappingReleaseParams'
+                tms_session_grid: '#/components/schemas/TMSSessionGridParams'
+          - type: 'null'
+          title: Params
+        is_active:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Active
+      type: object
+      title: UpdateSchedulingRuleSetRequest
+      description: 'Partial update — fields not provided are unchanged. ``params``
+
+        must be the full per-kind shape (no patch within params); send the
+
+        whole RuleParams or omit.'
+  securitySchemes:
+    Bearer-Authorization:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Amigo issued JWT token that identifies an user. It's issued either after logging in through the frontend, or manually through the [`SignInWithAPIKey`](sign-in-with-api-key) endpoint.
+    Bearer-Authorization-Organization:
+      type: apiKey
+      in: header
+      name: X-ORG-ID
+      description: An optional organization identifier that indicates from which organization the token is issued. This is used in rare cases where the user to authenticate is making a request for resources in another organization.
+    Basic:
+      type: http
+      scheme: basic
+      description: The username should be set to {org_id}_{user_id}, and the password should be the Amigo issued JWT token that identifies the user.

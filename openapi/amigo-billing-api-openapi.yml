@@ -1,0 +1,1622 @@
+openapi: 3.1.0
+info:
+  title: Amigo Account Billing API
+  version: 0.1.0
+servers:
+- url: https://api.amigo.ai
+- url: https://internal-api.amigo.ai
+- url: https://api-eu-central-1.amigo.ai
+- url: https://api-ap-southeast-2.amigo.ai
+- url: https://api-ca-central-1.amigo.ai
+security:
+- Bearer-Authorization: []
+  Bearer-Authorization-Organization: []
+  Basic: []
+tags:
+- name: Billing
+paths:
+  /v1/{workspace_id}/billing/dashboard:
+    get:
+      tags:
+      - Billing
+      summary: Get Billing Dashboard
+      description: 'Composite billing dashboard — KPIs, period comparison, top meters, invoice summary.
+
+
+        All computation is server-side. Frontend is a pure renderer.'
+      operationId: get-billing-dashboard
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BillingDashboardResponse'
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+  /v1/{workspace_id}/billing/usage:
+    get:
+      tags:
+      - Billing
+      summary: Get Workspace Usage
+      description: 'Aggregated billing summary — meters grouped by key, period range, totals.
+
+
+        All computation is server-side. Frontend is a pure renderer.'
+      operationId: get-billing-usage
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+                title: Response Get-Billing-Usage
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+  /v1/{workspace_id}/billing/usage/trends:
+    get:
+      tags:
+      - Billing
+      summary: Get Workspace Usage Trends
+      description: 'Usage time-series per meter for trend charts.
+
+
+        Returns one entry per (period, meter_key) within the date range.
+
+        Default: last 30 days. Use date_from/date_to for custom ranges.'
+      operationId: get-billing-usage-trends
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: days
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 365
+          minimum: 1
+          default: 30
+          title: Days
+      - name: date_from
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: date
+          - type: 'null'
+          title: Date From
+      - name: date_to
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: date
+          - type: 'null'
+          title: Date To
+      - name: meter_key
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            maxLength: 64
+          - type: 'null'
+          title: Meter Key
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UsageTrendPoint'
+                title: Response Get-Billing-Usage-Trends
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/billing/invoices:
+    get:
+      tags:
+      - Billing
+      summary: List Workspace Invoices
+      description: 'Paginated invoice list for this workspace''s billing customer.
+
+
+        Supports status filter and date range.'
+      operationId: list-billing-invoices
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: status
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - enum:
+            - draft
+            - sent
+            - paid
+            - void
+            type: string
+          - type: 'null'
+          title: Status
+      - name: date_from
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: date
+          - type: 'null'
+          description: Filter invoices with period_start on or after this date
+          title: Date From
+        description: Filter invoices with period_start on or after this date
+      - name: date_to
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: date
+          - type: 'null'
+          description: Filter invoices with period_end on or before this date
+          title: Date To
+        description: Filter invoices with period_end on or before this date
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 100
+          exclusiveMinimum: 0
+          default: 10
+          title: Limit
+      - name: continuation_token
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 0
+          title: Continuation Token
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedResponse_InvoiceItem_'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/billing/invoices/{invoice_id}:
+    get:
+      tags:
+      - Billing
+      summary: Get Workspace Invoice
+      description: Get invoice detail — scoped to workspace's billing customer.
+      operationId: get-billing-invoice
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: invoice_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Invoice Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response Get-Billing-Invoice
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/billing/invoices/{invoice_id}/pdf:
+    get:
+      tags:
+      - Billing
+      summary: Get Invoice Pdf
+      description: Get presigned S3 URL for invoice PDF download — scoped to workspace's billing customer.
+      operationId: get-billing-invoice-pdf
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: invoice_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Invoice Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response Get-Billing-Invoice-Pdf
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/billing/customers:
+    get:
+      tags:
+      - Billing
+      summary: List Customers
+      description: Paginated customer list with optional status filter and search.
+      operationId: list-billing-customers
+      parameters:
+      - name: status
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - enum:
+            - active
+            - archived
+            type: string
+          - type: 'null'
+          title: Status
+      - name: search
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            maxLength: 200
+          - type: 'null'
+          description: Search by name or slug
+          title: Search
+        description: Search by name or slug
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 100
+          exclusiveMinimum: 0
+          default: 10
+          title: Limit
+      - name: continuation_token
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 0
+          title: Continuation Token
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedResponse_CustomerItem_'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    post:
+      tags:
+      - Billing
+      summary: Create Customer
+      description: Create a billing customer.
+      operationId: create-billing-customer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCustomerRequest'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response Create-Billing-Customer
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/billing/customers/{customer_id}:
+    get:
+      tags:
+      - Billing
+      summary: Get Customer
+      description: Get customer detail with workspace mappings.
+      operationId: get-billing-customer
+      parameters:
+      - name: customer_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Customer Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response Get-Billing-Customer
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    put:
+      tags:
+      - Billing
+      summary: Update Customer
+      description: Update a billing customer.
+      operationId: update-billing-customer
+      parameters:
+      - name: customer_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Customer Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateCustomerRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response Update-Billing-Customer
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/billing/customers/{customer_id}/workspaces:
+    post:
+      tags:
+      - Billing
+      summary: Attach Workspace
+      description: Attach a workspace to a billing customer.
+      operationId: attach-billing-workspace
+      parameters:
+      - name: customer_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Customer Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AttachWorkspaceRequest'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response Attach-Billing-Workspace
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/billing/customers/{customer_id}/workspaces/{workspace_id}:
+    delete:
+      tags:
+      - Billing
+      summary: Detach Workspace
+      description: Detach a workspace from a billing customer.
+      operationId: detach-billing-workspace
+      parameters:
+      - name: customer_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Customer Id
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      responses:
+        '204':
+          description: Successful Response
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/billing/customers/{customer_id}/config:
+    get:
+      tags:
+      - Billing
+      summary: Get Config
+      description: Get billing configuration for a customer.
+      operationId: get-billing-config
+      parameters:
+      - name: customer_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Customer Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response Get-Billing-Config
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    put:
+      tags:
+      - Billing
+      summary: Update Config
+      description: Update billing config and price rules.
+      operationId: update-billing-config
+      parameters:
+      - name: customer_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Customer Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateConfigRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response Update-Billing-Config
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/billing/customers/{customer_id}/usage:
+    get:
+      tags:
+      - Billing
+      summary: Get Customer Usage
+      description: Paginated meter values for a customer with date range and meter filter.
+      operationId: get-customer-usage
+      parameters:
+      - name: customer_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Customer Id
+      - name: date_from
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: date
+          - type: 'null'
+          description: Filter meter values with period_start on or after
+          title: Date From
+        description: Filter meter values with period_start on or after
+      - name: date_to
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: date
+          - type: 'null'
+          description: Filter meter values with period_end on or before
+          title: Date To
+        description: Filter meter values with period_end on or before
+      - name: meter_key
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            maxLength: 64
+          - type: 'null'
+          description: Filter by meter key
+          title: Meter Key
+        description: Filter by meter key
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 100
+          exclusiveMinimum: 0
+          default: 10
+          title: Limit
+      - name: continuation_token
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 0
+          title: Continuation Token
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedResponse_MeterValueItem_'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/billing/customers/{customer_id}/invoices:
+    get:
+      tags:
+      - Billing
+      summary: List Customer Invoices
+      description: Paginated invoice list for a customer with status and date filters.
+      operationId: list-customer-invoices
+      parameters:
+      - name: customer_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Customer Id
+      - name: status
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - enum:
+            - draft
+            - sent
+            - paid
+            - void
+            type: string
+          - type: 'null'
+          title: Status
+      - name: date_from
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: date
+          - type: 'null'
+          description: Filter invoices with period_start on or after
+          title: Date From
+        description: Filter invoices with period_start on or after
+      - name: date_to
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: date
+          - type: 'null'
+          description: Filter invoices with period_end on or before
+          title: Date To
+        description: Filter invoices with period_end on or before
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 100
+          exclusiveMinimum: 0
+          default: 10
+          title: Limit
+      - name: continuation_token
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 0
+          title: Continuation Token
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedResponse_InvoiceItem_'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/billing/customers/{customer_id}/generate-invoice:
+    post:
+      tags:
+      - Billing
+      summary: Generate Invoice
+      description: 'Generate invoice for the most recently closed billing period.
+
+
+        Reads meter_values (populated by Databricks SDP pipeline), applies
+
+        price rules, computes line items, creates invoice. Idempotent.'
+      operationId: generate-billing-invoice
+      parameters:
+      - name: customer_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Customer Id
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response Generate-Billing-Invoice
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/billing/customers/{customer_id}/invoices/{invoice_id}/send:
+    post:
+      tags:
+      - Billing
+      summary: Send Invoice
+      description: Mark invoice as sent.
+      operationId: send-billing-invoice
+      parameters:
+      - name: customer_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Customer Id
+      - name: invoice_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Invoice Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response Send-Billing-Invoice
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/billing/customers/{customer_id}/invoices/{invoice_id}/paid:
+    post:
+      tags:
+      - Billing
+      summary: Mark Paid
+      description: Mark invoice as paid.
+      operationId: mark-billing-invoice-paid
+      parameters:
+      - name: customer_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Customer Id
+      - name: invoice_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Invoice Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response Mark-Billing-Invoice-Paid
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/billing/customers/{customer_id}/invoices/{invoice_id}/void:
+    post:
+      tags:
+      - Billing
+      summary: Void Invoice
+      description: Void an invoice.
+      operationId: void-billing-invoice
+      parameters:
+      - name: customer_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Customer Id
+      - name: invoice_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Invoice Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response Void-Billing-Invoice
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+components:
+  schemas:
+    PaginatedResponse_CustomerItem_:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/CustomerItem'
+          type: array
+          title: Items
+        has_more:
+          type: boolean
+          title: Has More
+        continuation_token:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Continuation Token
+        total:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Total
+      type: object
+      required:
+      - items
+      - has_more
+      title: PaginatedResponse[CustomerItem]
+    MeterBreakdown:
+      properties:
+        categories:
+          additionalProperties:
+            type: number
+          type: object
+          title: Categories
+          description: Sub-category values
+      type: object
+      title: MeterBreakdown
+      description: Breakdown of a meter value by sub-category.
+    InvoiceItem:
+      properties:
+        id:
+          type: string
+          title: Id
+          description: Invoice ID
+        customer_id:
+          type: string
+          title: Customer Id
+          description: Customer ID
+        invoice_number:
+          type: string
+          title: Invoice Number
+          description: Human-readable invoice number
+        period_start:
+          type: string
+          title: Period Start
+          description: Billing period start (ISO-8601)
+        period_end:
+          type: string
+          title: Period End
+          description: Billing period end (ISO-8601)
+        subtotal:
+          type: string
+          title: Subtotal
+          description: Subtotal before adjustments
+        adjustments:
+          type: string
+          title: Adjustments
+          description: Adjustment amount
+        total:
+          type: string
+          title: Total
+          description: Invoice total
+        status:
+          type: string
+          enum:
+          - draft
+          - sent
+          - paid
+          - void
+          title: Status
+          description: Invoice status
+        line_items:
+          items:
+            $ref: '#/components/schemas/InvoiceLineItem'
+          type: array
+          title: Line Items
+          description: Itemized charges
+        pdf_s3_key:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Pdf S3 Key
+          description: S3 key for the PDF
+        sent_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Sent At
+          description: When the invoice was sent (ISO-8601)
+        paid_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Paid At
+          description: When the invoice was paid (ISO-8601)
+        created_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Created At
+          description: When the invoice was created (ISO-8601)
+        updated_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Updated At
+          description: When the invoice was last updated (ISO-8601)
+      type: object
+      required:
+      - id
+      - customer_id
+      - invoice_number
+      - period_start
+      - period_end
+      - subtotal
+      - adjustments
+      - total
+      - status
+      - line_items
+      - pdf_s3_key
+      - sent_at
+      - paid_at
+      - created_at
+      - updated_at
+      title: InvoiceItem
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    MeterSummary:
+      properties:
+        meter_key:
+          type: string
+          title: Meter Key
+          description: Unique meter identifier (e.g. voice_minutes)
+        metering_source:
+          type: string
+          enum:
+          - production
+          - simulation
+          title: Metering Source
+          description: Traffic class — production or simulation, billed separately
+          default: production
+        display_name:
+          type: string
+          title: Display Name
+          description: Human-readable meter name
+        value:
+          type: number
+          title: Value
+          description: Metered value for the period
+        unit:
+          type: string
+          title: Unit
+          description: Unit of measurement (e.g. minutes, calls)
+      type: object
+      required:
+      - meter_key
+      - display_name
+      - value
+      - unit
+      title: MeterSummary
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    UpdateConfigRequest:
+      properties:
+        strategy:
+          anyOf:
+          - type: string
+            enum:
+            - usage
+            - outcome
+            - custom
+          - type: 'null'
+          title: Strategy
+        currency:
+          anyOf:
+          - type: string
+            maxLength: 3
+          - type: 'null'
+          title: Currency
+        billing_cycle:
+          anyOf:
+          - type: string
+            enum:
+            - monthly
+            - quarterly
+            - annual
+          - type: 'null'
+          title: Billing Cycle
+        billing_day:
+          anyOf:
+          - type: integer
+            maximum: 28.0
+            minimum: 1.0
+          - type: 'null'
+          title: Billing Day
+        price_rules:
+          anyOf:
+          - items:
+              additionalProperties: true
+              type: object
+            type: array
+            maxItems: 100
+          - type: 'null'
+          title: Price Rules
+        minimum_charge:
+          anyOf:
+          - type: number
+            minimum: 0.0
+          - type: string
+            pattern: ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$
+          - type: 'null'
+          title: Minimum Charge
+        effective_from:
+          anyOf:
+          - type: string
+            format: date
+          - type: 'null'
+          title: Effective From
+        effective_to:
+          anyOf:
+          - type: string
+            format: date
+          - type: 'null'
+          title: Effective To
+      type: object
+      title: UpdateConfigRequest
+    UpdateCustomerRequest:
+      properties:
+        name:
+          anyOf:
+          - type: string
+            maxLength: 256
+            minLength: 1
+          - type: 'null'
+          title: Name
+        billing_email:
+          anyOf:
+          - type: string
+            format: email
+          - type: 'null'
+          title: Billing Email
+        billing_contact:
+          anyOf:
+          - type: string
+            maxLength: 256
+          - type: 'null'
+          title: Billing Contact
+        mercury_memo:
+          anyOf:
+          - type: string
+            maxLength: 256
+          - type: 'null'
+          title: Mercury Memo
+        address:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Address
+        status:
+          anyOf:
+          - type: string
+            enum:
+            - active
+            - archived
+          - type: 'null'
+          title: Status
+      type: object
+      title: UpdateCustomerRequest
+    UsageTrendPoint:
+      properties:
+        period_start:
+          type: string
+          title: Period Start
+          description: Period start date (ISO-8601)
+        period_end:
+          type: string
+          title: Period End
+          description: Period end date (ISO-8601)
+        meter_key:
+          type: string
+          title: Meter Key
+          description: Meter identifier
+        metering_source:
+          type: string
+          enum:
+          - production
+          - simulation
+          title: Metering Source
+          description: Traffic class
+          default: production
+        value:
+          type: number
+          title: Value
+          description: Metered value for this period
+        unit:
+          type: string
+          title: Unit
+          description: Unit of measurement
+      type: object
+      required:
+      - period_start
+      - period_end
+      - meter_key
+      - value
+      - unit
+      title: UsageTrendPoint
+    CustomerItem:
+      properties:
+        id:
+          type: string
+          title: Id
+          description: Customer ID
+        name:
+          type: string
+          title: Name
+          description: Customer name
+        slug:
+          type: string
+          title: Slug
+          description: URL-safe identifier
+        billing_email:
+          type: string
+          title: Billing Email
+          description: Primary billing email
+        billing_contact:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Billing Contact
+          description: Billing contact name
+        mercury_memo:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Mercury Memo
+          description: Mercury bank memo reference
+        address:
+          $ref: '#/components/schemas/CustomerAddress'
+          description: Billing address
+        status:
+          type: string
+          enum:
+          - active
+          - archived
+          title: Status
+          description: Customer status
+        created_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Created At
+          description: When the customer was created (ISO-8601)
+        updated_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Updated At
+          description: When the customer was last updated (ISO-8601)
+      type: object
+      required:
+      - id
+      - name
+      - slug
+      - billing_email
+      - billing_contact
+      - mercury_memo
+      - address
+      - status
+      - created_at
+      - updated_at
+      title: CustomerItem
+    AttachWorkspaceRequest:
+      properties:
+        workspace_id:
+          type: string
+          format: uuid
+          title: Workspace Id
+        environment:
+          type: string
+          enum:
+          - production
+          - staging
+          - development
+          title: Environment
+          default: production
+        billable:
+          type: boolean
+          title: Billable
+          default: true
+      type: object
+      required:
+      - workspace_id
+      title: AttachWorkspaceRequest
+    PaginatedResponse_InvoiceItem_:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/InvoiceItem'
+          type: array
+          title: Items
+        has_more:
+          type: boolean
+          title: Has More
+        continuation_token:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Continuation Token
+        total:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Total
+      type: object
+      required:
+      - items
+      - has_more
+      title: PaginatedResponse[InvoiceItem]
+    BillingDashboardResponse:
+      properties:
+        workspace_id:
+          type: string
+          format: uuid
+          title: Workspace Id
+          description: Workspace ID
+        current_period_total:
+          type: number
+          title: Current Period Total
+          description: Total billing for the current period
+        previous_period_total:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Previous Period Total
+          description: Total billing for the previous period
+        delta_pct:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Delta Pct
+          description: Percentage change from previous period
+        top_meters:
+          items:
+            $ref: '#/components/schemas/MeterSummary'
+          type: array
+          title: Top Meters
+          description: Top meters by value
+        invoice_status_summary:
+          additionalProperties:
+            type: integer
+          type: object
+          title: Invoice Status Summary
+          description: Invoice counts by status
+        period_start:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Period Start
+          description: Current period start date (ISO-8601)
+        period_end:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Period End
+          description: Current period end date (ISO-8601)
+      type: object
+      required:
+      - workspace_id
+      - current_period_total
+      - previous_period_total
+      - delta_pct
+      - top_meters
+      - invoice_status_summary
+      - period_start
+      - period_end
+      title: BillingDashboardResponse
+    MeterValueItem:
+      properties:
+        id:
+          type: string
+          title: Id
+          description: Meter value record ID
+        customer_id:
+          type: string
+          title: Customer Id
+          description: Customer ID
+        meter_key:
+          type: string
+          title: Meter Key
+          description: Meter identifier
+        metering_source:
+          type: string
+          enum:
+          - production
+          - simulation
+          title: Metering Source
+          description: Traffic class
+          default: production
+        period_start:
+          type: string
+          title: Period Start
+          description: Period start (ISO-8601)
+        period_end:
+          type: string
+          title: Period End
+          description: Period end (ISO-8601)
+        value:
+          type: string
+          title: Value
+          description: Metered value
+        unit:
+          type: string
+          title: Unit
+          description: Unit of measurement
+        breakdown:
+          $ref: '#/components/schemas/MeterBreakdown'
+          description: Sub-category breakdown
+        updated_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Updated At
+          description: Last updated (ISO-8601)
+      type: object
+      required:
+      - id
+      - customer_id
+      - meter_key
+      - period_start
+      - period_end
+      - value
+      - unit
+      - breakdown
+      - updated_at
+      title: MeterValueItem
+    CustomerAddress:
+      properties:
+        line1:
+          type: string
+          title: Line1
+          description: Street address line 1
+          default: ''
+        line2:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Line2
+          description: Street address line 2
+        city:
+          type: string
+          title: City
+          description: City
+          default: ''
+        state:
+          type: string
+          title: State
+          description: State or province
+          default: ''
+        postal_code:
+          type: string
+          title: Postal Code
+          description: Postal or ZIP code
+          default: ''
+        country:
+          type: string
+          title: Country
+          description: ISO 3166-1 alpha-2 country code
+          default: US
+      type: object
+      title: CustomerAddress
+      description: Customer billing address.
+    PaginatedResponse_MeterValueItem_:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/MeterValueItem'
+          type: array
+          title: Items
+        has_more:
+          type: boolean
+          title: Has More
+        continuation_token:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Continuation Token
+        total:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Total
+      type: object
+      required:
+      - items
+      - has_more
+      title: PaginatedResponse[MeterValueItem]
+    CreateCustomerRequest:
+      properties:
+        name:
+          type: string
+          maxLength: 256
+          minLength: 1
+          title: Name
+        slug:
+          type: string
+          maxLength: 63
+          minLength: 2
+          pattern: ^[a-z0-9][a-z0-9-]*[a-z0-9]$
+          title: Slug
+        billing_email:
+          type: string
+          format: email
+          title: Billing Email
+        billing_contact:
+          anyOf:
+          - type: string
+            maxLength: 256
+          - type: 'null'
+          title: Billing Contact
+        mercury_memo:
+          anyOf:
+          - type: string
+            maxLength: 256
+          - type: 'null'
+          title: Mercury Memo
+        address:
+          additionalProperties: true
+          type: object
+          title: Address
+      type: object
+      required:
+      - name
+      - slug
+      - billing_email
+      title: CreateCustomerRequest
+    InvoiceLineItem:
+      properties:
+        meter_key:
+          type: string
+          title: Meter Key
+          description: Meter identifier
+        metering_source:
+          type: string
+          enum:
+          - production
+          - simulation
+          title: Metering Source
+          description: Traffic class
+          default: production
+        description:
+          type: string
+          title: Description
+          description: Line item description
+          default: ''
+        quantity:
+          type: string
+          title: Quantity
+          description: Usage quantity
+        unit_price:
+          type: string
+          title: Unit Price
+          description: Price per unit
+        total:
+          type: string
+          title: Total
+          description: Line item total
+      type: object
+      required:
+      - meter_key
+      - quantity
+      - unit_price
+      - total
+      title: InvoiceLineItem
+      description: 'A single line item on an invoice.
+
+
+        ``metering_source`` defaults to ``"production"`` for backward
+
+        compatibility with invoices generated before the metering_source
+
+        dimension was introduced — those invoices were production-only by
+
+        definition. New invoices always carry an explicit value.'
+  securitySchemes:
+    Bearer-Authorization:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Amigo issued JWT token that identifies an user. It's issued either after logging in through the frontend, or manually through the [`SignInWithAPIKey`](sign-in-with-api-key) endpoint.
+    Bearer-Authorization-Organization:
+      type: apiKey
+      in: header
+      name: X-ORG-ID
+      description: An optional organization identifier that indicates from which organization the token is issued. This is used in rare cases where the user to authenticate is making a request for resources in another organization.
+    Basic:
+      type: http
+      scheme: basic
+      description: The username should be set to {org_id}_{user_id}, and the password should be the Amigo issued JWT token that identifies the user.

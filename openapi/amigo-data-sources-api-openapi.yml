@@ -1,0 +1,894 @@
+openapi: 3.1.0
+info:
+  title: Amigo Account Data Sources API
+  version: 0.1.0
+servers:
+- url: https://api.amigo.ai
+- url: https://internal-api.amigo.ai
+- url: https://api-eu-central-1.amigo.ai
+- url: https://api-ap-southeast-2.amigo.ai
+- url: https://api-ca-central-1.amigo.ai
+security:
+- Bearer-Authorization: []
+  Bearer-Authorization-Organization: []
+  Basic: []
+tags:
+- name: Data Sources
+paths:
+  /v1/{workspace_id}/data-sources:
+    post:
+      tags:
+      - Data Sources
+      summary: Create a data source
+      description: Register a new external data source in the workspace.
+      operationId: create-data-source
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateDataSourceRequest'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataSourceResponse'
+        '401':
+          description: Missing or invalid API key.
+        '403':
+          description: Insufficient permissions.
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+    get:
+      tags:
+      - Data Sources
+      summary: List data sources
+      description: List data sources for a workspace with optional filtering.
+      operationId: list-data-sources
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: is_active
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Active
+      - name: source_type
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: array
+            items:
+              type: string
+          - type: 'null'
+          description: Filter by source type (repeatable)
+          title: Source Type
+        description: Filter by source type (repeatable)
+      - name: search
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Search by name, ID, type, or sync status
+          title: Search
+        description: Search by name, ID, type, or sync status
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 100
+          exclusiveMinimum: 0
+          default: 10
+          title: Limit
+      - name: continuation_token
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 0
+          title: Continuation Token
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedResponse_DataSourceResponse_'
+        '401':
+          description: Missing or invalid API key.
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/data-sources/{data_source_id}:
+    get:
+      tags:
+      - Data Sources
+      summary: Get a data source
+      description: Retrieve a data source by ID.
+      operationId: get-data-source
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: data_source_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Data Source Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataSourceResponse'
+        '404':
+          description: Data source not found.
+        '401':
+          description: Missing or invalid API key.
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    patch:
+      tags:
+      - Data Sources
+      summary: Update a data source
+      description: Update a data source's configuration.
+      operationId: update-data-source
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: data_source_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Data Source Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateDataSourceRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataSourceResponse'
+        '404':
+          description: Data source not found.
+        '401':
+          description: Missing or invalid API key.
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    delete:
+      tags:
+      - Data Sources
+      summary: Delete a data source
+      description: Delete a data source.
+      operationId: delete-data-source
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: data_source_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Data Source Id
+      responses:
+        '204':
+          description: Successful Response
+        '404':
+          description: Data source not found.
+        '401':
+          description: Missing or invalid API key.
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/data-sources/{data_source_id}/status:
+    get:
+      tags:
+      - Data Sources
+      summary: Get data source status
+      description: Get event counts, sync status, and health for a data source.
+      operationId: data-source-status
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: data_source_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Data Source Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataSourceStatusResponse'
+        '404':
+          description: Data source not found.
+        '401':
+          description: Missing or invalid API key.
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/data-sources/{data_source_id}/sync-history:
+    get:
+      tags:
+      - Data Sources
+      summary: Get data source sync history
+      description: Daily event timeline + recent sync failures for a data source.
+      operationId: data-source-sync-history
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: data_source_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Data Source Id
+      - name: days
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 90
+          minimum: 1
+          default: 30
+          title: Days
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataSourceSyncHistoryResponse'
+        '404':
+          description: Data source not found.
+        '401':
+          description: Missing or invalid API key.
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/data-sources/{data_source_id}/sync:
+    post:
+      tags:
+      - Data Sources
+      summary: Trigger a manual sync for a data source
+      description: 'Queues a one-off poll of the data source on connector-runner. Bypasses the business-hours gate and per-resource cadence counter. Returns 202 once the request is queued; the poll itself runs asynchronously. Returns 409 if the source is already mid-sync, 503 if connector-runner is unreachable. The 409 is best-effort: the status check and trigger are separate calls, so a scheduled poll can grab the lease between them — clients should treat 409 as a UX hint, not a hard guarantee.'
+      operationId: trigger-data-source-sync
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: data_source_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Data Source Id
+      responses:
+        '202':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TriggerSyncResponse'
+        '400':
+          description: Invalid data source ID format.
+        '404':
+          description: Data source not found.
+        '409':
+          description: Data source is already syncing.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TriggerSyncConflictResponse'
+        '429':
+          description: Rate limit exceeded.
+        '503':
+          description: Connector-runner is unreachable.
+        '401':
+          description: Missing or invalid API key.
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+components:
+  schemas:
+    NameString:
+      type: string
+      maxLength: 256
+      minLength: 1
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    PaginatedResponse_DataSourceResponse_:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/DataSourceResponse'
+          type: array
+          title: Items
+        has_more:
+          type: boolean
+          title: Has More
+        continuation_token:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Continuation Token
+        total:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Total
+      type: object
+      required:
+      - items
+      - has_more
+      title: PaginatedResponse[DataSourceResponse]
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    TriggerSyncResponse:
+      properties:
+        status:
+          type: string
+          const: started
+          title: Status
+        data_source_id:
+          type: string
+          format: uuid
+          title: Data Source Id
+        triggered_at:
+          type: string
+          format: date-time
+          title: Triggered At
+      type: object
+      required:
+      - status
+      - data_source_id
+      - triggered_at
+      title: TriggerSyncResponse
+    CreateDataSourceRequest:
+      properties:
+        name:
+          $ref: '#/components/schemas/NameString'
+        display_name:
+          anyOf:
+          - $ref: '#/components/schemas/NameString'
+          - type: 'null'
+        source_type:
+          type: string
+          enum:
+          - rest_api
+          - webhook
+          - file_drop
+          - fhir_store
+          - ehr
+          - database
+          - custom
+          - smart_fhir
+          - customer_intake
+          - lakebase_schema
+          - crm
+          title: Source Type
+        connection_config:
+          additionalProperties: true
+          type: object
+          title: Connection Config
+        entity_types:
+          items:
+            type: string
+            maxLength: 64
+            minLength: 1
+          type: array
+          maxItems: 100
+          title: Entity Types
+        field_mappings:
+          additionalProperties: true
+          type: object
+          title: Field Mappings
+        sync_strategy:
+          type: string
+          enum:
+          - manual
+          - scheduled
+          - webhook
+          - continuous
+          title: Sync Strategy
+          default: manual
+        sync_schedule:
+          anyOf:
+          - type: string
+            maxLength: 256
+          - type: 'null'
+          title: Sync Schedule
+      type: object
+      required:
+      - name
+      - source_type
+      title: CreateDataSourceRequest
+    SyncHistoryEntry:
+      properties:
+        date:
+          type: string
+          title: Date
+        event_count:
+          type: integer
+          title: Event Count
+        synced_count:
+          type: integer
+          title: Synced Count
+        failed_count:
+          type: integer
+          title: Failed Count
+      type: object
+      required:
+      - date
+      - event_count
+      - synced_count
+      - failed_count
+      title: SyncHistoryEntry
+    DataSourceSyncHistoryResponse:
+      properties:
+        data_source_id:
+          type: string
+          format: uuid
+          title: Data Source Id
+        name:
+          type: string
+          title: Name
+        timeline:
+          items:
+            $ref: '#/components/schemas/SyncHistoryEntry'
+          type: array
+          title: Timeline
+        recent_failures:
+          items:
+            $ref: '#/components/schemas/SyncFailureEntry'
+          type: array
+          title: Recent Failures
+      type: object
+      required:
+      - data_source_id
+      - name
+      - timeline
+      - recent_failures
+      title: DataSourceSyncHistoryResponse
+    TriggerSyncConflictResponse:
+      properties:
+        message:
+          type: string
+          title: Message
+        details:
+          $ref: '#/components/schemas/TriggerSyncConflictDetails'
+      type: object
+      required:
+      - message
+      - details
+      title: TriggerSyncConflictResponse
+      description: 'Body shape for the 409 returned by POST /sync when the source is
+
+        already mid-poll. Documented in OpenAPI so SDK consumers get a typed
+
+        AlreadySyncing error instead of an opaque blob.'
+    SyncFailureEntry:
+      properties:
+        event_id:
+          type: string
+          format: uuid
+          title: Event Id
+        event_type:
+          type: string
+          title: Event Type
+        fhir_resource_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Fhir Resource Type
+        fhir_resource_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Fhir Resource Id
+        sync_error:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Sync Error
+        created_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Created At
+      type: object
+      required:
+      - event_id
+      - event_type
+      - fhir_resource_type
+      - fhir_resource_id
+      - sync_error
+      - created_at
+      title: SyncFailureEntry
+    TriggerSyncConflictDetails:
+      properties:
+        last_poll_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Last Poll At
+        last_poll_duration_ms:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Last Poll Duration Ms
+      type: object
+      title: TriggerSyncConflictDetails
+      description: 'Operational fields included in a 409 to power UI affordances like
+
+        "syncing for 30s" — strict allowlist, never the whole status entry.'
+    UpdateDataSourceRequest:
+      properties:
+        display_name:
+          anyOf:
+          - $ref: '#/components/schemas/NameString'
+          - type: 'null'
+        connection_config:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Connection Config
+        entity_types:
+          anyOf:
+          - items:
+              type: string
+              maxLength: 64
+              minLength: 1
+            type: array
+            maxItems: 100
+          - type: 'null'
+          title: Entity Types
+        field_mappings:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Field Mappings
+        sync_strategy:
+          anyOf:
+          - type: string
+            enum:
+            - manual
+            - scheduled
+            - webhook
+            - continuous
+          - type: 'null'
+          title: Sync Strategy
+        sync_schedule:
+          anyOf:
+          - type: string
+            maxLength: 256
+          - type: 'null'
+          title: Sync Schedule
+        is_active:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Active
+      type: object
+      title: UpdateDataSourceRequest
+    DataSourceStatusResponse:
+      properties:
+        data_source_id:
+          type: string
+          format: uuid
+          title: Data Source Id
+        name:
+          type: string
+          title: Name
+        is_active:
+          type: boolean
+          title: Is Active
+        health_status:
+          type: string
+          enum:
+          - unknown
+          - healthy
+          - degraded
+          title: Health Status
+        last_sync_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Last Sync At
+        last_sync_status:
+          anyOf:
+          - type: string
+            enum:
+            - success
+            - error
+          - type: 'null'
+          title: Last Sync Status
+        last_sync_event_count:
+          type: integer
+          title: Last Sync Event Count
+        event_count:
+          type: integer
+          title: Event Count
+        synced_count:
+          type: integer
+          title: Synced Count
+        failed_count:
+          type: integer
+          title: Failed Count
+      type: object
+      required:
+      - data_source_id
+      - name
+      - is_active
+      - health_status
+      - last_sync_at
+      - last_sync_status
+      - last_sync_event_count
+      - event_count
+      - synced_count
+      - failed_count
+      title: DataSourceStatusResponse
+    DataSourceResponse:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        workspace_id:
+          type: string
+          format: uuid
+          title: Workspace Id
+        name:
+          type: string
+          title: Name
+        display_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Display Name
+        source_type:
+          type: string
+          enum:
+          - rest_api
+          - webhook
+          - file_drop
+          - fhir_store
+          - ehr
+          - database
+          - custom
+          - smart_fhir
+          - customer_intake
+          - lakebase_schema
+          - crm
+          title: Source Type
+        connection_config:
+          additionalProperties: true
+          type: object
+          title: Connection Config
+        entity_types:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          title: Entity Types
+        field_mappings:
+          additionalProperties: true
+          type: object
+          title: Field Mappings
+        sync_strategy:
+          type: string
+          enum:
+          - manual
+          - scheduled
+          - webhook
+          - continuous
+          title: Sync Strategy
+        sync_schedule:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Sync Schedule
+        last_sync_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Last Sync At
+        last_sync_status:
+          anyOf:
+          - type: string
+            enum:
+            - success
+            - error
+          - type: 'null'
+          title: Last Sync Status
+        last_sync_event_count:
+          type: integer
+          title: Last Sync Event Count
+        is_active:
+          type: boolean
+          title: Is Active
+        is_stale:
+          type: boolean
+          title: Is Stale
+        health_status:
+          type: string
+          enum:
+          - unknown
+          - healthy
+          - degraded
+          title: Health Status
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+      type: object
+      required:
+      - id
+      - workspace_id
+      - name
+      - display_name
+      - source_type
+      - connection_config
+      - entity_types
+      - field_mappings
+      - sync_strategy
+      - sync_schedule
+      - last_sync_at
+      - last_sync_status
+      - last_sync_event_count
+      - is_active
+      - is_stale
+      - health_status
+      - created_at
+      - updated_at
+      title: DataSourceResponse
+  securitySchemes:
+    Bearer-Authorization:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Amigo issued JWT token that identifies an user. It's issued either after logging in through the frontend, or manually through the [`SignInWithAPIKey`](sign-in-with-api-key) endpoint.
+    Bearer-Authorization-Organization:
+      type: apiKey
+      in: header
+      name: X-ORG-ID
+      description: An optional organization identifier that indicates from which organization the token is issued. This is used in rare cases where the user to authenticate is making a request for resources in another organization.
+    Basic:
+      type: http
+      scheme: basic
+      description: The username should be set to {org_id}_{user_id}, and the password should be the Amigo issued JWT token that identifies the user.

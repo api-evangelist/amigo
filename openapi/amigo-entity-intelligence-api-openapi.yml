@@ -1,0 +1,357 @@
+openapi: 3.1.0
+info:
+  title: Amigo Account Entity Intelligence API
+  version: 0.1.0
+servers:
+- url: https://api.amigo.ai
+- url: https://internal-api.amigo.ai
+- url: https://api-eu-central-1.amigo.ai
+- url: https://api-ap-southeast-2.amigo.ai
+- url: https://api-ca-central-1.amigo.ai
+security:
+- Bearer-Authorization: []
+  Bearer-Authorization-Organization: []
+  Basic: []
+tags:
+- name: Entity Intelligence
+paths:
+  /v1/{workspace_id}/world/entities/{entity_id}/graph:
+    get:
+      tags:
+      - Entity Intelligence
+      summary: Get Entity Graph
+      description: Entity relationship graph — one level of edges with neighbor metadata. same_as edges are historical merge edges (written by the pre-SDP resolver; merge detection now lives in the Databricks pipeline — new edges are not produced).
+      operationId: get-entity-graph
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: entity_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Entity Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response Get-Entity-Graph
+        '404':
+          description: Entity not found
+        '429':
+          description: Rate limit exceeded
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/world/entities/{entity_id}/provenance:
+    get:
+      tags:
+      - Entity Intelligence
+      summary: Get Entity Provenance
+      description: Data lineage for an entity — sources, confidence history, merge history (historical same_as edges from the pre-SDP resolver — new edges are not produced).
+      operationId: get-entity-provenance
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: entity_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Entity Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response Get-Entity-Provenance
+        '404':
+          description: Entity not found
+        '429':
+          description: Rate limit exceeded
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/world/entities/{entity_id}/lineage:
+    get:
+      tags:
+      - Entity Intelligence
+      summary: Get Entity Lineage
+      description: Full data lineage — provenance + outbound sinks + review history.
+      operationId: get-entity-lineage
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: entity_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Entity Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response Get-Entity-Lineage
+        '404':
+          description: Entity not found
+        '429':
+          description: Rate limit exceeded
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/world/entities/duplicates:
+    get:
+      tags:
+      - Entity Intelligence
+      summary: Get Entity Duplicates
+      description: Suspected duplicate entities — historical same_as merge edges sorted by confidence (written by the pre-SDP resolver; merge detection now lives in the Databricks pipeline — new edges are not produced).
+      operationId: get-entity-duplicates
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: entity_type
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filter by entity type
+          title: Entity Type
+        description: Filter by entity type
+      - name: confidence_max
+        in: query
+        required: false
+        schema:
+          type: number
+          maximum: 1.0
+          minimum: 0.0
+          description: Max confidence threshold
+          default: 1.0
+          title: Confidence Max
+        description: Max confidence threshold
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 500
+          minimum: 1
+          description: Max edges to return
+          default: 100
+          title: Limit
+        description: Max edges to return
+      - name: offset
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 0
+          description: Page offset
+          default: 0
+          title: Offset
+        description: Page offset
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  additionalProperties: true
+                title: Response Get-Entity-Duplicates
+        '429':
+          description: Rate limit exceeded
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/world/search:
+    get:
+      tags:
+      - Entity Intelligence
+      summary: Search Entities
+      description: Enhanced entity search with type, source, and confidence filters.
+      operationId: search-world-entities
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: q
+        in: query
+        required: true
+        schema:
+          type: string
+          description: Search text (matched against display_name)
+          title: Q
+        description: Search text (matched against display_name)
+      - name: entity_type
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filter by entity type
+          title: Entity Type
+        description: Filter by entity type
+      - name: source
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filter by event source
+          title: Source
+        description: Filter by event source
+      - name: confidence_min
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: number
+            maximum: 1.0
+            minimum: 0.0
+          - type: 'null'
+          description: Min confidence
+          title: Confidence Min
+        description: Min confidence
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 100
+          minimum: 1
+          default: 20
+          title: Limit
+      - name: offset
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 0
+          default: 0
+          title: Offset
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response Search-World-Entities
+        '429':
+          description: Rate limit exceeded
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+components:
+  schemas:
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+  securitySchemes:
+    Bearer-Authorization:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Amigo issued JWT token that identifies an user. It's issued either after logging in through the frontend, or manually through the [`SignInWithAPIKey`](sign-in-with-api-key) endpoint.
+    Bearer-Authorization-Organization:
+      type: apiKey
+      in: header
+      name: X-ORG-ID
+      description: An optional organization identifier that indicates from which organization the token is issued. This is used in rare cases where the user to authenticate is making a request for resources in another organization.
+    Basic:
+      type: http
+      scheme: basic
+      description: The username should be set to {org_id}_{user_id}, and the password should be the Amigo issued JWT token that identifies the user.

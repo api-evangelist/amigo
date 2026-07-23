@@ -1,0 +1,275 @@
+openapi: 3.1.0
+info:
+  title: Amigo Account Traces API
+  version: 0.1.0
+servers:
+- url: https://api.amigo.ai
+- url: https://internal-api.amigo.ai
+- url: https://api-eu-central-1.amigo.ai
+- url: https://api-ap-southeast-2.amigo.ai
+- url: https://api-ca-central-1.amigo.ai
+security:
+- Bearer-Authorization: []
+  Bearer-Authorization-Organization: []
+  Basic: []
+tags:
+- name: Traces
+paths:
+  /v1/{workspace_id}/traces:export:
+    post:
+      tags:
+      - Traces
+      summary: Export gen_ai.* + voice.* traces as OTLP/JSON
+      description: 'Export the workspace''s durable trace spans over a time window as OpenTelemetry Protocol (OTLP/HTTP JSON) spans: ``gen_ai.*`` tool-call spans and the per-call voice-isolation ``voice.*`` infra spans (allocate / media-attach / reap). Read-only; admin/owner role required; dark behind ``OTEL_TRACE_EXPORT_ENABLED`` (404 when off). Paginated PULL API — extract ``.resourceSpans`` before forwarding to an OTLP collector. Attributes are an allowlist of tool-call + infra metadata; the raw tool-result ``error`` text is NOT exported (PHI-safe by construction).'
+      operationId: export_traces_v1__workspace_id__traces_export_post
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TracesExportRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TracesExportResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+components:
+  schemas:
+    AnyValue:
+      additionalProperties: true
+      type: object
+    Status:
+      properties:
+        code:
+          type: integer
+          title: Code
+      type: object
+      required:
+      - code
+      title: Status
+      description: OTLP ``Status`` — 0=UNSET, 1=OK, 2=ERROR.
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    InstrumentationScope:
+      properties:
+        name:
+          type: string
+          title: Name
+        version:
+          type: string
+          title: Version
+      type: object
+      required:
+      - name
+      - version
+      title: InstrumentationScope
+    Resource:
+      properties:
+        attributes:
+          items:
+            $ref: '#/components/schemas/KeyValue'
+          type: array
+          title: Attributes
+      type: object
+      required:
+      - attributes
+      title: Resource
+    Span:
+      properties:
+        traceId:
+          type: string
+          title: Traceid
+        spanId:
+          type: string
+          title: Spanid
+        name:
+          type: string
+          title: Name
+        kind:
+          type: integer
+          title: Kind
+        startTimeUnixNano:
+          type: string
+          title: Starttimeunixnano
+        endTimeUnixNano:
+          type: string
+          title: Endtimeunixnano
+        attributes:
+          items:
+            $ref: '#/components/schemas/KeyValue'
+          type: array
+          title: Attributes
+        status:
+          $ref: '#/components/schemas/Status'
+      type: object
+      required:
+      - traceId
+      - spanId
+      - name
+      - kind
+      - startTimeUnixNano
+      - endTimeUnixNano
+      - attributes
+      - status
+      title: Span
+      description: OTLP ``Span`` in OTLP/JSON encoding (ids hex, timestamps decimal-string).
+    TracesExportResponse:
+      properties:
+        resourceSpans:
+          items:
+            $ref: '#/components/schemas/ResourceSpans'
+          type: array
+          title: Resourcespans
+          description: OTLP/JSON ``ResourceSpans`` envelope (empty list when no spans match).
+        has_more:
+          type: boolean
+          title: Has More
+        continuation_token:
+          title: Continuation Token
+      type: object
+      required:
+      - resourceSpans
+      - has_more
+      title: TracesExportResponse
+      description: 'Paginated PULL response — NOT a bare OTLP ``ExportTraceServiceRequest``.
+
+
+        ``resourceSpans`` is OTLP/JSON-conformant; to forward to an OTLP collector,
+
+        extract ``.resourceSpans`` and re-wrap as ``{"resourceSpans": [...]}`` (a
+
+        strict protojson push receiver rejects the ``has_more``/``continuation_token``
+
+        siblings). Round-trip ``continuation_token`` to page.'
+    ResourceSpans:
+      properties:
+        resource:
+          $ref: '#/components/schemas/Resource'
+        scopeSpans:
+          items:
+            $ref: '#/components/schemas/ScopeSpans'
+          type: array
+          title: Scopespans
+      type: object
+      required:
+      - resource
+      - scopeSpans
+      title: ResourceSpans
+    ScopeSpans:
+      properties:
+        scope:
+          $ref: '#/components/schemas/InstrumentationScope'
+        spans:
+          items:
+            $ref: '#/components/schemas/Span'
+          type: array
+          title: Spans
+      type: object
+      required:
+      - scope
+      - spans
+      title: ScopeSpans
+    KeyValue:
+      properties:
+        key:
+          type: string
+          title: Key
+        value:
+          $ref: '#/components/schemas/AnyValue'
+      type: object
+      required:
+      - key
+      - value
+      title: KeyValue
+      description: OTLP ``KeyValue`` attribute pair.
+    TracesExportRequest:
+      properties:
+        start_time:
+          type: string
+          format: date-time
+          title: Start Time
+          description: Inclusive lower bound on span ``effective_at`` (ISO-8601).
+        end_time:
+          type: string
+          format: date-time
+          title: End Time
+          description: Exclusive upper bound on span ``effective_at`` (ISO-8601).
+        limit:
+          type: integer
+          maximum: 1000.0
+          exclusiveMinimum: 0.0
+          title: Limit
+          description: Max spans per page (1-1000).
+          default: 500
+        continuation_token:
+          title: Continuation Token
+          description: Opaque page cursor — round-trip the value from the previous response.
+      type: object
+      required:
+      - start_time
+      - end_time
+      title: TracesExportRequest
+  securitySchemes:
+    Bearer-Authorization:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Amigo issued JWT token that identifies an user. It's issued either after logging in through the frontend, or manually through the [`SignInWithAPIKey`](sign-in-with-api-key) endpoint.
+    Bearer-Authorization-Organization:
+      type: apiKey
+      in: header
+      name: X-ORG-ID
+      description: An optional organization identifier that indicates from which organization the token is issued. This is used in rare cases where the user to authenticate is making a request for resources in another organization.
+    Basic:
+      type: http
+      scheme: basic
+      description: The username should be set to {org_id}_{user_id}, and the password should be the Amigo issued JWT token that identifies the user.

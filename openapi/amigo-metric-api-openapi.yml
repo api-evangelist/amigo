@@ -1,0 +1,1793 @@
+openapi: 3.1.0
+info:
+  title: Amigo Account Metric API
+  version: 0.1.0
+servers:
+- url: https://api.amigo.ai
+- url: https://internal-api.amigo.ai
+- url: https://api-eu-central-1.amigo.ai
+- url: https://api-ap-southeast-2.amigo.ai
+- url: https://api-ca-central-1.amigo.ai
+security:
+- Bearer-Authorization: []
+  Bearer-Authorization-Organization: []
+  Basic: []
+tags:
+- name: Metric
+paths:
+  /v1/{organization}/metric/{metric_id}/version/:
+    post:
+      tags:
+      - Metric
+      summary: Create a new version for a metric
+      description: 'Create a new version for the given metric.
+
+
+        #### Permissions:
+
+        This endpoint requires the following permissions:
+
+        * `Metric:ModifyMetric` for the metric to create a new version for.'
+      operationId: create-metric-version
+      parameters:
+      - name: organization
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Organization
+      - name: metric_id
+        in: path
+        required: true
+        schema:
+          type: string
+          pattern: ^[a-f0-9]{24}$
+          description: The ID of the metric to create a new version for.
+          title: Metric Id
+        description: The ID of the metric to create a new version for.
+      - name: version
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: integer
+            exclusiveMinimum: 0
+          - type: 'null'
+          description: The version number of the new metric version. If specified, this endpoint throws an error if the next version of the metric in the database doesn't equal to the value of this parameter.
+          title: Version
+        description: The version number of the new metric version. If specified, this endpoint throws an error if the next version of the metric in the database doesn't equal to the value of this parameter.
+      - name: x-mongo-cluster-name
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.
+          title: X-Mongo-Cluster-Name
+        description: The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.
+      - name: Sec-WebSocket-Protocol
+        in: header
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+          default: []
+          title: Sec-Websocket-Protocol
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/src__app__endpoints__metric__create_metric_version__Request'
+      responses:
+        '201':
+          description: Succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/src__app__endpoints__metric__create_metric_version__Response'
+        '404':
+          description: Specified organization or metric is not found.
+        '400':
+          description: The metric value type cannot be changed between versions.
+        '409':
+          description: The next version of the metric in the database doesn't match the specified version.
+        '422':
+          description: Invalid request path parameter, request body, or request query parameter failed validation.
+        '401':
+          description: Invalid authorization credentials.
+        '403':
+          description: Missing required permissions.
+        '503':
+          description: The service is going through temporary maintenance.
+        '429':
+          description: The user has exceeded the rate limit of 60 requests per minute for this endpoint.
+  /v1/{organization}/metric/{metric_id}/version:
+    get:
+      tags:
+      - Metric
+      summary: Get metric versions
+      description: 'Retrieve the versions of a metric.
+
+
+        #### Permissions
+
+        This endpoint requires the following permissions:
+
+        * `Metric:GetMetric` for the metric whose versions to retrieve.'
+      operationId: get-metric-versions
+      parameters:
+      - name: organization
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Organization
+      - name: metric_id
+        in: path
+        required: true
+        schema:
+          type: string
+          pattern: ^[a-f0-9]{24}$
+          description: The ID of the metric to retrieve versions for.
+          title: Metric Id
+        description: The ID of the metric to retrieve versions for.
+      - name: version
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The versions of the metric to retrieve. One can specify an exact version to retrieve, which is either the version number or `latest`, which retrieves the latest version. Alternatively, one can specify a range of inclusive lower and upper bound for the version number separated by `-`, and every version within the range would be retrieved.
+          examples:
+          - '1'
+          - 1-latest
+          - 2-5
+          - latest
+          title: Version
+        description: The versions of the metric to retrieve. One can specify an exact version to retrieve, which is either the version number or `latest`, which retrieves the latest version. Alternatively, one can specify a range of inclusive lower and upper bound for the version number separated by `-`, and every version within the range would be retrieved.
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 10
+          exclusiveMinimum: 0
+          description: The maximum number of metric versions to return.
+          default: 10
+          title: Limit
+        description: The maximum number of metric versions to return.
+      - name: continuation_token
+        in: query
+        required: false
+        schema:
+          type: integer
+          description: The continuation token from the previous request used to retrieve the next page of metric versions.
+          default: 0
+          title: Continuation Token
+        description: The continuation token from the previous request used to retrieve the next page of metric versions.
+      - name: sort_by
+        in: query
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+          description: The fields to sort the versions by. Supported fields are `version`. Specify a `+` before the field name to indicate ascending sorting and `-` for descending sorting. Multiple fields can be specified to break ties.
+          default: []
+          title: Sort By
+        description: The fields to sort the versions by. Supported fields are `version`. Specify a `+` before the field name to indicate ascending sorting and `-` for descending sorting. Multiple fields can be specified to break ties.
+      - name: x-mongo-cluster-name
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.
+          title: X-Mongo-Cluster-Name
+        description: The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.
+      - name: Sec-WebSocket-Protocol
+        in: header
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+          default: []
+          title: Sec-Websocket-Protocol
+      responses:
+        '200':
+          description: Succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/src__app__endpoints__metric__get_metric_versions__Response'
+        '404':
+          description: Specified organization or metric is not found.
+        '422':
+          description: Invalid request path parameter or request query parameter failed validation.
+        '401':
+          description: Invalid authorization credentials.
+        '403':
+          description: Missing required permissions.
+        '503':
+          description: The service is going through temporary maintenance.
+        '429':
+          description: The user has exceeded the rate limit of 60 requests per minute for this endpoint.
+  /v1/{organization}/metric/:
+    post:
+      tags:
+      - Metric
+      summary: Create a metric
+      description: 'Create a metric.
+
+
+        #### Permissions
+
+        * `Metric:CreateMetric` for the metric to create.'
+      operationId: create-metric
+      parameters:
+      - name: organization
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Organization
+      - name: x-mongo-cluster-name
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.
+          title: X-Mongo-Cluster-Name
+        description: The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.
+      - name: Sec-WebSocket-Protocol
+        in: header
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+          default: []
+          title: Sec-Websocket-Protocol
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/src__app__endpoints__metric__create_metric__Request'
+      responses:
+        '201':
+          description: Succeeded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/src__app__endpoints__metric__create_metric__Response'
+        '409':
+          description: A metric with this name already exists
+        '404':
+          description: Specified organization is not found.
+        '422':
+          description: Invalid request path parameter or request body failed validation.
+        '401':
+          description: Invalid authorization credentials.
+        '403':
+          description: Missing required permissions.
+        '503':
+          description: The service is going through temporary maintenance.
+        '429':
+          description: The user has exceeded the rate limit of 100 requests per minute for this endpoint.
+    get:
+      tags:
+      - Metric
+      summary: Get metrics
+      description: 'Retrieve metrics that match the given filters.
+
+
+        #### Permissions
+
+        This endpoint may be impacted by the following permissions:
+
+        * Only metrics that the authenticated user has `Metric:GetMetric` permission for will be retrieved.'
+      operationId: get-metrics
+      parameters:
+      - name: organization
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Organization
+      - name: id
+        in: query
+        required: false
+        schema:
+          type: array
+          uniqueItems: true
+          items:
+            type: string
+            pattern: ^[a-f0-9]{24}$
+          description: The IDs of the metrics to retrieve.
+          default: []
+          title: Id
+        description: The IDs of the metrics to retrieve.
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 50
+          minimum: 0
+          description: The maximum number of metrics to return.
+          default: 50
+          title: Limit
+        description: The maximum number of metrics to return.
+      - name: continuation_token
+        in: query
+        required: false
+        schema:
+          type: integer
+          description: The continuation token from the previous request used to retrieve the next page of metrics.
+          default: 0
+          title: Continuation Token
+        description: The continuation token from the previous request used to retrieve the next page of metrics.
+      - name: applied_to_service
+        in: query
+        required: false
+        schema:
+          type: array
+          uniqueItems: true
+          items:
+            type: string
+            pattern: ^[a-f0-9]{24}$
+          description: The IDs of the services that the metric is applied to.
+          default: []
+          title: Applied To Service
+        description: The IDs of the services that the metric is applied to.
+      - name: type
+        in: query
+        required: false
+        schema:
+          type: array
+          uniqueItems: true
+          items:
+            $ref: '#/components/schemas/MetricValueType'
+          description: The types of the metrics.
+          default: []
+          title: Type
+        description: The types of the metrics.
+      - name: is_deleted
+        in: query
+        required: false
+        schema:
+          type: boolean
+          description: Whether the metric is deleted.
+          default: false
+          title: Is Deleted
+        description: Whether the metric is deleted.
+      - name: creator
+        in: query
+        required: false
+        schema:
+          type: array
+          uniqueItems: true
+          items:
+            type: string
+          description: The creators of the dynamic behavior sets.
+          default: []
+          title: Creator
+        description: The creators of the dynamic behavior sets.
+      - name: tag
+        in: query
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+          description: The tags of the dynamic behavior sets. Must be specified using the syntax `key:value`, which means to match all sets with the given `key` and `value` pair among its tags. If `value` is `*`, it means the `value` does not matter. If `value` is empty, it matches against when the value is `None`.
+          default: []
+          title: Tag
+        description: The tags of the dynamic behavior sets. Must be specified using the syntax `key:value`, which means to match all sets with the given `key` and `value` pair among its tags. If `value` is `*`, it means the `value` does not matter. If `value` is empty, it matches against when the value is `None`.
+      - name: sort_by
+        in: query
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+          description: The fields to sort the sets by. Supported fields are `updated_at`. Specify a `+` before the field name to indicate ascending sorting and `-` for descending sorting. Multiple fields can be specified to break ties.
+          default: []
+          title: Sort By
+        description: The fields to sort the sets by. Supported fields are `updated_at`. Specify a `+` before the field name to indicate ascending sorting and `-` for descending sorting. Multiple fields can be specified to break ties.
+      - name: x-mongo-cluster-name
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.
+          title: X-Mongo-Cluster-Name
+        description: The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.
+      - name: Sec-WebSocket-Protocol
+        in: header
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+          default: []
+          title: Sec-Websocket-Protocol
+      responses:
+        '200':
+          description: Succeeded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/src__app__endpoints__metric__get_metrics__Response'
+        '404':
+          description: Specified organization is not found.
+        '422':
+          description: Invalid request path parameter or request query parameter failed validation.
+        '401':
+          description: Invalid authorization credentials.
+        '403':
+          description: Missing required permissions.
+        '503':
+          description: The service is going through temporary maintenance.
+        '429':
+          description: The user has exceeded the rate limit of 20 requests per minute for this endpoint.
+  /v1/{organization}/metric/{metric_id}/:
+    post:
+      tags:
+      - Metric
+      summary: Update a metric
+      description: 'Update properties of a metric. The metric''s name and metric values cannot be updated.
+
+
+        #### Permissions
+
+        This endpoint requires the following permissions:
+
+        * `Metric:ModifyMetric` for the metric to modify.'
+      operationId: update-metric
+      parameters:
+      - name: organization
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Organization
+      - name: metric_id
+        in: path
+        required: true
+        schema:
+          type: string
+          pattern: ^[a-f0-9]{24}$
+          description: The ID of the metric to update.
+          title: Metric Id
+        description: The ID of the metric to update.
+      - name: x-mongo-cluster-name
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.
+          title: X-Mongo-Cluster-Name
+        description: The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.
+      - name: Sec-WebSocket-Protocol
+        in: header
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+          default: []
+          title: Sec-Websocket-Protocol
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/src__app__endpoints__metric__update_metric__Request'
+      responses:
+        '200':
+          description: Succeeded
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Specified organization or metric is not found.
+        '422':
+          description: Invalid request path parameter or request body failed validation.
+        '401':
+          description: Invalid authorization credentials.
+        '403':
+          description: Missing required permissions.
+        '503':
+          description: The service is going through temporary maintenance.
+        '429':
+          description: The user has exceeded the rate limit of 20 requests per minute for this endpoint.
+    delete:
+      tags:
+      - Metric
+      summary: Delete a metric
+      description: 'Delete a metric. The metric is no longer modifiable or manually evaluable, but remains stored, and existing services or simulations that evaluate this metric
+
+        will continue to do so. One can still retrieve it using its ID to view its specifics.
+
+
+        #### Permissions
+
+        This endpoint requires the following permissions:
+
+        * `Metric:DeleteMetric` for the metric to delete.'
+      operationId: delete-metric
+      parameters:
+      - name: organization
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Organization
+      - name: metric_id
+        in: path
+        required: true
+        schema:
+          type: string
+          pattern: ^[a-f0-9]{24}$
+          description: The ID of the metric to update.
+          title: Metric Id
+        description: The ID of the metric to update.
+      - name: x-mongo-cluster-name
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.
+          title: X-Mongo-Cluster-Name
+        description: The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.
+      - name: Sec-WebSocket-Protocol
+        in: header
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+          default: []
+          title: Sec-Websocket-Protocol
+      responses:
+        '200':
+          description: Succeeded.
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Specified organization or metric is not found.
+        '400':
+          description: Metric is used in a simulation unit test.
+        '422':
+          description: Invalid request path parameter failed validation.
+        '401':
+          description: Invalid authorization credentials.
+        '403':
+          description: Missing required permissions.
+        '503':
+          description: The service is going through temporary maintenance.
+        '429':
+          description: The user has exceeded the rate limit of 100 requests per minute for this endpoint.
+  /v1/{organization}/metric/search/:
+    get:
+      tags:
+      - Metric
+      summary: Search metrics
+      description: 'Search for metrics that match the given filters and contain the given query in its name. Only the top 50 results will be returned. The results
+
+        will be sorted by the relevance of the search query.
+
+
+        #### Permissions
+
+        This endpoint may be impacted by the following permissions:
+
+        * Only metrics that the authenticated user has `Metric:GetMetric` permission for will be retrieved.'
+      operationId: search-metrics
+      parameters:
+      - name: organization
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Organization
+      - name: query
+        in: query
+        required: true
+        schema:
+          $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
+          description: The query to search for. Any metrics containing the terms in its name would be returned.
+        description: The query to search for. Any metrics containing the terms in its name would be returned.
+      - name: applied_to_service
+        in: query
+        required: false
+        schema:
+          type: array
+          uniqueItems: true
+          items:
+            type: string
+            pattern: ^[a-f0-9]{24}$
+          description: The IDs of the services that the metric is applied to.
+          default: []
+          title: Applied To Service
+        description: The IDs of the services that the metric is applied to.
+      - name: type
+        in: query
+        required: false
+        schema:
+          type: array
+          uniqueItems: true
+          items:
+            $ref: '#/components/schemas/MetricValueType'
+          description: The types of the metrics.
+          default: []
+          title: Type
+        description: The types of the metrics.
+      - name: creator
+        in: query
+        required: false
+        schema:
+          type: array
+          uniqueItems: true
+          items:
+            type: string
+          description: The creators of the metrics. Each value must be of the format `org_id,user_id`.
+          default: []
+          title: Creator
+        description: The creators of the metrics. Each value must be of the format `org_id,user_id`.
+      - name: tag
+        in: query
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+          description: 'The tags of the metrics. Must be specified using the syntax `key:value`, which means to match all metrics with the given `key` and `value` pair among its tags.
+
+            If `value` is `*`, it means the `value` does not matter. If `value` is empty, it matches against when the value is `None`.'
+          default: []
+          title: Tag
+        description: 'The tags of the metrics. Must be specified using the syntax `key:value`, which means to match all metrics with the given `key` and `value` pair among its tags.
+
+          If `value` is `*`, it means the `value` does not matter. If `value` is empty, it matches against when the value is `None`.'
+      - name: x-mongo-cluster-name
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.
+          title: X-Mongo-Cluster-Name
+        description: The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.
+      - name: Sec-WebSocket-Protocol
+        in: header
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+          default: []
+          title: Sec-Websocket-Protocol
+      responses:
+        '200':
+          description: Succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/src__app__endpoints__metric__search_metrics__Response'
+        '404':
+          description: Specified organization is not found.
+        '422':
+          description: Invalid request path parameter or request query parameter failed validation.
+        '401':
+          description: Invalid authorization credentials.
+        '403':
+          description: Missing required permissions.
+        '503':
+          description: The service is going through temporary maintenance.
+        '429':
+          description: The user has exceeded the rate limit of 20 requests per minute for this endpoint.
+  /v1/{organization}/metric/evaluate:
+    post:
+      tags:
+      - Metric
+      summary: Evaluate metrics
+      description: 'Evaluate the latest versions of specified metrics for a completed conversation. The results will be stored and retrievable through the [`GetMetricEvaluationResults`](get-metric-evaluation-results)
+
+        endpoint with a special source type of `manual`.
+
+
+        If the same conversation has been manually evaluated for the same metric, the previous evaluation result will be overwritten.
+
+
+        #### Permissions
+
+        This endpoint requires the following permissions:
+
+        * `Metric:GetMetric` for the metrics.
+
+        * `Metric:EvaluateMetric` for the metrics.
+
+        * `Metric:GetMetricEvaluationResult` for the metric results.'
+      operationId: evaluate-metrics
+      parameters:
+      - name: organization
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Organization
+      - name: x-mongo-cluster-name
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.
+          title: X-Mongo-Cluster-Name
+        description: The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.
+      - name: Sec-WebSocket-Protocol
+        in: header
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+          default: []
+          title: Sec-Websocket-Protocol
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/src__app__endpoints__metric__evaluate_metrics__Request'
+      responses:
+        '200':
+          description: Succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/src__app__endpoints__metric__evaluate_metrics__Response'
+        '404':
+          description: Specified organization, conversation, or metric is not found.
+        '422':
+          description: Invalid request path parameter or request body failed validation.
+        '400':
+          description: The conversation has no interactions.
+        '401':
+          description: Invalid authorization credentials.
+        '403':
+          description: Missing required permissions.
+        '503':
+          description: The service is going through temporary maintenance.
+        '429':
+          description: The user has exceeded the rate limit of 50 requests per minute for this endpoint.
+  /v1/{organization}/metric/metric_evaluation_result:
+    get:
+      tags:
+      - Metric
+      summary: Get metric evaluation results
+      description: 'Retrieve metric evaluation results that match the given filters.
+
+
+        #### Permissions
+
+        This endpoint may be impacted by the following permissions:
+
+        * Only metric evaluation results that the authenticated user has `Metric:GetMetricEvaluationResult` permission for will be retrieved.'
+      operationId: get-metric-evaluation-results
+      parameters:
+      - name: organization
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Organization
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 500
+          minimum: 0
+          description: The maximum number of metrics to return.
+          default: 500
+          title: Limit
+        description: The maximum number of metrics to return.
+      - name: continuation_token
+        in: query
+        required: false
+        schema:
+          type: integer
+          description: The continuation token from the previous request used to retrieve the next page of metrics.
+          default: 0
+          title: Continuation Token
+        description: The continuation token from the previous request used to retrieve the next page of metrics.
+      - name: timestamp_after
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          description: An ISO8601 timestamp. Only results evaluated on or after this moment is returned.
+          title: Timestamp After
+        description: An ISO8601 timestamp. Only results evaluated on or after this moment is returned.
+      - name: timestamp_before
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          description: An ISO8601 timestamp. Only results evaluated on or before this moment is returned.
+          title: Timestamp Before
+        description: An ISO8601 timestamp. Only results evaluated on or before this moment is returned.
+      - name: metric_id
+        in: query
+        required: false
+        schema:
+          type: array
+          uniqueItems: true
+          items:
+            type: string
+            pattern: ^[a-f0-9]{24}$
+          description: The ID of the metric to retrieve.
+          deprecated: true
+          default: []
+          title: Metric Id
+        description: The ID of the metric to retrieve.
+        deprecated: true
+      - name: metric_id_and_version
+        in: query
+        required: false
+        schema:
+          type: array
+          uniqueItems: true
+          items:
+            type: string
+          description: The metric IDs and their versions to retrieve. Each value must be in the format of `<metric_id>-<version>`. If `version` is left empty, any versions of the metric would be retrieved.
+          default: []
+          title: Metric Id And Version
+        description: The metric IDs and their versions to retrieve. Each value must be in the format of `<metric_id>-<version>`. If `version` is left empty, any versions of the metric would be retrieved.
+      - name: source_type
+        in: query
+        required: false
+        schema:
+          type: array
+          uniqueItems: true
+          items:
+            $ref: '#/components/schemas/EvaluationSourceType'
+          description: The type of the source of the metric evaluation results.
+          default: []
+          title: Source Type
+        description: The type of the source of the metric evaluation results.
+      - name: conversation_id
+        in: query
+        required: false
+        schema:
+          type: array
+          uniqueItems: true
+          items:
+            type: string
+            pattern: ^[a-f0-9]{24}$
+          description: For metric evaluation sources with type `post-session` or `manual`, this field filters the metric evaluation results to only include those that were computed from the given conversation IDs.
+          default: []
+          title: Conversation Id
+        description: For metric evaluation sources with type `post-session` or `manual`, this field filters the metric evaluation results to only include those that were computed from the given conversation IDs.
+      - name: simulation_unit_test_set_run_id
+        in: query
+        required: false
+        schema:
+          type: array
+          uniqueItems: true
+          items:
+            type: string
+            pattern: ^[a-f0-9]{24}$
+          description: For metric evaluation sources with type `simulation`, this field filters the metric evaluation results to only include those that were computed from the given simulation unit test set run IDs.
+          default: []
+          title: Simulation Unit Test Set Run Id
+        description: For metric evaluation sources with type `simulation`, this field filters the metric evaluation results to only include those that were computed from the given simulation unit test set run IDs.
+      - name: sort_by
+        in: query
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+          description: "The fields to sort the metrics by. Supported fields are `created_at`. Specify a `+` before the field name to indicate ascending sorting and `-` for descending sorting. \nMultiple fields can be specified to break ties."
+          default: []
+          title: Sort By
+        description: "The fields to sort the metrics by. Supported fields are `created_at`. Specify a `+` before the field name to indicate ascending sorting and `-` for descending sorting. \nMultiple fields can be specified to break ties."
+      - name: x-mongo-cluster-name
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.
+          title: X-Mongo-Cluster-Name
+        description: The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.
+      - name: Sec-WebSocket-Protocol
+        in: header
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+          default: []
+          title: Sec-Websocket-Protocol
+      responses:
+        '200':
+          description: Succeeded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/src__app__endpoints__metric__get_metric_evaluation_results__Response'
+        '404':
+          description: Specified organization is not found.
+        '422':
+          description: Invalid request path parameter or request query parameter failed validation.
+        '401':
+          description: Invalid authorization credentials.
+        '403':
+          description: Missing required permissions.
+        '503':
+          description: The service is going through temporary maintenance.
+        '429':
+          description: The user has exceeded the rate limit of 10 requests per minute for this endpoint.
+components:
+  schemas:
+    _NotSet:
+      properties: {}
+      type: object
+      title: _NotSet
+      description: A specific type to indicate that a field is not set in the request.
+    CategoricalMetricValue-Output:
+      properties:
+        type:
+          type: string
+          const: categorical
+          title: Type
+        categories:
+          items:
+            type: string
+          type: array
+          title: Categories
+      type: object
+      required:
+      - type
+      - categories
+      title: CategoricalMetricValue
+    PostSessionEvaluationSource:
+      properties:
+        type:
+          type: string
+          const: post-session
+          title: Type
+          default: post-session
+        conversation_id:
+          type: string
+          title: Conversation Id
+        references:
+          items:
+            type: string
+          type: array
+          title: References
+          description: A list of references to the messages that were used to compute this metric.
+      type: object
+      required:
+      - conversation_id
+      - references
+      title: PostSessionEvaluationSource
+    amigo_lib__pydantic__base_model__StrippedNonemptyString__1:
+      type: string
+      minLength: 1
+    src__app__endpoints__metric__create_metric__Response:
+      properties:
+        id:
+          type: string
+          title: Id
+          description: The ID of the created metric.
+      type: object
+      required:
+      - id
+      title: Response
+    SimulationEvaluationSource:
+      properties:
+        type:
+          type: string
+          const: simulation
+          title: Type
+          default: simulation
+        simulation_unit_test_set_run_id:
+          type: string
+          title: Simulation Unit Test Set Run Id
+        unit_test_id:
+          type: string
+          title: Unit Test Id
+        run_index:
+          type: integer
+          title: Run Index
+        references:
+          items:
+            type: string
+          type: array
+          title: References
+          description: A list of messages that were used to compute this metric.
+      type: object
+      required:
+      - simulation_unit_test_set_run_id
+      - unit_test_id
+      - run_index
+      - references
+      title: SimulationEvaluationSource
+    InitialMetricVersion:
+      properties:
+        description:
+          type: string
+          title: Description
+          description: The description of the metric. This tells the LLM what the metric is and how the metric result should be generated.
+        metric_value:
+          $ref: '#/components/schemas/MetricValue-Input'
+          description: The type of value this metric could take for the initial version of the metric. The value type cannot be adjusted between versions.
+      type: object
+      required:
+      - description
+      - metric_value
+      title: InitialMetricVersion
+    amigo_lib__mongo__collections__metric__Metric__UserInfo:
+      properties:
+        org_id:
+          type: string
+          title: Org Id
+        user_id:
+          type: string
+          title: User Id
+      type: object
+      required:
+      - org_id
+      - user_id
+      title: UserInfo
+    MetricEvaluationResultInstance:
+      properties:
+        id:
+          type: string
+          title: Id
+          description: The ID of the metric evaluation result.
+        org_id:
+          type: string
+          title: Org Id
+          description: The ID of the organization.
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+        metric_id:
+          type: string
+          title: Metric Id
+          description: The ID of the metric that was evaluated.
+        metric_version:
+          type: integer
+          title: Metric Version
+          description: The version of the metric that was evaluated.
+        result:
+          anyOf:
+          - type: number
+          - type: boolean
+          - type: string
+          - type: 'null'
+          title: Result
+          description: The result of the metric evaluation. If `None`, the metric was deemed not applicable.
+        justification:
+          type: string
+          title: Justification
+          description: The justification for the result of the metric evaluation.
+        source:
+          $ref: '#/components/schemas/EvaluationSource'
+      type: object
+      required:
+      - id
+      - org_id
+      - metric_id
+      - metric_version
+      - result
+      - justification
+      - source
+      title: MetricEvaluationResultInstance
+    amigo_lib__mongo__collections__metric_evaluation_result__MetricEvaluationResult__ManualEvaluationSource__UserInfo:
+      properties:
+        org_id:
+          type: string
+          title: Org Id
+        user_id:
+          type: string
+          title: User Id
+      type: object
+      required:
+      - org_id
+      - user_id
+      title: UserInfo
+    src__app__endpoints__metric__create_metric_version__Request:
+      properties:
+        description:
+          $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
+          description: The description of the metric. This tells the LLM what the metric is and how the metric result should be generated.
+        metric_value:
+          $ref: '#/components/schemas/MetricValue-Input'
+      type: object
+      required:
+      - description
+      - metric_value
+      title: Request
+    EvaluationSourceType:
+      type: string
+      enum:
+      - post-session
+      - manual
+      - simulation
+    MetricVersionInstance:
+      properties:
+        metric_id:
+          type: string
+          title: Metric Id
+          description: The ID of the metric.
+        version:
+          type: integer
+          title: Version
+          description: The version number of the metric.
+        description:
+          type: string
+          title: Description
+          description: The description of the metric. This tells the LLM what the metric is and how the metric result should be generated.
+        metric_value:
+          $ref: '#/components/schemas/MetricValue-Output'
+          description: The type of value that this metric is measuring. The value type cannot be adjusted between versions, but specifiers of the type can.
+        creator:
+          $ref: '#/components/schemas/amigo_lib__mongo__collections__metric_version__MetricVersion__UserInfo'
+          description: The user who created the metric.
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+          description: The timestamp of when the metric version was created.
+      type: object
+      required:
+      - metric_id
+      - version
+      - description
+      - metric_value
+      - creator
+      - created_at
+      title: MetricVersionInstance
+    Tag:
+      properties:
+        key:
+          type: string
+          title: Key
+        value:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Value
+      type: object
+      required:
+      - key
+      - value
+      title: Tag
+    src__app__endpoints__metric__evaluate_metrics__Response:
+      properties:
+        metrics:
+          items:
+            $ref: '#/components/schemas/amigo_lib__agent__metric__MetricAgent__MetricEvaluationResult'
+          type: array
+          title: Metrics
+          description: A list of the evaluated metrics, in the same order that the `metrics` field in the request is presented.
+      type: object
+      required:
+      - metrics
+      title: Response
+    src__app__endpoints__metric__get_metric_versions__Response:
+      properties:
+        metric_versions:
+          items:
+            $ref: '#/components/schemas/MetricVersionInstance'
+          type: array
+          title: Metric Versions
+          description: The list of retrieved metric versions.
+        has_more:
+          type: boolean
+          title: Has More
+          description: Whether there are more metric versions that can be retrieved with further pagination.
+        continuation_token:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Continuation Token
+          description: The continuation token to be used to retrieve the next page of metric versions. This is only included if `has_more` is true.
+      type: object
+      required:
+      - metric_versions
+      - has_more
+      - continuation_token
+      title: Response
+    src__app__endpoints__metric__get_metrics__Response:
+      properties:
+        metrics:
+          items:
+            $ref: '#/components/schemas/MetricInstance'
+          type: array
+          title: Metrics
+          description: The list of retrieved metrics.
+        has_more:
+          type: boolean
+          title: Has More
+          description: Whether there are more metrics to retrieve.
+        continuation_token:
+          anyOf:
+          - {}
+          - type: 'null'
+          title: Continuation Token
+          description: The continuation token to use to retrieve the next set of metrics.
+        filter_values:
+          anyOf:
+          - $ref: '#/components/schemas/src__app__endpoints__metric__get_metrics__Response__FilterValues'
+          - type: 'null'
+          description: 'For each filter that this endpoint supports that can take on dynamic values, this field includes what these values are. This is only provided for the first page in the pagination results.
+
+
+            Note that the values are counted assuming the authenticated user has access to all the metrics, so they might differ from how many are actually
+
+            retrieved.'
+      type: object
+      required:
+      - metrics
+      - has_more
+      - continuation_token
+      - filter_values
+      title: Response
+    EvaluationSource:
+      oneOf:
+      - $ref: '#/components/schemas/PostSessionEvaluationSource'
+      - $ref: '#/components/schemas/ManualEvaluationSource'
+      - $ref: '#/components/schemas/SimulationEvaluationSource'
+      discriminator:
+        propertyName: type
+        mapping:
+          manual: '#/components/schemas/ManualEvaluationSource'
+          post-session: '#/components/schemas/PostSessionEvaluationSource'
+          simulation: '#/components/schemas/SimulationEvaluationSource'
+    src__app__endpoints__metric__update_metric__Request:
+      properties:
+        applied_to_services:
+          anyOf:
+          - items:
+              type: string
+              pattern: ^[a-f0-9]{24}$
+            type: array
+          - type: 'null'
+          title: Applied To Services
+          description: The services that the metric is applied to. Only updated if set.
+        additional_notes:
+          anyOf:
+          - $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
+          - $ref: '#/components/schemas/_NotSet'
+          - type: 'null'
+          title: Additional Notes
+          description: Additional notes about the metric. Only updated if set.
+          default: {}
+        tags:
+          anyOf:
+          - additionalProperties:
+              anyOf:
+              - $ref: '#/components/schemas/StrippedNonemptyString___w__s_____'
+              - type: 'null'
+            propertyNames:
+              $ref: '#/components/schemas/StrippedNonemptyString___w__s_____'
+            type: object
+            maxProperties: 20
+          - type: 'null'
+          title: Tags
+          description: The tags of the metric. Only updated if set.
+      type: object
+      title: Request
+    src__app__endpoints__metric__get_metric_evaluation_results__Response__FilterValues:
+      properties:
+        metric_ids:
+          items:
+            type: string
+          type: array
+          title: Metric Ids
+          description: The IDs of the metrics that the metric evaluation results are for.
+      type: object
+      required:
+      - metric_ids
+      title: FilterValues
+    amigo_lib__mongo__collections__metric_version__MetricVersion__UserInfo:
+      properties:
+        org_id:
+          type: string
+          title: Org Id
+        user_id:
+          type: string
+          title: User Id
+      type: object
+      required:
+      - org_id
+      - user_id
+      title: UserInfo
+    MetricValue-Input:
+      oneOf:
+      - $ref: '#/components/schemas/NumericalMetricValue'
+      - $ref: '#/components/schemas/CategoricalMetricValue-Input'
+      - $ref: '#/components/schemas/BooleanMetricValue'
+      discriminator:
+        propertyName: type
+        mapping:
+          boolean: '#/components/schemas/BooleanMetricValue'
+          categorical: '#/components/schemas/CategoricalMetricValue-Input'
+          numerical: '#/components/schemas/NumericalMetricValue'
+    src__app__endpoints__metric__search_metrics__Response:
+      properties:
+        metrics:
+          items:
+            $ref: '#/components/schemas/Metric'
+          type: array
+          title: Metrics
+          description: The list of retrieved metrics.
+      type: object
+      required:
+      - metrics
+      title: Response
+    src__app__endpoints__metric__create_metric_version__Response:
+      properties:
+        version:
+          type: integer
+          title: Version
+          description: Numerical version ID for the version just created. For the first version of a metric, this field will be 1.
+      type: object
+      required:
+      - version
+      title: Response
+    NumericalMetricValue:
+      properties:
+        type:
+          type: string
+          const: numerical
+          title: Type
+        lower_bound:
+          type: number
+          title: Lower Bound
+        upper_bound:
+          type: number
+          title: Upper Bound
+      type: object
+      required:
+      - type
+      - lower_bound
+      - upper_bound
+      title: NumericalMetricValue
+    src__app__endpoints__metric__create_metric__Request:
+      properties:
+        name:
+          $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
+          description: The name of the metric. Must be unique within the organization.
+        applied_to_services:
+          items:
+            type: string
+            pattern: ^[a-f0-9]{24}$
+          type: array
+          title: Applied To Services
+          description: The services that the metric is applied to.
+        additional_notes:
+          anyOf:
+          - $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
+          - type: 'null'
+          description: Additional notes about the metric.
+        tags:
+          additionalProperties:
+            anyOf:
+            - $ref: '#/components/schemas/StrippedNonemptyString___w__s_____'
+            - type: 'null'
+          propertyNames:
+            $ref: '#/components/schemas/StrippedNonemptyString___w__s_____'
+          type: object
+          maxProperties: 20
+          title: Tags
+          description: The tags of the metric.
+        initial_version_metric_value:
+          $ref: '#/components/schemas/InitialMetricVersion'
+          description: The initial version of the metric.
+      type: object
+      required:
+      - name
+      - applied_to_services
+      - additional_notes
+      - tags
+      - initial_version_metric_value
+      title: Request
+    MetricValue-Output:
+      oneOf:
+      - $ref: '#/components/schemas/BooleanMetricValue'
+      - $ref: '#/components/schemas/NumericalMetricValue'
+      - $ref: '#/components/schemas/CategoricalMetricValue-Output'
+      discriminator:
+        propertyName: type
+        mapping:
+          boolean: '#/components/schemas/BooleanMetricValue'
+          categorical: '#/components/schemas/CategoricalMetricValue-Output'
+          numerical: '#/components/schemas/NumericalMetricValue'
+    BooleanMetricValue:
+      properties:
+        type:
+          type: string
+          const: boolean
+          title: Type
+      type: object
+      required:
+      - type
+      title: BooleanMetricValue
+    amigo_lib__agent__metric__MetricAgent__MetricEvaluationResult:
+      properties:
+        metric_id:
+          type: string
+          title: Metric Id
+          description: The ID of the metric for which this value was computed.
+        value:
+          anyOf:
+          - type: number
+          - type: boolean
+          - type: string
+          - type: 'null'
+          title: Value
+          description: The value of the metric.
+        references:
+          items:
+            type: string
+          type: array
+          title: References
+          description: A list of references to the messages that were used to compute this metric.
+        justification:
+          type: string
+          title: Justification
+          description: A justification for the metric value.
+      type: object
+      required:
+      - metric_id
+      - value
+      - references
+      - justification
+      title: MetricEvaluationResult
+    src__app__endpoints__metric__evaluate_metrics__Request:
+      properties:
+        metric_ids:
+          items:
+            type: string
+            pattern: ^[a-f0-9]{24}$
+          type: array
+          maxItems: 10
+          minItems: 1
+          uniqueItems: true
+          title: Metric Ids
+          description: The IDs of the metrics to evaluate.
+        conversation_id:
+          type: string
+          pattern: ^[a-f0-9]{24}$
+          title: Conversation Id
+          description: The ID of the conversation to evaluate the metrics for.
+        evaluate_to_interaction_id:
+          anyOf:
+          - type: string
+            pattern: ^[a-f0-9]{24}$
+          - type: 'null'
+          title: Evaluate To Interaction Id
+          description: If specified, only messages up to (and including) this interaction will be evaluated.
+      type: object
+      required:
+      - metric_ids
+      - conversation_id
+      title: Request
+    CategoricalMetricValue-Input:
+      properties:
+        type:
+          type: string
+          const: categorical
+          title: Type
+        categories:
+          items:
+            $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
+          type: array
+          maxItems: 50
+          minItems: 1
+          title: Categories
+      type: object
+      required:
+      - type
+      - categories
+      title: CategoricalMetricValue
+    Metric:
+      properties:
+        _id:
+          type: string
+          title: Id
+          description: The ID of the document.
+        org_id:
+          type: string
+          title: Org Id
+          description: The ID of the organization.
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+        name:
+          type: string
+          title: Name
+          description: The name of the metric.
+        applied_to_services:
+          items:
+            type: string
+          type: array
+          title: Applied To Services
+          description: The services that the metric is applied to.
+        additional_notes:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Additional Notes
+          description: Additional notes about the metric.
+        tags:
+          items:
+            $ref: '#/components/schemas/Tag'
+          type: array
+          title: Tags
+          description: The tags of the metric.
+        creator:
+          $ref: '#/components/schemas/amigo_lib__mongo__collections__metric__Metric__UserInfo'
+          description: The user who created the metric.
+        updated_by:
+          $ref: '#/components/schemas/amigo_lib__mongo__collections__metric__Metric__UserInfo'
+          description: The user who last updated the metric.
+        metric_value_type:
+          $ref: '#/components/schemas/MetricValueType'
+          description: The type of value that this metric is measuring.
+        is_deleted:
+          type: boolean
+          title: Is Deleted
+          description: Whether the metric has been deleted.
+      type: object
+      required:
+      - _id
+      - org_id
+      - name
+      - applied_to_services
+      - additional_notes
+      - tags
+      - creator
+      - updated_by
+      - metric_value_type
+      - is_deleted
+      title: Metric
+    src__app__endpoints__metric__get_metric_evaluation_results__Response:
+      properties:
+        metric_evaluation_results:
+          items:
+            $ref: '#/components/schemas/MetricEvaluationResultInstance'
+          type: array
+          title: Metric Evaluation Results
+          description: The list of retrieved metric evaluation results.
+        has_more:
+          type: boolean
+          title: Has More
+          description: Whether there are more metric evaluation results to retrieve.
+        continuation_token:
+          anyOf:
+          - {}
+          - type: 'null'
+          title: Continuation Token
+          description: The continuation token to use to retrieve the next set of metric evaluation results.
+        filter_values:
+          anyOf:
+          - $ref: '#/components/schemas/src__app__endpoints__metric__get_metric_evaluation_results__Response__FilterValues'
+          - type: 'null'
+          description: 'For each filter that this endpoint supports that can take on dynamic values, this field includes what these values are. This is only provided for the first page in the pagination results.
+
+
+            Note that the values are counted assuming the authenticated user has access to all the metric evaluation results, so they might differ from how many are actually
+
+            retrieved.'
+      type: object
+      required:
+      - metric_evaluation_results
+      - has_more
+      - continuation_token
+      - filter_values
+      title: Response
+    src__app__endpoints__metric__get_metrics__Response__FilterValues:
+      properties:
+        applied_to_services_ids:
+          items:
+            type: string
+          type: array
+          title: Applied To Services Ids
+          description: A set of service IDs that have metrics applied to the service.
+        creators:
+          items:
+            $ref: '#/components/schemas/amigo_lib__mongo__collections__metric__Metric__UserInfo'
+          type: array
+          title: Creators
+          description: A set of creator infos that created the metrics under the current filters.
+        tags:
+          items:
+            type: string
+          type: array
+          title: Tags
+          description: A set of tag keys that exist in the metrics under the current filters.
+        types:
+          items:
+            type: string
+          type: array
+          title: Types
+          description: A set of metric types that exist in the metrics under the current filters.
+      type: object
+      required:
+      - applied_to_services_ids
+      - creators
+      - tags
+      - types
+      title: FilterValues
+    MetricValueType:
+      type: string
+      enum:
+      - boolean
+      - numerical
+      - categorical
+    StrippedNonemptyString___w__s_____:
+      type: string
+      minLength: 1
+      pattern: ^[\w\s]+$
+    MetricInstance:
+      properties:
+        id:
+          type: string
+          title: Id
+          description: The ID of the metric.
+        org_id:
+          type: string
+          title: Org Id
+          description: The organization ID of the metric.
+        name:
+          type: string
+          title: Name
+          description: The name of the metric.
+        applied_to_services:
+          items:
+            type: string
+          type: array
+          title: Applied To Services
+          description: The services that the metric is applied to.
+        additional_notes:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Additional Notes
+          description: Additional notes about the metric.
+        tags:
+          items:
+            $ref: '#/components/schemas/Tag'
+          type: array
+          title: Tags
+          description: The tags of the metric.
+        creator:
+          $ref: '#/components/schemas/amigo_lib__mongo__collections__metric__Metric__UserInfo'
+          description: The user who created the metric.
+        updated_by:
+          $ref: '#/components/schemas/amigo_lib__mongo__collections__metric__Metric__UserInfo'
+          description: The user who last updated the metric.
+        metric_value_type:
+          $ref: '#/components/schemas/MetricValueType'
+          description: The type of value that this metric is measuring.
+        is_deleted:
+          type: boolean
+          title: Is Deleted
+          description: Whether the metric is deleted.
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+          description: The time when the metric is created.
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+          description: The time when the metric is last updated.
+      type: object
+      required:
+      - id
+      - org_id
+      - name
+      - applied_to_services
+      - additional_notes
+      - tags
+      - creator
+      - updated_by
+      - metric_value_type
+      - is_deleted
+      - created_at
+      - updated_at
+      title: MetricInstance
+    ManualEvaluationSource:
+      properties:
+        type:
+          type: string
+          const: manual
+          title: Type
+          default: manual
+        conversation_id:
+          type: string
+          title: Conversation Id
+        evaluate_to_interaction_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Evaluate To Interaction Id
+        invoked_by:
+          $ref: '#/components/schemas/amigo_lib__mongo__collections__metric_evaluation_result__MetricEvaluationResult__ManualEvaluationSource__UserInfo'
+          description: The user who invoked the manual evaluation.
+        references:
+          items:
+            type: string
+          type: array
+          title: References
+          description: A list of references to the messages that were used to compute this metric.
+      type: object
+      required:
+      - conversation_id
+      - evaluate_to_interaction_id
+      - invoked_by
+      - references
+      title: ManualEvaluationSource
+  securitySchemes:
+    Bearer-Authorization:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Amigo issued JWT token that identifies an user. It's issued either after logging in through the frontend, or manually through the [`SignInWithAPIKey`](sign-in-with-api-key) endpoint.
+    Bearer-Authorization-Organization:
+      type: apiKey
+      in: header
+      name: X-ORG-ID
+      description: An optional organization identifier that indicates from which organization the token is issued. This is used in rare cases where the user to authenticate is making a request for resources in another organization.
+    Basic:
+      type: http
+      scheme: basic
+      description: The username should be set to {org_id}_{user_id}, and the password should be the Amigo issued JWT token that identifies the user.

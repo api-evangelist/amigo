@@ -1,0 +1,1412 @@
+openapi: 3.1.0
+info:
+  title: Amigo Account Services API
+  version: 0.1.0
+servers:
+- url: https://api.amigo.ai
+- url: https://internal-api.amigo.ai
+- url: https://api-eu-central-1.amigo.ai
+- url: https://api-ap-southeast-2.amigo.ai
+- url: https://api-ca-central-1.amigo.ai
+security:
+- Bearer-Authorization: []
+  Bearer-Authorization-Organization: []
+  Basic: []
+tags:
+- name: Services
+paths:
+  /v1/{workspace_id}/services:
+    post:
+      tags:
+      - Services
+      summary: Create a service
+      description: Create a new service linking an agent and HSM. Validates that agent_id and context_graph_id exist in the workspace. Requires `Service.create` permission.
+      operationId: create-service
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateServiceRequest'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceResponse'
+        '404':
+          description: Not found.
+        '409':
+          description: Name already taken.
+        '403':
+          description: Insufficient permissions.
+        '401':
+          description: Missing or invalid API key.
+        '422':
+          description: Invalid request body.
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+    get:
+      tags:
+      - Services
+      summary: List services
+      description: List services in a workspace with pagination. Requires `Service.view` permission.
+      operationId: list-services
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: search
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - $ref: '#/components/schemas/SearchString'
+          - type: 'null'
+          title: Search
+      - name: sort_by
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Sort By
+      - name: is_active
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Active
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 100
+          exclusiveMinimum: 0
+          default: 10
+          title: Limit
+      - name: continuation_token
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 0
+          title: Continuation Token
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedResponse_ServiceResponse_'
+        '404':
+          description: Not found.
+        '403':
+          description: Insufficient permissions.
+        '401':
+          description: Missing or invalid API key.
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/services/{service_id}:
+    get:
+      tags:
+      - Services
+      summary: Get a service
+      description: Retrieve a service by ID. Requires `Service.view` permission.
+      operationId: get-service
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: service_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Service Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceResponse'
+        '404':
+          description: Not found.
+        '403':
+          description: Insufficient permissions.
+        '401':
+          description: Missing or invalid API key.
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    put:
+      tags:
+      - Services
+      summary: Update a service
+      description: Update a service's configuration. Requires `Service.update` permission.
+      operationId: update-service
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: service_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Service Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateServiceRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceResponse'
+        '404':
+          description: Not found.
+        '409':
+          description: Name already taken.
+        '403':
+          description: Insufficient permissions.
+        '401':
+          description: Missing or invalid API key.
+        '422':
+          description: Invalid request body.
+    delete:
+      tags:
+      - Services
+      summary: Delete a service
+      description: Delete a service. Requires `Service.delete` permission.
+      operationId: delete-service
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: service_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Service Id
+      responses:
+        '204':
+          description: Successful Response
+        '404':
+          description: Not found.
+        '403':
+          description: Insufficient permissions.
+        '401':
+          description: Missing or invalid API key.
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/services/{service_id}/version-sets/{name}:
+    put:
+      tags:
+      - Services
+      summary: Upsert a service version set
+      description: Replace or create a named version set on a service. Pinned agent/HSM versions are validated.
+      operationId: upsert-service-version-set
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: service_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Service Id
+      - name: name
+        in: path
+        required: true
+        schema:
+          type: string
+          maxLength: 40
+          description: Version set name (e.g. 'release')
+          title: Name
+        description: Version set name (e.g. 'release')
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpsertVersionSetRequest'
+      responses:
+        '204':
+          description: Successful Response
+        '404':
+          description: Not found.
+        '409':
+          description: Name already taken.
+        '403':
+          description: Insufficient permissions.
+        '401':
+          description: Missing or invalid API key.
+        '422':
+          description: Invalid request body.
+  /v1/{workspace_id}/services/{service_id}/voice-turn:
+    post:
+      tags:
+      - Services
+      summary: Voice Turn
+      description: 'Run one WhatsApp-style voice-note turn against the service''s agent.
+
+
+        Accepts OGG Opus audio (or any format Deepgram''s prerecorded endpoint
+
+        accepts). Server keys the conversation on ``(workspace, service,
+
+        phone_number)`` and returns the agent''s spoken reply as OGG Opus.'
+      operationId: voice-turn
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: service_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Service Id
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Body_voice-turn'
+      responses:
+        '200':
+          description: OGG Opus agent reply
+          content:
+            application/json:
+              schema: {}
+            audio/ogg: {}
+        '204':
+          description: Agent elected silence
+        '409':
+          description: Concurrent voice turn in progress for this speaker
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/services/{service_id}/text-turn:
+    post:
+      tags:
+      - Services
+      summary: Text Turn
+      description: Run one WhatsApp-style text turn against the service's agent.
+      operationId: text-turn
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: service_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Service Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TextTurnRequest'
+      responses:
+        '200':
+          description: Agent text reply
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TextTurnResponse'
+        '204':
+          description: Agent elected silence
+        '409':
+          description: Concurrent text turn in progress for this speaker
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+components:
+  schemas:
+    PaginatedResponse_ServiceResponse_:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/ServiceResponse'
+          type: array
+          title: Items
+        has_more:
+          type: boolean
+          title: Has More
+        continuation_token:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Continuation Token
+        total:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Total
+      type: object
+      required:
+      - items
+      - has_more
+      title: PaginatedResponse[ServiceResponse]
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    VersionSet-Output:
+      properties:
+        agent_version_number:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Agent Version Number
+        context_graph_version_number:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Context Graph Version Number
+        llm_model_preferences:
+          additionalProperties:
+            $ref: '#/components/schemas/LLMConfig'
+          type: object
+          title: Llm Model Preferences
+        turn_runtime:
+          type: string
+          enum:
+          - native
+          - openai-agents
+          title: Turn Runtime
+          default: native
+      type: object
+      title: VersionSet
+      description: Pins agent, state machine, and LLM model versions for a service.
+    ServiceVoiceConfig-Output:
+      properties:
+        tts_model:
+          anyOf:
+          - type: string
+            enum:
+            - sonic-turbo
+            - sonic-3
+          - type: 'null'
+          title: Tts Model
+        max_buffer_delay_ms:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Max Buffer Delay Ms
+        eager_eot_threshold:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Eager Eot Threshold
+        eot_timeout_ms:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Eot Timeout Ms
+        filler_style:
+          type: string
+          enum:
+          - backchannel
+          - phrase
+          - silent
+          title: Filler Style
+          default: backchannel
+        filler_vocabulary:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          title: Filler Vocabulary
+        backchannel_delay_ms:
+          type: integer
+          title: Backchannel Delay Ms
+          default: 400
+        max_response_sentences:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Max Response Sentences
+        max_response_words:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Max Response Words
+        barge_in_min_speech_s:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Barge In Min Speech S
+        barge_in_cooldown_s:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Barge In Cooldown S
+        min_tts_speed:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Min Tts Speed
+        post_eot_pause_ms:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Post Eot Pause Ms
+        transition_deadline_ms:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Transition Deadline Ms
+        progress_interval_ms:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Progress Interval Ms
+        empathy_hold_ms:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Empathy Hold Ms
+        filler_cooldown_ms:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Filler Cooldown Ms
+        progress_vocabulary:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          title: Progress Vocabulary
+        tts_provider:
+          anyOf:
+          - type: string
+            enum:
+            - cartesia
+            - elevenlabs
+            - groq
+          - type: 'null'
+          title: Tts Provider
+        tts_config:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Tts Config
+        language_providers:
+          anyOf:
+          - additionalProperties:
+              $ref: '#/components/schemas/LanguageProviderEntry'
+            type: object
+            maxProperties: 10
+          - type: 'null'
+          title: Language Providers
+        session_provider:
+          anyOf:
+          - type: string
+            enum:
+            - amigo
+            - gpt_realtime
+            - gpt_live
+          - type: 'null'
+          title: Session Provider
+        realtime_voice:
+          anyOf:
+          - type: string
+            enum:
+            - alloy
+            - ash
+            - ballad
+            - coral
+            - echo
+            - sage
+            - shimmer
+            - verse
+            - marin
+            - cedar
+          - type: 'null'
+          title: Realtime Voice
+        forward_call_enabled:
+          type: boolean
+          title: Forward Call Enabled
+          default: false
+        forwarding:
+          anyOf:
+          - $ref: '#/components/schemas/ServiceForwardingConfig'
+          - type: 'null'
+      type: object
+      title: ServiceVoiceConfig
+      description: 'Per-service voice pipeline tuning. Overrides workspace/env defaults.
+
+
+        Each field is optional — None means inherit from the layer above
+
+        (workspace VoiceSettings → env vars → hardcoded defaults).'
+    TextTurnRequest:
+      properties:
+        phone_number:
+          type: string
+          maxLength: 16
+          pattern: ^\+[1-9]\d{1,14}$
+          title: Phone Number
+        agent_phone:
+          type: string
+          maxLength: 16
+          pattern: ^\+[1-9]\d{1,14}$
+          title: Agent Phone
+        text:
+          type: string
+          maxLength: 8192
+          minLength: 1
+          title: Text
+      type: object
+      required:
+      - phone_number
+      - agent_phone
+      - text
+      title: TextTurnRequest
+      description: Request body for ``POST /v1/{ws}/services/{service_id}/text-turn``.
+    ServiceVoiceConfig-Input:
+      properties:
+        tts_model:
+          anyOf:
+          - type: string
+            enum:
+            - sonic-turbo
+            - sonic-3
+          - type: 'null'
+          title: Tts Model
+        max_buffer_delay_ms:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Max Buffer Delay Ms
+        eager_eot_threshold:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Eager Eot Threshold
+        eot_timeout_ms:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Eot Timeout Ms
+        filler_style:
+          type: string
+          enum:
+          - backchannel
+          - phrase
+          - silent
+          title: Filler Style
+          default: backchannel
+        filler_vocabulary:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          title: Filler Vocabulary
+        backchannel_delay_ms:
+          type: integer
+          title: Backchannel Delay Ms
+          default: 400
+        max_response_sentences:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Max Response Sentences
+        max_response_words:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Max Response Words
+        barge_in_min_speech_s:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Barge In Min Speech S
+        barge_in_cooldown_s:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Barge In Cooldown S
+        min_tts_speed:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Min Tts Speed
+        post_eot_pause_ms:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Post Eot Pause Ms
+        transition_deadline_ms:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Transition Deadline Ms
+        progress_interval_ms:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Progress Interval Ms
+        empathy_hold_ms:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Empathy Hold Ms
+        filler_cooldown_ms:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Filler Cooldown Ms
+        progress_vocabulary:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          title: Progress Vocabulary
+        tts_provider:
+          anyOf:
+          - type: string
+            enum:
+            - cartesia
+            - elevenlabs
+            - groq
+          - type: 'null'
+          title: Tts Provider
+        tts_config:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Tts Config
+        language_providers:
+          anyOf:
+          - additionalProperties:
+              $ref: '#/components/schemas/LanguageProviderEntry'
+            type: object
+            maxProperties: 10
+          - type: 'null'
+          title: Language Providers
+        session_provider:
+          anyOf:
+          - type: string
+            enum:
+            - amigo
+            - gpt_realtime
+            - gpt_live
+          - type: 'null'
+          title: Session Provider
+        realtime_voice:
+          anyOf:
+          - type: string
+            enum:
+            - alloy
+            - ash
+            - ballad
+            - coral
+            - echo
+            - sage
+            - shimmer
+            - verse
+            - marin
+            - cedar
+          - type: 'null'
+          title: Realtime Voice
+        forward_call_enabled:
+          type: boolean
+          title: Forward Call Enabled
+          default: false
+        forwarding:
+          anyOf:
+          - $ref: '#/components/schemas/ServiceForwardingConfig'
+          - type: 'null'
+      type: object
+      title: ServiceVoiceConfig
+      description: 'Per-service voice pipeline tuning. Overrides workspace/env defaults.
+
+
+        Each field is optional — None means inherit from the layer above
+
+        (workspace VoiceSettings → env vars → hardcoded defaults).'
+    PhoneE164:
+      type: string
+      maxLength: 16
+      minLength: 2
+    UpsertVersionSetRequest:
+      properties:
+        version_set:
+          $ref: '#/components/schemas/VersionSet-Input'
+      type: object
+      required:
+      - version_set
+      title: UpsertVersionSetRequest
+    ServiceTag:
+      properties:
+        key:
+          type: string
+          title: Key
+        value:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Value
+      type: object
+      required:
+      - key
+      title: ServiceTag
+    ServiceResponse:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        workspace_id:
+          type: string
+          format: uuid
+          title: Workspace Id
+        name:
+          type: string
+          title: Name
+        description:
+          type: string
+          title: Description
+        agent_id:
+          type: string
+          format: uuid
+          title: Agent Id
+        context_graph_id:
+          type: string
+          format: uuid
+          title: Context Graph Id
+        agent_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Agent Name
+        context_graph_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Context Graph Name
+        keyterms:
+          items:
+            type: string
+          type: array
+          title: Keyterms
+        is_active:
+          type: boolean
+          title: Is Active
+        version_sets:
+          additionalProperties:
+            $ref: '#/components/schemas/VersionSet-Output'
+          type: object
+          title: Version Sets
+        tags:
+          items:
+            $ref: '#/components/schemas/ServiceTag'
+          type: array
+          title: Tags
+        tool_capacity:
+          type: integer
+          title: Tool Capacity
+        channel_type:
+          type: string
+          enum:
+          - voice
+          - text
+          title: Channel Type
+          default: voice
+        environment:
+          type: string
+          enum:
+          - sandbox
+          - production
+          title: Environment
+          default: production
+        voice_config:
+          anyOf:
+          - $ref: '#/components/schemas/ServiceVoiceConfig-Output'
+          - type: 'null'
+        is_system:
+          type: boolean
+          title: Is System
+          default: false
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+      type: object
+      required:
+      - id
+      - workspace_id
+      - name
+      - description
+      - agent_id
+      - context_graph_id
+      - keyterms
+      - is_active
+      - version_sets
+      - tags
+      - tool_capacity
+      - created_at
+      - updated_at
+      title: ServiceResponse
+    SearchString:
+      type: string
+      maxLength: 200
+      minLength: 1
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    TextTurnResponse:
+      properties:
+        text:
+          type: string
+          maxLength: 8192
+          title: Text
+      type: object
+      required:
+      - text
+      title: TextTurnResponse
+      description: 'Response body — the agent''s text reply.
+
+
+        Returned only on 200; 204 indicates the engine elected silence.'
+    UpdateServiceRequest:
+      properties:
+        name:
+          anyOf:
+          - $ref: '#/components/schemas/NameString'
+          - type: 'null'
+        description:
+          anyOf:
+          - $ref: '#/components/schemas/DescriptionString'
+          - type: 'null'
+        agent_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Agent Id
+        context_graph_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Context Graph Id
+        keyterms:
+          anyOf:
+          - items:
+              type: string
+              maxLength: 128
+              minLength: 1
+            type: array
+            maxItems: 500
+          - type: 'null'
+          title: Keyterms
+        is_active:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Active
+        version_sets:
+          anyOf:
+          - additionalProperties:
+              $ref: '#/components/schemas/VersionSet-Input'
+            type: object
+          - type: 'null'
+          title: Version Sets
+        tags:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/ServiceTag'
+            type: array
+            maxItems: 50
+          - type: 'null'
+          title: Tags
+        tool_capacity:
+          anyOf:
+          - type: integer
+            maximum: 10.0
+            minimum: 1.0
+          - type: 'null'
+          title: Tool Capacity
+        channel_type:
+          anyOf:
+          - type: string
+            enum:
+            - voice
+            - text
+          - type: 'null'
+          title: Channel Type
+        environment:
+          anyOf:
+          - type: string
+            enum:
+            - sandbox
+            - production
+          - type: 'null'
+          title: Environment
+        voice_config:
+          anyOf:
+          - $ref: '#/components/schemas/ServiceVoiceConfig-Input'
+          - type: 'null'
+      type: object
+      title: UpdateServiceRequest
+    CreateServiceRequest:
+      properties:
+        name:
+          $ref: '#/components/schemas/NameString'
+        description:
+          $ref: '#/components/schemas/DescriptionString'
+          default: ''
+        agent_id:
+          type: string
+          format: uuid
+          title: Agent Id
+        context_graph_id:
+          type: string
+          format: uuid
+          title: Context Graph Id
+        keyterms:
+          items:
+            type: string
+            maxLength: 128
+            minLength: 1
+          type: array
+          maxItems: 500
+          title: Keyterms
+        is_active:
+          type: boolean
+          title: Is Active
+          default: true
+        version_sets:
+          additionalProperties:
+            $ref: '#/components/schemas/VersionSet-Input'
+          type: object
+          title: Version Sets
+          default: {}
+        tags:
+          items:
+            $ref: '#/components/schemas/ServiceTag'
+          type: array
+          maxItems: 50
+          title: Tags
+        tool_capacity:
+          type: integer
+          maximum: 10.0
+          minimum: 1.0
+          title: Tool Capacity
+          default: 3
+        channel_type:
+          type: string
+          enum:
+          - voice
+          - text
+          title: Channel Type
+          default: voice
+        environment:
+          type: string
+          enum:
+          - sandbox
+          - production
+          title: Environment
+          default: production
+        voice_config:
+          anyOf:
+          - $ref: '#/components/schemas/ServiceVoiceConfig-Input'
+          - type: 'null'
+      type: object
+      required:
+      - name
+      - agent_id
+      - context_graph_id
+      title: CreateServiceRequest
+    DescriptionString:
+      type: string
+      maxLength: 2000
+    ServiceForwardingConfig:
+      properties:
+        forward_to:
+          $ref: '#/components/schemas/PhoneE164'
+        should_disconnect:
+          type: boolean
+          title: Should Disconnect
+          default: true
+        warm_transfer:
+          type: boolean
+          title: Warm Transfer
+          default: true
+      type: object
+      required:
+      - forward_to
+      title: ServiceForwardingConfig
+      description: 'Per-service call-forwarding destination + transfer mechanism.
+
+
+        Read by the LLM-driven ``forward_call`` tool (tier 3 fallback when the LLM
+
+        doesn''t pass an explicit ``phone_number`` and no EHR location is configured).
+
+
+        Per-service forwarding is a binary presence — set means tier 3 resolves
+
+        to it, None means tier 3 has no static target. (The legacy per-phone
+
+        forwarding shape, with its own ``enabled`` flag, was removed alongside
+
+        the legacy Twilio phone path.)'
+    VersionSet-Input:
+      properties:
+        agent_version_number:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Agent Version Number
+        context_graph_version_number:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Context Graph Version Number
+        llm_model_preferences:
+          additionalProperties:
+            $ref: '#/components/schemas/LLMConfig'
+          type: object
+          title: Llm Model Preferences
+        turn_runtime:
+          type: string
+          enum:
+          - native
+          - openai-agents
+          title: Turn Runtime
+          default: native
+      type: object
+      title: VersionSet
+      description: Pins agent, state machine, and LLM model versions for a service.
+    NameString:
+      type: string
+      maxLength: 256
+      minLength: 1
+    LanguageProviderEntry:
+      properties:
+        provider:
+          type: string
+          enum:
+          - cartesia
+          - elevenlabs
+          - groq
+          title: Provider
+        config:
+          additionalProperties: true
+          type: object
+          maxProperties: 20
+          title: Config
+      type: object
+      required:
+      - provider
+      title: LanguageProviderEntry
+      description: Per-language TTS provider configuration.
+    LLMConfig:
+      properties:
+        llm_name:
+          type: string
+          title: Llm Name
+        params:
+          additionalProperties: true
+          type: object
+          title: Params
+        experience_controls:
+          anyOf:
+          - $ref: '#/components/schemas/LLMExperienceControls'
+          - type: 'null'
+      type: object
+      required:
+      - llm_name
+      title: LLMConfig
+    Body_voice-turn:
+      properties:
+        audio:
+          type: string
+          contentMediaType: application/octet-stream
+          title: Audio
+        phone_number:
+          type: string
+          maxLength: 16
+          pattern: ^\+[1-9]\d{1,14}$
+          title: Phone Number
+      type: object
+      required:
+      - audio
+      - phone_number
+      title: Body_voice-turn
+    LLMExperienceControls:
+      properties:
+        verbosity:
+          anyOf:
+          - type: string
+            enum:
+            - low
+            - medium
+            - high
+          - type: 'null'
+          title: Verbosity
+        reasoning_effort:
+          anyOf:
+          - type: string
+            enum:
+            - none
+            - minimal
+            - low
+            - medium
+            - high
+            - xhigh
+          - type: 'null'
+          title: Reasoning Effort
+        temperature:
+          anyOf:
+          - type: number
+            maximum: 2.0
+            minimum: 0.0
+          - type: 'null'
+          title: Temperature
+        top_p:
+          anyOf:
+          - type: number
+            maximum: 1.0
+            minimum: 0.0
+          - type: 'null'
+          title: Top P
+        presence_penalty:
+          anyOf:
+          - type: number
+            maximum: 2.0
+            minimum: -2.0
+          - type: 'null'
+          title: Presence Penalty
+        frequency_penalty:
+          anyOf:
+          - type: number
+            maximum: 2.0
+            minimum: -2.0
+          - type: 'null'
+          title: Frequency Penalty
+        response_format:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Response Format
+        seed:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Seed
+        stop:
+          anyOf:
+          - type: string
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          title: Stop
+        logit_bias:
+          anyOf:
+          - additionalProperties:
+              type: number
+              maximum: 100.0
+              minimum: -100.0
+            type: object
+          - type: 'null'
+          title: Logit Bias
+        logprobs:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Logprobs
+        top_logprobs:
+          anyOf:
+          - type: integer
+            maximum: 20.0
+            minimum: 0.0
+          - type: 'null'
+          title: Top Logprobs
+        parallel_tool_calls:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Parallel Tool Calls
+        service_tier:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Service Tier
+        prompt_cache_key:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Prompt Cache Key
+        prompt_cache_retention:
+          anyOf:
+          - type: string
+            enum:
+            - in-memory
+            - 24h
+          - type: 'null'
+          title: Prompt Cache Retention
+        safety_identifier:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Safety Identifier
+        store:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Store
+        metadata:
+          anyOf:
+          - additionalProperties:
+              type: string
+            type: object
+          - type: 'null'
+          title: Metadata
+      additionalProperties: false
+      type: object
+      title: LLMExperienceControls
+      description: 'First-class chat experience controls for consumer-facing agents.
+
+
+        ``params`` remains available as a provider-specific escape hatch. These
+
+        fields cover the OpenAI Chat Completions controls that most directly shape
+
+        response tone, feel, determinism, latency, and structured output behavior.
+
+        Token budgets are intentionally excluded so version sets do not reintroduce
+
+        accidental response truncation.'
+  securitySchemes:
+    Bearer-Authorization:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Amigo issued JWT token that identifies an user. It's issued either after logging in through the frontend, or manually through the [`SignInWithAPIKey`](sign-in-with-api-key) endpoint.
+    Bearer-Authorization-Organization:
+      type: apiKey
+      in: header
+      name: X-ORG-ID
+      description: An optional organization identifier that indicates from which organization the token is issued. This is used in rare cases where the user to authenticate is making a request for resources in another organization.
+    Basic:
+      type: http
+      scheme: basic
+      description: The username should be set to {org_id}_{user_id}, and the password should be the Amigo issued JWT token that identifies the user.

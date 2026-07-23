@@ -1,0 +1,425 @@
+openapi: 3.1.0
+info:
+  title: Amigo Account Sessions API
+  version: 0.1.0
+servers:
+- url: https://api.amigo.ai
+- url: https://internal-api.amigo.ai
+- url: https://api-eu-central-1.amigo.ai
+- url: https://api-ap-southeast-2.amigo.ai
+- url: https://api-ca-central-1.amigo.ai
+security:
+- Bearer-Authorization: []
+  Bearer-Authorization-Organization: []
+  Basic: []
+tags:
+- name: Sessions
+paths:
+  /v1/{workspace_id}/sessions/active:
+    get:
+      tags:
+      - Sessions
+      summary: List active voice sessions
+      description: Real-time list of active voice sessions from Valkey (cross-pod).
+      operationId: list_active_sessions_v1__workspace_id__sessions_active_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/ActiveSession'
+                type: array
+                title: Response List Active Sessions V1  Workspace Id  Sessions Active Get
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+  /v1/{workspace_id}/sessions/fleet-status:
+    get:
+      tags:
+      - Sessions
+      summary: Agones fleet capacity status
+      description: 'Live Agones fleet capacity: Ready/Allocated/total GameServers plus headroom against the maxReplicas ceiling. `fleet=voice` (default) reads the per-call voice fleet; `fleet=tool-runner` reads the isolated background-tool fleet. Workspace-GLOBAL — one fleet serves every workspace, so the path workspace_id is only the auth anchor, never a data filter. Operator-only.'
+      operationId: get_fleet_status_v1__workspace_id__sessions_fleet_status_get
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: fleet
+        in: query
+        required: false
+        schema:
+          enum:
+          - voice
+          - tool-runner
+          type: string
+          default: voice
+          title: Fleet
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FleetStatusResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/sessions/{call_sid}/inject:
+    post:
+      tags:
+      - Sessions
+      summary: Inject event into active session
+      description: Inject an external event or guidance message into an active voice session. The agent incorporates it into its next response. Use event_type='guidance' for operator coaching, 'external_event' for system notifications.
+      operationId: inject_session_event_v1__workspace_id__sessions__call_sid__inject_post
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: call_sid
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Call Sid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InjectRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InjectResponse'
+        '404':
+          description: Session not found.
+        '503':
+          description: Voice agent service unavailable.
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/sessions/start:
+    post:
+      tags:
+      - Sessions
+      summary: Start a web text conversation session with an entity
+      description: Start a web text session with a world model entity. Materializes the conversation and returns conversation_id for subsequent turns via POST /v1/{ws}/conversations/{id}/turns.
+      operationId: start_text_session_v1__workspace_id__sessions_start_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StartSessionRequest'
+        required: true
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StartSessionResponse'
+        '404':
+          description: Service or entity not found.
+        '503':
+          description: Agent service unavailable.
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+components:
+  schemas:
+    CanonicalIdString:
+      type: string
+      maxLength: 256
+      minLength: 3
+      pattern: ^[A-Za-z0-9._-]+:[A-Za-z0-9._-]+:[A-Za-z0-9._-]+$
+    FleetStatusResponse:
+      properties:
+        fleet:
+          type: string
+          title: Fleet
+        namespace:
+          type: string
+          title: Namespace
+        ready:
+          type: integer
+          title: Ready
+        allocated:
+          type: integer
+          title: Allocated
+        total:
+          type: integer
+          title: Total
+        max_replicas:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Max Replicas
+        headroom:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Headroom
+        by_state:
+          additionalProperties:
+            type: integer
+          type: object
+          title: By State
+      type: object
+      required:
+      - fleet
+      - namespace
+      - ready
+      - allocated
+      - total
+      - max_replicas
+      - headroom
+      - by_state
+      title: FleetStatusResponse
+      description: 'Live Agones fleet capacity (workspace-global).
+
+
+        ``headroom`` = remaining isolated-unit slots (``max_replicas - allocated``);
+
+        ``max_replicas``/``headroom`` are null when the ceiling isn''t configured upstream.
+
+        The counts span the whole fleet (one fleet serves every workspace) — this is NOT
+
+        per-workspace. ``fleet``/``namespace`` echo which fleet was read (voice per-call
+
+        fleet, or the tool-runner background-tool fleet via ``?fleet=tool-runner``).'
+    InjectRequest:
+      properties:
+        message:
+          type: string
+          maxLength: 5000
+          minLength: 1
+          title: Message
+        sender:
+          type: string
+          maxLength: 200
+          title: Sender
+          default: System
+        event_type:
+          type: string
+          enum:
+          - external_event
+          - guidance
+          title: Event Type
+          description: external_event (factual info) or guidance (instructional)
+          default: external_event
+      type: object
+      required:
+      - message
+      title: InjectRequest
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    ActiveSession:
+      properties:
+        call_sid:
+          type: string
+          title: Call Sid
+        service_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Service Id
+        workspace_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Workspace Id
+        caller_id:
+          type: string
+          title: Caller Id
+        direction:
+          type: string
+          title: Direction
+        duration_seconds:
+          type: number
+          title: Duration Seconds
+        current_state:
+          type: string
+          title: Current State
+          default: ''
+        scenario:
+          type: string
+          title: Scenario
+          default: ''
+      type: object
+      required:
+      - call_sid
+      - caller_id
+      - direction
+      - duration_seconds
+      title: ActiveSession
+    InjectResponse:
+      properties:
+        status:
+          type: string
+          enum:
+          - delivered
+          - queued_no_subscriber
+          title: Status
+        call_sid:
+          type: string
+          title: Call Sid
+      type: object
+      required:
+      - status
+      - call_sid
+      title: InjectResponse
+    StartSessionResponse:
+      properties:
+        conversation_id:
+          type: string
+          format: uuid
+          title: Conversation Id
+        session_status:
+          type: string
+          enum:
+          - created
+          - already_active
+          title: Session Status
+        channel_kind:
+          type: string
+          const: web
+          title: Channel Kind
+        entity_id:
+          type: string
+          format: uuid
+          title: Entity Id
+        service_id:
+          type: string
+          format: uuid
+          title: Service Id
+        created_at:
+          type: string
+          title: Created At
+      type: object
+      required:
+      - conversation_id
+      - session_status
+      - channel_kind
+      - entity_id
+      - service_id
+      - created_at
+      title: StartSessionResponse
+    StartSessionRequest:
+      properties:
+        service_id:
+          type: string
+          format: uuid
+          title: Service Id
+        entity_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Entity Id
+          description: World model entity UUID. Provide either entity_id or canonical_id.
+        canonical_id:
+          anyOf:
+          - $ref: '#/components/schemas/CanonicalIdString'
+          - type: 'null'
+          description: World model canonical_id of the form 'source:resource_type:id' (e.g. 'charmhealth:Patient:67890'). The structural regex on CanonicalIdString blocks spaces, names, DOBs, and similar regulated content. Resolved against the SDP-projected world.entities_synced table; a freshly-created entity may not be visible yet if the projection is lagging. Provide either entity_id or canonical_id, not both.
+        channel_kind:
+          type: string
+          const: web
+          title: Channel Kind
+        greeting:
+          anyOf:
+          - type: string
+            maxLength: 2000
+          - type: 'null'
+          title: Greeting
+          description: Custom greeting. Agent auto-greets if omitted.
+      type: object
+      required:
+      - service_id
+      - channel_kind
+      title: StartSessionRequest
+  securitySchemes:
+    Bearer-Authorization:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Amigo issued JWT token that identifies an user. It's issued either after logging in through the frontend, or manually through the [`SignInWithAPIKey`](sign-in-with-api-key) endpoint.
+    Bearer-Authorization-Organization:
+      type: apiKey
+      in: header
+      name: X-ORG-ID
+      description: An optional organization identifier that indicates from which organization the token is issued. This is used in rare cases where the user to authenticate is making a request for resources in another organization.
+    Basic:
+      type: http
+      scheme: basic
+      description: The username should be set to {org_id}_{user_id}, and the password should be the Amigo issued JWT token that identifies the user.

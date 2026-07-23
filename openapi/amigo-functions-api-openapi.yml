@@ -1,0 +1,735 @@
+openapi: 3.1.0
+info:
+  title: Amigo Account Functions API
+  version: 0.1.0
+servers:
+- url: https://api.amigo.ai
+- url: https://internal-api.amigo.ai
+- url: https://api-eu-central-1.amigo.ai
+- url: https://api-ap-southeast-2.amigo.ai
+- url: https://api-ca-central-1.amigo.ai
+security:
+- Bearer-Authorization: []
+  Bearer-Authorization-Organization: []
+  Basic: []
+tags:
+- name: Functions
+paths:
+  /v1/{workspace_id}/functions:
+    get:
+      tags:
+      - Functions
+      summary: List every platform function registered in the workspace
+      description: 'List every platform function registered in the workspace.
+
+
+        Permissions: ``Workspace.view`` (read role and above).'
+      operationId: list-functions
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RegisteredFunctionListResponse'
+        '429':
+          description: Rate limited
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+  /v1/{workspace_id}/functions/{function_name}:
+    get:
+      tags:
+      - Functions
+      summary: Get a registered platform function by name
+      description: 'Resolve a function by name.
+
+
+        Permissions: ``Workspace.view`` (read role and above).'
+      operationId: get-function
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: function_name
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Function Name
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RegisteredFunctionResponse'
+        '404':
+          description: Function not found
+        '429':
+          description: Rate limited
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    put:
+      tags:
+      - Functions
+      summary: Deploy (validate + upsert) a platform function
+      description: 'Validate + upsert a platform function row.
+
+
+        Atomic: validation + (python/udtf only) UC UDF materialization +
+
+        upsert into ``platform.functions`` happen as one logical operation.
+
+        Repeat deploys against the same ``(workspace, name)`` replace the
+
+        row in place and clear stale ``last_test_*`` telemetry.
+
+
+        The function name comes from the URL path; the request body''s
+
+        ``name`` field must match or a 400 is raised. The URL is the
+
+        authoritative source.
+
+
+        Permissions: admin, owner.'
+      operationId: deploy-function
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: function_name
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Function Name
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisteredFunction'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RegisteredFunctionResponse'
+        '400':
+          description: URL function_name does not match body name
+        '422':
+          description: Validation failure (read-only / bind / parity)
+        '429':
+          description: Rate limited
+    delete:
+      tags:
+      - Functions
+      summary: Remove a registered platform function
+      description: 'Remove a registered function row.
+
+
+        Permissions: admin, owner.'
+      operationId: delete-function
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: function_name
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Function Name
+      responses:
+        '204':
+          description: Successful Response
+        '404':
+          description: Function not found
+        '429':
+          description: Rate limited
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/functions/{function_name}/invoke:
+    post:
+      tags:
+      - Functions
+      summary: Execute a registered platform function
+      description: 'Execute a registered function and return its rows.
+
+
+        Bound parameters are validated against the stored schema; ``ws_id``
+
+        is auto-injected from the request context. Returns the executor''s
+
+        shaped response (``rows`` for ``returns=table``, scalar value for
+
+        ``returns=scalar``).
+
+
+        Permissions: ``Workspace.view`` (read role and above). Read-only
+
+        keys are intentionally allowed — invocation runs a stored,
+
+        pre-validated SELECT against catalogs the workspace SP already has
+
+        SELECT on; the gate on what can run is the deploy-time validator
+
+        (read-only invariant), not the per-call permission.'
+      operationId: invoke-function
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: function_name
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Function Name
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InvokeRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvokeResponse'
+        '404':
+          description: Function not found
+        '422':
+          description: Bind validation failure
+        '429':
+          description: Rate limited
+  /v1/{workspace_id}/functions/{function_name}/test:
+    post:
+      tags:
+      - Functions
+      summary: Test invoke + persist last_test_* telemetry on the row
+      description: 'Test invoke — same as invoke + persists last_test_* on the row.
+
+
+        Returns 200 with ``status="fail"`` + populated ``error`` on
+
+        execution failure (instead of a 5xx) so the DC has a single
+
+        happy-path rendering.
+
+
+        Permissions: admin, owner.'
+      operationId: test-function
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: function_name
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Function Name
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InvokeRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TestInvokeResponse'
+        '404':
+          description: Function not found
+        '429':
+          description: Rate limited
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+components:
+  schemas:
+    FunctionExample:
+      properties:
+        input:
+          additionalProperties: true
+          type: object
+          title: Input
+        output:
+          title: Output
+        description:
+          type: string
+          title: Description
+          default: ''
+      additionalProperties: false
+      type: object
+      required:
+      - input
+      - output
+      title: FunctionExample
+      description: 'One example call, surfaced to the LLM and the DC test panel.
+
+
+        Examples are first-class metadata, not buried in a UC ``COMMENT``
+
+        clause the way Databricks'' native authoring requires. The DC
+
+        tool-picker shows them; the LLM tool spec includes them inline.'
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    RegisteredFunctionListResponse:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/RegisteredFunctionResponse'
+          type: array
+          title: Items
+        count:
+          type: integer
+          title: Count
+      type: object
+      required:
+      - items
+      - count
+      title: RegisteredFunctionListResponse
+    platform_lib__platform_functions__models__Parameter:
+      properties:
+        name:
+          type: string
+          maxLength: 64
+          minLength: 1
+          pattern: ^[a-z][a-z0-9_]*$
+          title: Name
+        type:
+          type: string
+          enum:
+          - string
+          - integer
+          - number
+          - boolean
+          title: Type
+        description:
+          type: string
+          maxLength: 512
+          minLength: 1
+          title: Description
+        default:
+          anyOf:
+          - type: string
+          - type: integer
+          - type: number
+          - type: boolean
+          - type: 'null'
+          title: Default
+      additionalProperties: false
+      type: object
+      required:
+      - name
+      - type
+      - description
+      title: Parameter
+      description: 'Typed declaration of one input parameter.
+
+
+        For SQL function types, ``name`` becomes the ``:name`` placeholder
+
+        in the SQL template. For Python function types, ``name`` becomes
+
+        the positional argument name in ``def main(...)`` and the input
+
+        column name on the UC UDF signature.
+
+
+        The ``description`` propagates into the LLM tool spec (this is
+
+        what Databricks'' Agent Framework reads, and what Anthropic''s
+
+        tool-use spec exposes to the model). Missing descriptions
+
+        silently break tool selection — the registration layer rejects
+
+        empty strings.'
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    RegisteredFunction:
+      properties:
+        name:
+          type: string
+          maxLength: 128
+          minLength: 1
+          pattern: ^[a-z][a-z0-9_]*$
+          title: Name
+        description:
+          type: string
+          maxLength: 2048
+          minLength: 1
+          title: Description
+        when_to_use:
+          type: string
+          maxLength: 2048
+          title: When To Use
+          default: ''
+        function_type:
+          type: string
+          enum:
+          - sql
+          - ai
+          - udtf
+          - python
+          title: Function Type
+          default: sql
+        returns:
+          type: string
+          enum:
+          - table
+          - scalar
+          title: Returns
+          default: table
+        returns_type:
+          type: string
+          enum:
+          - string
+          - integer
+          - number
+          - boolean
+          title: Returns Type
+          default: string
+        parameters:
+          items:
+            $ref: '#/components/schemas/platform_lib__platform_functions__models__Parameter'
+          type: array
+          maxItems: 32
+          title: Parameters
+        returns_columns:
+          items:
+            $ref: '#/components/schemas/ReturnColumn'
+          type: array
+          maxItems: 32
+          title: Returns Columns
+        body:
+          type: string
+          maxLength: 8192
+          minLength: 1
+          title: Body
+        timeout_ms:
+          type: integer
+          maximum: 60000.0
+          minimum: 100.0
+          title: Timeout Ms
+          default: 30000
+        examples:
+          items:
+            $ref: '#/components/schemas/FunctionExample'
+          type: array
+          maxItems: 8
+          title: Examples
+      additionalProperties: false
+      type: object
+      required:
+      - name
+      - description
+      - body
+      title: RegisteredFunction
+      description: 'The authored shape of a platform function.
+
+
+        Identical wire format whether it''s authored as a YAML file in the
+
+        repo or POSTed to ``/v1/{ws}/functions/deploy``. The deploy
+
+        pipeline validates this, derives the JSON Schema for the LLM tool
+
+        spec, and INSERTs a row into ``platform.functions`` with the next
+
+        monotonic ``version`` per ``(workspace_id, name)``. For
+
+        ``python`` / ``udtf`` rows, deploy ALSO issues
+
+        ``CREATE OR REPLACE FUNCTION`` against the warehouse to materialize
+
+        the UC UDF.'
+    TestInvokeResponse:
+      properties:
+        result:
+          title: Result
+        duration_ms:
+          type: number
+          title: Duration Ms
+          default: 0.0
+        row_count:
+          type: integer
+          title: Row Count
+          default: 0
+        status:
+          type: string
+          title: Status
+          default: pass
+        error:
+          anyOf:
+          - type: string
+            maxLength: 2000
+          - type: 'null'
+          title: Error
+        test_duration_ms:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Test Duration Ms
+      type: object
+      title: TestInvokeResponse
+      description: 'Response shape for ``POST /v1/{ws}/functions/{name}/test``.
+
+
+        Structural superset of :class:`InvokeResponse`. Adds ``status`` and
+
+        ``error`` so the DC can render the executor''s failure detail inline
+
+        rather than a generic "Invocation failed." The underlying invoke
+
+        uses the same path; ``status`` / ``error`` are filled in by
+
+        ``service.test`` after catching any ``HTTPException`` (503) from the
+
+        executor, so the route never bubbles a 5xx for a logical SQL
+
+        failure — it''s still a 200 with ``status=fail`` so the caller can
+
+        show the message.
+
+
+        Invariant (enforced by :func:`_check_error_when_fail`):
+
+        ``status == "fail" → error is not None and len(error) > 0``.'
+    InvokeRequest:
+      properties:
+        input:
+          additionalProperties: true
+          type: object
+          title: Input
+          description: Caller arguments matching input_schema.
+      type: object
+      title: InvokeRequest
+      description: Invoke a registered function with caller-supplied args.
+    ReturnColumn:
+      properties:
+        name:
+          type: string
+          maxLength: 64
+          minLength: 1
+          pattern: ^[a-z][a-z0-9_]*$
+          title: Name
+        type:
+          type: string
+          enum:
+          - string
+          - integer
+          - number
+          - boolean
+          title: Type
+        description:
+          type: string
+          maxLength: 512
+          title: Description
+          default: ''
+      additionalProperties: false
+      type: object
+      required:
+      - name
+      - type
+      title: ReturnColumn
+      description: 'One column in a UDTF''s output schema.
+
+
+        UC ``RETURNS TABLE(<col1> <type1>, <col2> <type2>, ...)`` requires
+
+        declaring the schema at deploy time. This list anchors that
+
+        schema for ``function_type=udtf`` rows. ``name`` becomes the
+
+        column name in the result rows; ``type`` maps to a Databricks
+
+        SQL type via the same ``ParameterType`` Literal we use for inputs.'
+    InvokeResponse:
+      properties:
+        result:
+          title: Result
+        duration_ms:
+          type: number
+          title: Duration Ms
+          default: 0.0
+        row_count:
+          type: integer
+          title: Row Count
+          default: 0
+      type: object
+      title: InvokeResponse
+    RegisteredFunctionResponse:
+      properties:
+        name:
+          type: string
+          title: Name
+        function_type:
+          type: string
+          title: Function Type
+        returns_kind:
+          type: string
+          title: Returns Kind
+        description:
+          type: string
+          title: Description
+          default: ''
+        when_to_use:
+          type: string
+          title: When To Use
+          default: ''
+        parameters:
+          items:
+            additionalProperties: true
+            type: object
+          type: array
+          title: Parameters
+        sql_template:
+          type: string
+          title: Sql Template
+        input_schema:
+          additionalProperties: true
+          type: object
+          title: Input Schema
+        examples:
+          items:
+            additionalProperties: true
+            type: object
+          type: array
+          title: Examples
+        timeout_ms:
+          type: integer
+          title: Timeout Ms
+          default: 30000
+        last_test_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Last Test At
+        last_test_status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Last Test Status
+        last_test_error:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Last Test Error
+        last_test_duration_ms:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Last Test Duration Ms
+        deployed_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Deployed At
+        deployed_by:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Deployed By
+      type: object
+      required:
+      - name
+      - function_type
+      - returns_kind
+      - sql_template
+      title: RegisteredFunctionResponse
+      description: Single row from ``platform.functions``.
+  securitySchemes:
+    Bearer-Authorization:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Amigo issued JWT token that identifies an user. It's issued either after logging in through the frontend, or manually through the [`SignInWithAPIKey`](sign-in-with-api-key) endpoint.
+    Bearer-Authorization-Organization:
+      type: apiKey
+      in: header
+      name: X-ORG-ID
+      description: An optional organization identifier that indicates from which organization the token is issued. This is used in rare cases where the user to authenticate is making a request for resources in another organization.
+    Basic:
+      type: http
+      scheme: basic
+      description: The username should be set to {org_id}_{user_id}, and the password should be the Amigo issued JWT token that identifies the user.

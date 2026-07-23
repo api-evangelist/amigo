@@ -1,0 +1,882 @@
+openapi: 3.1.0
+info:
+  title: Amigo Account Service API
+  version: 0.1.0
+servers:
+- url: https://api.amigo.ai
+- url: https://internal-api.amigo.ai
+- url: https://api-eu-central-1.amigo.ai
+- url: https://api-ap-southeast-2.amigo.ai
+- url: https://api-ca-central-1.amigo.ai
+security:
+- Bearer-Authorization: []
+  Bearer-Authorization-Organization: []
+  Basic: []
+tags:
+- name: Service
+paths:
+  /v1/{organization}/service/:
+    get:
+      tags:
+      - Service
+      summary: Get services
+      description: 'Retrieve a list of services in this organization.
+
+
+        #### Permissions
+
+        This endpoint is impacted by the following permissions:
+
+        * Only services that the authenticated user has the `Service:GetService` permission for are returned.'
+      operationId: get-services
+      parameters:
+      - name: organization
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Organization
+      - name: id
+        in: query
+        required: false
+        schema:
+          type: array
+          uniqueItems: true
+          items:
+            type: string
+            pattern: ^[a-f0-9]{24}$
+          description: The IDs of the services to retrieve.
+          default: []
+          title: Id
+        description: The IDs of the services to retrieve.
+      - name: is_active
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Whether the service is active.
+          title: Is Active
+        description: Whether the service is active.
+      - name: sort_by
+        in: query
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+          description: The fields to sort the services by. Supported fields are `name` and `is_active`. Specify a `+` before the field name to indicate ascending sorting and `-` for descending sorting. Multiple fields can be specified to break ties.
+          default: []
+          title: Sort By
+        description: The fields to sort the services by. Supported fields are `name` and `is_active`. Specify a `+` before the field name to indicate ascending sorting and `-` for descending sorting. Multiple fields can be specified to break ties.
+      - name: tags
+        in: query
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+          description: The tags to filter the services by. Must be specified using the syntax `key:value`, which means to match all services with the given `key` and `value` pair among its tags. If `value` is `*`, it means the `value` does not matter. If `value` is empty, it matches against when the value is `None`.
+          default: []
+          title: Tags
+        description: The tags to filter the services by. Must be specified using the syntax `key:value`, which means to match all services with the given `key` and `value` pair among its tags. If `value` is `*`, it means the `value` does not matter. If `value` is empty, it matches against when the value is `None`.
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 20
+          exclusiveMinimum: 0
+          description: The maximum number of services to return.
+          default: 10
+          title: Limit
+        description: The maximum number of services to return.
+      - name: continuation_token
+        in: query
+        required: false
+        schema:
+          type: integer
+          description: The continuation token from the previous request used to retrieve the next page of services.
+          default: 0
+          title: Continuation Token
+        description: The continuation token from the previous request used to retrieve the next page of services.
+      - name: x-mongo-cluster-name
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.
+          title: X-Mongo-Cluster-Name
+        description: The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.
+      - name: Sec-WebSocket-Protocol
+        in: header
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+          default: []
+          title: Sec-Websocket-Protocol
+      responses:
+        '200':
+          description: Succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/src__app__endpoints__service__get_services__Response'
+        '422':
+          description: Invalid request path parameter or request query parameter failed validation.
+        '404':
+          description: The specified organization does not exist.
+        '401':
+          description: Invalid authorization credentials.
+        '403':
+          description: Missing required permissions.
+        '503':
+          description: The service is going through temporary maintenance.
+        '429':
+          description: The user has exceeded the rate limit of 50 requests per minute for this endpoint.
+    post:
+      tags:
+      - Service
+      summary: Create a service
+      description: 'Create a new service. Depending on whether an active service with the same name already exists, the endpoint behaves differently:
+
+        * If `is_active` is `False`, creates an inactive new service.
+
+        * If `is_active` is `True` and no active service with the given name exists, creates a new active service.
+
+        * If `is_active` is `True` and an active service with the given name exists, this endpoint throws an error.
+
+
+        The new service will automatically contain an `edge` version set that uses the latest `Agent` and `ServiceHierarchicalStateMachine` versions with no LLM model preference.
+
+        It will also create a `release` version set, that will equal to what''s specified in the request if the `release_version_set` is specified, or equal to `edge` if not.
+
+
+        #### Permissions
+
+        This endpoint requires the following permissions:
+
+        * `Service:CreateService` for the service to create.
+
+        * `Service:CreateVersionSet` for the `edge` and `release` version sets.'
+      operationId: create-service
+      parameters:
+      - name: organization
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Organization
+      - name: x-mongo-cluster-name
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.
+          title: X-Mongo-Cluster-Name
+        description: The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.
+      - name: Sec-WebSocket-Protocol
+        in: header
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+          default: []
+          title: Sec-Websocket-Protocol
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/src__app__endpoints__service__create_service__Request'
+      responses:
+        '201':
+          description: Succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/src__app__endpoints__service__create_service__Response'
+        '404':
+          description: The specified organization, agent, or service hierarchical state machine do not exist.
+        '400':
+          description: "\nThis error could be thrown due to the following reasons:\n* The specified ID for agent or service hierarchical state machine versions in the `release` version set does not belong to the agent or service hierarchical state machine of the service.\n* The specified agent or state machine doesn't have any versions.\n* The specified LLM config is invalid.\n                "
+        '409':
+          description: An active service with the given name already exists.
+        '422':
+          description: Invalid request path parameter or request body failed validation.
+        '401':
+          description: Invalid authorization credentials.
+        '403':
+          description: Missing required permissions.
+        '503':
+          description: The service is going through temporary maintenance.
+        '429':
+          description: The user has exceeded the rate limit of 20 requests per minute for this endpoint.
+  /v1/{organization}/service/{service_id}/version_sets/{version_set_name}/:
+    put:
+      tags:
+      - Service
+      summary: Upsert a service version set
+      description: 'Upsert a version set for the specified service. Replace the existing version set with the same name if any, or create a new one.
+
+
+        Note that the `edge` version set cannot be updated.
+
+
+        #### Permissions
+
+        This endpoint may require the following permissions:
+
+        * `Service:CreateVersionSet` if the version set does not exist.
+
+        * `Service:UpdateVersionSet` if the version set already exists.'
+      operationId: upsert-service-version-set
+      parameters:
+      - name: service_id
+        in: path
+        required: true
+        schema:
+          type: string
+          pattern: ^[a-f0-9]{24}$
+          description: Identifier of the service.
+          title: Service Id
+        description: Identifier of the service.
+      - name: version_set_name
+        in: path
+        required: true
+        schema:
+          $ref: '#/components/schemas/StrippedNonemptyString_A-Za-z0-9_-______MaxLen_max_length_40_'
+          description: Name of the version set to upsert.
+        description: Name of the version set to upsert.
+      - name: organization
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Organization
+      - name: x-mongo-cluster-name
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.
+          title: X-Mongo-Cluster-Name
+        description: The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.
+      - name: Sec-WebSocket-Protocol
+        in: header
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+          default: []
+          title: Sec-Websocket-Protocol
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/src__app__endpoints__service__upsert_service_version_set__Request'
+      responses:
+        '204':
+          description: Succeeded.
+        '422':
+          description: Invalid request path parameter or request body failed validation.
+        '404':
+          description: The specified organization or service do not exist.
+        '400':
+          description: The agent or service hierarchical state machine version in the request do not belong to the agent or state machine of the service, or attempted to update the `edge` version set, or the supplied LLM config is invalid.
+        '401':
+          description: Invalid authorization credentials.
+        '403':
+          description: Missing required permissions.
+        '503':
+          description: The service is going through temporary maintenance.
+        '429':
+          description: The user has exceeded the rate limit of 30 requests per minute for this endpoint.
+    delete:
+      tags:
+      - Service
+      summary: Delete a service version set
+      description: 'Delete the given verion set from the given service.
+
+
+        This endpoint will error if the version set is used in any simulation unit tests.
+
+
+        #### Permissions
+
+        This endpoint requires the following permissions:
+
+        * `Service:DeleteVersionSet` for the version set.'
+      operationId: delete-service-version-set
+      parameters:
+      - name: organization
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Organization
+      - name: service_id
+        in: path
+        required: true
+        schema:
+          type: string
+          pattern: ^[a-f0-9]{24}$
+          description: Identifier of the service.
+          title: Service Id
+        description: Identifier of the service.
+      - name: version_set_name
+        in: path
+        required: true
+        schema:
+          type: string
+          description: Name of the version set.
+          title: Version Set Name
+        description: Name of the version set.
+      - name: x-mongo-cluster-name
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.
+          title: X-Mongo-Cluster-Name
+        description: The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.
+      - name: Sec-WebSocket-Protocol
+        in: header
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+          default: []
+          title: Sec-Websocket-Protocol
+      responses:
+        '204':
+          description: Succeeded.
+        '422':
+          description: Invalid request path parameter failed validation.
+        '400':
+          description: The specified version set is used in a simulation unit test, or is the `edge` or `release` version set.
+        '404':
+          description: The specified organization, service, or version set do not exist.
+        '401':
+          description: Invalid authorization credentials.
+        '403':
+          description: Missing required permissions.
+        '503':
+          description: The service is going through temporary maintenance.
+        '429':
+          description: The user has exceeded the rate limit of 30 requests per minute for this endpoint.
+  /v1/{organization}/service/{service_id}/:
+    post:
+      tags:
+      - Service
+      summary: Update a service
+      description: 'Update fields about a service.
+
+
+        #### Permissions
+
+        This endpoint requires the following permissions:
+
+        * `Service:UpdateService` for the service.'
+      operationId: update-service
+      parameters:
+      - name: service_id
+        in: path
+        required: true
+        schema:
+          type: string
+          pattern: ^[a-f0-9]{24}$
+          description: The identifier of the service to update.
+          title: Service Id
+        description: The identifier of the service to update.
+      - name: organization
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Organization
+      - name: x-mongo-cluster-name
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.
+          title: X-Mongo-Cluster-Name
+        description: The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.
+      - name: Sec-WebSocket-Protocol
+        in: header
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+          default: []
+          title: Sec-Websocket-Protocol
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/src__app__endpoints__service__update_service__Request'
+      responses:
+        '200':
+          description: Succeeded.
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Invalid request path parameter or request body failed validation.
+        '404':
+          description: The specified organization or service do not exist.
+        '400':
+          description: '
+
+            This may occur for the following reasons:
+
+            * The request intends to activate a service that uses a deprecated agent, state machine, or LLM, or it uses an invalid agent or state machine.
+
+            * The request intends to deactivate a service that is used in a simulation unit test.'
+        '409':
+          description: The request intends to activate a service that has an active service with the same name.
+        '401':
+          description: Invalid authorization credentials.
+        '403':
+          description: Missing required permissions.
+        '503':
+          description: The service is going through temporary maintenance.
+        '429':
+          description: The user has exceeded the rate limit of 20 requests per minute for this endpoint.
+components:
+  schemas:
+    ServiceInstance:
+      properties:
+        id:
+          type: string
+          title: Id
+          description: The identifier of the service.
+        name:
+          type: string
+          title: Name
+          description: The name of the service.
+        version_sets:
+          additionalProperties:
+            $ref: '#/components/schemas/VersionSet-Output'
+          type: object
+          title: Version Sets
+          description: The available version sets of the service.
+        description:
+          type: string
+          title: Description
+          description: A description of the service.
+        is_active:
+          type: boolean
+          title: Is Active
+          description: Whether the service is active.
+        service_hierarchical_state_machine_id:
+          type: string
+          title: Service Hierarchical State Machine Id
+          description: The ID of the state machine that this service uses.
+        agent_id:
+          type: string
+          title: Agent Id
+          description: The ID of the agent that this service uses.
+        tags:
+          items:
+            $ref: '#/components/schemas/Tag'
+          type: array
+          title: Tags
+          description: The tags of the service.
+        keyterms:
+          items:
+            type: string
+          type: array
+          title: Keyterms
+          description: A list of keyterms that are easy to get wrong during audio transcriptions that tend to occur commonly in audio sessions using this service.
+        creator:
+          $ref: '#/components/schemas/amigo_lib__mongo__collections__service__Service__UserInfo'
+          description: The user who created the service.
+        updated_by:
+          $ref: '#/components/schemas/amigo_lib__mongo__collections__service__Service__UserInfo'
+          description: The user who last updated the service.
+      type: object
+      required:
+      - id
+      - name
+      - version_sets
+      - description
+      - is_active
+      - service_hierarchical_state_machine_id
+      - agent_id
+      - tags
+      - keyterms
+      - creator
+      - updated_by
+      title: ServiceInstance
+    VersionSet-Input:
+      properties:
+        agent_version_number:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Agent Version Number
+          description: The version number of the agent to be used. If None, the latest agent version will be used.
+        service_hierarchical_state_machine_version_number:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Service Hierarchical State Machine Version Number
+          description: The version number of the state machine to be used. If None, the latest state machine version will be used.
+        llm_model_preferences:
+          additionalProperties:
+            $ref: '#/components/schemas/LLMConfig-Input'
+          type: object
+          title: Llm Model Preferences
+      type: object
+      required:
+      - agent_version_number
+      - service_hierarchical_state_machine_version_number
+      - llm_model_preferences
+      title: VersionSet
+    StrippedNonemptyString_A-Za-z0-9_-______MaxLen_max_length_40_:
+      type: string
+      maxLength: 40
+      minLength: 1
+      pattern: ^[A-Za-z0-9_-]+$
+    LLMType:
+      type: string
+      enum:
+      - azure_gpt-4.1-2025-04-14
+      - openai_gpt-4.1-2025-04-14
+      - azure_gpt-4.1-mini-2025-04-14
+      - openai_gpt-4.1-mini-2025-04-14
+      - azure_gpt-5-nano-2025-08-07
+      - azure_gpt-5.1-2025-11-13
+      - openai_gpt-5.1-2025-11-13
+      - azure_gpt-5.2-2025-12-11
+      - openai_gpt-5-nano-2025-08-07
+      - openai_gpt-5-mini-2025-08-07
+      - openai_gpt-5.4-nano-2026-03-17
+      - openai_gpt-5.4-mini-2026-03-17
+      - openai_gpt-5.5-2026-04-23
+      - openai_gpt-5.2-2025-12-11
+      - aws_claude-sonnet-4-5-20250929
+      - aws_claude-haiku-4-5-20251001
+      - aws_claude-sonnet-4-6
+      - aws_claude-opus-4-6
+      - google_gemini-2.5-pro
+      - google_gemini-2.5-flash
+    src__app__endpoints__service__upsert_service_version_set__Request:
+      properties:
+        version_set:
+          $ref: '#/components/schemas/VersionSet-Input'
+          description: The version set to upsert.
+      type: object
+      required:
+      - version_set
+      title: Request
+    src__app__endpoints__service__update_service__Request:
+      properties:
+        name:
+          anyOf:
+          - $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
+          - type: 'null'
+          description: The name of the service. Only updated if not-null.
+        description:
+          anyOf:
+          - $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
+          - type: 'null'
+          description: A description of this `Service`. Only updates if not-null.
+        is_active:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Active
+          description: 'The activeness of the service. Only updated if not-null.
+
+
+            If set to `True` and the service is currently inactive, no other service with the same name can be active.
+
+
+            If set to `False` and the service is currently active, it is deactivated. This will error if the service is used in a simulation unit test.'
+        agent_id:
+          anyOf:
+          - type: string
+            pattern: ^[a-f0-9]{24}$
+          - type: 'null'
+          title: Agent Id
+          description: The ID of the agent that this service uses. Only updated if not-null.
+        service_hierarchical_state_machine_id:
+          anyOf:
+          - type: string
+            pattern: ^[a-f0-9]{24}$
+          - type: 'null'
+          title: Service Hierarchical State Machine Id
+          description: The ID of the service hierarchical state machine that this service uses. Only updated if not-null.
+        tags:
+          anyOf:
+          - additionalProperties:
+              anyOf:
+              - $ref: '#/components/schemas/StrippedNonemptyString___w__s_____'
+              - type: 'null'
+            propertyNames:
+              $ref: '#/components/schemas/StrippedNonemptyString___w__s_____'
+            type: object
+            maxProperties: 20
+          - type: 'null'
+          title: Tags
+          description: The tags of this service. Only updated if not-null.
+        keyterms:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/StrippedNonemptyString_a-z-_____a-z-____0_2____'
+            type: array
+            maxItems: 20
+          - type: 'null'
+          title: Keyterms
+          description: A list of keyterms that are easy to get wrong during audio transcriptions that tend to occur commonly in audio sessions using this service. Only updated if not-null.
+      type: object
+      title: Request
+    amigo_lib__pydantic__base_model__StrippedNonemptyString__1:
+      type: string
+      minLength: 1
+    src__app__endpoints__service__get_services__Response:
+      properties:
+        services:
+          items:
+            $ref: '#/components/schemas/ServiceInstance'
+          type: array
+          title: Services
+          description: The services that are found.
+        has_more:
+          type: boolean
+          title: Has More
+          description: Whether there are more services to retrieve.
+        continuation_token:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Continuation Token
+          description: A token to supply to the next request to retrieve the next page of services. Only populated if `has_more` is `True`.
+        filter_values:
+          anyOf:
+          - $ref: '#/components/schemas/src__app__endpoints__service__get_services__Response__FilterValues'
+          - type: 'null'
+          description: 'For each filter that this endpoint supports that can take on dynamic values, this field includes what these values are. This is only provided for the first page in the pagination results.
+
+
+            Note that the values are counted assuming the authenticated user has access to all the services, so they might differ from how many services are actually
+
+            retrieved.'
+      type: object
+      required:
+      - services
+      - has_more
+      - continuation_token
+      - filter_values
+      title: Response
+    LLMConfig-Input:
+      properties:
+        llm_name:
+          $ref: '#/components/schemas/LLMType'
+        params:
+          additionalProperties: true
+          type: object
+          title: Params
+          description: LLM-specific parameters to use.
+          default: {}
+      type: object
+      required:
+      - llm_name
+      title: LLMConfig
+    src__app__endpoints__service__get_services__Response__FilterValues:
+      properties:
+        tags:
+          items:
+            type: string
+          type: array
+          title: Tags
+          description: A list of tags of the services.
+      type: object
+      required:
+      - tags
+      title: FilterValues
+    Tag:
+      properties:
+        key:
+          type: string
+          title: Key
+        value:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Value
+      type: object
+      required:
+      - key
+      - value
+      title: Tag
+    VersionSet-Output:
+      properties:
+        agent_version_number:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Agent Version Number
+          description: The version number of the agent to be used. If None, the latest agent version will be used.
+        service_hierarchical_state_machine_version_number:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Service Hierarchical State Machine Version Number
+          description: The version number of the state machine to be used. If None, the latest state machine version will be used.
+        llm_model_preferences:
+          additionalProperties:
+            $ref: '#/components/schemas/LLMConfig-Output'
+          type: object
+          title: Llm Model Preferences
+          description: 'A map of `LLMInteraction` name to the preferred LLM config that can be used for that interaction.
+
+            If an `LLMInteraction` is not in this map, the default model config will be used (defined in each `LLMInteraction` instance).'
+      type: object
+      required:
+      - agent_version_number
+      - service_hierarchical_state_machine_version_number
+      - llm_model_preferences
+      title: VersionSet
+      description: A version set pins the agent, state machine, and model version used by this service.
+    src__app__endpoints__service__create_service__Response:
+      properties:
+        id:
+          type: string
+          title: Id
+          description: The ID of the newly created service.
+      type: object
+      required:
+      - id
+      title: Response
+    src__app__endpoints__service__create_service__Request:
+      properties:
+        service_hierarchical_state_machine_id:
+          type: string
+          pattern: ^[a-f0-9]{24}$
+          title: Service Hierarchical State Machine Id
+          description: The ID of the state machine that this service uses.
+        agent_id:
+          type: string
+          pattern: ^[a-f0-9]{24}$
+          title: Agent Id
+          description: The ID of the agent that this service uses.
+        name:
+          $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
+          description: The name of this service.
+        description:
+          $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
+          description: A description of this service.
+        is_active:
+          type: boolean
+          title: Is Active
+          description: Whether the newly-created service is active. Only active services are visible to users on the dashboard. You can later adjust the activeness of this service.
+        release_version_set:
+          anyOf:
+          - $ref: '#/components/schemas/VersionSet-Input'
+          - type: 'null'
+          description: 'The `release` version set to use for this service. If not specified, the `release` version set will be the same as the `edge` version set, which uses the
+
+            latest agent and state machine versions with no model preference.'
+        keyterms:
+          items:
+            $ref: '#/components/schemas/StrippedNonemptyString_a-z-_____a-z-____0_2____'
+          type: array
+          maxItems: 20
+          title: Keyterms
+          description: A list of keyterms that are easy to get wrong during audio transcriptions that tend to occur commonly in audio sessions using this service.
+        tags:
+          additionalProperties:
+            anyOf:
+            - $ref: '#/components/schemas/StrippedNonemptyString___w__s_____'
+            - type: 'null'
+          propertyNames:
+            $ref: '#/components/schemas/StrippedNonemptyString___w__s_____'
+          type: object
+          maxProperties: 20
+          title: Tags
+          description: The tags of this service.
+      type: object
+      required:
+      - service_hierarchical_state_machine_id
+      - agent_id
+      - name
+      - description
+      - is_active
+      - keyterms
+      - tags
+      title: Request
+    StrippedNonemptyString___w__s_____:
+      type: string
+      minLength: 1
+      pattern: ^[\w\s]+$
+    amigo_lib__mongo__collections__service__Service__UserInfo:
+      properties:
+        org_id:
+          type: string
+          title: Org Id
+        user_id:
+          type: string
+          title: User Id
+      type: object
+      required:
+      - org_id
+      - user_id
+      title: UserInfo
+    LLMConfig-Output:
+      properties:
+        llm_name:
+          type: string
+          title: Llm Name
+          description: The name of the LLM to use.
+        params:
+          additionalProperties: true
+          type: object
+          title: Params
+          description: LLM-specific parameters to use.
+          default: {}
+      type: object
+      required:
+      - llm_name
+      title: LLMConfig
+    StrippedNonemptyString_a-z-_____a-z-____0_2____:
+      type: string
+      minLength: 1
+      pattern: ^[a-z-]+( [a-z-]+){0,2}$
+  securitySchemes:
+    Bearer-Authorization:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Amigo issued JWT token that identifies an user. It's issued either after logging in through the frontend, or manually through the [`SignInWithAPIKey`](sign-in-with-api-key) endpoint.
+    Bearer-Authorization-Organization:
+      type: apiKey
+      in: header
+      name: X-ORG-ID
+      description: An optional organization identifier that indicates from which organization the token is issued. This is used in rare cases where the user to authenticate is making a request for resources in another organization.
+    Basic:
+      type: http
+      scheme: basic
+      description: The username should be set to {org_id}_{user_id}, and the password should be the Amigo issued JWT token that identifies the user.

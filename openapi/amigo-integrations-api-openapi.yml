@@ -1,0 +1,1932 @@
+openapi: 3.1.0
+info:
+  title: Amigo Account Integrations API
+  version: 0.1.0
+servers:
+- url: https://api.amigo.ai
+- url: https://internal-api.amigo.ai
+- url: https://api-eu-central-1.amigo.ai
+- url: https://api-ap-southeast-2.amigo.ai
+- url: https://api-ca-central-1.amigo.ai
+security:
+- Bearer-Authorization: []
+  Bearer-Authorization-Organization: []
+  Basic: []
+tags:
+- name: Integrations
+paths:
+  /v1/{workspace_id}/integrations:
+    post:
+      tags:
+      - Integrations
+      summary: Create a REST integration
+      description: Create a new REST integration in a workspace. Endpoints are added separately via `POST /integrations/{integration_id}/endpoints`. Requires `Integration.create` permission.
+      operationId: create-integration
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/src__routes__integrations__create_integration__Request'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RestIntegrationResponse'
+        '404':
+          description: Workspace not found.
+        '409':
+          description: Integration name already taken in this workspace.
+        '403':
+          description: Insufficient permissions.
+        '401':
+          description: Missing or invalid API key.
+        '422':
+          description: Invalid request body.
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+    get:
+      tags:
+      - Integrations
+      summary: List integrations
+      description: 'List every integration for a workspace. Optionally filter by `enabled` or `search` (name/display_name/id ilike). Sort via repeated `sort_by` query params; each entry is `+field` or `-field` (allowed fields: name, created_at, updated_at). Default: `-created_at`. Cursor opaque — round-trip `continuation_token` unchanged with the same `sort_by`. Requires `Integration.view` permission.'
+      operationId: list-integrations
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: enabled
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Filter to integrations with this enabled flag. None matches both.
+          title: Enabled
+        description: Filter to integrations with this enabled flag. None matches both.
+      - name: search
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - $ref: '#/components/schemas/SearchString'
+          - type: 'null'
+          description: Substring match against name, display_name, or id (case-insensitive).
+          title: Search
+        description: Substring match against name, display_name, or id (case-insensitive).
+      - name: sort_by
+        in: query
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+          description: 'Sort axes. Repeated query param stacks left-to-right. Each entry is `+field` or `-field`
+
+            (direction prefix REQUIRED). Allowed fields: ``name``, ``created_at``, ``updated_at``.
+
+            Default: ``-created_at``. ``id`` is always appended as the final tiebreaker.'
+          default: []
+          title: Sort By
+        description: 'Sort axes. Repeated query param stacks left-to-right. Each entry is `+field` or `-field`
+
+          (direction prefix REQUIRED). Allowed fields: ``name``, ``created_at``, ``updated_at``.
+
+          Default: ``-created_at``. ``id`` is always appended as the final tiebreaker.'
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 200
+          exclusiveMinimum: 0
+          description: The maximum number of integrations to return.
+          default: 50
+          title: Limit
+        description: The maximum number of integrations to return.
+      - name: continuation_token
+        in: query
+        required: false
+        schema:
+          description: Opaque token from a prior response. Pass back unchanged with the same `sort_by` to advance.
+          title: Continuation Token
+        description: Opaque token from a prior response. Pass back unchanged with the same `sort_by` to advance.
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/src__routes__integrations__list_integrations__Response'
+        '403':
+          description: Insufficient permissions.
+        '401':
+          description: Missing or invalid API key.
+        '422':
+          description: Query parameter failed validation or continuation_token is unparseable.
+  /v1/{workspace_id}/integrations/approvals/{conversation_id}/approve:
+    post:
+      tags:
+      - Integrations
+      summary: Approve a pending integration-write approval
+      description: Approve a pending human-in-the-loop integration-write approval for a conversation. Publishes `integration.approval_granted` to the workspace event channel; the subscribed text session fires the gated write. Requires `ReviewQueue.review` permission.
+      operationId: approve-integration-write
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: conversation_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Conversation Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IntegrationApprovalResponse'
+        '404':
+          description: Conversation not found in this workspace.
+        '403':
+          description: Insufficient permissions.
+        '401':
+          description: Missing or invalid API key.
+        '429':
+          description: Rate limited.
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/integrations/approvals/{conversation_id}/reject:
+    post:
+      tags:
+      - Integrations
+      summary: Reject a pending integration-write approval
+      description: Reject a pending human-in-the-loop integration-write approval for a conversation. Publishes `integration.approval_rejected` to the workspace event channel; the subscribed text session declines the gated write. Requires `ReviewQueue.review` permission.
+      operationId: reject-integration-write
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: conversation_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Conversation Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IntegrationRejectRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IntegrationApprovalResponse'
+        '404':
+          description: Conversation not found in this workspace.
+        '403':
+          description: Insufficient permissions.
+        '401':
+          description: Missing or invalid API key.
+        '429':
+          description: Rate limited.
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/integrations/{integration_id}:
+    get:
+      tags:
+      - Integrations
+      summary: Get an integration
+      description: Retrieve an integration by ID. Requires `Integration.view` permission.
+      operationId: get-integration
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: integration_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Integration Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RestIntegrationResponse'
+        '404':
+          description: Integration not found.
+        '403':
+          description: Insufficient permissions.
+        '401':
+          description: Missing or invalid API key.
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    patch:
+      tags:
+      - Integrations
+      summary: Update a REST integration
+      description: 'Patch a REST integration. NOT NULL fields reject `null` at validation time; pass `auth: null` to clear the auth config. `auth` and `secret_value` are independent — update either alone to swap auth shape (reusing the existing secret) or rotate the secret (keeping the existing auth shape). Requires `Integration.update` permission.'
+      operationId: update-integration
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: integration_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Integration Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/src__routes__integrations__update_integration__Request'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RestIntegrationResponse'
+        '404':
+          description: Integration not found.
+        '409':
+          description: Managed integration mutation blocked.
+        '403':
+          description: Insufficient permissions.
+        '401':
+          description: Missing or invalid API key.
+        '422':
+          description: Invalid request body, NOT NULL field set to null, or no fields to update.
+    delete:
+      tags:
+      - Integrations
+      summary: Delete a REST integration
+      description: Delete a REST integration. Requires `Integration.delete` permission.
+      operationId: delete-integration
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: integration_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Integration Id
+      responses:
+        '204':
+          description: Successful Response
+        '404':
+          description: Integration not found.
+        '409':
+          description: Integration is managed or referenced by one or more skills.
+        '403':
+          description: Insufficient permissions.
+        '401':
+          description: Missing or invalid API key.
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/integrations/{integration_id}/endpoints:
+    post:
+      tags:
+      - Integrations
+      summary: Add an endpoint
+      description: Add a new endpoint to a REST integration. Requires `Integration.update` permission.
+      operationId: create-integration-endpoint
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: integration_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Integration Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/src__routes__integrations__create_endpoint__Request'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EndpointResponse'
+        '404':
+          description: Integration not found.
+        '409':
+          description: Integration is managed or endpoint name already exists.
+        '403':
+          description: Insufficient permissions.
+        '401':
+          description: Missing or invalid API key.
+        '422':
+          description: Invalid request body.
+    get:
+      tags:
+      - Integrations
+      summary: List endpoints
+      description: 'List endpoints on a REST integration. Optionally search by name/description. Sort via repeated `sort_by` query params; each entry is `+field` or `-field` (allowed fields: name, created_at, updated_at). Default: `-created_at`. Cursor opaque — round-trip `continuation_token` unchanged with the same `sort_by`. Requires `Integration.view` permission.'
+      operationId: list-integration-endpoints
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: integration_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Integration Id
+      - name: search
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - $ref: '#/components/schemas/SearchString'
+          - type: 'null'
+          description: Substring match against name or description (case-insensitive).
+          title: Search
+        description: Substring match against name or description (case-insensitive).
+      - name: sort_by
+        in: query
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+          description: 'Sort axes. Repeated query param stacks left-to-right. Each entry is `+field` or `-field`
+
+            (direction prefix REQUIRED). Allowed fields: ``name``, ``created_at``, ``updated_at``.
+
+            Default: ``-created_at``. ``id`` is always appended as the final tiebreaker.'
+          default: []
+          title: Sort By
+        description: 'Sort axes. Repeated query param stacks left-to-right. Each entry is `+field` or `-field`
+
+          (direction prefix REQUIRED). Allowed fields: ``name``, ``created_at``, ``updated_at``.
+
+          Default: ``-created_at``. ``id`` is always appended as the final tiebreaker.'
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 200
+          exclusiveMinimum: 0
+          description: The maximum number of endpoints to return.
+          default: 50
+          title: Limit
+        description: The maximum number of endpoints to return.
+      - name: continuation_token
+        in: query
+        required: false
+        schema:
+          description: Opaque token from a prior response. Pass back unchanged with the same `sort_by` to advance.
+          title: Continuation Token
+        description: Opaque token from a prior response. Pass back unchanged with the same `sort_by` to advance.
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/src__routes__integrations__list_endpoints__Response'
+        '403':
+          description: Insufficient permissions.
+        '401':
+          description: Missing or invalid API key.
+        '422':
+          description: Query parameter failed validation or continuation_token is unparseable.
+  /v1/{workspace_id}/integrations/{integration_id}/endpoints/{endpoint_id}:
+    get:
+      tags:
+      - Integrations
+      summary: Get an endpoint
+      description: Get a single endpoint on a REST integration. Requires `Integration.view` permission.
+      operationId: get-integration-endpoint
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: integration_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Integration Id
+      - name: endpoint_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Endpoint Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EndpointResponse'
+        '404':
+          description: Endpoint not found.
+        '403':
+          description: Insufficient permissions.
+        '401':
+          description: Missing or invalid API key.
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    patch:
+      tags:
+      - Integrations
+      summary: Update an endpoint
+      description: 'Patch an endpoint on a REST integration. The endpoint `name` is immutable. Pass `response_template: null` to clear the Jinja template (the only DB-nullable column). Every other field rejects explicit null at validation time. Requires `Integration.update` permission.'
+      operationId: update-integration-endpoint
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: integration_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Integration Id
+      - name: endpoint_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Endpoint Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/src__routes__integrations__update_endpoint__Request'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EndpointResponse'
+        '404':
+          description: Endpoint not found.
+        '409':
+          description: Managed integration endpoint mutation blocked.
+        '403':
+          description: Insufficient permissions.
+        '401':
+          description: Missing or invalid API key.
+        '422':
+          description: Invalid request body, NOT NULL field set to null, or no fields to update.
+    delete:
+      tags:
+      - Integrations
+      summary: Delete an endpoint
+      description: Delete an endpoint from a REST integration. Requires `Integration.update` permission.
+      operationId: delete-integration-endpoint
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: integration_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Integration Id
+      - name: endpoint_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Endpoint Id
+      responses:
+        '204':
+          description: Successful Response
+        '404':
+          description: Endpoint not found.
+        '409':
+          description: Managed integration endpoint mutation blocked.
+        '403':
+          description: Insufficient permissions.
+        '401':
+          description: Missing or invalid API key.
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/integrations/{integration_id}/endpoints/{endpoint_id}/test:
+    post:
+      tags:
+      - Integrations
+      summary: Test an integration endpoint
+      description: Execute an integration endpoint with test parameters and return the full response pipeline breakdown. Requires `Integration.view` permission.
+      operationId: test-integration-endpoint
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: integration_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Integration Id
+      - name: endpoint_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Endpoint Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/src__routes__integrations__test_endpoint__Request'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/src__routes__integrations__test_endpoint__Response'
+        '404':
+          description: Integration or endpoint not found.
+        '403':
+          description: Insufficient permissions.
+        '401':
+          description: Missing or invalid API key.
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+components:
+  schemas:
+    src__routes__integrations__create_integration__Request:
+      properties:
+        name:
+          type: string
+          maxLength: 128
+          minLength: 2
+          pattern: ^[a-z0-9][a-z0-9_-]*[a-z0-9]$
+          title: Name
+          description: Slug-like identifier, lowercase alphanumeric + hyphens/underscores. Immutable post-create.
+        display_name:
+          $ref: '#/components/schemas/NameString'
+          description: Human-readable name.
+        base_url:
+          type: string
+          maxLength: 2083
+          minLength: 1
+          format: uri
+          title: Base Url
+          description: Base URL for the upstream REST API.
+        auth:
+          anyOf:
+          - oneOf:
+            - $ref: '#/components/schemas/StaticHeaderAuthRequest'
+            - $ref: '#/components/schemas/OAuth2ClientCredentialsAuthRequest'
+            - $ref: '#/components/schemas/OAuth2JwtBearerAuthRequest'
+            - $ref: '#/components/schemas/CustomTokenExchangeAuthRequest'
+            discriminator:
+              propertyName: type
+              mapping:
+                custom_token_exchange: '#/components/schemas/CustomTokenExchangeAuthRequest'
+                oauth2_client_credentials: '#/components/schemas/OAuth2ClientCredentialsAuthRequest'
+                oauth2_jwt_bearer: '#/components/schemas/OAuth2JwtBearerAuthRequest'
+                static_header: '#/components/schemas/StaticHeaderAuthRequest'
+          - type: 'null'
+          title: Auth
+          description: Auth configuration. When set, ``secret_value`` is required.
+        secret_value:
+          anyOf:
+          - type: string
+            maxLength: 8192
+            minLength: 1
+          - type: 'null'
+          title: Secret Value
+          description: 'Inline secret literal — auto-provisioned to the per-integration SSM path.
+
+            Required when ``auth`` is set. Bounded to fit a PEM RSA-4096 key + cert chain.'
+        enabled:
+          type: boolean
+          title: Enabled
+          description: Whether the integration is active on create.
+          default: true
+        managed:
+          type: boolean
+          title: Managed
+          description: Whether this is a system-managed integration protected from workspace CRUD.
+          default: false
+        approval_policy:
+          type: string
+          enum:
+          - none
+          - writes
+          - all
+          title: Approval Policy
+          description: 'Human-in-the-loop approval gate. ``none`` (default) = no approval
+
+            required; ``writes`` = approval required for write-classified endpoints;
+
+            ``all`` = approval required for every endpoint.'
+          default: none
+      type: object
+      required:
+      - name
+      - display_name
+      - base_url
+      title: Request
+      description: Create body — REST only.
+    CustomTokenExchangeAuthRequest:
+      properties:
+        type:
+          type: string
+          const: custom_token_exchange
+          title: Type
+          default: custom_token_exchange
+        exchange_url:
+          type: string
+          maxLength: 2083
+          minLength: 1
+          format: uri
+          title: Exchange Url
+        body_encoding:
+          type: string
+          enum:
+          - json
+          - form
+          title: Body Encoding
+          description: '``json`` (default) sends static_body_fields + param_body_fields as JSON; ``form`` sends as application/x-www-form-urlencoded.'
+          default: json
+        static_headers:
+          patternProperties:
+            ^[A-Za-z0-9!#$%&'*+\-.^_`|~]+$:
+              type: string
+          propertyNames:
+            maxLength: 256
+            minLength: 1
+          type: object
+          title: Static Headers
+          description: Workspace-level headers on the exchange request (keys are RFC 7230 tchar). Values may contain ``{secret}`` placeholder.
+          default: {}
+        static_body_fields:
+          additionalProperties:
+            type: string
+          type: object
+          title: Static Body Fields
+          description: 'Workspace-level body fields keyed by RFC 6901 JSON Pointer (e.g. ``/meta/tool_name``
+
+            for nested fields, or ``/foo`` for a root-level field). Values may contain ``{secret}``
+
+            placeholder.'
+          default: {}
+        param_headers:
+          patternProperties:
+            ^[A-Za-z0-9!#$%&'*+\-.^_`|~]+$:
+              $ref: '#/components/schemas/ParamValueRequest'
+          propertyNames:
+            maxLength: 256
+            minLength: 1
+          type: object
+          title: Param Headers
+          description: Per-request params routed to headers on the exchange request, keyed by wire-name.
+          default: {}
+        param_body_fields:
+          additionalProperties:
+            $ref: '#/components/schemas/ParamValueRequest'
+          type: object
+          title: Param Body Fields
+          description: Per-request params routed to body fields on the exchange request, keyed by RFC 6901 JSON Pointer.
+          default: {}
+        identity_bindings:
+          additionalProperties:
+            type: string
+            enum:
+            - principal.subject_key
+            - principal.subject_id
+            - external_user.subject_key
+          type: object
+          maxProperties: 50
+          title: Identity Bindings
+          description: 'Maps a declared ``param_name`` to the verified identity attribute that supplies it
+
+            at dispatch. A bound param is dropped from the LLM-facing tool schema and injected from the
+
+            verified session context (never model-supplied), closing the per-user-identity impersonation hole.
+
+            Keys MUST reference a ``param_name`` declared on ``param_headers`` / ``param_body_fields``.'
+          default: {}
+        identity_binding_test_values:
+          additionalProperties:
+            type: string
+          type: object
+          title: Identity Binding Test Values
+          description: 'Author-configured test values for identity-bound params.
+
+
+            Only ``external_user.subject_key`` bindings may carry test values. Runtime
+
+            dispatch uses them only when a backend execution path explicitly opts in.'
+          default: {}
+        response_token_path:
+          type: string
+          title: Response Token Path
+          description: 'RFC 6901 JSON Pointer into the exchange response body that extracts the bearer token
+
+            (e.g. ``/access_token`` or ``/data/bearer``). NO default — every config commits explicitly.'
+      type: object
+      required:
+      - exchange_url
+      - response_token_path
+      title: CustomTokenExchangeAuthRequest
+      description: 'Pre-flight exchange that mints a downstream bearer.
+
+
+        Replaces legacy ``json_token_exchange`` AND ``bearer_token_exchange``.
+
+        Path-shaped fields (``response_token_path``, ``static_body_fields`` keys,
+
+        ``param_body_fields`` keys) MUST be valid RFC 6901 JSON Pointer — one
+
+        syntax throughout.'
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    src__routes__integrations__test_endpoint__Response:
+      properties:
+        status_code:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Status Code
+          description: HTTP status code from the upstream call.
+        duration_ms:
+          type: number
+          title: Duration Ms
+          description: Request duration in milliseconds.
+          default: 0
+        retries:
+          type: integer
+          title: Retries
+          description: Number of retry attempts.
+          default: 0
+        raw_response:
+          title: Raw Response
+          description: Raw response body from the upstream call.
+        rendered:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Rendered
+          description: Response after Jinja `response_template` rendering, pre-truncation.
+        final_result:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Final Result
+          description: Final processed result (rendered + truncated to max_response_length).
+        error:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Error
+          description: Error message if the request failed.
+      type: object
+      title: Response
+      description: Full breadcrumb returned by the test handler.
+    src__routes__integrations__update_endpoint__Request:
+      properties:
+        description:
+          type: string
+          maxLength: 2048
+          minLength: 1
+          title: Description
+        method:
+          type: string
+          enum:
+          - GET
+          - POST
+          - PUT
+          - PATCH
+          - DELETE
+          title: Method
+        path:
+          type: string
+          maxLength: 2048
+          minLength: 1
+          pattern: ^[^/]
+          title: Path
+          description: URL path appended to the integration's base_url. Must NOT start with `/`.
+        input_schema:
+          additionalProperties: true
+          type: object
+          title: Input Schema
+        headers:
+          additionalProperties:
+            type: string
+          type: object
+          title: Headers
+        static_body_fields:
+          additionalProperties:
+            type: string
+          type: object
+          title: Static Body Fields
+        body_format:
+          type: string
+          enum:
+          - json
+          - form
+          title: Body Format
+        response_template:
+          anyOf:
+          - type: string
+            maxLength: 16384
+          - type: 'null'
+          title: Response Template
+          description: Jinja template; pass `null` to clear (the only DB-nullable column on this row).
+        max_response_length:
+          type: integer
+          maximum: 1000000.0
+          minimum: 0.0
+          title: Max Response Length
+        timeout_seconds:
+          type: number
+          maximum: 600.0
+          exclusiveMinimum: 0.0
+          title: Timeout Seconds
+        max_retries:
+          type: integer
+          maximum: 10.0
+          minimum: 0.0
+          title: Max Retries
+        retry_on_status:
+          items:
+            type: integer
+          type: array
+          maxItems: 20
+          uniqueItems: true
+          title: Retry On Status
+      type: object
+      title: Request
+      description: Patch an existing endpoint (V186 flat shape). ``name`` is immutable.
+    StaticHeaderAuthRequest:
+      properties:
+        type:
+          type: string
+          const: static_header
+          title: Type
+          default: static_header
+        header_name:
+          type: string
+          maxLength: 256
+          minLength: 1
+          pattern: ^[A-Za-z0-9!#$%&'*+\-.^_`|~]+$
+          title: Header Name
+          description: Outbound header name (RFC 7230 tchar).
+      type: object
+      required:
+      - header_name
+      title: StaticHeaderAuthRequest
+      description: Static workspace-level secret used verbatim as a single header value.
+    src__routes__integrations__create_endpoint__Request:
+      properties:
+        name:
+          type: string
+          maxLength: 128
+          minLength: 2
+          pattern: ^[a-z0-9][a-z0-9_-]*[a-z0-9]$
+          title: Name
+          description: Slug-like identifier, immutable post-create.
+        description:
+          type: string
+          maxLength: 2048
+          minLength: 1
+          title: Description
+          description: LLM-facing description shown in the tool definition.
+        method:
+          type: string
+          enum:
+          - GET
+          - POST
+          - PUT
+          - PATCH
+          - DELETE
+          title: Method
+          description: HTTP method.
+          default: POST
+        path:
+          type: string
+          maxLength: 2048
+          minLength: 1
+          pattern: ^[^/]
+          title: Path
+          description: 'URL path appended to the integration''s base_url. Must NOT start with `/` — the path is
+
+            joined onto the base URL (which already carries the leading slash). Supports `{param}` substitution.'
+        input_schema:
+          additionalProperties: true
+          type: object
+          title: Input Schema
+          description: JSON Schema describing the tool's input arguments.
+        headers:
+          additionalProperties:
+            type: string
+          type: object
+          title: Headers
+          description: Static headers merged into every request.
+        static_body_fields:
+          additionalProperties:
+            type: string
+          type: object
+          title: Static Body Fields
+          description: 'Static body fields merged into POST/PUT/PATCH bodies. Keys are RFC 6901 JSON Pointers
+
+            (e.g. ``/meta/tool_name`` for nested, ``/foo`` for a root-level field).'
+        body_format:
+          type: string
+          enum:
+          - json
+          - form
+          title: Body Format
+          description: Outbound body encoding for write methods.
+          default: json
+        response_template:
+          anyOf:
+          - type: string
+            maxLength: 16384
+          - type: 'null'
+          title: Response Template
+          description: Jinja template (sandboxed, StrictUndefined) rendered against the parsed JSON response.
+        max_response_length:
+          type: integer
+          maximum: 1000000.0
+          minimum: 0.0
+          title: Max Response Length
+          description: Truncate the rendered string to this many chars. 0 = no truncation.
+          default: 0
+        timeout_seconds:
+          type: number
+          maximum: 600.0
+          exclusiveMinimum: 0.0
+          title: Timeout Seconds
+          description: Per-request timeout.
+          default: 30.0
+        max_retries:
+          type: integer
+          maximum: 10.0
+          minimum: 0.0
+          title: Max Retries
+          description: Retry attempts on transient failures.
+          default: 2
+        retry_on_status:
+          items:
+            type: integer
+          type: array
+          maxItems: 20
+          uniqueItems: true
+          title: Retry On Status
+          description: HTTP status codes that trigger a retry.
+      type: object
+      required:
+      - name
+      - description
+      - path
+      title: Request
+      description: Add a new endpoint to a REST integration (V186 flat shape).
+    EndpointResponse:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+          description: Endpoint ID — stable, used in subsequent GET/PATCH/DELETE/test URLs.
+        name:
+          type: string
+          title: Name
+          description: Slug-like identifier. Unique per integration; immutable post-create.
+        description:
+          type: string
+          title: Description
+          description: LLM-facing description.
+        method:
+          type: string
+          enum:
+          - GET
+          - POST
+          - PUT
+          - PATCH
+          - DELETE
+          title: Method
+          description: HTTP method.
+        path:
+          type: string
+          title: Path
+          description: URL path appended to the integration's base_url.
+        input_schema:
+          additionalProperties: true
+          type: object
+          title: Input Schema
+          description: JSON Schema for the tool's input arguments.
+        headers:
+          additionalProperties:
+            type: string
+          type: object
+          title: Headers
+          description: Static request headers.
+        static_body_fields:
+          additionalProperties:
+            type: string
+          type: object
+          title: Static Body Fields
+          description: 'Static body fields merged into every request. Keys are RFC 6901 JSON Pointers
+
+            (e.g. ``/meta/tool_name`` for nested, ``/foo`` for a root-level field).'
+        body_format:
+          type: string
+          enum:
+          - json
+          - form
+          title: Body Format
+          description: Outbound body encoding.
+          default: json
+        response_template:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Response Template
+          description: Jinja template rendered against the parsed JSON response.
+        max_response_length:
+          type: integer
+          title: Max Response Length
+          description: Truncate the final rendered string to this many chars.
+          default: 0
+        timeout_seconds:
+          type: number
+          title: Timeout Seconds
+          description: Per-request timeout.
+          default: 30.0
+        max_retries:
+          type: integer
+          title: Max Retries
+          description: Retry attempts on transient failures.
+          default: 2
+        retry_on_status:
+          items:
+            type: integer
+          type: array
+          uniqueItems: true
+          title: Retry On Status
+          description: HTTP status codes that trigger a retry.
+      type: object
+      required:
+      - id
+      - name
+      - description
+      - method
+      - path
+      title: EndpointResponse
+      description: Per-endpoint response (V186 flat shape).
+    OAuth2ClientCredentialsAuthRequest:
+      properties:
+        type:
+          type: string
+          const: oauth2_client_credentials
+          title: Type
+          default: oauth2_client_credentials
+        token_url:
+          type: string
+          maxLength: 2083
+          minLength: 1
+          format: uri
+          title: Token Url
+        client_id:
+          type: string
+          title: Client Id
+        scopes:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          title: Scopes
+        client_auth_method:
+          type: string
+          enum:
+          - basic
+          - body
+          title: Client Auth Method
+          description: 'RFC 6749 § 2.3.1: ``basic`` sends client_id+secret as HTTP Basic auth; ``body`` sends them in the form body.'
+          default: basic
+      type: object
+      required:
+      - token_url
+      - client_id
+      title: OAuth2ClientCredentialsAuthRequest
+      description: 'OAuth 2.0 Client Credentials Grant — RFC 6749 § 4.4.
+
+
+        Strict RFC 6749 § 4.4.2 access token request: ``grant_type`` + optional
+
+        ``scope``. Client authentication (RFC 6749 § 2.3.1) is orthogonal —
+
+        ``client_auth_method`` picks between HTTP Basic auth and form-body
+
+        credentials. RFC 8707 ``resource`` and non-standard ``audience`` extensions
+
+        are NOT supported here — add them back when a vendor needs one.'
+    ParamValueRequest:
+      properties:
+        param_name:
+          type: string
+          title: Param Name
+        description:
+          type: string
+          title: Description
+      type: object
+      required:
+      - param_name
+      - description
+      title: ParamValueRequest
+      description: 'Routing target for a single per-request parameter on the exchange call.
+
+
+        Paired with a wire-name (header / body-field key) on
+
+        ``CustomTokenExchangeAuthRequest.param_headers`` / ``param_body_fields``.'
+    ParamValueDict:
+      properties:
+        param_name:
+          type: string
+          title: Param Name
+        description:
+          type: string
+          title: Description
+      type: object
+      required:
+      - param_name
+      - description
+      title: ParamValueDict
+      description: 'Routing target for one per-request parameter on the exchange call.
+
+
+        Paired with a wire-name (header / body-field key) on
+
+        ``CustomTokenExchangeAuthDict.param_headers`` / ``param_body_fields``.'
+    src__routes__integrations__list_integrations__Response:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/RestIntegrationResponse'
+          type: array
+          title: Items
+          description: The integrations matching the request filters.
+        has_more:
+          type: boolean
+          title: Has More
+          description: Whether there are more integrations to retrieve.
+        continuation_token:
+          title: Continuation Token
+          description: Opaque token for the next page. Null when there are no more results.
+      type: object
+      required:
+      - items
+      - has_more
+      title: Response
+    IntegrationApprovalResponse:
+      properties:
+        status:
+          type: string
+          enum:
+          - granted
+          - rejected
+          title: Status
+        conversation_id:
+          type: string
+          maxLength: 256
+          minLength: 1
+          title: Conversation Id
+      type: object
+      required:
+      - status
+      - conversation_id
+      title: IntegrationApprovalResponse
+      description: Resolution outcome for a pending integration-write approval.
+    src__routes__integrations__update_integration__Request:
+      properties:
+        display_name:
+          $ref: '#/components/schemas/NameString'
+          title: Display Name
+          description: New display name.
+        base_url:
+          type: string
+          maxLength: 2083
+          minLength: 1
+          format: uri
+          title: Base Url
+          description: New base URL.
+        auth:
+          anyOf:
+          - oneOf:
+            - $ref: '#/components/schemas/StaticHeaderAuthRequest'
+            - $ref: '#/components/schemas/OAuth2ClientCredentialsAuthRequest'
+            - $ref: '#/components/schemas/OAuth2JwtBearerAuthRequest'
+            - $ref: '#/components/schemas/CustomTokenExchangeAuthRequest'
+            discriminator:
+              propertyName: type
+              mapping:
+                custom_token_exchange: '#/components/schemas/CustomTokenExchangeAuthRequest'
+                oauth2_client_credentials: '#/components/schemas/OAuth2ClientCredentialsAuthRequest'
+                oauth2_jwt_bearer: '#/components/schemas/OAuth2JwtBearerAuthRequest'
+                static_header: '#/components/schemas/StaticHeaderAuthRequest'
+          - type: 'null'
+          title: Auth
+          description: 'New auth config. Absent ⇒ untouched; null ⇒ clear; value ⇒ replace.
+
+            Independent of ``secret_value`` — updating ``auth`` alone reuses the
+
+            existing SSM secret.'
+        secret_value:
+          type: string
+          maxLength: 8192
+          minLength: 1
+          title: Secret Value
+          description: 'Rotate the per-integration SSM secret. Absent ⇒ existing secret
+
+            untouched; value ⇒ overwrite SSM at the canonical path. Explicit
+
+            ``null`` is rejected at validation — there is no "clear the secret"
+
+            operation (clearing ``auth`` makes the secret unreachable; that''s the
+
+            intended clear path).'
+        enabled:
+          type: boolean
+          title: Enabled
+          description: Toggle the integration on/off.
+        managed:
+          type: boolean
+          title: Managed
+          description: Mark/unmark the integration as system-managed. Requires ``platform:admin`` scope.
+        approval_policy:
+          type: string
+          enum:
+          - none
+          - writes
+          - all
+          title: Approval Policy
+          description: 'Change the human-in-the-loop approval gate. ``none`` = no approval
+
+            required; ``writes`` = approval required for write-classified endpoints;
+
+            ``all`` = approval required for every endpoint. Absent ⇒ untouched.'
+      type: object
+      title: Request
+      description: PATCH body — each field is sentinel-defaulted; absent ≠ explicit-null.
+    src__routes__integrations__list_endpoints__Response:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/EndpointResponse'
+          type: array
+          title: Items
+          description: The endpoints under this integration.
+        has_more:
+          type: boolean
+          title: Has More
+          description: Whether there are more endpoints to retrieve.
+        continuation_token:
+          title: Continuation Token
+          description: Opaque token for the next page. Null when there are no more results.
+      type: object
+      required:
+      - items
+      - has_more
+      title: Response
+    OAuth2ClientCredentialsAuthDict:
+      properties:
+        type:
+          type: string
+          const: oauth2_client_credentials
+          title: Type
+        token_url:
+          type: string
+          title: Token Url
+        client_id:
+          type: string
+          title: Client Id
+        scopes:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          title: Scopes
+        client_auth_method:
+          type: string
+          enum:
+          - basic
+          - body
+          title: Client Auth Method
+      type: object
+      required:
+      - type
+      - token_url
+      - client_id
+      - scopes
+      - client_auth_method
+      title: OAuth2ClientCredentialsAuthDict
+      description: OAuth 2.0 Client Credentials Grant — RFC 6749 § 4.4.
+    SearchString:
+      type: string
+      maxLength: 200
+      minLength: 1
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    RestIntegrationResponse:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+          description: Integration ID.
+        workspace_id:
+          type: string
+          format: uuid
+          title: Workspace Id
+          description: Workspace ID.
+        name:
+          type: string
+          title: Name
+          description: Slug-like identifier, immutable post-create.
+        display_name:
+          type: string
+          title: Display Name
+          description: Human-readable name.
+        enabled:
+          type: boolean
+          title: Enabled
+          description: Whether the integration is active.
+        managed:
+          type: boolean
+          title: Managed
+          description: Whether the integration is system-managed and protected from workspace CRUD.
+          default: false
+        approval_policy:
+          type: string
+          enum:
+          - none
+          - writes
+          - all
+          title: Approval Policy
+          description: 'Human-in-the-loop approval gate. ``none`` = no approval required;
+
+            ``writes`` = approval required for write-classified endpoints;
+
+            ``all`` = approval required for every endpoint.'
+          default: none
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+          description: When the integration was created.
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+          description: When the integration was last updated.
+        kind:
+          type: string
+          const: rest
+          title: Kind
+          description: Discriminator.
+          default: rest
+        base_url:
+          type: string
+          title: Base Url
+          description: Base URL for REST integrations.
+        auth:
+          anyOf:
+          - $ref: '#/components/schemas/StaticHeaderAuthDict'
+          - $ref: '#/components/schemas/OAuth2ClientCredentialsAuthDict'
+          - $ref: '#/components/schemas/OAuth2JwtBearerAuthDict'
+          - $ref: '#/components/schemas/CustomTokenExchangeAuthDict'
+          - type: 'null'
+          title: Auth
+          description: Authentication configuration (lib TypedDict union).
+        endpoint_count:
+          type: integer
+          title: Endpoint Count
+          description: Number of configured endpoints. Fetch the full list via GET /endpoints.
+      type: object
+      required:
+      - id
+      - workspace_id
+      - name
+      - display_name
+      - enabled
+      - created_at
+      - updated_at
+      - base_url
+      - endpoint_count
+      title: RestIntegrationResponse
+      description: REST variant — base URL, auth config, endpoint count.
+    src__routes__integrations__test_endpoint__Request:
+      properties:
+        params:
+          additionalProperties: true
+          type: object
+          maxProperties: 200
+          title: Params
+          description: Tool arguments — the endpoint's ``input_schema``-declared inputs (path/query/body).
+        auth_params:
+          additionalProperties: true
+          type: object
+          maxProperties: 200
+          title: Auth Params
+          description: 'Caller-supplied values for auth-routed params — the AUTH-ONLY channel.
+
+
+            A ``custom_token_exchange`` integration declares ``param_headers`` /
+
+            ``param_body_fields`` whose ``param_name`` placeholders are NOT part of the
+
+            endpoint''s ``input_schema`` (they feed the pre-flight token exchange, not the
+
+            endpoint call). They never reach the auth renderer through ``params`` alone, so
+
+            the renderer raised before any HTTP call. Supply them here to exercise the
+
+            exchange end-to-end.
+
+
+            PLA-980: these values resolve the token exchange but are STRIPPED before the
+
+            downstream endpoint request is built, so a pure-auth secret put here never
+
+            echoes into the outbound body/query. A param that legitimately feeds BOTH the
+
+            exchange and the endpoint call belongs in ``params`` (which keeps its existing
+
+            dual-use behavior). ``auth_params`` is for pure-auth keys absent from ``params``;
+
+            on a key collision the ``params`` value wins (for both the exchange and the call).'
+      type: object
+      title: Request
+      description: Inputs to ``POST /{integration_id}/endpoints/{endpoint_id}/test``.
+    OAuth2JwtBearerAuthDict:
+      properties:
+        type:
+          type: string
+          const: oauth2_jwt_bearer
+          title: Type
+        token_url:
+          type: string
+          title: Token Url
+        assertion_issuer:
+          type: string
+          title: Assertion Issuer
+        assertion_audience:
+          type: string
+          title: Assertion Audience
+        assertion_subject:
+          type: string
+          title: Assertion Subject
+        assertion_lifetime_seconds:
+          type: integer
+          title: Assertion Lifetime Seconds
+        include_iat:
+          type: boolean
+          title: Include Iat
+        include_jti:
+          type: boolean
+          title: Include Jti
+        assertion_algorithm:
+          type: string
+          enum:
+          - RS256
+          - RS384
+          - RS512
+          - PS256
+          - PS384
+          - PS512
+          - ES256
+          - ES384
+          - ES512
+          title: Assertion Algorithm
+        assertion_usage:
+          type: string
+          enum:
+          - authorization_grant
+          - client_authentication
+          title: Assertion Usage
+        scopes:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          title: Scopes
+        extra_claims:
+          additionalProperties: true
+          type: object
+          title: Extra Claims
+      type: object
+      required:
+      - type
+      - token_url
+      - assertion_issuer
+      - assertion_audience
+      - assertion_subject
+      - assertion_lifetime_seconds
+      - include_iat
+      - include_jti
+      - assertion_algorithm
+      - assertion_usage
+      - scopes
+      - extra_claims
+      title: OAuth2JwtBearerAuthDict
+      description: 'OAuth 2.0 JWT Bearer Token — RFC 7523.
+
+
+        ``assertion_usage`` selects the flow: § 2.1 (JWT as authorization grant) or
+
+        § 2.2 (JWT as client authentication / private_key_jwt).'
+    NameString:
+      type: string
+      maxLength: 256
+      minLength: 1
+    StaticHeaderAuthDict:
+      properties:
+        type:
+          type: string
+          const: static_header
+          title: Type
+        header_name:
+          type: string
+          title: Header Name
+      type: object
+      required:
+      - type
+      - header_name
+      title: StaticHeaderAuthDict
+      description: 'Static workspace-level secret used verbatim as a single header value.
+
+
+        Replaces legacy ``api_key_header`` and ``bearer_token`` — bearer is just
+
+        ``header_name="Authorization"`` with the SSM secret holding ``"Bearer <token>"``.'
+    CustomTokenExchangeAuthDict:
+      properties:
+        type:
+          type: string
+          const: custom_token_exchange
+          title: Type
+        exchange_url:
+          type: string
+          title: Exchange Url
+        body_encoding:
+          type: string
+          enum:
+          - json
+          - form
+          title: Body Encoding
+        static_headers:
+          additionalProperties:
+            type: string
+          type: object
+          title: Static Headers
+        static_body_fields:
+          additionalProperties:
+            type: string
+          type: object
+          title: Static Body Fields
+        param_headers:
+          additionalProperties:
+            $ref: '#/components/schemas/ParamValueDict'
+          type: object
+          title: Param Headers
+        param_body_fields:
+          additionalProperties:
+            $ref: '#/components/schemas/ParamValueDict'
+          type: object
+          title: Param Body Fields
+        response_token_path:
+          type: string
+          title: Response Token Path
+        identity_bindings:
+          additionalProperties:
+            type: string
+          type: object
+          title: Identity Bindings
+        identity_binding_test_values:
+          additionalProperties:
+            type: string
+          type: object
+          title: Identity Binding Test Values
+      type: object
+      required:
+      - type
+      - exchange_url
+      - body_encoding
+      - static_headers
+      - static_body_fields
+      - param_headers
+      - param_body_fields
+      - response_token_path
+      - identity_bindings
+      title: CustomTokenExchangeAuthDict
+      description: 'Pre-flight exchange that mints a downstream bearer.
+
+
+        Replaces legacy ``json_token_exchange`` AND ``bearer_token_exchange``.
+
+        Downstream call always receives ``Authorization: Bearer {token}``. No
+
+        in-process caching — every call mints fresh.'
+    OAuth2JwtBearerAuthRequest:
+      properties:
+        type:
+          type: string
+          const: oauth2_jwt_bearer
+          title: Type
+          default: oauth2_jwt_bearer
+        token_url:
+          type: string
+          maxLength: 2083
+          minLength: 1
+          format: uri
+          title: Token Url
+        assertion_issuer:
+          type: string
+          title: Assertion Issuer
+          description: RFC 7523 ``iss`` claim — typically the service-account email or client_id.
+        assertion_audience:
+          type: string
+          title: Assertion Audience
+          description: RFC 7523 ``aud`` claim — typically the token_url.
+        assertion_subject:
+          type: string
+          title: Assertion Subject
+          description: 'RFC 7523 § 3 ``sub`` claim — MUST be present. For service-account flows
+
+            where the client is its own subject, set to the same value as ``assertion_issuer``.
+
+            Use a different value only for delegation / impersonation grants.'
+        assertion_lifetime_seconds:
+          type: integer
+          title: Assertion Lifetime Seconds
+          default: 3600
+        include_iat:
+          type: boolean
+          title: Include Iat
+          description: 'RFC 7523 § 3 item 6 — ``iat`` claim set to mint time. Most IdPs (Google, Azure)
+
+            require it for anti-replay; leave True unless a specific vendor rejects it.'
+          default: true
+        include_jti:
+          type: boolean
+          title: Include Jti
+          description: When True, generate a fresh ``jti`` (anti-replay) on every mint.
+          default: true
+        assertion_algorithm:
+          type: string
+          enum:
+          - RS256
+          - RS384
+          - RS512
+          - PS256
+          - PS384
+          - PS512
+          - ES256
+          - ES384
+          - ES512
+          title: Assertion Algorithm
+          default: RS256
+        assertion_usage:
+          type: string
+          enum:
+          - authorization_grant
+          - client_authentication
+          title: Assertion Usage
+          description: 'RFC 7523 flow selector — required; the caller must pick a flow.
+
+            ``authorization_grant`` (§ 2.1) sends the JWT as ``assertion`` under
+
+            ``grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer``.
+
+            ``client_authentication`` (§ 2.2, the ``private_key_jwt`` method) sends it as
+
+            ``client_assertion`` + ``client_assertion_type`` under ``grant_type=client_credentials``
+
+            — required by Epic / SMART Backend Services.'
+        scopes:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          title: Scopes
+          description: 'RFC 7523 § 2.1 ``scope`` form-body parameter. Vendors that put scopes inside
+
+            the JWT instead (Google service accounts) use ``extra_claims = {"scope": "..."}``
+
+            and leave this empty.'
+        extra_claims:
+          additionalProperties: true
+          type: object
+          title: Extra Claims
+          description: 'RFC 7523 § 3 item 8 — arbitrary additional JWT claims (e.g. Google''s
+
+            ``scope`` claim, Azure''s tenant claim). Merged BEFORE the required claims so
+
+            IdP-specific extensions can''t override ``iss`` / ``sub`` / ``aud`` / ``exp`` /
+
+            ``iat`` / ``nbf`` / ``jti``.'
+          default: {}
+      type: object
+      required:
+      - token_url
+      - assertion_issuer
+      - assertion_audience
+      - assertion_subject
+      - assertion_usage
+      title: OAuth2JwtBearerAuthRequest
+      description: 'OAuth 2.0 JWT Bearer Token — RFC 7523.
+
+
+        ``assertion_usage`` (required) selects the flow: § 2.1 (JWT as authorization
+
+        grant) or § 2.2 (JWT as client authentication / private_key_jwt).'
+    IntegrationRejectRequest:
+      properties:
+        reason:
+          anyOf:
+          - type: string
+            maxLength: 2000
+          - type: 'null'
+          title: Reason
+      type: object
+      title: IntegrationRejectRequest
+      description: Reject body — optional free-text reason surfaced to the agent.
+  securitySchemes:
+    Bearer-Authorization:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Amigo issued JWT token that identifies an user. It's issued either after logging in through the frontend, or manually through the [`SignInWithAPIKey`](sign-in-with-api-key) endpoint.
+    Bearer-Authorization-Organization:
+      type: apiKey
+      in: header
+      name: X-ORG-ID
+      description: An optional organization identifier that indicates from which organization the token is issued. This is used in rare cases where the user to authenticate is making a request for resources in another organization.
+    Basic:
+      type: http
+      scheme: basic
+      description: The username should be set to {org_id}_{user_id}, and the password should be the Amigo issued JWT token that identifies the user.

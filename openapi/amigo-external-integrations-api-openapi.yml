@@ -1,0 +1,657 @@
+openapi: 3.1.0
+info:
+  title: Amigo Account External Integrations API
+  version: 0.1.0
+servers:
+- url: https://api.amigo.ai
+- url: https://internal-api.amigo.ai
+- url: https://api-eu-central-1.amigo.ai
+- url: https://api-ap-southeast-2.amigo.ai
+- url: https://api-ca-central-1.amigo.ai
+security:
+- Bearer-Authorization: []
+  Bearer-Authorization-Organization: []
+  Basic: []
+tags:
+- name: External Integrations
+paths:
+  /v1/{workspace_id}/external-integrations:
+    post:
+      tags:
+      - External Integrations
+      summary: Create External Integration
+      operationId: create-external-integration
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExternalIntegrationRequest'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExternalIntegrationResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+    get:
+      tags:
+      - External Integrations
+      summary: List External Integrations
+      operationId: list-external-integrations
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: search
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - $ref: '#/components/schemas/SearchString'
+          - type: 'null'
+          title: Search
+      - name: sort_by
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            maxLength: 64
+          - type: 'null'
+          default: -created_at
+          title: Sort By
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 100
+          exclusiveMinimum: 0
+          default: 10
+          title: Limit
+      - name: continuation_token
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 0
+          title: Continuation Token
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedResponse_ExternalIntegrationResponse_'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/external-integrations/{integration_id}:
+    get:
+      tags:
+      - External Integrations
+      summary: Get External Integration
+      operationId: get-external-integration
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: integration_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Integration Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExternalIntegrationResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    patch:
+      tags:
+      - External Integrations
+      summary: Update external integration
+      description: 'Updates external integration metadata. Supports partial updates for `name`, `display_name`, and `description`; pass `description: null` to clear the description. Requires an admin or owner role with `ExternalIntegration.update` permission.'
+      operationId: update-external-integration
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: integration_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Integration Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExternalIntegrationUpdateRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExternalIntegrationResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    delete:
+      tags:
+      - External Integrations
+      summary: Delete external integration
+      description: Soft-deletes an active external integration by marking it inactive, then revokes any active client credentials for that integration in the same workspace-scoped transaction. Requires an admin or owner role with `ExternalIntegration.delete` and `ApiKey.delete` permissions.
+      operationId: delete-external-integration
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: integration_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Integration Id
+      responses:
+        '204':
+          description: Successful Response
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/external-integrations/{integration_id}/credentials:
+    post:
+      tags:
+      - External Integrations
+      summary: Create External Integration Credential
+      operationId: create-external-integration-credential
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: integration_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Integration Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExternalIntegrationCredentialRequest'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExternalIntegrationCredentialSecretResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    get:
+      tags:
+      - External Integrations
+      summary: List External Integration Credentials
+      operationId: list-external-integration-credentials
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: integration_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Integration Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ExternalIntegrationCredentialResponse'
+                title: Response List-External-Integration-Credentials
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/external-integrations/{integration_id}/credentials/{credential_id}/rotate:
+    post:
+      tags:
+      - External Integrations
+      summary: Rotate External Integration Credential
+      operationId: rotate-external-integration-credential
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: integration_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Integration Id
+      - name: credential_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Credential Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExternalIntegrationCredentialSecretResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/external-integrations/{integration_id}/credentials/{credential_id}:
+    delete:
+      tags:
+      - External Integrations
+      summary: Revoke External Integration Credential
+      operationId: revoke-external-integration-credential
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: integration_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Integration Id
+      - name: credential_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Credential Id
+      responses:
+        '204':
+          description: Successful Response
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+components:
+  schemas:
+    ExternalIntegrationCredentialSecretResponse:
+      properties:
+        credential:
+          $ref: '#/components/schemas/ExternalIntegrationCredentialResponse'
+        client_secret:
+          type: string
+          title: Client Secret
+      type: object
+      required:
+      - credential
+      - client_secret
+      title: ExternalIntegrationCredentialSecretResponse
+    SearchString:
+      type: string
+      maxLength: 200
+      minLength: 1
+    NameString:
+      type: string
+      maxLength: 256
+      minLength: 1
+    PaginatedResponse_ExternalIntegrationResponse_:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/ExternalIntegrationResponse'
+          type: array
+          title: Items
+        has_more:
+          type: boolean
+          title: Has More
+        continuation_token:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Continuation Token
+        total:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Total
+      type: object
+      required:
+      - items
+      - has_more
+      title: PaginatedResponse[ExternalIntegrationResponse]
+    ExternalIntegrationRequest:
+      properties:
+        name:
+          type: string
+          maxLength: 128
+          minLength: 2
+          pattern: ^[a-z0-9][a-z0-9_-]*[a-z0-9]$
+          title: Name
+        display_name:
+          $ref: '#/components/schemas/NameString'
+        description:
+          anyOf:
+          - type: string
+            maxLength: 4096
+          - type: 'null'
+          title: Description
+      type: object
+      required:
+      - name
+      - display_name
+      title: ExternalIntegrationRequest
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    ExternalIntegrationCredentialRequest:
+      properties:
+        service_ids:
+          items:
+            type: string
+            format: uuid
+          type: array
+          maxItems: 100
+          minItems: 1
+          title: Service Ids
+        name:
+          anyOf:
+          - $ref: '#/components/schemas/NameString'
+          - type: 'null'
+        expires_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Expires At
+      type: object
+      required:
+      - service_ids
+      title: ExternalIntegrationCredentialRequest
+    ExternalIntegrationCredentialResponse:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        workspace_id:
+          type: string
+          format: uuid
+          title: Workspace Id
+        integration_id:
+          type: string
+          format: uuid
+          title: Integration Id
+        client_id:
+          type: string
+          title: Client Id
+        service_ids:
+          items:
+            type: string
+            format: uuid
+          type: array
+          title: Service Ids
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        is_active:
+          type: boolean
+          title: Is Active
+        expires_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Expires At
+        created_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Created At
+        updated_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Updated At
+        rotated_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Rotated At
+        revoked_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Revoked At
+      type: object
+      required:
+      - id
+      - workspace_id
+      - integration_id
+      - client_id
+      - service_ids
+      - is_active
+      title: ExternalIntegrationCredentialResponse
+    ExternalIntegrationResponse:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        workspace_id:
+          type: string
+          format: uuid
+          title: Workspace Id
+        name:
+          type: string
+          maxLength: 128
+          minLength: 2
+          pattern: ^[a-z0-9][a-z0-9_-]*[a-z0-9]$
+          title: Name
+        display_name:
+          $ref: '#/components/schemas/NameString'
+        description:
+          anyOf:
+          - type: string
+            maxLength: 4096
+          - type: 'null'
+          title: Description
+        is_active:
+          type: boolean
+          title: Is Active
+        created_by_entity_id:
+          type: string
+          format: uuid
+          title: Created By Entity Id
+        created_by_credential_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Created By Credential Id
+        created_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Created At
+        updated_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Updated At
+      type: object
+      required:
+      - id
+      - workspace_id
+      - name
+      - display_name
+      - is_active
+      - created_by_entity_id
+      title: ExternalIntegrationResponse
+    ExternalIntegrationUpdateRequest:
+      properties:
+        name:
+          type: string
+          maxLength: 128
+          minLength: 2
+          pattern: ^[a-z0-9][a-z0-9_-]*[a-z0-9]$
+          title: Name
+        display_name:
+          $ref: '#/components/schemas/NameString'
+          title: Display Name
+        description:
+          anyOf:
+          - type: string
+            maxLength: 4096
+          - type: 'null'
+          title: Description
+      type: object
+      title: ExternalIntegrationUpdateRequest
+  securitySchemes:
+    Bearer-Authorization:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Amigo issued JWT token that identifies an user. It's issued either after logging in through the frontend, or manually through the [`SignInWithAPIKey`](sign-in-with-api-key) endpoint.
+    Bearer-Authorization-Organization:
+      type: apiKey
+      in: header
+      name: X-ORG-ID
+      description: An optional organization identifier that indicates from which organization the token is issued. This is used in rare cases where the user to authenticate is making a request for resources in another organization.
+    Basic:
+      type: http
+      scheme: basic
+      description: The username should be set to {org_id}_{user_id}, and the password should be the Amigo issued JWT token that identifies the user.

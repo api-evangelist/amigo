@@ -1,0 +1,298 @@
+openapi: 3.1.0
+info:
+  title: Amigo Account Compliance API
+  version: 0.1.0
+servers:
+- url: https://api.amigo.ai
+- url: https://internal-api.amigo.ai
+- url: https://api-eu-central-1.amigo.ai
+- url: https://api-ap-southeast-2.amigo.ai
+- url: https://api-ca-central-1.amigo.ai
+security:
+- Bearer-Authorization: []
+  Bearer-Authorization-Organization: []
+  Basic: []
+tags:
+- name: Compliance
+paths:
+  /v1/{workspace_id}/compliance/dashboard:
+    get:
+      tags:
+      - Compliance
+      summary: Compliance dashboard composite
+      description: 'Composite compliance dashboard — HIPAA status, retention, credentials summary.
+
+
+        Aggregates compliance signals into a single dashboard view.
+
+
+        Permissions: admin, owner.'
+      operationId: get-compliance-dashboard
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ComplianceDashboardResponse'
+        '429':
+          description: Rate limited
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+  /v1/{workspace_id}/compliance/hipaa:
+    get:
+      tags:
+      - Compliance
+      summary: HIPAA compliance evidence report
+      description: 'HIPAA compliance evidence report.
+
+
+        Aggregates audit statistics, retention policy, encryption status,
+
+        and API key summary for the specified period. Identity-specific
+
+        fields (MFA, SSO, lockout) return null pending integration.
+
+
+        Permissions: admin, owner.'
+      operationId: get-hipaa-report
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: report_period_days
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 365
+          minimum: 1
+          description: Report period in days
+          default: 90
+          title: Report Period Days
+        description: Report period in days
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HipaaReportResponse'
+        '429':
+          description: Rate limited
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/compliance/access-review:
+    get:
+      tags:
+      - Compliance
+      summary: Access review export
+      description: 'Access review export for SOC2 attestation.
+
+
+        Lists all API key credentials with role, status, and activity dates.
+
+        Download, review, and upload signed attestation for SOC2 compliance.
+
+
+        Permissions: admin, owner.'
+      operationId: get-access-review
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccessReviewResponse'
+        '429':
+          description: Rate limited
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+components:
+  schemas:
+    HipaaReportResponse:
+      properties:
+        generated_at:
+          type: string
+          title: Generated At
+        report_period_days:
+          type: integer
+          title: Report Period Days
+        workspace_id:
+          type: string
+          format: uuid
+          title: Workspace Id
+        audit_summary:
+          additionalProperties: true
+          type: object
+          title: Audit Summary
+        retention_policy:
+          additionalProperties: true
+          type: object
+          title: Retention Policy
+        encryption:
+          additionalProperties:
+            type: boolean
+          type: object
+          title: Encryption
+        access_controls:
+          additionalProperties: true
+          type: object
+          title: Access Controls
+        api_key_summary:
+          additionalProperties:
+            type: integer
+          type: object
+          title: Api Key Summary
+        compliance_status:
+          type: string
+          title: Compliance Status
+      type: object
+      required:
+      - generated_at
+      - report_period_days
+      - workspace_id
+      - audit_summary
+      - retention_policy
+      - encryption
+      - access_controls
+      - api_key_summary
+      - compliance_status
+      title: HipaaReportResponse
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    AccessReviewResponse:
+      properties:
+        generated_at:
+          type: string
+          title: Generated At
+        workspace_id:
+          type: string
+          format: uuid
+          title: Workspace Id
+        credentials:
+          items:
+            additionalProperties: true
+            type: object
+          type: array
+          title: Credentials
+        total_credentials:
+          type: integer
+          title: Total Credentials
+        jwt_credentials_note:
+          type: string
+          title: Jwt Credentials Note
+      type: object
+      required:
+      - generated_at
+      - workspace_id
+      - credentials
+      - total_credentials
+      - jwt_credentials_note
+      title: AccessReviewResponse
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    ComplianceDashboardResponse:
+      properties:
+        hipaa_status:
+          type: string
+          title: Hipaa Status
+        retention_days:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Retention Days
+        legal_hold:
+          type: boolean
+          title: Legal Hold
+        total_credentials:
+          type: integer
+          title: Total Credentials
+        active_credentials:
+          type: integer
+          title: Active Credentials
+        last_audit_export:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Last Audit Export
+        generated_at:
+          type: string
+          title: Generated At
+      type: object
+      required:
+      - hipaa_status
+      - retention_days
+      - legal_hold
+      - total_credentials
+      - active_credentials
+      - last_audit_export
+      - generated_at
+      title: ComplianceDashboardResponse
+      description: Composite compliance health overview.
+  securitySchemes:
+    Bearer-Authorization:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Amigo issued JWT token that identifies an user. It's issued either after logging in through the frontend, or manually through the [`SignInWithAPIKey`](sign-in-with-api-key) endpoint.
+    Bearer-Authorization-Organization:
+      type: apiKey
+      in: header
+      name: X-ORG-ID
+      description: An optional organization identifier that indicates from which organization the token is issued. This is used in rare cases where the user to authenticate is making a request for resources in another organization.
+    Basic:
+      type: http
+      scheme: basic
+      description: The username should be set to {org_id}_{user_id}, and the password should be the Amigo issued JWT token that identifies the user.

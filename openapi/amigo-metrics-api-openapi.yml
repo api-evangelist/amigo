@@ -1,0 +1,853 @@
+openapi: 3.1.0
+info:
+  title: Amigo Account Metrics API
+  version: 0.1.0
+servers:
+- url: https://api.amigo.ai
+- url: https://internal-api.amigo.ai
+- url: https://api-eu-central-1.amigo.ai
+- url: https://api-ap-southeast-2.amigo.ai
+- url: https://api-ca-central-1.amigo.ai
+security:
+- Bearer-Authorization: []
+  Bearer-Authorization-Organization: []
+  Basic: []
+tags:
+- name: Metrics
+paths:
+  /v1/{workspace_id}/metrics:
+    get:
+      tags:
+      - Metrics
+      summary: List latest metric values
+      description: 'List the latest value for each metric in the workspace.
+
+
+        Permissions: authenticated (any role).'
+      operationId: list-metrics
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: source
+        in: query
+        required: false
+        schema:
+          enum:
+          - production
+          - simulation
+          - all
+          type: string
+          default: production
+          title: Source
+      - name: scope
+        in: query
+        required: false
+        schema:
+          enum:
+          - aggregate
+          - entity
+          - all
+          type: string
+          default: aggregate
+          title: Scope
+      - name: entity_type
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            maxLength: 64
+          - type: 'null'
+          title: Entity Type
+      - name: entity_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            maxLength: 128
+          - type: 'null'
+          title: Entity Id
+      - name: service_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            maxLength: 64
+          - type: 'null'
+          title: Service Id
+      - name: run_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            maxLength: 64
+          - type: 'null'
+          title: Run Id
+      - name: session_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            maxLength: 128
+          - type: 'null'
+          title: Session Id
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 500
+          minimum: 1
+          default: 100
+          title: Limit
+      - name: offset
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 0
+          default: 0
+          title: Offset
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MetricListResponse'
+        '429':
+          description: Rate limited
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/metrics/catalog:
+    get:
+      tags:
+      - Metrics
+      summary: List available metrics (builtin + custom)
+      description: 'List all available metrics (builtin + custom defined on workspace).
+
+
+        Permissions: authenticated (any role).'
+      operationId: get-metric-catalog
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MetricCatalogResponse'
+        '429':
+          description: Rate limited
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+  /v1/{workspace_id}/metrics/{metric_key}:
+    get:
+      tags:
+      - Metrics
+      summary: Get values for a specific metric
+      description: 'Get values for a specific metric with optional time range.
+
+
+        Permissions: authenticated (any role).'
+      operationId: get-metric-values
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: metric_key
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 64
+          pattern: ^[a-z][a-z0-9_]*$
+          description: Metric key (lowercase alphanumeric + underscores)
+          title: Metric Key
+        description: Metric key (lowercase alphanumeric + underscores)
+      - name: source
+        in: query
+        required: false
+        schema:
+          enum:
+          - production
+          - simulation
+          - all
+          type: string
+          default: production
+          title: Source
+      - name: scope
+        in: query
+        required: false
+        schema:
+          enum:
+          - aggregate
+          - entity
+          - all
+          type: string
+          default: aggregate
+          title: Scope
+      - name: entity_type
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            maxLength: 64
+          - type: 'null'
+          title: Entity Type
+      - name: entity_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            maxLength: 128
+          - type: 'null'
+          title: Entity Id
+      - name: service_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            maxLength: 64
+          - type: 'null'
+          title: Service Id
+      - name: run_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            maxLength: 64
+          - type: 'null'
+          title: Run Id
+      - name: session_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            maxLength: 128
+          - type: 'null'
+          title: Session Id
+      - name: date_from
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Date From
+      - name: date_to
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Date To
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 365
+          minimum: 1
+          default: 90
+          title: Limit
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MetricListResponse'
+        '429':
+          description: Rate limited
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/metrics/{metric_key}/trend:
+    get:
+      tags:
+      - Metrics
+      summary: Get time-series trend for a metric
+      description: 'Get time-series trend for a specific metric.
+
+
+        Permissions: authenticated (any role).'
+      operationId: get-metric-trend
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: metric_key
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 64
+          pattern: ^[a-z][a-z0-9_]*$
+          description: Metric key (lowercase alphanumeric + underscores)
+          title: Metric Key
+        description: Metric key (lowercase alphanumeric + underscores)
+      - name: source
+        in: query
+        required: false
+        schema:
+          enum:
+          - production
+          - simulation
+          - all
+          type: string
+          default: production
+          title: Source
+      - name: scope
+        in: query
+        required: false
+        schema:
+          enum:
+          - aggregate
+          - entity
+          - all
+          type: string
+          default: aggregate
+          title: Scope
+      - name: entity_type
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            maxLength: 64
+          - type: 'null'
+          title: Entity Type
+      - name: entity_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            maxLength: 128
+          - type: 'null'
+          title: Entity Id
+      - name: service_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            maxLength: 64
+          - type: 'null'
+          title: Service Id
+      - name: run_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            maxLength: 64
+          - type: 'null'
+          title: Run Id
+      - name: session_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            maxLength: 128
+          - type: 'null'
+          title: Session Id
+      - name: days
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 365
+          minimum: 1
+          default: 30
+          title: Days
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MetricListResponse'
+        '429':
+          description: Rate limited
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+components:
+  schemas:
+    CategoricalMetricValueResponse:
+      properties:
+        metric_key:
+          type: string
+          title: Metric Key
+        source:
+          type: string
+          title: Source
+          default: production
+        entity_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Entity Type
+        entity_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Entity Id
+        service_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Service Id
+        run_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Run Id
+        session_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Session Id
+        period_start:
+          type: string
+          format: date-time
+          title: Period Start
+        period_end:
+          type: string
+          format: date-time
+          title: Period End
+        event_count:
+          type: integer
+          title: Event Count
+        avg_confidence:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Avg Confidence
+        unit:
+          anyOf:
+          - type: string
+            maxLength: 32
+          - type: 'null'
+          title: Unit
+        computed_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Computed At
+        metric_type:
+          type: string
+          const: categorical
+          title: Metric Type
+        value:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Value
+      type: object
+      required:
+      - metric_key
+      - period_start
+      - period_end
+      - event_count
+      - metric_type
+      - value
+      title: CategoricalMetricValueResponse
+    MetricCatalogResponse:
+      properties:
+        metrics:
+          items:
+            $ref: '#/components/schemas/MetricCatalogEntry'
+          type: array
+          title: Metrics
+      type: object
+      required:
+      - metrics
+      title: MetricCatalogResponse
+    NameString:
+      type: string
+      maxLength: 256
+      minLength: 1
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    BooleanMetricValueResponse:
+      properties:
+        metric_key:
+          type: string
+          title: Metric Key
+        source:
+          type: string
+          title: Source
+          default: production
+        entity_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Entity Type
+        entity_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Entity Id
+        service_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Service Id
+        run_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Run Id
+        session_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Session Id
+        period_start:
+          type: string
+          format: date-time
+          title: Period Start
+        period_end:
+          type: string
+          format: date-time
+          title: Period End
+        event_count:
+          type: integer
+          title: Event Count
+        avg_confidence:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Avg Confidence
+        unit:
+          anyOf:
+          - type: string
+            maxLength: 32
+          - type: 'null'
+          title: Unit
+        computed_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Computed At
+        metric_type:
+          type: string
+          const: boolean
+          title: Metric Type
+        value:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Value
+      type: object
+      required:
+      - metric_key
+      - period_start
+      - period_end
+      - event_count
+      - metric_type
+      - value
+      title: BooleanMetricValueResponse
+    NumericalMetricValueResponse:
+      properties:
+        metric_key:
+          type: string
+          title: Metric Key
+        source:
+          type: string
+          title: Source
+          default: production
+        entity_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Entity Type
+        entity_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Entity Id
+        service_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Service Id
+        run_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Run Id
+        session_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Session Id
+        period_start:
+          type: string
+          format: date-time
+          title: Period Start
+        period_end:
+          type: string
+          format: date-time
+          title: Period End
+        event_count:
+          type: integer
+          title: Event Count
+        avg_confidence:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Avg Confidence
+        unit:
+          anyOf:
+          - type: string
+            maxLength: 32
+          - type: 'null'
+          title: Unit
+        computed_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Computed At
+        metric_type:
+          type: string
+          const: numerical
+          title: Metric Type
+        value:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Value
+      type: object
+      required:
+      - metric_key
+      - period_start
+      - period_end
+      - event_count
+      - metric_type
+      - value
+      title: NumericalMetricValueResponse
+    DescriptionString:
+      type: string
+      maxLength: 2000
+    MetricCatalogEntry:
+      properties:
+        key:
+          type: string
+          maxLength: 64
+          minLength: 1
+          pattern: ^[a-z][a-z0-9_]*$
+          title: Key
+          description: Metric key (lowercase alphanumeric + underscores)
+        name:
+          $ref: '#/components/schemas/NameString'
+        description:
+          anyOf:
+          - $ref: '#/components/schemas/DescriptionString'
+          - type: 'null'
+        metric_type:
+          type: string
+          enum:
+          - numerical
+          - categorical
+          - boolean
+          title: Metric Type
+        source:
+          type: string
+          enum:
+          - call_intelligence
+          - world_events
+          - surface_events
+          - emotion_events
+          - connector_events
+          - zerobus_events
+          - voice_judge_results
+          - custom
+          title: Source
+        custom_source_key:
+          anyOf:
+          - type: string
+            maxLength: 128
+            pattern: ^[a-z][a-z0-9_]*$
+          - type: 'null'
+          title: Custom Source Key
+        extraction_mode:
+          type: string
+          enum:
+          - static
+          - ai_classify
+          - ai_extract
+          - ai_query
+          - sql_expr
+          title: Extraction Mode
+          default: static
+        granularity:
+          type: string
+          enum:
+          - aggregate
+          - per_entity
+          title: Granularity
+          default: aggregate
+        period_granularity:
+          type: string
+          enum:
+          - hourly
+          - daily
+          title: Period Granularity
+          default: daily
+        latency_tier:
+          type: string
+          enum:
+          - streaming
+          - near_realtime
+          - batch
+          title: Latency Tier
+          default: batch
+        model_tier:
+          type: string
+          enum:
+          - free
+          - fast
+          - balanced
+          - max
+          - custom
+          title: Model Tier
+          default: free
+        unit:
+          anyOf:
+          - type: string
+            maxLength: 32
+          - type: 'null'
+          title: Unit
+        has_prompt:
+          type: boolean
+          title: Has Prompt
+          default: false
+        builtin:
+          type: boolean
+          title: Builtin
+      type: object
+      required:
+      - key
+      - name
+      - metric_type
+      - source
+      - builtin
+      title: MetricCatalogEntry
+    MetricListResponse:
+      properties:
+        metrics:
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/NumericalMetricValueResponse'
+            - $ref: '#/components/schemas/CategoricalMetricValueResponse'
+            - $ref: '#/components/schemas/BooleanMetricValueResponse'
+            discriminator:
+              propertyName: metric_type
+              mapping:
+                boolean: '#/components/schemas/BooleanMetricValueResponse'
+                categorical: '#/components/schemas/CategoricalMetricValueResponse'
+                numerical: '#/components/schemas/NumericalMetricValueResponse'
+          type: array
+          title: Metrics
+      type: object
+      required:
+      - metrics
+      title: MetricListResponse
+  securitySchemes:
+    Bearer-Authorization:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Amigo issued JWT token that identifies an user. It's issued either after logging in through the frontend, or manually through the [`SignInWithAPIKey`](sign-in-with-api-key) endpoint.
+    Bearer-Authorization-Organization:
+      type: apiKey
+      in: header
+      name: X-ORG-ID
+      description: An optional organization identifier that indicates from which organization the token is issued. This is used in rare cases where the user to authenticate is making a request for resources in another organization.
+    Basic:
+      type: http
+      scheme: basic
+      description: The username should be set to {org_id}_{user_id}, and the password should be the Amigo issued JWT token that identifies the user.

@@ -1,0 +1,1097 @@
+openapi: 3.1.0
+info:
+  title: Amigo Account Skills API
+  version: 0.1.0
+servers:
+- url: https://api.amigo.ai
+- url: https://internal-api.amigo.ai
+- url: https://api-eu-central-1.amigo.ai
+- url: https://api-ap-southeast-2.amigo.ai
+- url: https://api-ca-central-1.amigo.ai
+security:
+- Bearer-Authorization: []
+  Bearer-Authorization-Organization: []
+  Basic: []
+tags:
+- name: Skills
+paths:
+  /v1/{workspace_id}/skills:
+    post:
+      tags:
+      - Skills
+      summary: Create a skill
+      description: Create a new companion agent skill in a workspace. Requires `Skill.create` permission.
+      operationId: create-skill
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSkillRequest'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SkillResponse'
+        '401':
+          description: Missing or invalid API key.
+        '403':
+          description: Insufficient permissions.
+        '429':
+          description: Rate limited.
+        '422':
+          description: Invalid request body.
+        '404':
+          description: Workspace not found.
+        '409':
+          description: Skill slug already taken or conflicts with a built-in tool name.
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+    get:
+      tags:
+      - Skills
+      summary: List skills
+      description: List skills for a workspace with pagination. Optionally filter by enabled status. Requires `Skill.view` permission.
+      operationId: list-skills
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: enabled
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Enabled
+      - name: search
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - $ref: '#/components/schemas/SearchString'
+          - type: 'null'
+          title: Search
+      - name: sort_by
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Sort By
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 100
+          exclusiveMinimum: 0
+          default: 10
+          title: Limit
+      - name: continuation_token
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 0
+          title: Continuation Token
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedResponse_SkillResponse_'
+        '401':
+          description: Missing or invalid API key.
+        '403':
+          description: Insufficient permissions.
+        '429':
+          description: Rate limited.
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/skills/{skill_id}:
+    get:
+      tags:
+      - Skills
+      summary: Get a skill
+      description: Retrieve a skill by ID. Requires `Skill.view` permission.
+      operationId: get-skill
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: skill_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Skill Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SkillResponse'
+        '401':
+          description: Missing or invalid API key.
+        '403':
+          description: Insufficient permissions.
+        '429':
+          description: Rate limited.
+        '404':
+          description: Skill not found.
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    put:
+      tags:
+      - Skills
+      summary: Update a skill
+      description: 'Update a skill''s configuration in place.
+
+
+        **Field semantics.** Omitted fields and explicit ``null`` are treated identically — both leave the existing value unchanged. Empty-string is rejected with 422 for fields that carry a ``minLength`` bound (``model``). Clearing a previously-set optional value back to ``null`` is not currently supported via PUT.
+
+
+        Requires `Skill.update` permission.'
+      operationId: update-skill
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: skill_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Skill Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateSkillRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SkillResponse'
+        '401':
+          description: Missing or invalid API key.
+        '403':
+          description: Insufficient permissions.
+        '429':
+          description: Rate limited.
+        '422':
+          description: Invalid request body.
+        '404':
+          description: Skill not found.
+    delete:
+      tags:
+      - Skills
+      summary: Delete a skill
+      description: 'Delete a skill.
+
+
+        **Not idempotent.** A second concurrent caller racing the same delete will receive ``404 Not Found`` once the row is gone — clients should treat 404 as success-equivalent for cleanup workflows. Requires `Skill.delete` permission.'
+      operationId: delete-skill
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: skill_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Skill Id
+      responses:
+        '204':
+          description: Successful Response
+        '401':
+          description: Missing or invalid API key.
+        '403':
+          description: Insufficient permissions.
+        '429':
+          description: Rate limited.
+        '404':
+          description: Skill not found.
+        '409':
+          description: Skill is referenced by one or more context graphs.
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/skills/{skill_id}/references:
+    get:
+      tags:
+      - Skills
+      summary: Get skill references
+      description: Find all HSMs and services that reference this skill's slug in their latest version's tool_call_specs. Requires `Skill.view` permission.
+      operationId: get-skill-references
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: skill_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Skill Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SkillReferencesResponse'
+        '401':
+          description: Missing or invalid API key.
+        '403':
+          description: Insufficient permissions.
+        '429':
+          description: Rate limited.
+        '404':
+          description: Skill not found.
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/skills/{skill_id}/test:
+    post:
+      tags:
+      - Skills
+      summary: Test a skill
+      description: Execute a skill in isolation with the given input.
+      operationId: test-skill
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: skill_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Skill Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TestSkillRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TestSkillResponse'
+        '404':
+          description: Skill not found.
+        '403':
+          description: Insufficient permissions.
+        '401':
+          description: Missing or invalid API key.
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+components:
+  schemas:
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    src__models__IntegrationToolRef:
+      properties:
+        integration:
+          type: string
+          title: Integration
+        endpoint:
+          type: string
+          title: Endpoint
+      type: object
+      required:
+      - integration
+      - endpoint
+      title: IntegrationToolRef
+      description: Reference to an integration endpoint by integration + endpoint name.
+    _ToolMockKey:
+      type: string
+      maxLength: 128
+      minLength: 1
+    TestSkillResponse:
+      properties:
+        result:
+          type: string
+          title: Result
+          description: Final result text produced by the skill
+        duration_ms:
+          type: number
+          title: Duration Ms
+          description: Total execution time in milliseconds
+        input_tokens:
+          type: integer
+          title: Input Tokens
+          description: Number of input tokens consumed
+        output_tokens:
+          type: integer
+          title: Output Tokens
+          description: Number of output tokens generated
+        cached_tokens:
+          type: integer
+          title: Cached Tokens
+          description: Number of tokens served from cache
+        rounds:
+          type: integer
+          title: Rounds
+          description: Number of agent reasoning rounds executed
+        sub_tool_logs:
+          items:
+            $ref: '#/components/schemas/SubToolLog'
+          type: array
+          title: Sub Tool Logs
+          description: Chronological log of tool invocations
+        error:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Error
+          description: Error message if the skill execution failed
+      type: object
+      required:
+      - result
+      - duration_ms
+      - input_tokens
+      - output_tokens
+      - cached_tokens
+      - rounds
+      - sub_tool_logs
+      title: TestSkillResponse
+    SkillContextGraphReference:
+      properties:
+        context_graph_id:
+          type: string
+          format: uuid
+          title: Context Graph Id
+        context_graph_name:
+          type: string
+          title: Context Graph Name
+        version:
+          type: integer
+          title: Version
+        states:
+          items:
+            $ref: '#/components/schemas/SkillStateReference'
+          type: array
+          title: States
+      type: object
+      required:
+      - context_graph_id
+      - context_graph_name
+      - version
+      - states
+      title: SkillContextGraphReference
+    _ToolMockValue:
+      type: string
+      maxLength: 16384
+    SkillStateReference:
+      properties:
+        state_name:
+          type: string
+          title: State Name
+        tool_spec_category:
+          type: string
+          title: Tool Spec Category
+      type: object
+      required:
+      - state_name
+      - tool_spec_category
+      title: SkillStateReference
+    SkillReferencesResponse:
+      properties:
+        skill_id:
+          type: string
+          format: uuid
+          title: Skill Id
+        skill_slug:
+          type: string
+          title: Skill Slug
+        context_graph_references:
+          items:
+            $ref: '#/components/schemas/SkillContextGraphReference'
+          type: array
+          title: Context Graph References
+        service_references:
+          items:
+            type: string
+            format: uuid
+          type: array
+          title: Service References
+      type: object
+      required:
+      - skill_id
+      - skill_slug
+      - context_graph_references
+      - service_references
+      title: SkillReferencesResponse
+    SearchString:
+      type: string
+      maxLength: 200
+      minLength: 1
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    src__models__StaticToolDef:
+      properties:
+        name:
+          type: string
+          title: Name
+        description:
+          type: string
+          title: Description
+        input_schema:
+          additionalProperties: true
+          type: object
+          title: Input Schema
+      type: object
+      required:
+      - name
+      - description
+      - input_schema
+      title: StaticToolDef
+      description: A built-in tool available to companion agents.
+    SkillResponse:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        workspace_id:
+          type: string
+          format: uuid
+          title: Workspace Id
+        slug:
+          type: string
+          title: Slug
+        name:
+          type: string
+          title: Name
+        description:
+          type: string
+          title: Description
+        system_prompt:
+          type: string
+          title: System Prompt
+        input_schema:
+          additionalProperties: true
+          type: object
+          title: Input Schema
+        result_schema:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Result Schema
+        model:
+          type: string
+          title: Model
+        max_tokens:
+          type: integer
+          title: Max Tokens
+        max_result_chars:
+          type: integer
+          title: Max Result Chars
+        max_input_tokens:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Max Input Tokens
+        timeout_s:
+          type: number
+          title: Timeout S
+        thinking_effort:
+          anyOf:
+          - type: string
+            enum:
+            - low
+            - medium
+            - high
+          - type: 'null'
+          title: Thinking Effort
+        temperature:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Temperature
+        top_p:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Top P
+        enable_caching:
+          type: boolean
+          title: Enable Caching
+        enable_citations:
+          type: boolean
+          title: Enable Citations
+        use_structured_output:
+          type: boolean
+          title: Use Structured Output
+        integration_tools:
+          items:
+            $ref: '#/components/schemas/src__models__IntegrationToolRef'
+          type: array
+          title: Integration Tools
+        static_tools:
+          items:
+            $ref: '#/components/schemas/src__models__StaticToolDef'
+          type: array
+          title: Static Tools
+        enabled:
+          type: boolean
+          title: Enabled
+        max_agent_turns:
+          type: integer
+          title: Max Agent Turns
+        checkpoint_enabled:
+          type: boolean
+          title: Checkpoint Enabled
+        approval_required:
+          type: boolean
+          title: Approval Required
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+      type: object
+      required:
+      - id
+      - workspace_id
+      - slug
+      - name
+      - description
+      - system_prompt
+      - input_schema
+      - result_schema
+      - model
+      - max_tokens
+      - max_result_chars
+      - max_input_tokens
+      - timeout_s
+      - thinking_effort
+      - temperature
+      - top_p
+      - enable_caching
+      - enable_citations
+      - use_structured_output
+      - integration_tools
+      - static_tools
+      - enabled
+      - max_agent_turns
+      - checkpoint_enabled
+      - approval_required
+      - created_at
+      - updated_at
+      title: SkillResponse
+    DescriptionString:
+      type: string
+      maxLength: 2000
+    PaginatedResponse_SkillResponse_:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/SkillResponse'
+          type: array
+          title: Items
+        has_more:
+          type: boolean
+          title: Has More
+        continuation_token:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Continuation Token
+        total:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Total
+      type: object
+      required:
+      - items
+      - has_more
+      title: PaginatedResponse[SkillResponse]
+    BackgroundString:
+      type: string
+      maxLength: 10000
+    NameString:
+      type: string
+      maxLength: 256
+      minLength: 1
+    StaticToolDef-Input:
+      properties:
+        name:
+          type: string
+          title: Name
+        description:
+          type: string
+          title: Description
+        input_schema:
+          additionalProperties: true
+          type: object
+          title: Input Schema
+      type: object
+      required:
+      - name
+      - description
+      - input_schema
+      title: StaticToolDef
+      description: A built-in tool available to companion agents.
+    SubToolLog:
+      properties:
+        tool_name:
+          type: string
+          title: Tool Name
+          description: Name of the tool that was invoked
+        input:
+          additionalProperties: true
+          type: object
+          title: Input
+          description: Input parameters passed to the tool
+        output:
+          type: string
+          title: Output
+          description: Raw output returned by the tool
+        duration_ms:
+          type: number
+          title: Duration Ms
+          description: Execution time in milliseconds
+        succeeded:
+          type: boolean
+          title: Succeeded
+          description: Whether the tool invocation succeeded
+        round:
+          type: integer
+          title: Round
+          description: Agent reasoning round in which the tool was called
+      type: object
+      required:
+      - tool_name
+      - input
+      - output
+      - duration_ms
+      - succeeded
+      - round
+      title: SubToolLog
+    IntegrationToolRef-Input:
+      properties:
+        integration:
+          type: string
+          title: Integration
+        endpoint:
+          type: string
+          title: Endpoint
+      type: object
+      required:
+      - integration
+      - endpoint
+      title: IntegrationToolRef
+      description: Reference to an integration endpoint by integration + endpoint name.
+    TestSkillRequest:
+      properties:
+        input:
+          additionalProperties: true
+          type: object
+          title: Input
+          description: Input parameters to pass to the skill executor.
+        static_tool_mocks:
+          additionalProperties:
+            $ref: '#/components/schemas/_ToolMockValue'
+          propertyNames:
+            $ref: '#/components/schemas/_ToolMockKey'
+          type: object
+          maxProperties: 64
+          title: Static Tool Mocks
+          description: Map of static tool name (max 128 chars) to mocked output string (max 16 KB). Up to 64 entries.
+      type: object
+      required:
+      - input
+      title: TestSkillRequest
+    CreateSkillRequest:
+      properties:
+        slug:
+          type: string
+          maxLength: 63
+          minLength: 2
+          pattern: ^[a-z0-9][a-z0-9_-]*[a-z0-9]$
+          title: Slug
+        name:
+          $ref: '#/components/schemas/NameString'
+        description:
+          $ref: '#/components/schemas/DescriptionString'
+        system_prompt:
+          anyOf:
+          - $ref: '#/components/schemas/BackgroundString'
+          - type: 'null'
+        input_schema:
+          additionalProperties: true
+          type: object
+          title: Input Schema
+        result_schema:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Result Schema
+        model:
+          type: string
+          maxLength: 128
+          minLength: 1
+          title: Model
+          default: claude-sonnet-4-6
+        max_tokens:
+          type: integer
+          maximum: 200000.0
+          minimum: 1.0
+          title: Max Tokens
+          default: 4096
+        max_result_chars:
+          type: integer
+          maximum: 200000.0
+          minimum: 1.0
+          title: Max Result Chars
+          default: 2000
+        max_input_tokens:
+          anyOf:
+          - type: integer
+            maximum: 2000000.0
+            minimum: 1.0
+          - type: 'null'
+          title: Max Input Tokens
+        timeout_s:
+          type: number
+          maximum: 900.0
+          minimum: 0.1
+          title: Timeout S
+          default: 60.0
+        thinking_effort:
+          anyOf:
+          - type: string
+            enum:
+            - low
+            - medium
+            - high
+          - type: 'null'
+          title: Thinking Effort
+        temperature:
+          anyOf:
+          - type: number
+            maximum: 1.0
+            minimum: 0.0
+          - type: 'null'
+          title: Temperature
+          description: Anthropic sampling temperature (0-1). Ignored on models that reject sampling params (Opus 4.7+/Fable, which 400 otherwise). Set at most one of temperature/top_p -- Claude 4+ rejects both; the runtime keeps temperature and drops top_p.
+        top_p:
+          anyOf:
+          - type: number
+            maximum: 1.0
+            minimum: 0.0
+          - type: 'null'
+          title: Top P
+          description: Anthropic nucleus sampling (0-1). Ignored on sampling-param-rejecting models; see temperature.
+        enable_caching:
+          type: boolean
+          title: Enable Caching
+          default: true
+        enable_citations:
+          type: boolean
+          title: Enable Citations
+          default: false
+        use_structured_output:
+          type: boolean
+          title: Use Structured Output
+          default: false
+        integration_tools:
+          items:
+            $ref: '#/components/schemas/IntegrationToolRef-Input'
+          type: array
+          maxItems: 50
+          title: Integration Tools
+        static_tools:
+          items:
+            $ref: '#/components/schemas/StaticToolDef-Input'
+          type: array
+          maxItems: 50
+          title: Static Tools
+        enabled:
+          type: boolean
+          title: Enabled
+          default: true
+        max_agent_turns:
+          type: integer
+          maximum: 200.0
+          minimum: 1.0
+          title: Max Agent Turns
+          default: 20
+        checkpoint_enabled:
+          type: boolean
+          title: Checkpoint Enabled
+          default: true
+        approval_required:
+          type: boolean
+          title: Approval Required
+          default: false
+      type: object
+      required:
+      - slug
+      - name
+      - description
+      - input_schema
+      title: CreateSkillRequest
+    UpdateSkillRequest:
+      properties:
+        name:
+          anyOf:
+          - $ref: '#/components/schemas/NameString'
+          - type: 'null'
+        description:
+          anyOf:
+          - $ref: '#/components/schemas/DescriptionString'
+          - type: 'null'
+        system_prompt:
+          anyOf:
+          - $ref: '#/components/schemas/BackgroundString'
+          - type: 'null'
+        input_schema:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Input Schema
+        result_schema:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Result Schema
+        model:
+          anyOf:
+          - type: string
+            maxLength: 128
+            minLength: 1
+          - type: 'null'
+          title: Model
+        max_tokens:
+          anyOf:
+          - type: integer
+            maximum: 200000.0
+            minimum: 1.0
+          - type: 'null'
+          title: Max Tokens
+        max_result_chars:
+          anyOf:
+          - type: integer
+            maximum: 200000.0
+            minimum: 1.0
+          - type: 'null'
+          title: Max Result Chars
+        max_input_tokens:
+          anyOf:
+          - type: integer
+            maximum: 2000000.0
+            minimum: 1.0
+          - type: 'null'
+          title: Max Input Tokens
+        timeout_s:
+          anyOf:
+          - type: number
+            maximum: 900.0
+            minimum: 0.1
+          - type: 'null'
+          title: Timeout S
+        thinking_effort:
+          anyOf:
+          - type: string
+            enum:
+            - low
+            - medium
+            - high
+          - type: 'null'
+          title: Thinking Effort
+        temperature:
+          anyOf:
+          - type: number
+            maximum: 1.0
+            minimum: 0.0
+          - type: 'null'
+          title: Temperature
+          description: Anthropic sampling temperature (0-1); see CreateSkillRequest. null/absent leaves it unchanged.
+        top_p:
+          anyOf:
+          - type: number
+            maximum: 1.0
+            minimum: 0.0
+          - type: 'null'
+          title: Top P
+          description: Anthropic nucleus sampling (0-1); see CreateSkillRequest. null/absent leaves it unchanged.
+        enable_caching:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Enable Caching
+        enable_citations:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Enable Citations
+        use_structured_output:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Use Structured Output
+        integration_tools:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/IntegrationToolRef-Input'
+            type: array
+            maxItems: 50
+          - type: 'null'
+          title: Integration Tools
+        static_tools:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/StaticToolDef-Input'
+            type: array
+            maxItems: 50
+          - type: 'null'
+          title: Static Tools
+        enabled:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Enabled
+        max_agent_turns:
+          anyOf:
+          - type: integer
+            maximum: 200.0
+            minimum: 1.0
+          - type: 'null'
+          title: Max Agent Turns
+        checkpoint_enabled:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Checkpoint Enabled
+        approval_required:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Approval Required
+      type: object
+      title: UpdateSkillRequest
+  securitySchemes:
+    Bearer-Authorization:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Amigo issued JWT token that identifies an user. It's issued either after logging in through the frontend, or manually through the [`SignInWithAPIKey`](sign-in-with-api-key) endpoint.
+    Bearer-Authorization-Organization:
+      type: apiKey
+      in: header
+      name: X-ORG-ID
+      description: An optional organization identifier that indicates from which organization the token is issued. This is used in rare cases where the user to authenticate is making a request for resources in another organization.
+    Basic:
+      type: http
+      scheme: basic
+      description: The username should be set to {org_id}_{user_id}, and the password should be the Amigo issued JWT token that identifies the user.

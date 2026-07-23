@@ -1,0 +1,173 @@
+openapi: 3.1.0
+info:
+  title: Amigo Account Metering API
+  version: 0.1.0
+servers:
+- url: https://api.amigo.ai
+- url: https://internal-api.amigo.ai
+- url: https://api-eu-central-1.amigo.ai
+- url: https://api-ap-southeast-2.amigo.ai
+- url: https://api-ca-central-1.amigo.ai
+security:
+- Bearer-Authorization: []
+  Bearer-Authorization-Organization: []
+  Basic: []
+tags:
+- name: Metering
+paths:
+  /v1/{workspace_id}/metering/emit:
+    post:
+      tags:
+      - Metering
+      summary: Emit Metering Event
+      description: Emit one metering event for the calling workspace.
+      operationId: emit-metering-event
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MeteringEmitRequest'
+        required: true
+      responses:
+        '202':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MeteringEmitResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+components:
+  schemas:
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    MeteringEmitResponse:
+      properties:
+        status:
+          type: string
+          const: accepted
+          title: Status
+          description: Emission outcome. Always 'accepted' on 202.
+        event_type:
+          type: string
+          maxLength: 64
+          minLength: 1
+          title: Event Type
+          description: Echo of the emitted event_type.
+      type: object
+      required:
+      - status
+      - event_type
+      title: MeteringEmitResponse
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    MeteringEmitRequest:
+      properties:
+        event_type:
+          type: string
+          maxLength: 64
+          minLength: 1
+          pattern: ^[a-z][a-z0-9._]*$
+          title: Event Type
+        metering_quantity:
+          type: number
+          minimum: 0.0
+          title: Metering Quantity
+        metering_source:
+          type: string
+          enum:
+          - production
+          - simulation
+          title: Metering Source
+          description: Traffic class — 'production' or 'simulation'.
+        effective_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Effective At
+          description: When the event happened. Defaults to ingest time.
+        metering_unit:
+          anyOf:
+          - type: string
+            maxLength: 32
+            minLength: 1
+          - type: 'null'
+          title: Metering Unit
+        metering_metadata:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Metering Metadata
+        event_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Event Id
+          description: 'Optional deterministic row id (typically uuid5(NAMESPACE, ''<stable-key>'')). Re-emitting with the same value lands on the same world_events row instead of double-billing. Use for backfills and retries. Default: server generates a random uuid4.'
+      type: object
+      required:
+      - event_type
+      - metering_quantity
+      - metering_source
+      title: MeteringEmitRequest
+  securitySchemes:
+    Bearer-Authorization:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Amigo issued JWT token that identifies an user. It's issued either after logging in through the frontend, or manually through the [`SignInWithAPIKey`](sign-in-with-api-key) endpoint.
+    Bearer-Authorization-Organization:
+      type: apiKey
+      in: header
+      name: X-ORG-ID
+      description: An optional organization identifier that indicates from which organization the token is issued. This is used in rare cases where the user to authenticate is making a request for resources in another organization.
+    Basic:
+      type: http
+      scheme: basic
+      description: The username should be set to {org_id}_{user_id}, and the password should be the Amigo issued JWT token that identifies the user.

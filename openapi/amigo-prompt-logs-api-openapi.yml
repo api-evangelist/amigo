@@ -1,0 +1,378 @@
+openapi: 3.1.0
+info:
+  title: Amigo Account Prompt Logs API
+  version: 0.1.0
+servers:
+- url: https://api.amigo.ai
+- url: https://internal-api.amigo.ai
+- url: https://api-eu-central-1.amigo.ai
+- url: https://api-ap-southeast-2.amigo.ai
+- url: https://api-ca-central-1.amigo.ai
+security:
+- Bearer-Authorization: []
+  Bearer-Authorization-Organization: []
+  Basic: []
+tags:
+- name: Prompt Logs
+paths:
+  /v1/{workspace_id}/prompt-logs:
+    get:
+      tags:
+      - Prompt Logs
+      summary: List prompt logs for a workspace
+      description: 'Lists ``prompt_log`` events emitted by agent-engine — full system prompt, conversation history, tool catalog, LLM model, and response — for auditing and debugging. Reads the Delta ``world_events`` ledger via Databricks SQL; typical latency is 1-5s with a 15s ceiling on cold-start.
+
+
+        **Conversation filter**: pass ``conversation_id`` for the canonical mental model. Text conversations resolve from ``world.conversations``; voice/call IDs resolve through the projected conversation entity. ``call_sid`` is the legacy direct-SID filter (Twilio CA-SID for voice, session_id UUID otherwise) and is mutually exclusive with ``conversation_id``.
+
+
+        **Other filters**: ``prompt_type``, ``state_name``, ``from_ts``, ``to_ts``. When no selectivity-bearing filter (conversation_id / call_sid / time range) is supplied, the query is auto-capped to the last 7 days; the applied window is reported in ``applied_time_window_days``.
+
+
+        **Pagination**: peek-ahead — ``has_more`` is true when more rows exist; use ``next_offset`` to fetch the next page.
+
+
+        **Auth**: admin or owner role required. Reads are audit-logged (``prompt_logs.queried``); responses can include PHI from prompt history.'
+      operationId: list-prompt-logs
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: conversation_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          description: Conversation entity UUID (canonical identifier across all modalities — voice, text/web, sms, sim). Resolves text conversations through the durable ``world.conversations`` row, then falls back to the voice/call entity projection. Mutually exclusive with the ``call_sid`` query parameter.
+          title: Conversation Id
+        description: Conversation entity UUID (canonical identifier across all modalities — voice, text/web, sms, sim). Resolves text conversations through the durable ``world.conversations`` row, then falls back to the voice/call entity projection. Mutually exclusive with the ``call_sid`` query parameter.
+      - name: call_sid
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            maxLength: 64
+          - type: 'null'
+          description: 'Direct conversation identifier as stored on the prompt-log event: Twilio CA-SID for voice calls, session_id UUID for text/sim sessions. Most callers should use ``conversation_id`` instead — this is kept for legacy callers and external systems that hold the SID directly. Mutually exclusive with ``conversation_id``.'
+          title: Call Sid
+        description: 'Direct conversation identifier as stored on the prompt-log event: Twilio CA-SID for voice calls, session_id UUID for text/sim sessions. Most callers should use ``conversation_id`` instead — this is kept for legacy callers and external systems that hold the SID directly. Mutually exclusive with ``conversation_id``.'
+      - name: prompt_type
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            maxLength: 64
+          - type: 'null'
+          description: Filter by prompt_type (e.g. engage_user, navigation, tool)
+          title: Prompt Type
+        description: Filter by prompt_type (e.g. engage_user, navigation, tool)
+      - name: state_name
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            maxLength: 128
+          - type: 'null'
+          description: Filter by HSM state_name at render time
+          title: State Name
+        description: Filter by HSM state_name at render time
+      - name: from_ts
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          description: Inclusive lower bound on effective_at
+          title: From Ts
+        description: Inclusive lower bound on effective_at
+      - name: to_ts
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          description: Exclusive upper bound on effective_at
+          title: To Ts
+        description: Exclusive upper bound on effective_at
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 200
+          minimum: 1
+          description: Max rows to return (default 20, max 200)
+          default: 20
+          title: Limit
+        description: Max rows to return (default 20, max 200)
+      - name: offset
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 10000
+          minimum: 0
+          description: Offset for pagination (max 10000)
+          default: 0
+          title: Offset
+        description: Offset for pagination (max 10000)
+      responses:
+        '200':
+          description: Prompt log entries (newest first)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PromptLogListResponse'
+        '400':
+          description: Mutually exclusive filters supplied
+        '403':
+          description: Caller is not admin/owner
+        '404':
+          description: conversation_id does not match any conversation in this workspace
+        '503':
+          description: Raw world event reads disabled or warehouse unavailable
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+components:
+  schemas:
+    PromptLogListResponse:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/PromptLogEntry'
+          type: array
+          title: Items
+        count:
+          type: integer
+          minimum: 0.0
+          title: Count
+        has_more:
+          type: boolean
+          title: Has More
+        next_offset:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Next Offset
+          description: Pass back as offset to fetch the next page; null when has_more is false
+        applied_time_window_days:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Applied Time Window Days
+          description: Auto-applied time bound (in days) when no call_sid/from_ts/to_ts was passed. Null when the caller supplied an explicit selectivity-bearing filter.
+        resolved_call_sid:
+          anyOf:
+          - type: string
+            maxLength: 64
+          - type: 'null'
+          title: Resolved Call Sid
+          description: When ``conversation_id`` was supplied, this is the underlying ``call_sid`` that the lookup resolved to. Useful for callers that want to drill into per-call surfaces afterward without re-querying ``world.entities_synced``. Null when the caller filtered by ``call_sid`` directly or did not filter by conversation.
+        resolved_conversation_kind:
+          anyOf:
+          - type: string
+            enum:
+            - call
+            - conversation
+          - type: 'null'
+          title: Resolved Conversation Kind
+          description: '``entity_type`` of the conversation entity when ``conversation_id`` was supplied (``call`` for voice/sim, ``conversation`` for text/sms/whatsapp/email). Null otherwise.'
+      type: object
+      required:
+      - items
+      - count
+      - has_more
+      title: PromptLogListResponse
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    PromptLogEntry:
+      properties:
+        event_id:
+          type: string
+          format: uuid
+          title: Event Id
+        call_sid:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Call Sid
+        workspace_id:
+          type: string
+          format: uuid
+          title: Workspace Id
+        effective_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Effective At
+        ingested_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Ingested At
+        source:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Source
+        source_system:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Source System
+        prompt_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Prompt Type
+        turn_index:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Turn Index
+        system_prompt:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: System Prompt
+        history:
+          anyOf:
+          - items:
+              additionalProperties: true
+              type: object
+            type: array
+          - type: 'null'
+          title: History
+        full_prompt:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Full Prompt
+        llm_model:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Llm Model
+        llm_response:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Llm Response
+        state_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: State Name
+        action:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Action
+        tool_names:
+          items:
+            type: string
+          type: array
+          title: Tool Names
+        has_tools:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Has Tools
+        service_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Service Id
+        session_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Session Id
+        data_parse_error:
+          type: boolean
+          title: Data Parse Error
+          default: false
+      type: object
+      required:
+      - event_id
+      - workspace_id
+      title: PromptLogEntry
+      description: 'One ``prompt_log`` event projection — full LLM input + output for a turn.
+
+
+        Unbounded string fields (``system_prompt``, ``full_prompt``,
+
+        ``llm_response``) reflect the producer''s payload as-is — typically
+
+        1-50 KB each, occasionally larger for long histories. SDK consumers
+
+        should not assume a max length.'
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+  securitySchemes:
+    Bearer-Authorization:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Amigo issued JWT token that identifies an user. It's issued either after logging in through the frontend, or manually through the [`SignInWithAPIKey`](sign-in-with-api-key) endpoint.
+    Bearer-Authorization-Organization:
+      type: apiKey
+      in: header
+      name: X-ORG-ID
+      description: An optional organization identifier that indicates from which organization the token is issued. This is used in rare cases where the user to authenticate is making a request for resources in another organization.
+    Basic:
+      type: http
+      scheme: basic
+      description: The username should be set to {org_id}_{user_id}, and the password should be the Amigo issued JWT token that identifies the user.

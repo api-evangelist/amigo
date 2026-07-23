@@ -1,0 +1,1357 @@
+openapi: 3.1.0
+info:
+  title: Amigo Account Surfaces API
+  version: 0.1.0
+servers:
+- url: https://api.amigo.ai
+- url: https://internal-api.amigo.ai
+- url: https://api-eu-central-1.amigo.ai
+- url: https://api-ap-southeast-2.amigo.ai
+- url: https://api-ca-central-1.amigo.ai
+security:
+- Bearer-Authorization: []
+  Bearer-Authorization-Organization: []
+  Basic: []
+tags:
+- name: Surfaces
+paths:
+  /v1/{workspace_id}/surfaces:
+    post:
+      tags:
+      - Surfaces
+      summary: Create Surface
+      description: 'Create a new data collection surface.
+
+
+        Stores the surface spec as a world.event with domain="surface".
+
+        The entity_id is stored inside event data (not on the event row)
+
+        to avoid entity state recomputation.
+
+
+        Returns a signed patient-facing token and URL if SURFACE_TOKEN_SECRET is configured.
+
+
+        Permissions: member, admin, owner (surfaces:write)'
+      operationId: create-surface
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSurfaceRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateSurfaceResponse'
+        '422':
+          description: Validation error
+        '429':
+          description: Rate limited
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+    get:
+      tags:
+      - Surfaces
+      summary: List Surfaces
+      description: 'List surfaces with pagination and optional filters.
+
+
+        Permissions: viewer, member, admin, owner (surfaces:read)'
+      operationId: list-surfaces
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: entity_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          description: Filter by entity ID
+          title: Entity Id
+        description: Filter by entity ID
+      - name: status
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filter by status
+          title: Status
+        description: Filter by status
+      - name: channel
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filter by channel
+          title: Channel
+        description: Filter by channel
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 100
+          exclusiveMinimum: 0
+          default: 10
+          title: Limit
+      - name: continuation_token
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 0
+          title: Continuation Token
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedResponse_SurfaceResponse_'
+        '429':
+          description: Rate limited
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/surfaces/review:
+    get:
+      tags:
+      - Surfaces
+      summary: List surfaces pending review
+      description: 'List surfaces pending review.
+
+
+        Field engineers use this to approve or reject surfaces before delivery.
+
+
+        Permissions: operator, member, admin, owner (ReviewQueue:View)'
+      operationId: list-surface-review-queue
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 100
+          exclusiveMinimum: 0
+          default: 10
+          title: Limit
+      - name: continuation_token
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 0
+          title: Continuation Token
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedResponse_SurfaceResponse_'
+        '429':
+          description: Rate limited
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/surfaces/{surface_id}:
+    get:
+      tags:
+      - Surfaces
+      summary: Get Surface
+      description: 'Get a surface by ID.
+
+
+        Returns the surface spec and current lifecycle status. Also mints the
+
+        patient-facing ``url`` so operators can copy/share the link from the read
+
+        view (the token isn''t stored, so it''s re-minted on each read).
+
+
+        Permissions: viewer, member, admin, owner (surfaces:read)'
+      operationId: get-surface
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: surface_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Surface Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SurfaceResponse'
+        '404':
+          description: Surface not found
+        '429':
+          description: Rate limited
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    patch:
+      tags:
+      - Surfaces
+      summary: Update a surface spec
+      description: 'Update an existing surface spec.
+
+
+        Only allowed while status is CREATED or DELIVERED. Writes a
+
+        surface.updated event preserving the full audit trail.
+
+
+        Permissions: member, admin, owner (Surface:Create)'
+      operationId: update-surface
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: surface_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Surface Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateSurfaceRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SurfaceResponse'
+        '404':
+          description: Surface not found
+        '409':
+          description: Cannot update in current status
+        '422':
+          description: Validation error
+        '429':
+          description: Rate limited
+    delete:
+      tags:
+      - Surfaces
+      summary: Archive (soft-delete) a surface
+      description: 'Archive (soft-delete) a surface.
+
+
+        Works for any non-terminal surface. Terminal surfaces (completed,
+
+        expired, already archived) cannot be archived.
+
+
+        Permissions: member, admin, owner (Surface:Create)'
+      operationId: archive-surface
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: surface_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Surface Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ArchiveResponse'
+        '404':
+          description: Surface not found
+        '409':
+          description: Cannot archive terminal surface
+        '429':
+          description: Rate limited
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/surfaces/{surface_id}/approve:
+    post:
+      tags:
+      - Surfaces
+      summary: Approve a surface pending review
+      description: 'Approve a surface pending review.
+
+
+        The surface returns to CREATED status and can then be delivered.
+
+
+        Permissions: operator, member, admin, owner (ReviewQueue:Review)'
+      operationId: approve-surface
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: surface_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Surface Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReviewActionResponse'
+        '404':
+          description: Surface not found
+        '409':
+          description: Surface is not pending review
+        '429':
+          description: Rate limited
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/surfaces/{surface_id}/reject:
+    post:
+      tags:
+      - Surfaces
+      summary: Reject a surface pending review
+      description: 'Reject a surface pending review.
+
+
+        The surface is marked as expired and will not be delivered.
+
+
+        Permissions: operator, member, admin, owner (ReviewQueue:Review)'
+      operationId: reject-surface
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: surface_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Surface Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RejectSurfaceRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReviewActionResponse'
+        '404':
+          description: Surface not found
+        '409':
+          description: Surface is not pending review
+        '429':
+          description: Rate limited
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/surfaces/{surface_id}/progress:
+    get:
+      tags:
+      - Surfaces
+      summary: Get field-level completion status
+      description: 'Get field-level completion status for a surface.
+
+
+        Returns which fields are filled vs empty, useful for abandonment
+
+        intelligence and targeted re-engagement.
+
+
+        Permissions: viewer, member, admin, owner (surfaces:read)'
+      operationId: get-surface-progress
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: surface_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Surface Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SurfaceProgressResponse'
+        '404':
+          description: Surface not found
+        '429':
+          description: Rate limited
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/surfaces/{surface_id}/reshape:
+    post:
+      tags:
+      - Surfaces
+      summary: Create new surface with only unfilled fields
+      description: 'Create a new surface with only the unfilled fields from the original.
+
+
+        Used for re-engaging patients who abandoned a form. The new surface
+
+        contains only the fields they haven''t completed yet, reducing friction.
+
+
+        Permissions: member, admin, owner (surfaces:write)'
+      operationId: reshape-surface
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: surface_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Surface Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateSurfaceResponse'
+        '404':
+          description: Surface not found
+        '409':
+          description: All fields already filled
+        '429':
+          description: Rate limited
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/surfaces/{surface_id}/deliver:
+    post:
+      tags:
+      - Surfaces
+      summary: Deliver Surface
+      description: 'Record a real delivery handoff for a surface.
+
+
+        Email targets are delivered through channel-manager''s
+
+        ``POST /v1/email/`` (CM owns SES sender identity, IP pool, DKIM,
+
+        suppression — keyed on the surface row''s ``use_case_id``). Phone-shaped
+
+        addresses return 422 — SMS surface delivery was removed in PR #2783.
+
+        Other targets record an external handoff that was completed outside
+
+        platform-api.
+
+
+        Permissions: member, admin, owner (surfaces:write)'
+      operationId: deliver-surface
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: surface_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Surface Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeliverSurfaceRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeliverSurfaceResponse'
+        '404':
+          description: Surface not found
+        '409':
+          description: Surface already delivered/completed/expired
+        '422':
+          description: Validation error
+        '429':
+          description: Rate limited
+components:
+  schemas:
+    ChannelType:
+      type: string
+      enum:
+      - email
+      - web
+      - sms
+      title: ChannelType
+      description: Delivery channels for surfaces.
+    SurfaceSection:
+      properties:
+        title:
+          $ref: '#/components/schemas/NameString'
+        description:
+          anyOf:
+          - $ref: '#/components/schemas/DescriptionString'
+          - type: 'null'
+        field_keys:
+          items:
+            type: string
+          type: array
+          maxItems: 100
+          minItems: 1
+          title: Field Keys
+        condition:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Condition
+      type: object
+      required:
+      - title
+      - field_keys
+      title: SurfaceSection
+      description: A page/step in a multi-page surface form.
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    CreateSurfaceResponse:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        event_id:
+          type: string
+          format: uuid
+          title: Event Id
+        entity_id:
+          type: string
+          format: uuid
+          title: Entity Id
+        title:
+          type: string
+          title: Title
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        status:
+          $ref: '#/components/schemas/SurfaceStatus'
+        channel:
+          $ref: '#/components/schemas/ChannelType'
+        use_case_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Use Case Id
+        fields_count:
+          type: integer
+          title: Fields Count
+        expires_at:
+          type: string
+          title: Expires At
+        created_at:
+          type: string
+          title: Created At
+        token:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Token
+        url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Url
+      type: object
+      required:
+      - id
+      - event_id
+      - entity_id
+      - title
+      - status
+      - channel
+      - fields_count
+      - expires_at
+      - created_at
+      title: CreateSurfaceResponse
+    PaginatedResponse_SurfaceResponse_:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/SurfaceResponse'
+          type: array
+          title: Items
+        has_more:
+          type: boolean
+          title: Has More
+        continuation_token:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Continuation Token
+        total:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Total
+      type: object
+      required:
+      - items
+      - has_more
+      title: PaginatedResponse[SurfaceResponse]
+    RejectSurfaceRequest:
+      properties:
+        reason:
+          anyOf:
+          - type: string
+            maxLength: 2000
+          - type: 'null'
+          title: Reason
+      type: object
+      title: RejectSurfaceRequest
+    SurfaceStatus:
+      type: string
+      enum:
+      - created
+      - pending_review
+      - delivered
+      - opened
+      - partial
+      - completed
+      - expired
+      - archived
+      title: SurfaceStatus
+      description: Lifecycle status of a surface.
+    DeliverSurfaceRequest:
+      properties:
+        channel_address:
+          type: string
+          maxLength: 256
+          minLength: 1
+          title: Channel Address
+          description: Delivery address (phone number, email, etc.)
+      type: object
+      required:
+      - channel_address
+      title: DeliverSurfaceRequest
+      description: Request to mark a surface as delivered.
+    ReviewActionResponse:
+      properties:
+        surface_id:
+          type: string
+          format: uuid
+          title: Surface Id
+        status:
+          $ref: '#/components/schemas/SurfaceStatus'
+        action:
+          type: string
+          enum:
+          - approved
+          - rejected
+          title: Action
+      type: object
+      required:
+      - surface_id
+      - status
+      - action
+      title: ReviewActionResponse
+    FieldType:
+      type: string
+      enum:
+      - text
+      - textarea
+      - date
+      - phone
+      - email
+      - number
+      - select
+      - multiselect
+      - checkbox
+      - photo
+      - signature
+      - file
+      - heading
+      - info
+      title: FieldType
+      description: Input field types for surface data collection.
+    SurfaceProgressResponse:
+      properties:
+        surface_id:
+          type: string
+          format: uuid
+          title: Surface Id
+        total_fields:
+          type: integer
+          title: Total Fields
+        filled_count:
+          type: integer
+          title: Filled Count
+        empty_count:
+          type: integer
+          title: Empty Count
+        filled_keys:
+          items:
+            type: string
+          type: array
+          title: Filled Keys
+        empty_keys:
+          items:
+            type: string
+          type: array
+          title: Empty Keys
+        required_empty_keys:
+          items:
+            type: string
+          type: array
+          title: Required Empty Keys
+      type: object
+      required:
+      - surface_id
+      - total_fields
+      - filled_count
+      - empty_count
+      - filled_keys
+      - empty_keys
+      - required_empty_keys
+      title: SurfaceProgressResponse
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    SurfaceResponse:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        event_id:
+          type: string
+          format: uuid
+          title: Event Id
+        entity_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Entity Id
+        title:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Title
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        status:
+          $ref: '#/components/schemas/SurfaceStatus'
+        channel:
+          anyOf:
+          - $ref: '#/components/schemas/ChannelType'
+          - type: 'null'
+        use_case_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Use Case Id
+        fields_count:
+          type: integer
+          title: Fields Count
+        fields:
+          items:
+            additionalProperties: true
+            type: object
+          type: array
+          title: Fields
+          default: []
+        resource_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Resource Type
+        context:
+          additionalProperties: true
+          type: object
+          title: Context
+          default: {}
+        expires_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Expires At
+        created_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Created At
+        delivered_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Delivered At
+        opened_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Opened At
+        submitted_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Submitted At
+        submitted_data:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Submitted Data
+        delivery_metadata:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Delivery Metadata
+        review_notes:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Review Notes
+        reviewed_by:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Reviewed By
+        reviewed_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Reviewed At
+        archived_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Archived At
+        archive_reason:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Archive Reason
+        url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Url
+      type: object
+      required:
+      - id
+      - event_id
+      - status
+      - fields_count
+      title: SurfaceResponse
+    ArchiveResponse:
+      properties:
+        surface_id:
+          type: string
+          format: uuid
+          title: Surface Id
+        status:
+          type: string
+          const: archived
+          title: Status
+      type: object
+      required:
+      - surface_id
+      - status
+      title: ArchiveResponse
+    DescriptionString:
+      type: string
+      maxLength: 2000
+    BrandingConfig:
+      properties:
+        logo_url:
+          anyOf:
+          - type: string
+            maxLength: 2048
+          - type: 'null'
+          title: Logo Url
+        primary_color:
+          anyOf:
+          - type: string
+            maxLength: 32
+          - type: 'null'
+          title: Primary Color
+        background_color:
+          anyOf:
+          - type: string
+            maxLength: 32
+          - type: 'null'
+          title: Background Color
+        font_family:
+          anyOf:
+          - type: string
+            maxLength: 256
+          - type: 'null'
+          title: Font Family
+      type: object
+      title: BrandingConfig
+      description: Visual branding for patient-facing surfaces.
+    NameString:
+      type: string
+      maxLength: 256
+      minLength: 1
+    DeliverSurfaceResponse:
+      properties:
+        surface_id:
+          type: string
+          format: uuid
+          title: Surface Id
+        status:
+          type: string
+          enum:
+          - delivered
+          - pending_review
+          title: Status
+        channel:
+          anyOf:
+          - $ref: '#/components/schemas/ChannelType'
+          - type: 'null'
+        url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Url
+        channel_address:
+          type: string
+          title: Channel Address
+        message_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Message Id
+        from_number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: From Number
+        from_address:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: From Address
+        delivery_provider:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Delivery Provider
+        delivered_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Delivered At
+      type: object
+      required:
+      - surface_id
+      - status
+      - channel_address
+      title: DeliverSurfaceResponse
+    SurfaceField:
+      properties:
+        key:
+          type: string
+          maxLength: 128
+          minLength: 1
+          title: Key
+        label:
+          $ref: '#/components/schemas/NameString'
+        field_type:
+          $ref: '#/components/schemas/FieldType'
+        required:
+          type: boolean
+          title: Required
+          default: true
+        options:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          title: Options
+        description:
+          anyOf:
+          - $ref: '#/components/schemas/DescriptionString'
+          - type: 'null'
+        placeholder:
+          anyOf:
+          - type: string
+            maxLength: 256
+          - type: 'null'
+          title: Placeholder
+        prefill_value:
+          anyOf:
+          - {}
+          - type: 'null'
+          title: Prefill Value
+        validation:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Validation
+        sensitive:
+          type: boolean
+          title: Sensitive
+          default: false
+        condition:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Condition
+        consent_text:
+          anyOf:
+          - type: string
+            maxLength: 5000
+          - type: 'null'
+          title: Consent Text
+      type: object
+      required:
+      - key
+      - label
+      - field_type
+      title: SurfaceField
+      description: 'A single data collection field in a surface spec.
+
+
+        Generated by agents from HSM analysis. Each field maps
+
+        to a specific piece of data the world model needs.'
+    UpdateSurfaceRequest:
+      properties:
+        title:
+          anyOf:
+          - $ref: '#/components/schemas/NameString'
+          - type: 'null'
+        description:
+          anyOf:
+          - $ref: '#/components/schemas/DescriptionString'
+          - type: 'null'
+        fields:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/SurfaceField'
+            type: array
+            maxItems: 200
+            minItems: 1
+          - type: 'null'
+          title: Fields
+        branding:
+          anyOf:
+          - $ref: '#/components/schemas/BrandingConfig'
+          - type: 'null'
+        sections:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/SurfaceSection'
+            type: array
+          - type: 'null'
+          title: Sections
+        completion_title:
+          anyOf:
+          - type: string
+            maxLength: 256
+          - type: 'null'
+          title: Completion Title
+        completion_message:
+          anyOf:
+          - type: string
+            maxLength: 2000
+          - type: 'null'
+          title: Completion Message
+        completion_action_url:
+          anyOf:
+          - type: string
+            maxLength: 2048
+          - type: 'null'
+          title: Completion Action Url
+        submit_button_text:
+          anyOf:
+          - type: string
+            maxLength: 128
+          - type: 'null'
+          title: Submit Button Text
+        channel:
+          anyOf:
+          - $ref: '#/components/schemas/ChannelType'
+          - type: 'null'
+        resource_type:
+          anyOf:
+          - type: string
+            maxLength: 64
+          - type: 'null'
+          title: Resource Type
+      type: object
+      title: UpdateSurfaceRequest
+      description: 'Partial update to an existing surface.
+
+
+        All fields are optional. Only provided fields are merged into the spec.
+
+        Only allowed while status is CREATED or DELIVERED.'
+    CreateSurfaceRequest:
+      properties:
+        entity_id:
+          type: string
+          format: uuid
+          title: Entity Id
+        title:
+          $ref: '#/components/schemas/NameString'
+        description:
+          anyOf:
+          - $ref: '#/components/schemas/DescriptionString'
+          - type: 'null'
+        fields:
+          items:
+            $ref: '#/components/schemas/SurfaceField'
+          type: array
+          maxItems: 200
+          minItems: 1
+          title: Fields
+        channel:
+          $ref: '#/components/schemas/ChannelType'
+          default: web
+        use_case_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Use Case Id
+        expires_in_hours:
+          type: integer
+          maximum: 8760.0
+          minimum: 1.0
+          title: Expires In Hours
+          default: 168
+        context:
+          additionalProperties: true
+          type: object
+          title: Context
+          default: {}
+        resource_type:
+          anyOf:
+          - type: string
+            maxLength: 64
+          - type: 'null'
+          title: Resource Type
+        branding:
+          anyOf:
+          - $ref: '#/components/schemas/BrandingConfig'
+          - type: 'null'
+        sections:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/SurfaceSection'
+            type: array
+          - type: 'null'
+          title: Sections
+        completion_title:
+          anyOf:
+          - type: string
+            maxLength: 256
+          - type: 'null'
+          title: Completion Title
+        completion_message:
+          anyOf:
+          - type: string
+            maxLength: 2000
+          - type: 'null'
+          title: Completion Message
+        completion_action_url:
+          anyOf:
+          - type: string
+            maxLength: 2048
+          - type: 'null'
+          title: Completion Action Url
+        submit_button_text:
+          anyOf:
+          - type: string
+            maxLength: 128
+          - type: 'null'
+          title: Submit Button Text
+      type: object
+      required:
+      - entity_id
+      - title
+      - fields
+      title: CreateSurfaceRequest
+      description: 'Request to create a new surface.
+
+
+        The agent generates a SurfaceSpec and sends it here.'
+  securitySchemes:
+    Bearer-Authorization:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Amigo issued JWT token that identifies an user. It's issued either after logging in through the frontend, or manually through the [`SignInWithAPIKey`](sign-in-with-api-key) endpoint.
+    Bearer-Authorization-Organization:
+      type: apiKey
+      in: header
+      name: X-ORG-ID
+      description: An optional organization identifier that indicates from which organization the token is issued. This is used in rare cases where the user to authenticate is making a request for resources in another organization.
+    Basic:
+      type: http
+      scheme: basic
+      description: The username should be set to {org_id}_{user_id}, and the password should be the Amigo issued JWT token that identifies the user.

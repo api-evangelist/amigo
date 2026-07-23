@@ -1,0 +1,167 @@
+openapi: 3.1.0
+info:
+  title: Amigo Account API
+  version: 0.1.0
+servers:
+- url: https://api.amigo.ai
+- url: https://internal-api.amigo.ai
+- url: https://api-eu-central-1.amigo.ai
+- url: https://api-ap-southeast-2.amigo.ai
+- url: https://api-ca-central-1.amigo.ai
+security:
+- Bearer-Authorization: []
+  Bearer-Authorization-Organization: []
+  Basic: []
+tags:
+- name: Account
+paths:
+  /v1/me/workspaces:
+    post:
+      tags:
+      - Account
+      summary: Create a workspace under the authenticated identity
+      description: Create a new workspace and attach the authenticated caller as the owner.
+      operationId: create-my-workspace
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateWorkspaceRequest'
+        required: true
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkspaceResponse'
+        '409':
+          description: Workspace slug already taken.
+        '403':
+          description: Missing the workspaces:write scope (developer grant) or unsupported principal type.
+        '503':
+          description: Identity service unavailable.
+        '422':
+          description: Invalid request body.
+components:
+  schemas:
+    SlugString:
+      type: string
+      maxLength: 63
+      minLength: 2
+      pattern: ^[a-z0-9][a-z0-9-]*[a-z0-9]$
+    CreateWorkspaceRequest:
+      properties:
+        slug:
+          $ref: '#/components/schemas/SlugString'
+        name:
+          $ref: '#/components/schemas/StrippedNonemptyString'
+        environment:
+          type: string
+          enum:
+          - production
+          - staging
+          - development
+          title: Environment
+        backend_org_id:
+          anyOf:
+          - $ref: '#/components/schemas/StrippedNonemptyString'
+          - type: 'null'
+      type: object
+      required:
+      - slug
+      - name
+      - environment
+      title: CreateWorkspaceRequest
+      description: 'Request body for ``POST /v1/me/workspaces``.
+
+
+        ``region`` is intentionally not exposed here — the workspace is created
+
+        in the region of the platform-api pod that handles the request (each
+
+        region''s CD pipeline serves its own ingress host), and a workspace
+
+        cannot migrate between regions. The handler derives it from
+
+        ``app.env.aws_region``.
+
+
+        ``environment`` has no default: it is a load-bearing routing field
+
+        (staging vs production downstream), and ``PATCH .../convert_environment``
+
+        is the supported migration path. Callers must commit to a value.'
+    StrippedNonemptyString:
+      type: string
+      minLength: 1
+    WorkspaceResponse:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        slug:
+          type: string
+          title: Slug
+        name:
+          type: string
+          title: Name
+        environment:
+          type: string
+          title: Environment
+        backend_org_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Backend Org Id
+        region:
+          type: string
+          title: Region
+        connector_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Connector Type
+        provisioned_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Provisioned At
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+      type: object
+      required:
+      - id
+      - slug
+      - name
+      - environment
+      - backend_org_id
+      - region
+      - connector_type
+      - provisioned_at
+      - created_at
+      - updated_at
+      title: WorkspaceResponse
+  securitySchemes:
+    Bearer-Authorization:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Amigo issued JWT token that identifies an user. It's issued either after logging in through the frontend, or manually through the [`SignInWithAPIKey`](sign-in-with-api-key) endpoint.
+    Bearer-Authorization-Organization:
+      type: apiKey
+      in: header
+      name: X-ORG-ID
+      description: An optional organization identifier that indicates from which organization the token is issued. This is used in rare cases where the user to authenticate is making a request for resources in another organization.
+    Basic:
+      type: http
+      scheme: basic
+      description: The username should be set to {org_id}_{user_id}, and the password should be the Amigo issued JWT token that identifies the user.

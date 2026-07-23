@@ -1,0 +1,1252 @@
+openapi: 3.1.0
+info:
+  title: Amigo Account Pipeline API
+  version: 0.1.0
+servers:
+- url: https://api.amigo.ai
+- url: https://internal-api.amigo.ai
+- url: https://api-eu-central-1.amigo.ai
+- url: https://api-ap-southeast-2.amigo.ai
+- url: https://api-ca-central-1.amigo.ai
+security:
+- Bearer-Authorization: []
+  Bearer-Authorization-Organization: []
+  Basic: []
+tags:
+- name: Pipeline
+paths:
+  /v1/{workspace_id}/pipeline/status:
+    get:
+      tags:
+      - Pipeline
+      summary: Pipeline status
+      description: 'Composite pipeline dashboard: connector-runner state + Lakebase counts.'
+      operationId: get-pipeline-status
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PipelineStatusResponse'
+        '429':
+          description: Rate limit exceeded
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+  /v1/{workspace_id}/pipeline/sources:
+    get:
+      tags:
+      - Pipeline
+      summary: List pipeline sources
+      description: Data sources with live health from Valkey cr:last_poll keys.
+      operationId: list-pipeline-sources
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: search
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Search by name, ID, type, or health status
+          title: Search
+        description: Search by name, ID, type, or health status
+      - name: source_type
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filter by source type
+          title: Source Type
+        description: Filter by source type
+      - name: health_status
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filter by health status
+          title: Health Status
+        description: Filter by health status
+      - name: is_active
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Filter by active state
+          title: Is Active
+        description: Filter by active state
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SourceListItem'
+                title: Response List-Pipeline-Sources
+        '429':
+          description: Rate limit exceeded
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/pipeline/sources/{source_id}/overview:
+    get:
+      tags:
+      - Pipeline
+      summary: Source overview
+      description: 'Consolidated source detail: metadata, health, recent failures, last poll, outbound summary.'
+      operationId: get-source-overview
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: source_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Source Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SourceOverviewResponse'
+        '404':
+          description: Data source not found
+        '429':
+          description: Rate limit exceeded
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/pipeline/sources/{source_id}/history:
+    get:
+      tags:
+      - Pipeline
+      summary: Source sync history
+      description: Event counts bucketed by time window for a specific source.
+      operationId: get-source-history
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: source_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Source Id
+      - name: date_from
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Date From
+      - name: date_to
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Date To
+      - name: interval
+        in: query
+        required: false
+        schema:
+          enum:
+          - 1h
+          - 1d
+          type: string
+          default: 1h
+          title: Interval
+      - name: hours
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: integer
+            maximum: 720
+            minimum: 1
+          - type: 'null'
+          title: Hours
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SourceHistoryItem'
+                title: Response Get-Source-History
+        '429':
+          description: Rate limit exceeded
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/pipeline/sources/{source_id}/events:
+    get:
+      tags:
+      - Pipeline
+      summary: Source events
+      description: Paginated events for a specific data source.
+      operationId: list-source-events
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: source_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Source Id
+      - name: sort_by
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Sort By
+      - name: event_type
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filter by event type
+          title: Event Type
+        description: Filter by event type
+      - name: entity_type
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filter by entity type
+          title: Entity Type
+        description: Filter by entity type
+      - name: date_from
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          description: Filter events ingested on or after this time
+          title: Date From
+        description: Filter events ingested on or after this time
+      - name: date_to
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          description: Filter events ingested on or before this time
+          title: Date To
+        description: Filter events ingested on or before this time
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 100
+          exclusiveMinimum: 0
+          default: 10
+          title: Limit
+      - name: continuation_token
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 0
+          title: Continuation Token
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedResponse_SourceEventItem_'
+        '429':
+          description: Rate limit exceeded
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/pipeline/outbound:
+    get:
+      tags:
+      - Pipeline
+      summary: Outbound sync summary
+      description: 'Per-sink outbound sync aggregation: synced/failed/pending counts.'
+      operationId: get-outbound-summary
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/OutboundSinkSummary'
+                type: array
+                title: Response Get-Outbound-Summary
+        '429':
+          description: Rate limit exceeded
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+  /v1/{workspace_id}/pipeline/outbound/{data_source_id}/log:
+    get:
+      tags:
+      - Pipeline
+      summary: Outbound sync log
+      description: Paginated outbound sync log for a specific sink.
+      operationId: list-outbound-log
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: data_source_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Data Source Id
+      - name: sort_by
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Sort By
+      - name: status
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - enum:
+            - pending
+            - synced
+            - failed
+            type: string
+          - type: 'null'
+          title: Status
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 100
+          exclusiveMinimum: 0
+          default: 10
+          title: Limit
+      - name: continuation_token
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 0
+          title: Continuation Token
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedResponse_OutboundLogItem_'
+        '429':
+          description: Rate limit exceeded
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/pipeline/entity-resolution:
+    get:
+      tags:
+      - Pipeline
+      summary: Entity resolution metrics
+      description: Historical same_as merge-edge counts (written by the pre-SDP resolver; merge detection now lives in the Databricks pipeline — new edges are not produced) and entity resolution loop status.
+      operationId: get-entity-resolution
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EntityResolutionMetrics'
+        '429':
+          description: Rate limit exceeded
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+  /v1/{workspace_id}/pipeline/review:
+    get:
+      tags:
+      - Pipeline
+      summary: Review pipeline metrics
+      description: Review queue depth, approval rate, and average review time.
+      operationId: get-review-metrics
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReviewMetrics'
+        '429':
+          description: Rate limit exceeded
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+  /v1/{workspace_id}/pipeline/throughput:
+    get:
+      tags:
+      - Pipeline
+      summary: Event throughput
+      description: Event throughput time series across all sources.
+      operationId: get-throughput
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: date_from
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Date From
+      - name: date_to
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Date To
+      - name: interval
+        in: query
+        required: false
+        schema:
+          enum:
+          - 1h
+          - 1d
+          type: string
+          default: 1d
+          title: Interval
+      - name: hours
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: integer
+            maximum: 720
+            minimum: 1
+          - type: 'null'
+          title: Hours
+      - name: bucket_minutes
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: integer
+            maximum: 1440
+            minimum: 1
+          - type: 'null'
+          title: Bucket Minutes
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ThroughputBucket'
+                title: Response Get-Throughput
+        '429':
+          description: Rate limit exceeded
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+components:
+  schemas:
+    PipelineStatusResponse:
+      properties:
+        status:
+          type: string
+          title: Status
+        connector_runner_status:
+          type: string
+          title: Connector Runner Status
+        uptime_seconds:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Uptime Seconds
+        active_polls:
+          type: integer
+          title: Active Polls
+          default: 0
+        total_events:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Total Events
+          description: Read-model event count for the last 7 days. Null means the read model is empty or unavailable; zero means the read model is ready and has no events.
+        event_read_model_status:
+          type: string
+          enum:
+          - ready
+          - empty
+          - unavailable
+          title: Event Read Model Status
+          default: empty
+        event_read_model_synced_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Event Read Model Synced At
+        total_entities:
+          type: integer
+          title: Total Entities
+          default: 0
+        sources:
+          items:
+            $ref: '#/components/schemas/SourceStatus'
+          type: array
+          title: Sources
+          default: []
+        entity_resolution:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Entity Resolution
+        review_loop:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Review Loop
+        outbound_dispatch:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Outbound Dispatch
+        outbound_subscriber:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Outbound Subscriber
+        reconciliation:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Reconciliation
+        gap_scanner:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Gap Scanner
+      type: object
+      required:
+      - status
+      - connector_runner_status
+      title: PipelineStatusResponse
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    SourceEventItem:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        event_type:
+          type: string
+          title: Event Type
+        entity_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Entity Type
+        entity_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Entity Id
+        source:
+          type: string
+          title: Source
+        source_system:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Source System
+        confidence:
+          type: number
+          title: Confidence
+        ingested_at:
+          type: string
+          format: date-time
+          title: Ingested At
+      type: object
+      required:
+      - id
+      - event_type
+      - source
+      - confidence
+      - ingested_at
+      title: SourceEventItem
+    LastPollInfo:
+      properties:
+        at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: At
+        duration_ms:
+          type: integer
+          title: Duration Ms
+          default: 0
+        event_count:
+          type: integer
+          title: Event Count
+          default: 0
+        error:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Error
+      type: object
+      title: LastPollInfo
+    OutboundSinkSummary:
+      properties:
+        data_source_id:
+          type: string
+          format: uuid
+          title: Data Source Id
+        data_source_name:
+          type: string
+          title: Data Source Name
+        total:
+          type: integer
+          title: Total
+        synced:
+          type: integer
+          title: Synced
+        failed:
+          type: integer
+          title: Failed
+        pending:
+          type: integer
+          title: Pending
+        last_synced_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Last Synced At
+      type: object
+      required:
+      - data_source_id
+      - data_source_name
+      - total
+      - synced
+      - failed
+      - pending
+      title: OutboundSinkSummary
+    OutboundLogItem:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        event_id:
+          type: string
+          format: uuid
+          title: Event Id
+        synced_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Synced At
+        sync_error:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Sync Error
+        attempt_count:
+          type: integer
+          title: Attempt Count
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+      type: object
+      required:
+      - id
+      - event_id
+      - attempt_count
+      - created_at
+      title: OutboundLogItem
+    EntityResolutionMetrics:
+      properties:
+        total_same_as_edges:
+          type: integer
+          title: Total Same As Edges
+        recent_merges_24h:
+          type: integer
+          title: Recent Merges 24H
+        loop_status:
+          type: string
+          title: Loop Status
+        last_tick_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Last Tick At
+      type: object
+      required:
+      - total_same_as_edges
+      - recent_merges_24h
+      - loop_status
+      title: EntityResolutionMetrics
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    PaginatedResponse_OutboundLogItem_:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/OutboundLogItem'
+          type: array
+          title: Items
+        has_more:
+          type: boolean
+          title: Has More
+        continuation_token:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Continuation Token
+        total:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Total
+      type: object
+      required:
+      - items
+      - has_more
+      title: PaginatedResponse[OutboundLogItem]
+    SourceListItem:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        name:
+          type: string
+          title: Name
+        display_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Display Name
+        source_type:
+          type: string
+          enum:
+          - rest_api
+          - webhook
+          - file_drop
+          - fhir_store
+          - ehr
+          - database
+          - custom
+          - smart_fhir
+          - customer_intake
+          - lakebase_schema
+          - crm
+          title: Source Type
+        is_active:
+          type: boolean
+          title: Is Active
+        health_status:
+          type: string
+          enum:
+          - unknown
+          - healthy
+          - degraded
+          title: Health Status
+        last_poll:
+          anyOf:
+          - $ref: '#/components/schemas/LastPollInfo'
+          - type: 'null'
+        event_count:
+          type: integer
+          title: Event Count
+          default: 0
+        last_sync_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Last Sync At
+      type: object
+      required:
+      - id
+      - name
+      - source_type
+      - is_active
+      - health_status
+      title: SourceListItem
+    SourceHistoryItem:
+      properties:
+        bucket:
+          type: string
+          title: Bucket
+        source_system:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Source System
+        event_count:
+          type: integer
+          title: Event Count
+      type: object
+      required:
+      - bucket
+      - event_count
+      title: SourceHistoryItem
+    PaginatedResponse_SourceEventItem_:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/SourceEventItem'
+          type: array
+          title: Items
+        has_more:
+          type: boolean
+          title: Has More
+        continuation_token:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Continuation Token
+        total:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Total
+      type: object
+      required:
+      - items
+      - has_more
+      title: PaginatedResponse[SourceEventItem]
+    SourceFailureItem:
+      properties:
+        event_id:
+          type: string
+          format: uuid
+          title: Event Id
+        event_type:
+          type: string
+          title: Event Type
+        fhir_resource_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Fhir Resource Type
+        sync_error:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Sync Error
+        ingested_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Ingested At
+      type: object
+      required:
+      - event_id
+      - event_type
+      title: SourceFailureItem
+    SourceOverviewResponse:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        name:
+          type: string
+          title: Name
+        display_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Display Name
+        source_type:
+          type: string
+          enum:
+          - rest_api
+          - webhook
+          - file_drop
+          - fhir_store
+          - ehr
+          - database
+          - custom
+          - smart_fhir
+          - customer_intake
+          - lakebase_schema
+          - crm
+          title: Source Type
+        is_active:
+          type: boolean
+          title: Is Active
+        health_status:
+          type: string
+          enum:
+          - unknown
+          - healthy
+          - degraded
+          title: Health Status
+        last_sync_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Last Sync At
+        last_sync_status:
+          anyOf:
+          - type: string
+            enum:
+            - success
+            - error
+          - type: 'null'
+          title: Last Sync Status
+        last_sync_event_count:
+          type: integer
+          title: Last Sync Event Count
+          default: 0
+        created_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Created At
+        event_count:
+          type: integer
+          title: Event Count
+          default: 0
+        entity_count:
+          type: integer
+          title: Entity Count
+          default: 0
+        last_poll:
+          anyOf:
+          - $ref: '#/components/schemas/LastPollInfo'
+          - type: 'null'
+        recent_failures:
+          items:
+            $ref: '#/components/schemas/SourceFailureItem'
+          type: array
+          title: Recent Failures
+          default: []
+        outbound:
+          $ref: '#/components/schemas/OutboundSummary'
+          default:
+            total: 0
+            synced: 0
+            failed: 0
+            pending: 0
+      type: object
+      required:
+      - id
+      - name
+      - source_type
+      - is_active
+      - health_status
+      title: SourceOverviewResponse
+    ThroughputBucket:
+      properties:
+        bucket:
+          type: string
+          title: Bucket
+        source_system:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Source System
+        event_count:
+          type: integer
+          title: Event Count
+      type: object
+      required:
+      - bucket
+      - event_count
+      title: ThroughputBucket
+    SourceStatus:
+      properties:
+        data_source_id:
+          type: string
+          format: uuid
+          title: Data Source Id
+        workspace_id:
+          type: string
+          format: uuid
+          title: Workspace Id
+        source_type:
+          type: string
+          enum:
+          - rest_api
+          - webhook
+          - file_drop
+          - fhir_store
+          - ehr
+          - database
+          - custom
+          - smart_fhir
+          - customer_intake
+          - lakebase_schema
+          - crm
+          title: Source Type
+        connector_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Connector Type
+        status:
+          type: string
+          title: Status
+        last_poll_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Last Poll At
+        last_poll_duration_ms:
+          type: integer
+          title: Last Poll Duration Ms
+          default: 0
+        last_poll_event_count:
+          type: integer
+          title: Last Poll Event Count
+          default: 0
+        last_error:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Last Error
+        consecutive_errors:
+          type: integer
+          title: Consecutive Errors
+          default: 0
+        connection_healthy:
+          type: boolean
+          title: Connection Healthy
+          default: true
+      type: object
+      required:
+      - data_source_id
+      - workspace_id
+      - source_type
+      - status
+      title: SourceStatus
+    OutboundSummary:
+      properties:
+        total:
+          type: integer
+          title: Total
+          default: 0
+        synced:
+          type: integer
+          title: Synced
+          default: 0
+        failed:
+          type: integer
+          title: Failed
+          default: 0
+        pending:
+          type: integer
+          title: Pending
+          default: 0
+        last_synced_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Last Synced At
+      type: object
+      title: OutboundSummary
+    ReviewMetrics:
+      properties:
+        queue_depth:
+          type: integer
+          title: Queue Depth
+        pending_by_priority:
+          additionalProperties:
+            type: integer
+          type: object
+          title: Pending By Priority
+        approved_7d:
+          type: integer
+          title: Approved 7D
+        rejected_7d:
+          type: integer
+          title: Rejected 7D
+        avg_review_time_hours:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Avg Review Time Hours
+        total_items:
+          type: integer
+          title: Total Items
+          default: 0
+      type: object
+      required:
+      - queue_depth
+      - pending_by_priority
+      - approved_7d
+      - rejected_7d
+      title: ReviewMetrics
+  securitySchemes:
+    Bearer-Authorization:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Amigo issued JWT token that identifies an user. It's issued either after logging in through the frontend, or manually through the [`SignInWithAPIKey`](sign-in-with-api-key) endpoint.
+    Bearer-Authorization-Organization:
+      type: apiKey
+      in: header
+      name: X-ORG-ID
+      description: An optional organization identifier that indicates from which organization the token is issued. This is used in rare cases where the user to authenticate is making a request for resources in another organization.
+    Basic:
+      type: http
+      scheme: basic
+      description: The username should be set to {org_id}_{user_id}, and the password should be the Amigo issued JWT token that identifies the user.

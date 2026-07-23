@@ -1,0 +1,2001 @@
+openapi: 3.1.0
+info:
+  title: Amigo Account conversations API
+  version: 0.1.0
+servers:
+- url: https://api.amigo.ai
+- url: https://internal-api.amigo.ai
+- url: https://api-eu-central-1.amigo.ai
+- url: https://api-ap-southeast-2.amigo.ai
+- url: https://api-ca-central-1.amigo.ai
+security:
+- Bearer-Authorization: []
+  Bearer-Authorization-Organization: []
+  Basic: []
+tags:
+- name: conversations
+paths:
+  /v1/{workspace_id}/conversations:
+    post:
+      tags:
+      - conversations
+      summary: Create or start a conversation (web inbound, or outbound on a channel)
+      operationId: create_conversation_v1__workspace_id__conversations_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateConversationRequest'
+        required: true
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConversationDetail'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+  /v1/{workspace_id}/conversations/{conversation_id}/channel:
+    post:
+      tags:
+      - conversations
+      summary: Switch a conversation to another channel
+      description: Move an active conversation onto a different channel (sms/imessage today). The durable conversation id is preserved — the same conversation continues; only its routing changes. Optionally dispatch a first agent turn on the new channel.
+      operationId: switch_conversation_channel_v1__workspace_id__conversations__conversation_id__channel_post
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: conversation_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Conversation Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SwitchChannelRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConversationDetail'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/conversations/{conversation_id}:
+    get:
+      tags:
+      - conversations
+      summary: Get conversation detail (voice or text)
+      operationId: get_conversation_v1__workspace_id__conversations__conversation_id__get
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: conversation_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Conversation Id
+      - name: include_tool_calls
+        in: query
+        required: false
+        schema:
+          type: boolean
+          description: Include per-turn tool_calls[] in the returned turns. Off by default so the payload stays small and (potentially PHI-bearing) tool output is opt-in, matching POST /turns?include_tool_calls=true.
+          default: false
+          title: Include Tool Calls
+        description: Include per-turn tool_calls[] in the returned turns. Off by default so the payload stays small and (potentially PHI-bearing) tool output is opt-in, matching POST /turns?include_tool_calls=true.
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConversationDetail'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    delete:
+      tags:
+      - conversations
+      summary: Close a conversation
+      operationId: close_conversation_v1__workspace_id__conversations__conversation_id__delete
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: conversation_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Conversation Id
+      responses:
+        '204':
+          description: Successful Response
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/conversations/{conversation_id}/turns:
+    post:
+      tags:
+      - conversations
+      summary: Send a message and get the agent's response
+      description: 'Send a user message and receive the agent''s response. Set `Accept: text/event-stream` to receive an SSE stream of typed `TurnStreamEvent` frames (token, tool_call_started, tool_call_completed, thinking, message, done, error) instead of the synchronous JSON response. For new integrations prefer `POST /turns/stream`, which is always SSE.'
+      operationId: create_turn_v1__workspace_id__conversations__conversation_id__turns_post
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: conversation_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Conversation Id
+      - name: include_tool_calls
+        in: query
+        required: false
+        schema:
+          type: boolean
+          description: Include tool call details in response
+          default: false
+          title: Include Tool Calls
+        description: Include tool call details in response
+      - name: poll
+        in: query
+        required: false
+        schema:
+          type: boolean
+          description: Poll for background results without sending a user message. Drains any background tool calls that completed since the last turn and reports them; returns empty output when nothing is pending. Must NOT be combined with a request-body ``message`` (422) or SSE streaming (422). Poll no more than once every ~5s per conversation — each poll loads session state.
+          default: false
+          title: Poll
+        description: Poll for background results without sending a user message. Drains any background tool calls that completed since the last turn and reports them; returns empty output when nothing is pending. Must NOT be combined with a request-body ``message`` (422) or SSE streaming (422). Poll no more than once every ~5s per conversation — each poll loads session state.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TurnRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TurnResponse'
+            text/event-stream:
+              schema:
+                $ref: '#/components/schemas/TurnStreamEvent'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/conversations/{conversation_id}/turns/stream:
+    post:
+      tags:
+      - conversations
+      summary: Send a message and receive a streamed agent response
+      description: Streaming variant of `POST /turns`. Always returns `text/event-stream` regardless of the `Accept` header — no JSON fallback. Each frame is a `TurnStreamEvent` discriminated by the `event` field (token, tool_call_started, tool_call_completed, thinking, message, done, error). Use this endpoint for new integrations; the `Accept`-sniffing variant remains for backward compatibility.
+      operationId: create_turn_stream_v1__workspace_id__conversations__conversation_id__turns_stream_post
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: conversation_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Conversation Id
+      - name: include_tool_calls
+        in: query
+        required: false
+        schema:
+          type: boolean
+          description: Include tool_call_started / tool_call_completed frames in the stream
+          default: false
+          title: Include Tool Calls
+        description: Include tool_call_started / tool_call_completed frames in the stream
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TurnRequest'
+      responses:
+        '200':
+          description: SSE stream of TurnStreamEvent frames
+          content:
+            application/json:
+              schema: {}
+            text/event-stream:
+              schema:
+                $ref: '#/components/schemas/TurnStreamEvent'
+        '404':
+          description: Conversation or service not found
+        '409':
+          description: Conversation is closed
+        '422':
+          description: Conversation is missing or has corrupt service binding
+        '503':
+          description: Agent service unavailable
+  /v1/{workspace_id}/conversations/{conversation_id}/approval:
+    post:
+      tags:
+      - conversations
+      summary: Approve or reject a parked write in your own conversation (external-user self-approval)
+      description: Lets the external user who owns a conversation approve or reject a write that the agent paused for their confirmation. Only the conversation's own external user may call this; it requires the `conversations:approve_own` scope.
+      operationId: decide_conversation_approval_v1__workspace_id__conversations__conversation_id__approval_post
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: conversation_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Conversation Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConversationApprovalRequest'
+      responses:
+        '204':
+          description: Successful Response
+        '403':
+          description: Not an external_user token, or missing conversations:approve_own scope
+        '404':
+          description: Conversation not found or not owned by the caller
+        '503':
+          description: Decision store temporarily unavailable — safe to retry
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+components:
+  schemas:
+    FailureClass:
+      type: string
+      enum:
+      - timeout
+      - input_rejected
+      - rounds_exhausted
+      - generic
+      title: FailureClass
+      description: 'Why a tool result is a failure — produced by the executor at RUN time.
+
+
+        Unlike ``ResultDelivery`` (a fixed config-time axis), this is a runtime
+
+        classification the executor knows at the moment of failure. It flavors the
+
+        agent-facing failure wording and the world-event / status-tool observability,
+
+        and it is ALSO an optional routing key: a state x tool binding may set
+
+        ``ToolCallSpec.failure_delivery_by_class`` to deliver differently per class
+
+        (e.g. interrupt on timeout, queue on a generic error). With no per-class map
+
+        (the default), failed results route by the ``failure_delivery`` floor,
+
+        unchanged. Add a member only in the same change that wires a producer for it —
+
+        adding one also widens the per-class routing surface, so it must be a
+
+        deliberate, produced class.'
+    AnnotationState:
+      properties:
+        type:
+          type: string
+          const: annotation
+          title: Type
+        name:
+          type: string
+          title: Name
+        inner_thought:
+          type: string
+          title: Inner Thought
+        next_state:
+          type: string
+          title: Next State
+      type: object
+      required:
+      - type
+      - name
+      - inner_thought
+      - next_state
+      title: AnnotationState
+      description: Injects a hardcoded inner thought (no LLM call).
+    ChannelOverride:
+      properties:
+        objective:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Objective
+        action_guidelines:
+          items:
+            type: string
+          type: array
+          title: Action Guidelines
+          default: []
+        progress:
+          anyOf:
+          - $ref: '#/components/schemas/ProgressHint'
+          - type: 'null'
+      type: object
+      title: ChannelOverride
+      description: Per-channel behavior override for a state.
+    TurnErrorEvent:
+      description: 'Terminal error frame on the turn stream.
+
+
+        Carries a stable ``code`` so SDK consumers can branch deterministically
+
+        without parsing free-form ``message`` text. ``retryable`` tells the
+
+        consumer whether issuing the same turn again is likely to succeed.
+
+        ``status_code`` is the upstream HTTP status when the error originated
+
+        from a downstream service (agent-engine), and is otherwise omitted.'
+      properties:
+        event:
+          const: error
+          default: error
+          title: Event
+          type: string
+        message:
+          title: Message
+          type: string
+        code:
+          default: unknown
+          enum:
+          - upstream_error
+          - stream_interrupted
+          - client_error
+          - unknown
+          title: Code
+          type: string
+        retryable:
+          default: false
+          title: Retryable
+          type: boolean
+        status_code:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          default: null
+          title: Status Code
+      required:
+      - message
+      title: TurnErrorEvent
+      type: object
+    TurnDoneEvent:
+      properties:
+        event:
+          const: done
+          default: done
+          title: Event
+          type: string
+        conversation_id:
+          format: uuid
+          title: Conversation Id
+          type: string
+        status:
+          title: Status
+          type: string
+        turn_count:
+          title: Turn Count
+          type: integer
+        background_pending:
+          default: false
+          description: True when the streamed response is only an acknowledgement and the final assistant answer must be collected with the durable background-delivery protocol.
+          title: Background Pending
+          type: boolean
+        delivery_protocol_version:
+          anyOf:
+          - const: 2
+            type: integer
+          - type: 'null'
+          default: null
+          description: Version of the durable background-delivery protocol supported by the serving agent. Clients may retry receipt-backed polls only after observing version 2.
+          title: Delivery Protocol Version
+        turn_id:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          default: null
+          description: Identifier of the user exchange this turn belongs to — identical to the ``turn_id`` on the non-streaming ``POST /turns`` response and on this conversation's history turns, so a streaming client can anchor durable per-turn artifacts (e.g. feedback) without a follow-up read. Stamped by platform-api at the proxy boundary (agent-engine frames do not carry it). Null when the conversation has no user exchange yet (a greeting kickoff stream on a fresh conversation).
+          title: Turn Id
+        turn_index:
+          anyOf:
+          - minimum: 0
+            type: integer
+          - type: 'null'
+          default: null
+          description: Zero-based ordinal of the user exchange (0 = first user turn). Derived server-side; null exactly when ``turn_id`` is null.
+          title: Turn Index
+      required:
+      - conversation_id
+      - status
+      - turn_count
+      title: TurnDoneEvent
+      type: object
+    TurnConversationSnapshot:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        status:
+          type: string
+          enum:
+          - active
+          - closed
+          - completed
+          - in-progress
+          - failed
+          - paused
+          title: Status
+        turn_count:
+          type: integer
+          title: Turn Count
+          default: 0
+        updated_at:
+          type: string
+          title: Updated At
+        context_graph_state:
+          anyOf:
+          - $ref: '#/components/schemas/ContextGraphState-Output'
+          - type: 'null'
+      type: object
+      required:
+      - id
+      - status
+      - updated_at
+      title: TurnConversationSnapshot
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    ConversationApprovalRequest:
+      properties:
+        decision:
+          type: string
+          enum:
+          - approve
+          - reject
+          title: Decision
+        reason:
+          anyOf:
+          - type: string
+            maxLength: 512
+            minLength: 1
+          - type: 'null'
+          title: Reason
+      additionalProperties: false
+      type: object
+      required:
+      - decision
+      title: ConversationApprovalRequest
+      description: An external user's decision on a parked, approval-gated write in their own conversation.
+    TurnTokenEvent:
+      properties:
+        event:
+          const: token
+          default: token
+          title: Event
+          type: string
+        text:
+          title: Text
+          type: string
+      required:
+      - text
+      title: TurnTokenEvent
+      type: object
+    ProgressHint:
+      properties:
+        deterministic:
+          type: boolean
+          title: Deterministic
+          default: false
+        phrases:
+          anyOf:
+          - items:
+              type: string
+            type: array
+            maxItems: 10
+            minItems: 1
+            description: 'Filler phrases. deterministic=true: played verbatim in order. deterministic=false: used as hints for early attempts.'
+          - type: 'null'
+          title: Phrases
+        trigger_delay_ms:
+          anyOf:
+          - type: integer
+            maximum: 30000.0
+            minimum: 0.0
+          - type: 'null'
+          title: Trigger Delay Ms
+        interval_ms:
+          anyOf:
+          - type: integer
+            maximum: 30000.0
+            minimum: 100.0
+          - type: 'null'
+          title: Interval Ms
+        mode:
+          type: string
+          enum:
+          - auto
+          - silent
+          - backchannel
+          - verbal
+          title: Mode
+          default: auto
+        progress_class:
+          anyOf:
+          - type: string
+            enum:
+            - lookup
+            - write
+            - external_call
+            - compute
+            - multi_step
+          - type: 'null'
+          title: Progress Class
+        expected_latency_ms:
+          anyOf:
+          - type: integer
+            maximum: 60000.0
+            minimum: 0.0
+          - type: 'null'
+          title: Expected Latency Ms
+        custom_phrase:
+          anyOf:
+          - type: string
+            maxLength: 500
+            description: 'Legacy: use phrases instead.'
+          - type: 'null'
+          title: Custom Phrase
+      additionalProperties: false
+      type: object
+      title: ProgressHint
+      description: 'How the agent narrates waiting on a tool.
+
+
+        ``deterministic=true``: scripted — ``phrases`` play verbatim in order.
+
+        ``deterministic=false``: engine picks — ``phrases`` are hints.
+
+        ``trigger_delay_ms``: milliseconds before first filler (0 = immediate).
+
+        ``interval_ms``: milliseconds between subsequent fillers.'
+    ConversationDetail:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        channel_kind:
+          $ref: '#/components/schemas/ChannelKind'
+        status:
+          type: string
+          enum:
+          - active
+          - closed
+          - completed
+          - in-progress
+          - failed
+          - paused
+          title: Status
+        lifecycle:
+          type: string
+          enum:
+          - active
+          - dormant
+          - closed
+          title: Lifecycle
+        entity_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Entity Id
+        service_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Service Id
+        direction:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Direction
+        turn_count:
+          type: integer
+          title: Turn Count
+          default: 0
+        duration_seconds:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Duration Seconds
+        created_at:
+          type: string
+          title: Created At
+        updated_at:
+          type: string
+          title: Updated At
+        call_sid:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Call Sid
+        caller_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Caller Id
+        phone_number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Phone Number
+        quality_score:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Quality Score
+        has_recording:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Has Recording
+        completion_reason:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Completion Reason
+        escalation_status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Escalation Status
+        final_state:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Final State
+        source:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Source
+        turns:
+          items:
+            $ref: '#/components/schemas/ConversationTurn'
+          type: array
+          title: Turns
+          default: []
+        plan:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Plan
+        voice:
+          anyOf:
+          - $ref: '#/components/schemas/VoiceDetail'
+          - type: 'null'
+      type: object
+      required:
+      - id
+      - channel_kind
+      - status
+      - lifecycle
+      - created_at
+      - updated_at
+      title: ConversationDetail
+    ConversationToolCallDetail:
+      properties:
+        tool_name:
+          type: string
+          title: Tool Name
+        call_id:
+          type: string
+          title: Call Id
+        input:
+          additionalProperties: true
+          type: object
+          title: Input
+        result:
+          type: string
+          title: Result
+          default: ''
+        succeeded:
+          type: boolean
+          title: Succeeded
+          default: true
+        duration_ms:
+          anyOf:
+          - type: number
+            maximum: 3600000.0
+            minimum: 0.0
+          - type: 'null'
+          title: Duration Ms
+          description: Wall-clock tool execution time in milliseconds, measured at the engage_step call site. Omitted (null) on legacy turns that did not capture timing.
+        error_message:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Error Message
+          description: Failure detail recorded for the tool call when ``succeeded`` is false. Null on successful calls or when no message was captured.
+      type: object
+      required:
+      - tool_name
+      - call_id
+      title: ConversationToolCallDetail
+    TurnRequest:
+      properties:
+        message:
+          type: string
+          maxLength: 10000
+          title: Message
+          default: ''
+        content:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/ContentPartPayload'
+            type: array
+            maxItems: 20
+          - type: 'null'
+          title: Content
+        media_url:
+          anyOf:
+          - type: string
+            maxLength: 2048
+          - type: 'null'
+          title: Media Url
+        media_type:
+          anyOf:
+          - type: string
+            maxLength: 128
+          - type: 'null'
+          title: Media Type
+        context:
+          anyOf:
+          - type: string
+            maxLength: 100000
+          - type: 'null'
+          title: Context
+          description: Injected into the agent's prompt as caller/patient context for this turn.
+        viewport_width:
+          anyOf:
+          - type: integer
+            maximum: 500.0
+            minimum: 20.0
+          - type: 'null'
+          title: Viewport Width
+        viewport_height:
+          anyOf:
+          - type: integer
+            maximum: 500.0
+            minimum: 5.0
+          - type: 'null'
+          title: Viewport Height
+        wait_for_final:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Wait For Final
+          description: 'Synchronous callers only: when a turn hands work to a background tool (``background_pending``), await the real answer inline (bounded, ~30s) instead of returning the acknowledgement immediately. On completion the response carries the final answer with ``background_pending=false``; on timeout it returns ``background_pending=true`` — resolve it later with ``poll=true``. ``null`` (default) inherits the channel policy (web = do not wait). Ignored with ``poll=true`` (422).'
+        suppress_filler:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Suppress Filler
+          description: 'Synchronous callers only: when a turn ends ``background_pending``, omit the filler/acknowledgement text from ``output`` so a batch caller never mistakes the ack for the answer (``output`` is empty; ``background_pending=true`` is the poll-later signal). ``null`` (default) inherits the channel policy. Ignored with ``poll=true`` (422).'
+      type: object
+      title: TurnRequest
+    PhoneE164:
+      type: string
+      maxLength: 16
+      minLength: 2
+    ExitCondition:
+      properties:
+        description:
+          type: string
+          title: Description
+        next_state:
+          type: string
+          title: Next State
+        filler_hint:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Filler Hint
+      type: object
+      required:
+      - description
+      - next_state
+      title: ExitCondition
+    DecisionState-Output:
+      properties:
+        type:
+          type: string
+          const: decision
+          title: Type
+        name:
+          type: string
+          title: Name
+        objective:
+          type: string
+          title: Objective
+        exit_conditions:
+          items:
+            $ref: '#/components/schemas/ExitCondition'
+          type: array
+          title: Exit Conditions
+        decision_guidelines:
+          items:
+            type: string
+          type: array
+          title: Decision Guidelines
+          default: []
+        tool_call_specs:
+          items:
+            $ref: '#/components/schemas/ToolCallSpec'
+          type: array
+          title: Tool Call Specs
+          default: []
+        wait_for:
+          anyOf:
+          - type: string
+            enum:
+            - surface_submission
+            - human_approval
+          - type: 'null'
+          title: Wait For
+        guardrails:
+          items:
+            $ref: '#/components/schemas/Guardrail'
+          type: array
+          title: Guardrails
+          default: []
+        channel_overrides:
+          additionalProperties:
+            $ref: '#/components/schemas/ChannelOverride'
+          type: object
+          title: Channel Overrides
+        turn_policy:
+          anyOf:
+          - $ref: '#/components/schemas/TurnPolicy'
+          - type: 'null'
+      type: object
+      required:
+      - type
+      - name
+      - objective
+      - exit_conditions
+      title: DecisionState
+      description: Passthrough routing state — Agent picks an exit condition, no user interaction.
+    ConversationTurnStateTransition:
+      properties:
+        from:
+          type: string
+          title: From
+          description: Source context-graph state before the turn's state transition.
+        to:
+          type: string
+          title: To
+          description: Destination context-graph state after the turn's state transition.
+      type: object
+      required:
+      - from
+      - to
+      title: ConversationTurnStateTransition
+    DataCollectionState-Output:
+      properties:
+        type:
+          type: string
+          const: data_collection
+          title: Type
+        name:
+          type: string
+          title: Name
+        objective:
+          type: string
+          title: Objective
+        fields:
+          items:
+            $ref: '#/components/schemas/CollectionField'
+          type: array
+          title: Fields
+        on_complete:
+          type: string
+          title: On Complete
+        action_guidelines:
+          items:
+            type: string
+          type: array
+          title: Action Guidelines
+          default: []
+        boundary_constraints:
+          items:
+            type: string
+          type: array
+          title: Boundary Constraints
+          default: []
+        surface_fallback:
+          type: boolean
+          title: Surface Fallback
+          default: false
+        surface_fallback_after_turns:
+          type: integer
+          title: Surface Fallback After Turns
+          default: 6
+        max_turns:
+          type: integer
+          title: Max Turns
+          default: 10
+        guardrails:
+          items:
+            $ref: '#/components/schemas/Guardrail'
+          type: array
+          title: Guardrails
+          default: []
+        channel_overrides:
+          additionalProperties:
+            $ref: '#/components/schemas/ChannelOverride'
+          type: object
+          title: Channel Overrides
+        turn_policy:
+          anyOf:
+          - $ref: '#/components/schemas/TurnPolicy'
+          - type: 'null'
+        tool_call_specs:
+          items:
+            $ref: '#/components/schemas/ToolCallSpec'
+          type: array
+          title: Tool Call Specs
+          default: []
+      type: object
+      required:
+      - type
+      - name
+      - objective
+      - fields
+      - on_complete
+      title: DataCollectionState
+      description: 'Structured voice/text data collection with field tracking.
+
+
+        The engine presents fields conversationally, tracks completion, and
+
+        optionally falls back to a Surface form after N turns. Each collected
+
+        field produces a world.event with confidence 0.5.'
+    PreloadSpec:
+      properties:
+        tool_id:
+          type: string
+          maxLength: 256
+          title: Tool Id
+        params:
+          additionalProperties: true
+          type: object
+          maxProperties: 20
+          title: Params
+      type: object
+      required:
+      - tool_id
+      title: PreloadSpec
+      description: 'A tool call executed deterministically by the engine on state entry.
+
+
+        Unlike LLM-driven tool calls, preloads run before any LLM turn —
+
+        the results appear in the interaction log so the engage LLM sees
+
+        them as pre-loaded context.  All preloads in a state execute in
+
+        parallel.  Param values support ``{caller_mrn}`` and ``{entity_id}``
+
+        template variables resolved from the session''s caller context.'
+    ActionState-Output:
+      properties:
+        type:
+          type: string
+          const: action
+          title: Type
+        name:
+          type: string
+          title: Name
+        objective:
+          type: string
+          title: Objective
+        actions:
+          items:
+            $ref: '#/components/schemas/Action'
+          type: array
+          title: Actions
+        intra_state_navigation_guidelines:
+          items:
+            type: string
+          type: array
+          title: Intra State Navigation Guidelines
+        action_guidelines:
+          items:
+            type: string
+          type: array
+          title: Action Guidelines
+        boundary_constraints:
+          items:
+            type: string
+          type: array
+          title: Boundary Constraints
+        exit_conditions:
+          items:
+            $ref: '#/components/schemas/ExitCondition'
+          type: array
+          title: Exit Conditions
+        action_tool_call_specs:
+          items:
+            $ref: '#/components/schemas/ToolCallSpec'
+          type: array
+          title: Action Tool Call Specs
+          default: []
+        exit_condition_tool_call_specs:
+          items:
+            $ref: '#/components/schemas/ToolCallSpec'
+          type: array
+          title: Exit Condition Tool Call Specs
+          default: []
+        wait_for:
+          anyOf:
+          - type: string
+            enum:
+            - surface_submission
+            - human_approval
+          - type: 'null'
+          title: Wait For
+        guardrails:
+          items:
+            $ref: '#/components/schemas/Guardrail'
+          type: array
+          title: Guardrails
+          default: []
+        channel_overrides:
+          additionalProperties:
+            $ref: '#/components/schemas/ChannelOverride'
+          type: object
+          title: Channel Overrides
+        surface_spec_template:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Surface Spec Template
+        turn_policy:
+          anyOf:
+          - $ref: '#/components/schemas/TurnPolicy'
+          - type: 'null'
+        preload:
+          items:
+            $ref: '#/components/schemas/PreloadSpec'
+          type: array
+          maxItems: 20
+          title: Preload
+      type: object
+      required:
+      - type
+      - name
+      - objective
+      - actions
+      - intra_state_navigation_guidelines
+      - action_guidelines
+      - boundary_constraints
+      - exit_conditions
+      title: ActionState
+      description: User-facing engagement state with actions and exit conditions.
+    SwitchChannelRequest:
+      properties:
+        channel:
+          $ref: '#/components/schemas/ChannelKind'
+          description: Target channel to move the conversation to (sms or imessage).
+        recipient:
+          anyOf:
+          - $ref: '#/components/schemas/PhoneE164'
+          - type: 'null'
+          description: Recipient address on the new channel (E.164). Required for sms/imessage.
+        use_case_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Use Case Id
+          description: Channel-manager use case for the new channel (resolves the sender). Required for sms/imessage.
+        reason:
+          $ref: '#/components/schemas/NameString'
+          description: Why the conversation is being moved (e.g. escalation, customer_request).
+        dispatch_opener:
+          type: boolean
+          title: Dispatch Opener
+          description: If true, immediately drive one agent turn on the new channel (e.g. 'I'll text you now').
+          default: false
+        instruction:
+          anyOf:
+          - $ref: '#/components/schemas/BackgroundString'
+          - type: 'null'
+          description: Optional context steering the opener when dispatch_opener=true.
+      type: object
+      required:
+      - channel
+      - reason
+      title: SwitchChannelRequest
+    ToolCallSpec:
+      properties:
+        tool_id:
+          type: string
+          title: Tool Id
+        additional_instruction:
+          type: string
+          title: Additional Instruction
+          default: ''
+        navigate_on_completion:
+          type: boolean
+          title: Navigate On Completion
+          default: false
+        progress:
+          anyOf:
+          - $ref: '#/components/schemas/ProgressHint'
+          - type: 'null'
+        result_persistence:
+          type: string
+          enum:
+          - accumulate
+          - override
+          title: Result Persistence
+          default: accumulate
+        delivery:
+          type: string
+          enum:
+          - interrupt
+          - queue
+          title: Delivery
+          default: interrupt
+        failure_delivery:
+          anyOf:
+          - type: string
+            enum:
+            - interrupt
+            - queue
+          - type: 'null'
+          title: Failure Delivery
+        failure_delivery_by_class:
+          anyOf:
+          - additionalProperties:
+              type: string
+              enum:
+              - interrupt
+              - queue
+            propertyNames:
+              $ref: '#/components/schemas/FailureClass'
+            type: object
+          - type: 'null'
+          title: Failure Delivery By Class
+        execution:
+          type: string
+          enum:
+          - blocking
+          - background
+          title: Execution
+          default: blocking
+        lifecycle:
+          type: string
+          enum:
+          - coupled
+          - independent
+          title: Lifecycle
+          default: independent
+        audio_fillers:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          title: Audio Fillers
+        audio_filler_triggered_after:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Audio Filler Triggered After
+      type: object
+      required:
+      - tool_id
+      title: ToolCallSpec
+      description: A tool call that the agent can make in a state.
+    ConversationTurn:
+      properties:
+        turn_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Turn Id
+          description: Stable identifier of the user exchange this message belongs to, derived deterministically from (conversation_id, turn_index) — identical across ``POST /turns`` responses and re-reads of the conversation history. User and agent messages from the same exchange share this value. Null on messages that precede the first user turn (proactive greetings, channel-event preludes).
+        turn_index:
+          anyOf:
+          - type: integer
+            minimum: 0.0
+          - type: 'null'
+          title: Turn Index
+          description: Zero-based ordinal of the user exchange this message belongs to (0 = first user turn). Derived server-side from the conversation's user-turn count — never stored. Null exactly when ``turn_id`` is null.
+        role:
+          type: string
+          enum:
+          - agent
+          - user
+          - system
+          title: Role
+        text:
+          type: string
+          title: Text
+        timestamp:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Timestamp
+        channel:
+          anyOf:
+          - $ref: '#/components/schemas/ChannelKind'
+          - type: 'null'
+          description: Channel this turn occurred on. A conversation that switched channels has a self-describing per-turn history; null on turns written before per-turn attribution or on channel-less internal turns.
+        content:
+          items:
+            $ref: '#/components/schemas/ContentPartPayload'
+          type: array
+          title: Content
+          default: []
+        tool_calls:
+          items:
+            $ref: '#/components/schemas/ConversationToolCallDetail'
+          type: array
+          title: Tool Calls
+          description: Tool calls executed during this (agent) turn. Populated only when the request opts in via ``include_tool_calls=true``; empty otherwise and on turns that did not invoke tools.
+          default: []
+        selected_action_description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Selected Action Description
+          description: Description of the context-graph action selected for this turn. Null means no action was selected or no selected action was recorded.
+        state_transition:
+          anyOf:
+          - $ref: '#/components/schemas/ConversationTurnStateTransition'
+          - type: 'null'
+          description: 'Context-graph state transition that occurred during this turn. Null means no transition took place or no transition was recorded. Deprecated: use state_transitions instead. If multiple transitions were recorded, this field reports the first source state and final destination state.'
+          deprecated: true
+        state_transitions:
+          items:
+            $ref: '#/components/schemas/ConversationTurnStateTransition'
+          type: array
+          title: State Transitions
+          description: Ordered context-graph state transitions that occurred during this turn.
+          default: []
+        available_actions:
+          items:
+            $ref: '#/components/schemas/ConversationTurnAvailableAction'
+          type: array
+          title: Available Actions
+          description: Action choices available in the turn's resolved context-graph state. Empty when actions cannot be resolved or the resolved state is not an action state.
+          default: []
+      type: object
+      required:
+      - role
+      - text
+      title: ConversationTurn
+    ConversationTurnAvailableAction:
+      properties:
+        description:
+          type: string
+          title: Description
+          description: Human-readable description of an action available in the turn's state.
+      type: object
+      required:
+      - description
+      title: ConversationTurnAvailableAction
+    TurnResponse:
+      properties:
+        turn_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Turn Id
+          description: 'Identifier of the user exchange this turn created — or, for ``poll=true`` and greeting-kickoff turns (empty ``message``), the latest exchange the returned messages attach to. Deterministic: matches the ``turn_id`` on this conversation''s history turns, so it can anchor durable per-turn artifacts (e.g. feedback) across page reloads. Null only when the conversation has no user exchange yet (a poll or kickoff before the first user message).'
+        input:
+          $ref: '#/components/schemas/ConversationTurn'
+        output:
+          items:
+            $ref: '#/components/schemas/ConversationTurn'
+          type: array
+          title: Output
+        tool_calls:
+          items:
+            $ref: '#/components/schemas/ConversationToolCallDetail'
+          type: array
+          title: Tool Calls
+          default: []
+        conversation:
+          $ref: '#/components/schemas/TurnConversationSnapshot'
+        background_pending:
+          type: boolean
+          title: Background Pending
+          description: 'Whether this turn''s ``output`` is the final answer, or only an acknowledgement that
+
+            work is still running in the background.
+
+
+            ``false`` (default): ``output`` is the complete agent response for this turn.
+
+
+            ``true``: a tool crossed the server''s blocking window and was handed to a background
+
+            task, so ``output`` is NOT the final answer — the definitive assistant answer is
+
+            produced later, out-of-band. It is **durable on the conversation**: drain it by
+
+            re-issuing ``POST …/turns`` with ``poll=true`` (a no-message drain-and-report), by
+
+            sending the next user turn, or by reading the conversation back
+
+            (``GET …/conversations/{id}``). This is the per-conversation delivery contract — see
+
+            the web-integration paved path. (The workspace observer bus,
+
+            ``GET /v1/{workspace_id}/events/stream``, mirrors this activity as ``text.agent_message``
+
+            / ``text.tool_started`` / ``text.background_result`` for *dashboards* watching many
+
+            conversations, but is not the per-chat delivery path.) A client that treats a
+
+            ``background_pending=true`` turn as complete without draining will miss the final answer.'
+          default: false
+      type: object
+      required:
+      - turn_id
+      - input
+      - output
+      - conversation
+      title: TurnResponse
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    TurnStreamEvent:
+      discriminator:
+        mapping:
+          done: '#/components/schemas/TurnDoneEvent'
+          error: '#/components/schemas/TurnErrorEvent'
+          message: '#/components/schemas/TurnMessageEvent'
+          thinking: '#/components/schemas/TurnThinkingEvent'
+          token: '#/components/schemas/TurnTokenEvent'
+          tool_call_completed: '#/components/schemas/TurnToolCallCompletedEvent'
+          tool_call_started: '#/components/schemas/TurnToolCallStartedEvent'
+        propertyName: event
+      oneOf:
+      - $ref: '#/components/schemas/TurnTokenEvent'
+      - $ref: '#/components/schemas/TurnToolCallStartedEvent'
+      - $ref: '#/components/schemas/TurnToolCallCompletedEvent'
+      - $ref: '#/components/schemas/TurnThinkingEvent'
+      - $ref: '#/components/schemas/TurnMessageEvent'
+      - $ref: '#/components/schemas/TurnDoneEvent'
+      - $ref: '#/components/schemas/TurnErrorEvent'
+    TurnToolCallStartedEvent:
+      properties:
+        event:
+          const: tool_call_started
+          default: tool_call_started
+          title: Event
+          type: string
+        tool_name:
+          maxLength: 256
+          title: Tool Name
+          type: string
+        call_id:
+          maxLength: 256
+          title: Call Id
+          type: string
+        input:
+          title: Input
+          type: string
+      required:
+      - tool_name
+      - call_id
+      - input
+      title: TurnToolCallStartedEvent
+      type: object
+    VoiceDetail:
+      properties:
+        recording_path:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Recording Path
+        twilio_recording_sid:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Twilio Recording Sid
+        twilio_recording_duration:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Twilio Recording Duration
+        has_recording:
+          type: boolean
+          title: Has Recording
+          default: false
+        verified_transcript:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Verified Transcript
+        transcript_accuracy:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Transcript Accuracy
+        emotional_summary:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Emotional Summary
+        barge_in_events:
+          items:
+            additionalProperties: true
+            type: object
+          type: array
+          title: Barge In Events
+          default: []
+        states_visited:
+          items:
+            type: string
+          type: array
+          title: States Visited
+          default: []
+        participants:
+          items:
+            additionalProperties: true
+            type: object
+          type: array
+          title: Participants
+          default: []
+        config:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Config
+        call_analysis:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Call Analysis
+        forwarding:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Forwarding
+        escalation:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Escalation
+        safety:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Safety
+        quality_breakdown:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Quality Breakdown
+        risk_summary:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Risk Summary
+        latency_summary:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Latency Summary
+        conversation_metrics:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Conversation Metrics
+        tool_summary:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Tool Summary
+        safety_summary:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Safety Summary
+        operator_summary:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Operator Summary
+      type: object
+      title: VoiceDetail
+    CreateConversationRequest:
+      properties:
+        service_id:
+          type: string
+          format: uuid
+          title: Service Id
+        entity_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Entity Id
+        channel:
+          $ref: '#/components/schemas/ChannelKind'
+          default: web
+        recipient:
+          anyOf:
+          - $ref: '#/components/schemas/PhoneE164'
+          - type: 'null'
+          description: Destination address for an outbound conversation (E.164 for sms/imessage). Required for non-web.
+        use_case_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Use Case Id
+          description: Channel-manager use case the outbound conversation is sent through. Required for non-web; channel-manager resolves the sender (FROM) from it (never caller-supplied). Must be owned by this workspace.
+        instruction:
+          anyOf:
+          - $ref: '#/components/schemas/BackgroundString'
+          - type: 'null'
+          description: Optional context steering what the agent opens with on an outbound conversation.
+        force_new:
+          type: boolean
+          title: Force New
+          description: 'Outbound thread-keyed channels (sms/imessage) only: close any existing ACTIVE conversation on the computed provider thread (recipient + use case) before dispatching, so the opener materializes a brand-new conversation instead of continuing the old thread. Rejected with 422 on channel=web — every web create already starts a new conversation, so force_new is meaningless there.'
+          default: false
+      type: object
+      required:
+      - service_id
+      title: CreateConversationRequest
+    TurnPolicy:
+      properties:
+        barge_in_enabled:
+          type: boolean
+          title: Barge In Enabled
+          default: true
+        greeting_shield_s:
+          type: number
+          title: Greeting Shield S
+          default: 0.0
+        safety_response:
+          type: string
+          enum:
+          - suspend_forward
+          - stay_empathize
+          - alert
+          title: Safety Response
+          default: stay_empathize
+        context_strategy:
+          type: string
+          enum:
+          - full
+          - compact
+          title: Context Strategy
+          default: full
+        degradation_threshold:
+          type: integer
+          minimum: -1.0
+          title: Degradation Threshold
+          default: -1
+        block_forward_call:
+          type: boolean
+          title: Block Forward Call
+          default: false
+        block_forward_call_after_turns:
+          type: integer
+          minimum: -1.0
+          title: Block Forward Call After Turns
+          default: -1
+        stt_eot_threshold:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Stt Eot Threshold
+        stt_eager_eot_threshold:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Stt Eager Eot Threshold
+        stt_eot_timeout_ms:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Stt Eot Timeout Ms
+      type: object
+      title: TurnPolicy
+      description: 'Voice pipeline parameters declared per HSM state.
+
+
+        Lives on ActionState/DecisionState alongside guardrails, wait_for, and
+
+        channel_overrides.  The HSM state IS the policy — no shadow state machine.
+
+        All fields optional with safe defaults (production behavior unchanged
+
+        when no turn_policy is set).'
+    Action:
+      properties:
+        description:
+          type: string
+          title: Description
+        filler_hint:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Filler Hint
+      type: object
+      required:
+      - description
+      title: Action
+      description: A single action the agent can take within a state.
+    TurnThinkingEvent:
+      properties:
+        event:
+          const: thinking
+          default: thinking
+          title: Event
+          type: string
+        tier:
+          title: Tier
+          type: integer
+        tier_name:
+          title: Tier Name
+          type: string
+      required:
+      - tier
+      - tier_name
+      title: TurnThinkingEvent
+      type: object
+    BackgroundString:
+      type: string
+      maxLength: 10000
+    CollectionField:
+      properties:
+        key:
+          type: string
+          title: Key
+        type:
+          type: string
+          title: Type
+        label:
+          type: string
+          title: Label
+        required:
+          type: boolean
+          title: Required
+          default: true
+        options:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          title: Options
+        validation:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Validation
+        ask_prompt:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Ask Prompt
+        fhir_path:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Fhir Path
+      type: object
+      required:
+      - key
+      - type
+      - label
+      title: CollectionField
+      description: A single field to collect during a data collection state.
+    NameString:
+      type: string
+      maxLength: 256
+      minLength: 1
+    ContentPartPayload:
+      properties:
+        type:
+          type: string
+          maxLength: 64
+          minLength: 1
+          pattern: ^[a-z][a-z0-9._-]*$
+          title: Type
+          default: text
+        text:
+          anyOf:
+          - type: string
+            maxLength: 10000
+          - type: 'null'
+          title: Text
+        url:
+          anyOf:
+          - type: string
+            maxLength: 2048
+          - type: 'null'
+          title: Url
+        media_type:
+          anyOf:
+          - type: string
+            maxLength: 128
+          - type: 'null'
+          title: Media Type
+        provider_id:
+          anyOf:
+          - type: string
+            maxLength: 256
+          - type: 'null'
+          title: Provider Id
+        metadata:
+          additionalProperties: true
+          type: object
+          maxProperties: 50
+          title: Metadata
+      type: object
+      title: ContentPartPayload
+      description: HTTP/WebSocket shape for a modality-neutral conversation content part.
+    ContextGraphState-Output:
+      oneOf:
+      - $ref: '#/components/schemas/ActionState-Output'
+      - $ref: '#/components/schemas/DecisionState-Output'
+      - $ref: '#/components/schemas/AnnotationState'
+      - $ref: '#/components/schemas/DataCollectionState-Output'
+      discriminator:
+        propertyName: type
+        mapping:
+          action: '#/components/schemas/ActionState-Output'
+          annotation: '#/components/schemas/AnnotationState'
+          data_collection: '#/components/schemas/DataCollectionState-Output'
+          decision: '#/components/schemas/DecisionState-Output'
+    TurnToolCallCompletedEvent:
+      properties:
+        event:
+          const: tool_call_completed
+          default: tool_call_completed
+          title: Event
+          type: string
+        tool_name:
+          maxLength: 256
+          title: Tool Name
+          type: string
+        call_id:
+          maxLength: 256
+          title: Call Id
+          type: string
+        result:
+          title: Result
+          type: string
+        succeeded:
+          title: Succeeded
+          type: boolean
+        duration_ms:
+          anyOf:
+          - maximum: 3600000.0
+            minimum: 0.0
+            type: number
+          - type: 'null'
+          default: null
+          description: Wall-clock tool execution time in milliseconds, measured at the engage_step call site. Null when the upstream did not report timing (legacy/test paths).
+          title: Duration Ms
+      required:
+      - tool_name
+      - call_id
+      - result
+      - succeeded
+      title: TurnToolCallCompletedEvent
+      type: object
+    TurnMessageEvent:
+      properties:
+        event:
+          const: message
+          default: message
+          title: Event
+          type: string
+        role:
+          title: Role
+          type: string
+        text:
+          title: Text
+          type: string
+      required:
+      - role
+      - text
+      title: TurnMessageEvent
+      type: object
+    ChannelKind:
+      type: string
+      enum:
+      - voice
+      - sms
+      - whatsapp
+      - email
+      - web
+      - imessage
+      title: ChannelKind
+      description: 'HSM execution channel type.
+
+
+        Determines how the HSM engine communicates with end users.
+
+        Each kind maps to one or more providers.'
+    Guardrail:
+      properties:
+        name:
+          type: string
+          maxLength: 128
+          title: Name
+        description:
+          type: string
+          maxLength: 1000
+          title: Description
+        enforcement:
+          type: string
+          enum:
+          - hard
+          - soft
+          title: Enforcement
+          default: hard
+      type: object
+      required:
+      - name
+      - description
+      title: Guardrail
+      description: Typed safety rule enforced per-state (not just global freetext guidelines).
+  securitySchemes:
+    Bearer-Authorization:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Amigo issued JWT token that identifies an user. It's issued either after logging in through the frontend, or manually through the [`SignInWithAPIKey`](sign-in-with-api-key) endpoint.
+    Bearer-Authorization-Organization:
+      type: apiKey
+      in: header
+      name: X-ORG-ID
+      description: An optional organization identifier that indicates from which organization the token is issued. This is used in rare cases where the user to authenticate is making a request for resources in another organization.
+    Basic:
+      type: http
+      scheme: basic
+      description: The username should be set to {org_id}_{user_id}, and the password should be the Amigo issued JWT token that identifies the user.

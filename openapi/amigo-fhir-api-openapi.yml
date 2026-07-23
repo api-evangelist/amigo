@@ -1,0 +1,2359 @@
+openapi: 3.1.0
+info:
+  title: Amigo Account FHIR API
+  version: 0.1.0
+servers:
+- url: https://api.amigo.ai
+- url: https://internal-api.amigo.ai
+- url: https://api-eu-central-1.amigo.ai
+- url: https://api-ap-southeast-2.amigo.ai
+- url: https://api-ca-central-1.amigo.ai
+security:
+- Bearer-Authorization: []
+  Bearer-Authorization-Organization: []
+  Basic: []
+tags:
+- name: FHIR
+paths:
+  /v1/{workspace_id}/fhir/status:
+    get:
+      tags:
+      - FHIR
+      summary: Get clinical data status
+      description: Get event and entity counts for the workspace's clinical data.
+      operationId: fhir-status
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FhirStatusResponse'
+        '404':
+          description: Workspace not found.
+        '401':
+          description: Missing or invalid API key.
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+  /v1/{workspace_id}/fhir/import:
+    post:
+      tags:
+      - FHIR
+      summary: Import FHIR Bundle
+      description: Import a FHIR Bundle. Decomposes supported resources into upserted world events and creates patient entities. Unsupported resource types are skipped and reported; omitted resources are not deleted.
+      operationId: fhir-import
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FhirImportRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FhirImportResponse'
+        '400':
+          description: Invalid bundle format.
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+  /v1/{workspace_id}/fhir/import-stream:
+    post:
+      tags:
+      - FHIR
+      summary: Import FHIR resources via NDJSON streaming
+      description: 'Stream FHIR resources as NDJSON (one resource per line). Bypasses the buffered-body size cap on /fhir/import. Callers MUST pre-resolve any bundle-internal urn:uuid: references. Unsupported resource types are skipped and reported; omitted resources are not deleted.'
+      operationId: fhir-import-stream
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: source
+        in: query
+        required: false
+        schema:
+          type: string
+          maxLength: 128
+          default: fhir_import
+          title: Source
+      - name: source_system
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            maxLength: 128
+          - type: 'null'
+          title: Source System
+      - name: data_source_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Data Source Id
+      - name: dedup
+        in: query
+        required: false
+        schema:
+          type: boolean
+          description: Skip identical re-uploads via content-hash dedup
+          default: true
+          title: Dedup
+        description: Skip identical re-uploads via content-hash dedup
+      - name: unsupported_resource_policy
+        in: query
+        required: false
+        schema:
+          $ref: '#/components/schemas/FhirUnsupportedResourcePolicy'
+          description: Use 'error' to report unsupported resources, or 'skip' to skip them without errors.
+          default: error
+        description: Use 'error' to report unsupported resources, or 'skip' to skip them without errors.
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FhirImportResponse'
+        '400':
+          description: Stream exceeded line cap.
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/fhir/views/patients:
+    get:
+      tags:
+      - FHIR
+      summary: List patients (clinical view)
+      description: Frontend-ready patient list with flattened demographics, conditions, medications, allergies, and insurance. Optionally scoped to a specific data source via data_source_id.
+      operationId: fhir-patients-view
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: q
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Search by name
+          title: Q
+        description: Search by name
+      - name: data_source_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          description: Scope to data source
+          title: Data Source Id
+        description: Scope to data source
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 100
+          minimum: 1
+          default: 20
+          title: Limit
+      - name: offset
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 0
+          default: 0
+          title: Offset
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FhirPatientListResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/fhir/views/practitioners:
+    get:
+      tags:
+      - FHIR
+      summary: List practitioners
+      description: Frontend-ready practitioner list with name, NPI, specialty, phone. Optionally scoped to a data source.
+      operationId: fhir-practitioners-view
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: q
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Search by name
+          title: Q
+        description: Search by name
+      - name: data_source_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          description: Scope to data source
+          title: Data Source Id
+        description: Scope to data source
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 100
+          minimum: 1
+          default: 20
+          title: Limit
+      - name: offset
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 0
+          default: 0
+          title: Offset
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FhirPractitionerListResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/fhir/views/locations:
+    get:
+      tags:
+      - FHIR
+      summary: List locations
+      description: Frontend-ready location list with name, address, phone, hours. Optionally scoped to a data source.
+      operationId: fhir-locations-view
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: q
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Search by name
+          title: Q
+        description: Search by name
+      - name: data_source_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          description: Scope to data source
+          title: Data Source Id
+        description: Scope to data source
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 100
+          minimum: 1
+          default: 20
+          title: Limit
+      - name: offset
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 0
+          default: 0
+          title: Offset
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FhirLocationListResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/fhir/views/appointments:
+    get:
+      tags:
+      - FHIR
+      summary: List appointments
+      description: Frontend-ready appointment list with date, status, patient, practitioner, location, reason. Optionally scoped to a data source.
+      operationId: fhir-appointments-view
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: q
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Search
+          title: Q
+        description: Search
+      - name: data_source_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          description: Scope to data source
+          title: Data Source Id
+        description: Scope to data source
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 100
+          minimum: 1
+          default: 20
+          title: Limit
+      - name: offset
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 0
+          default: 0
+          title: Offset
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FhirAppointmentListResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/fhir/views/slots:
+    get:
+      tags:
+      - FHIR
+      summary: List availability slots
+      description: Frontend-ready provider availability slot list with start, end, status, schedule reference, and provider display name. Optionally scoped to a data source.
+      operationId: fhir-slots-view
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: q
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Search
+          title: Q
+        description: Search
+      - name: data_source_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          description: Scope to data source
+          title: Data Source Id
+        description: Scope to data source
+      - name: status
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Slot status (e.g. 'free', 'busy')
+          title: Status
+        description: Slot status (e.g. 'free', 'busy')
+      - name: date
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Start date YYYY-MM-DD (filters slots on or after this date)
+          title: Date
+        description: Start date YYYY-MM-DD (filters slots on or after this date)
+      - name: days
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 90
+          minimum: 1
+          description: Number of days forward from date (default 7)
+          default: 7
+          title: Days
+        description: Number of days forward from date (default 7)
+      - name: provider
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Provider name (partial match, e.g. 'Woloski')
+          title: Provider
+        description: Provider name (partial match, e.g. 'Woloski')
+      - name: specialty
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Specialty (partial match, e.g. 'Psychiatry')
+          title: Specialty
+        description: Specialty (partial match, e.g. 'Psychiatry')
+      - name: service_type
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Visit/service type name (partial match, e.g. 'Follow-up')
+          title: Service Type
+        description: Visit/service type name (partial match, e.g. 'Follow-up')
+      - name: facility_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Facility ID
+          title: Facility Id
+        description: Facility ID
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 100
+          minimum: 1
+          default: 20
+          title: Limit
+      - name: offset
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 0
+          default: 0
+          title: Offset
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FhirSlotListResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/fhir/views/organizations:
+    get:
+      tags:
+      - FHIR
+      summary: List organizations
+      description: Frontend-ready organization list with name, phone, domain, industry, address. Optionally scoped to a data source.
+      operationId: fhir-organizations-view
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: q
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Search by name
+          title: Q
+        description: Search by name
+      - name: data_source_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          description: Scope to data source
+          title: Data Source Id
+        description: Scope to data source
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 100
+          minimum: 1
+          default: 20
+          title: Limit
+      - name: offset
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 0
+          default: 0
+          title: Offset
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FhirOrganizationListResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/fhir/patients:
+    get:
+      tags:
+      - FHIR
+      summary: Search patients
+      description: Search patient entities by name, MRN, or phone.
+      operationId: fhir-patient-search
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: q
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Search by name, MRN, phone, or entity ID
+          title: Q
+        description: Search by name, MRN, phone, or entity ID
+      - name: mrn
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Search by MRN
+          title: Mrn
+        description: Search by MRN
+      - name: phone
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Search by phone
+          title: Phone
+        description: Search by phone
+      - name: sort_by
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Sort field with +/- prefix (e.g. -last_event_at)
+          title: Sort By
+        description: Sort field with +/- prefix (e.g. -last_event_at)
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 100
+          minimum: 1
+          default: 20
+          title: Limit
+      - name: offset
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 0
+          default: 0
+          title: Offset
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PatientSearchResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/fhir/patients/{patient_id}/timeline:
+    get:
+      tags:
+      - FHIR
+      summary: Patient timeline
+      description: Get the full event timeline for a patient entity.
+      operationId: fhir-patient-timeline
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: patient_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Patient Id
+      - name: domain
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Domain
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 200
+          minimum: 1
+          default: 50
+          title: Limit
+      - name: offset
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 0
+          default: 0
+          title: Offset
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PatientTimelineResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/fhir/patients/{patient_id}/summary:
+    get:
+      tags:
+      - FHIR
+      summary: Patient summary
+      description: Get the agent-maintained world model state for a patient.
+      operationId: fhir-patient-summary
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: patient_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Patient Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PatientSummaryResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/fhir/resources/{resource_type}:
+    get:
+      tags:
+      - FHIR
+      summary: Search FHIR resources
+      description: Search FHIR resources by type with standard search parameters.
+      operationId: fhir-search-resources
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: resource_type
+        in: path
+        required: true
+        schema:
+          type: string
+          maxLength: 64
+          title: Resource Type
+      - name: _count
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 100
+          minimum: 1
+          default: 20
+          title: ' Count'
+      - name: _offset
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 0
+          default: 0
+          title: ' Offset'
+      - name: name
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            maxLength: 200
+          - type: 'null'
+          title: Name
+      - name: identifier
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            maxLength: 200
+          - type: 'null'
+          title: Identifier
+      - name: birthdate
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            maxLength: 32
+          - type: 'null'
+          title: Birthdate
+      - name: date
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            maxLength: 32
+          - type: 'null'
+          title: Date
+      - name: patient
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            maxLength: 128
+          - type: 'null'
+          title: Patient
+      - name: status
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            maxLength: 64
+          - type: 'null'
+          title: Status
+      - name: q
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            maxLength: 200
+          - type: 'null'
+          description: General search text
+          title: Q
+        description: General search text
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FhirSearchResponse'
+        '400':
+          description: Invalid resource type.
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    post:
+      tags:
+      - FHIR
+      summary: Create a FHIR resource
+      description: Create a new FHIR resource. Automatically creates patient entities.
+      operationId: fhir-create-resource
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: resource_type
+        in: path
+        required: true
+        schema:
+          type: string
+          maxLength: 64
+          title: Resource Type
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FhirWriteRequest'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FhirResourceResponse'
+        '400':
+          description: Invalid resource type or payload.
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/fhir/resources/{resource_type}/{resource_id}/history:
+    get:
+      tags:
+      - FHIR
+      summary: Get FHIR resource history
+      description: Fetch the version history and changed-field provenance for a FHIR resource.
+      operationId: fhir-get-resource-history
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: resource_type
+        in: path
+        required: true
+        schema:
+          type: string
+          maxLength: 64
+          title: Resource Type
+      - name: resource_id
+        in: path
+        required: true
+        schema:
+          type: string
+          maxLength: 128
+          title: Resource Id
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 50
+          minimum: 1
+          default: 10
+          title: Limit
+      - name: offset
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 0
+          default: 0
+          title: Offset
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FhirResourceHistoryResponse'
+        '400':
+          description: Invalid resource type.
+        '404':
+          description: Resource not found.
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/fhir/resources/{resource_type}/{resource_id}:
+    get:
+      tags:
+      - FHIR
+      summary: Get a FHIR resource
+      description: Fetch a single FHIR resource by type and ID.
+      operationId: fhir-get-resource
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: resource_type
+        in: path
+        required: true
+        schema:
+          type: string
+          maxLength: 64
+          title: Resource Type
+      - name: resource_id
+        in: path
+        required: true
+        schema:
+          type: string
+          maxLength: 128
+          title: Resource Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FhirResourceResponse'
+        '400':
+          description: Invalid resource type.
+        '404':
+          description: Resource not found.
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    put:
+      tags:
+      - FHIR
+      summary: Update a FHIR resource
+      description: Update a FHIR resource. Creates a new event that supersedes the old one.
+      operationId: fhir-update-resource
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: resource_type
+        in: path
+        required: true
+        schema:
+          type: string
+          maxLength: 64
+          title: Resource Type
+      - name: resource_id
+        in: path
+        required: true
+        schema:
+          type: string
+          maxLength: 128
+          title: Resource Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FhirWriteRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FhirResourceResponse'
+        '400':
+          description: Invalid resource type or payload.
+        '404':
+          description: Resource not found.
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+components:
+  schemas:
+    FhirStatusResponse:
+      properties:
+        configured:
+          type: boolean
+          title: Configured
+        connector_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Connector Type
+        event_count:
+          type: integer
+          title: Event Count
+        entity_count:
+          type: integer
+          title: Entity Count
+        entity_type_counts:
+          additionalProperties:
+            type: integer
+          type: object
+          title: Entity Type Counts
+        resource_type_counts:
+          additionalProperties:
+            type: integer
+          type: object
+          title: Resource Type Counts
+        last_poll_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Last Poll At
+        last_change_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Last Change At
+        sync_healthy:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Sync Healthy
+      type: object
+      required:
+      - configured
+      - event_count
+      - entity_count
+      title: FhirStatusResponse
+    FhirSlotView:
+      properties:
+        entity_id:
+          type: string
+          format: uuid
+          title: Entity Id
+        status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Status
+        start:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Start
+        end:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: End
+        schedule_ref:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Schedule Ref
+        provider_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Provider Name
+        provider_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Provider Id
+        facility_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Facility Id
+        specialty:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Specialty
+        visit_type_ids:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Visit Type Ids
+        visit_type_names:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Visit Type Names
+        source_system:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Source System
+        canonical_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Canonical Id
+        event_count:
+          type: integer
+          title: Event Count
+          default: 0
+        last_event_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Last Event At
+      type: object
+      required:
+      - entity_id
+      title: FhirSlotView
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    FhirResourceResponse:
+      properties:
+        resource_type:
+          type: string
+          title: Resource Type
+        resource_id:
+          type: string
+          title: Resource Id
+        entity_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Entity Id
+        data:
+          additionalProperties: true
+          type: object
+          title: Data
+      type: object
+      required:
+      - resource_type
+      - resource_id
+      - data
+      title: FhirResourceResponse
+    PatientTimelineResponse:
+      properties:
+        entity_id:
+          type: string
+          format: uuid
+          title: Entity Id
+        events:
+          items:
+            additionalProperties: true
+            type: object
+          type: array
+          title: Events
+        total:
+          type: integer
+          title: Total
+      type: object
+      required:
+      - entity_id
+      - events
+      - total
+      title: PatientTimelineResponse
+    FhirOrganizationListResponse:
+      properties:
+        organizations:
+          items:
+            $ref: '#/components/schemas/FhirOrganizationView'
+          type: array
+          title: Organizations
+        total:
+          type: integer
+          title: Total
+        has_more:
+          type: boolean
+          title: Has More
+          default: false
+        next_offset:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Next Offset
+      type: object
+      required:
+      - organizations
+      - total
+      title: FhirOrganizationListResponse
+    FhirImportRequest:
+      properties:
+        bundle:
+          additionalProperties: true
+          type: object
+          title: Bundle
+        source:
+          type: string
+          maxLength: 128
+          title: Source
+          default: fhir_import
+        source_system:
+          anyOf:
+          - type: string
+            maxLength: 128
+          - type: 'null'
+          title: Source System
+        data_source_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Data Source Id
+        dedup:
+          type: boolean
+          title: Dedup
+          description: When true, identical re-uploads of the same FHIR resource are skipped via content-hash dedup. Set to false to force emission regardless of content changes.
+          default: true
+        unsupported_resource_policy:
+          $ref: '#/components/schemas/FhirUnsupportedResourcePolicy'
+          description: Controls resources whose resourceType is missing or not projected by platform FHIR APIs. 'error' skips the resource and adds a per-resource error; 'skip' skips it without adding an error. Unsupported resources are never emitted as silent raw world events.
+          default: error
+      type: object
+      required:
+      - bundle
+      title: FhirImportRequest
+    PatientListItem:
+      properties:
+        entity_id:
+          type: string
+          format: uuid
+          title: Entity Id
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+          description: Patient name
+        birth_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Birth Date
+          description: Date of birth (YYYY-MM-DD)
+        gender:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Gender
+          description: Gender
+        phone:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Phone
+          description: Primary phone number
+        email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Email
+          description: Primary email address
+        mrn:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Mrn
+          description: Medical record number
+        event_count:
+          type: integer
+          title: Event Count
+          default: 0
+        last_event_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Last Event At
+      type: object
+      required:
+      - entity_id
+      title: PatientListItem
+      description: Typed patient list item — replaces untyped dict.
+    PatientSummaryResponse:
+      properties:
+        entity_id:
+          type: string
+          format: uuid
+          title: Entity Id
+        entity_type:
+          type: string
+          title: Entity Type
+        display_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Display Name
+        state:
+          additionalProperties: true
+          type: object
+          title: State
+          description: Full JSONB state blob. Prefer typed fields below.
+          deprecated: true
+        event_count:
+          type: integer
+          title: Event Count
+        last_event_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Last Event At
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+          description: Patient name
+        phone:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Phone
+          description: Primary phone number (E.164)
+        email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Email
+          description: Primary email address
+        birth_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Birth Date
+          description: Date of birth (YYYY-MM-DD)
+        gender:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Gender
+          description: Gender
+        mrn:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Mrn
+          description: Medical record number
+      type: object
+      required:
+      - entity_id
+      - entity_type
+      - display_name
+      - event_count
+      - last_event_at
+      title: PatientSummaryResponse
+    FhirPatientListResponse:
+      properties:
+        patients:
+          items:
+            $ref: '#/components/schemas/FhirPatientView'
+          type: array
+          title: Patients
+        total:
+          type: integer
+          title: Total
+        has_more:
+          type: boolean
+          title: Has More
+          default: false
+        next_offset:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Next Offset
+      type: object
+      required:
+      - patients
+      - total
+      title: FhirPatientListResponse
+    FhirSearchResponse:
+      properties:
+        resource_type:
+          type: string
+          title: Resource Type
+        total:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Total
+        entries:
+          items:
+            additionalProperties: true
+            type: object
+          type: array
+          title: Entries
+        next_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Next Url
+      type: object
+      required:
+      - resource_type
+      - total
+      - entries
+      title: FhirSearchResponse
+    FhirAppointmentListResponse:
+      properties:
+        appointments:
+          items:
+            $ref: '#/components/schemas/FhirAppointmentView'
+          type: array
+          title: Appointments
+        total:
+          type: integer
+          title: Total
+        has_more:
+          type: boolean
+          title: Has More
+          default: false
+        next_offset:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Next Offset
+      type: object
+      required:
+      - appointments
+      - total
+      title: FhirAppointmentListResponse
+    FhirPractitionerListResponse:
+      properties:
+        practitioners:
+          items:
+            $ref: '#/components/schemas/FhirPractitionerView'
+          type: array
+          title: Practitioners
+        total:
+          type: integer
+          title: Total
+        has_more:
+          type: boolean
+          title: Has More
+          default: false
+        next_offset:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Next Offset
+      type: object
+      required:
+      - practitioners
+      - total
+      title: FhirPractitionerListResponse
+    FhirPractitionerView:
+      properties:
+        entity_id:
+          type: string
+          format: uuid
+          title: Entity Id
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        npi:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Npi
+        specialty:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Specialty
+        phone:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Phone
+        email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Email
+        member_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Member Id
+        scheduling_eligible:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Scheduling Eligible
+        source_system:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Source System
+        canonical_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Canonical Id
+        event_count:
+          type: integer
+          title: Event Count
+          default: 0
+        last_event_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Last Event At
+      type: object
+      required:
+      - entity_id
+      title: FhirPractitionerView
+    FhirWriteRequest:
+      properties:
+        data:
+          additionalProperties: true
+          type: object
+          title: Data
+        data_source_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Data Source Id
+      type: object
+      required:
+      - data
+      title: FhirWriteRequest
+    PatientSearchResponse:
+      properties:
+        patients:
+          items:
+            $ref: '#/components/schemas/PatientListItem'
+          type: array
+          title: Patients
+        total:
+          type: integer
+          title: Total
+        has_more:
+          type: boolean
+          title: Has More
+          default: false
+        next_offset:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Next Offset
+      type: object
+      required:
+      - patients
+      - total
+      title: PatientSearchResponse
+    FhirPatientView:
+      properties:
+        entity_id:
+          type: string
+          format: uuid
+          title: Entity Id
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        first_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: First Name
+        last_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Last Name
+        birth_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Birth Date
+        gender:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Gender
+        phone:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Phone
+        email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Email
+        mrn:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Mrn
+        address:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Address
+        address_state:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Address State
+        address_postal_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Address Postal Code
+        address_city:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Address City
+        active_conditions:
+          items:
+            type: string
+          type: array
+          title: Active Conditions
+        active_medications:
+          items:
+            type: string
+          type: array
+          title: Active Medications
+        allergies:
+          items:
+            type: string
+          type: array
+          title: Allergies
+        insurance:
+          items:
+            additionalProperties: true
+            type: object
+          type: array
+          title: Insurance
+        primary_payer_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Primary Payer Name
+        practice_payer_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Practice Payer Id
+        member_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Member Id
+        policyholder_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Policyholder Name
+        policyholder_relationship:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Policyholder Relationship
+        policyholder_dob:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Policyholder Dob
+        source_system:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Source System
+        canonical_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Canonical Id
+        event_count:
+          type: integer
+          title: Event Count
+          default: 0
+        confidence:
+          type: number
+          title: Confidence
+          default: 1.0
+        last_event_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Last Event At
+        created_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Created At
+      type: object
+      required:
+      - entity_id
+      title: FhirPatientView
+    FhirResourceHistoryResponse:
+      properties:
+        resource_type:
+          type: string
+          title: Resource Type
+        resource_id:
+          type: string
+          title: Resource Id
+        entries:
+          items:
+            $ref: '#/components/schemas/FhirResourceHistoryEntry'
+          type: array
+          title: Entries
+        total:
+          type: integer
+          title: Total
+        has_more:
+          type: boolean
+          title: Has More
+          default: false
+        next_offset:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Next Offset
+      type: object
+      required:
+      - resource_type
+      - resource_id
+      - entries
+      - total
+      title: FhirResourceHistoryResponse
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    FhirAppointmentView:
+      properties:
+        entity_id:
+          type: string
+          format: uuid
+          title: Entity Id
+        status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Status
+        start:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Start
+        end:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: End
+        patient_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Patient Name
+        practitioner_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Practitioner Name
+        location_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Location Name
+        reason:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Reason
+        cancel_reason:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Cancel Reason
+        appointment_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Appointment Type
+        duration_minutes:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Duration Minutes
+        modality:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Modality
+        source_system:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Source System
+        canonical_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Canonical Id
+        event_count:
+          type: integer
+          title: Event Count
+          default: 0
+        last_event_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Last Event At
+      type: object
+      required:
+      - entity_id
+      title: FhirAppointmentView
+    FhirImportResponse:
+      properties:
+        events_created:
+          type: integer
+          title: Events Created
+        events_skipped:
+          type: integer
+          title: Events Skipped
+          default: 0
+        events_updated:
+          type: integer
+          title: Events Updated
+          default: 0
+        entities_created:
+          type: integer
+          title: Entities Created
+        entities_updated:
+          type: integer
+          title: Entities Updated
+        error_count:
+          type: integer
+          title: Error Count
+          default: 0
+        errors:
+          items:
+            type: string
+          type: array
+          maxItems: 1000
+          title: Errors
+        errors_truncated:
+          type: boolean
+          title: Errors Truncated
+          default: false
+        unsupported_resource_count:
+          type: integer
+          title: Unsupported Resource Count
+          default: 0
+        unsupported_resources:
+          items:
+            $ref: '#/components/schemas/FhirUnsupportedResourceItem'
+          type: array
+          maxItems: 1000
+          title: Unsupported Resources
+        unsupported_resources_truncated:
+          type: boolean
+          title: Unsupported Resources Truncated
+          default: false
+        upsert_semantics:
+          type: string
+          const: same_resource_id_upsert
+          title: Upsert Semantics
+          description: FHIR import uses workspace + resourceType + id as the natural key. Identical re-uploads can be deduped; changed resources supersede prior current events.
+          default: same_resource_id_upsert
+        absence_semantics:
+          type: string
+          const: absent_resources_persist
+          title: Absence Semantics
+          description: Resources omitted from a later bundle are not deleted or archived by import.
+          default: absent_resources_persist
+      type: object
+      required:
+      - events_created
+      - entities_created
+      - entities_updated
+      title: FhirImportResponse
+    FhirResourceHistoryEntry:
+      properties:
+        event_id:
+          type: string
+          format: uuid
+          title: Event Id
+        event_type:
+          type: string
+          title: Event Type
+        source:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Source
+        source_system:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Source System
+        data_source_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Data Source Id
+        entity_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Entity Id
+        confidence:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Confidence
+        is_current:
+          type: boolean
+          title: Is Current
+        effective_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Effective At
+        created_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Created At
+        fields_affected:
+          items:
+            type: string
+          type: array
+          title: Fields Affected
+        data:
+          additionalProperties: true
+          type: object
+          title: Data
+      type: object
+      required:
+      - event_id
+      - event_type
+      - is_current
+      title: FhirResourceHistoryEntry
+    FhirSlotListResponse:
+      properties:
+        slots:
+          items:
+            $ref: '#/components/schemas/FhirSlotView'
+          type: array
+          title: Slots
+        total:
+          type: integer
+          title: Total
+        has_more:
+          type: boolean
+          title: Has More
+          default: false
+        next_offset:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Next Offset
+      type: object
+      required:
+      - slots
+      - total
+      title: FhirSlotListResponse
+    FhirLocationView:
+      properties:
+        entity_id:
+          type: string
+          format: uuid
+          title: Entity Id
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        address:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Address
+        address_line:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Address Line
+        city:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: City
+        state:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: State
+        postal_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Postal Code
+        country:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Country
+        latitude:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Latitude
+        longitude:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Longitude
+        timezone:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Timezone
+        facility_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Facility Id
+        phone:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Phone
+        hours:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Hours
+        source_system:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Source System
+        canonical_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Canonical Id
+        event_count:
+          type: integer
+          title: Event Count
+          default: 0
+        last_event_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Last Event At
+      type: object
+      required:
+      - entity_id
+      title: FhirLocationView
+    FhirUnsupportedResourceItem:
+      properties:
+        resource_type:
+          anyOf:
+          - type: string
+            maxLength: 128
+          - type: 'null'
+          title: Resource Type
+        resource_id:
+          anyOf:
+          - type: string
+            maxLength: 512
+          - type: 'null'
+          title: Resource Id
+        location:
+          type: string
+          maxLength: 128
+          title: Location
+        reason:
+          type: string
+          maxLength: 512
+          title: Reason
+      type: object
+      required:
+      - location
+      - reason
+      title: FhirUnsupportedResourceItem
+    FhirOrganizationView:
+      properties:
+        entity_id:
+          type: string
+          format: uuid
+          title: Entity Id
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        phone:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Phone
+        domain:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Domain
+        industry:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Industry
+        address:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Address
+        source_system:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Source System
+        canonical_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Canonical Id
+        event_count:
+          type: integer
+          title: Event Count
+          default: 0
+        last_event_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Last Event At
+      type: object
+      required:
+      - entity_id
+      title: FhirOrganizationView
+    FhirUnsupportedResourcePolicy:
+      type: string
+      enum:
+      - error
+      - skip
+    FhirLocationListResponse:
+      properties:
+        locations:
+          items:
+            $ref: '#/components/schemas/FhirLocationView'
+          type: array
+          title: Locations
+        total:
+          type: integer
+          title: Total
+        has_more:
+          type: boolean
+          title: Has More
+          default: false
+        next_offset:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Next Offset
+      type: object
+      required:
+      - locations
+      - total
+      title: FhirLocationListResponse
+  securitySchemes:
+    Bearer-Authorization:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Amigo issued JWT token that identifies an user. It's issued either after logging in through the frontend, or manually through the [`SignInWithAPIKey`](sign-in-with-api-key) endpoint.
+    Bearer-Authorization-Organization:
+      type: apiKey
+      in: header
+      name: X-ORG-ID
+      description: An optional organization identifier that indicates from which organization the token is issued. This is used in rare cases where the user to authenticate is making a request for resources in another organization.
+    Basic:
+      type: http
+      scheme: basic
+      description: The username should be set to {org_id}_{user_id}, and the password should be the Amigo issued JWT token that identifies the user.

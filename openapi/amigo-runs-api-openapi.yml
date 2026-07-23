@@ -1,0 +1,1087 @@
+openapi: 3.1.0
+info:
+  title: Amigo Account Runs API
+  version: 0.1.0
+servers:
+- url: https://api.amigo.ai
+- url: https://internal-api.amigo.ai
+- url: https://api-eu-central-1.amigo.ai
+- url: https://api-ap-southeast-2.amigo.ai
+- url: https://api-ca-central-1.amigo.ai
+security:
+- Bearer-Authorization: []
+  Bearer-Authorization-Organization: []
+  Basic: []
+tags:
+- name: Runs
+paths:
+  /v1/{workspace_id}/runs:
+    get:
+      tags:
+      - Runs
+      summary: List runs (framework + conversation)
+      description: Paginated, newest-first list of runs for the workspace behind the unified ``Run`` contract. Federates framework runs (Delta ``world.runs`` MV) and conversation runs (Lakebase ``world.conversations``) at read time. Filter by ``kind`` (conversation / framework), ``channel`` (voice/text/sms/email/web — conversation runs only), and ``status`` (``live`` expands to running + paused). ``continuation_token`` is an opaque page cursor.
+      operationId: list_runs_v1__workspace_id__runs_get
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: sort_by
+        in: query
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+          default: []
+          title: Sort By
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 200
+          exclusiveMinimum: 0
+          default: 50
+          title: Limit
+      - name: continuation_token
+        in: query
+        required: false
+        schema:
+          title: Continuation Token
+      - name: status
+        in: query
+        required: false
+        schema:
+          type: array
+          items:
+            enum:
+            - live
+            - running
+            - paused
+            - completed
+            - failed
+            - timed_out
+            type: string
+          default: []
+          title: Status
+      - name: kind
+        in: query
+        required: false
+        schema:
+          type: array
+          items:
+            enum:
+            - conversation
+            - framework
+            type: string
+          default: []
+          title: Kind
+      - name: channel
+        in: query
+        required: false
+        schema:
+          type: array
+          items:
+            enum:
+            - voice
+            - text
+            - sms
+            - email
+            - web
+            type: string
+          default: []
+          title: Channel
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RunsResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/runs/summary:
+    get:
+      tags:
+      - Runs
+      summary: Run counts (framework + conversation)
+      description: 'Aggregate counts for the workspace''s runs behind the unified ``Run`` contract: ``total``, ``live`` (running + paused), each canonical status, a full ``by_status`` map, and ``by_kind`` (conversation vs framework). Federates the Delta ``world.runs`` MV and Lakebase ``world.conversations`` with a cheap GROUP BY. Optional ``kind`` / ``channel`` filters mirror the list; a ``channel`` filter restricts to conversation runs.'
+      operationId: runs_summary_v1__workspace_id__runs_summary_get
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: kind
+        in: query
+        required: false
+        schema:
+          type: array
+          items:
+            enum:
+            - conversation
+            - framework
+            type: string
+          title: Kind
+      - name: channel
+        in: query
+        required: false
+        schema:
+          type: array
+          items:
+            enum:
+            - voice
+            - text
+            - sms
+            - email
+            - web
+            type: string
+          title: Channel
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RunsSummaryResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/runs/{run_id}:
+    get:
+      tags:
+      - Runs
+      summary: Get one run (framework or conversation) by run_id
+      description: Resolve a single run by its channel-neutral ``run_id`` and return the canonical ``Run`` — at any status (live, completed, failed, timed out). Federates the Delta ``world.runs`` MV (framework runs), Lakebase ``world.conversations`` (conversation runs), and the live-voice registry, matched by ``run_id`` and scoped to the workspace. Use the returned ``kind`` / ``channel`` / ``source_*`` fields to open the channel-appropriate detail (voice call, text conversation, framework trace). 404 if the run does not exist in this workspace.
+      operationId: get_run_v1__workspace_id__runs__run_id__get
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: run_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Run Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Run'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/runs/{run_id}/trajectory:
+    get:
+      tags:
+      - Runs
+      summary: Get a framework run's step-by-step trajectory
+      description: Ordered structural steps (perception / decision / tool / completion) of a FRAMEWORK run, read from the durable Delta trace source by the run's correlation id. 404 if the run does not exist in this workspace; 409 if the run is a conversation run (use ``/conversations/{id}`` for per-turn detail).
+      operationId: get_run_trajectory_v1__workspace_id__runs__run_id__trajectory_get
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: run_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Run Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RunTrajectoryResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/runs/{run_id}/guidance:
+    post:
+      tags:
+      - Runs
+      summary: Send operator guidance to a live run
+      description: Send text guidance to the agent handling a LIVE run, addressed by the channel-neutral ``run_id``. The agent incorporates it into its next response without the operator taking over. Requires ``admin`` (Operator:Update) and is bound to the caller's own operator identity (no impersonation). 404 if the run is not a live run in this workspace; 409 if its channel has no live guidance transport yet.
+      operationId: send_run_guidance_v1__workspace_id__runs__run_id__guidance_post
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: run_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Run Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RunGuidanceRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RunGuidanceResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/runs/{run_id}/takeover:
+    post:
+      tags:
+      - Runs
+      summary: Take over a live run as operator
+      description: Register the caller's operator identity on a LIVE run and (in ``takeover`` mode) suspend the agent so the human drives; ``listen`` mode monitors without driving. Addressed by the channel-neutral ``run_id``. Requires ``admin`` (Operator:Update), bound to the caller's own operator identity (no impersonation). 404 if the run is not live in this workspace; 409 if its channel does not support live takeover yet. For voice, the response carries the conference/participant SIDs the console needs to attach browser audio.
+      operationId: take_over_run_v1__workspace_id__runs__run_id__takeover_post
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: run_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Run Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RunTakeoverRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RunTakeoverResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/runs/{run_id}/handback:
+    post:
+      tags:
+      - Runs
+      summary: Hand a taken-over run back to the agent
+      description: Release the caller's operator from a run they took over — the agent resumes. Addressed by ``run_id``. Requires ``admin`` (Operator:Update), bound to the caller's own operator identity. 404 if the run is not live in this workspace; 409 if its channel does not support live takeover yet.
+      operationId: hand_back_run_v1__workspace_id__runs__run_id__handback_post
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: run_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Run Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RunHandbackRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RunHandbackResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/runs/{run_id}/authored-turn:
+    post:
+      tags:
+      - Runs
+      summary: Author the next turn on a non-voice run under takeover
+      description: Stage an operator-authored reply for a NON-voice run (text/sms/email/web) the caller has taken over. The agent-engine send-gate substitutes it for the agent's next outbound (exactly-once), so the caller receives the operator's words while the agent stays suspended. Repeatable — each call stages the next turn. Addressed by the channel-neutral ``run_id``. Requires ``admin`` (Operator:Update), bound to the caller's own operator identity (no impersonation). 404 if the run is not live in this workspace; 409 for voice (voice takeover drives the live audio leg — use the conference, not an authored turn).
+      operationId: author_run_turn_v1__workspace_id__runs__run_id__authored_turn_post
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: run_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Run Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RunAuthoredTurnRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RunAuthoredTurnResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/runs/{run_id}/switch-mode:
+    post:
+      tags:
+      - Runs
+      summary: Switch an operator between listen and takeover on a live run
+      description: Toggle the operator between ``listen`` (monitor) and ``takeover`` (drive) on a run they have already joined, addressed by the channel-neutral ``run_id``. For voice this mutes/unmutes the operator's conference participant. Requires ``admin`` (Operator:Update), bound to the caller's own operator identity (no impersonation). 404 if the run is not live in this workspace; 409 if its channel does not support live takeover yet.
+      operationId: switch_run_mode_v1__workspace_id__runs__run_id__switch_mode_post
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: run_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Run Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RunSwitchModeRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RunSwitchModeResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/runs/{run_id}/access-token:
+    post:
+      tags:
+      - Runs
+      summary: Mint a browser-audio access token for an operator on a live run
+      description: Generate the Twilio browser-audio credentials the console needs to attach the operator's WebRTC leg to a live run, addressed by ``run_id``. This is the media plane companion to ``/takeover`` (the control plane). Requires ``admin`` (Operator:Update), bound to the caller's own operator identity. 404 if the run is not live in this workspace; 409 if its channel has no browser-audio leg.
+      operationId: mint_run_access_token_v1__workspace_id__runs__run_id__access_token_post
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: run_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Run Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RunAccessTokenRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RunAccessTokenResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+components:
+  schemas:
+    RunGuidanceRequest:
+      properties:
+        operator_id:
+          type: string
+          format: uuid
+          title: Operator Id
+        message:
+          type: string
+          maxLength: 5000
+          minLength: 1
+          title: Message
+      type: object
+      required:
+      - operator_id
+      - message
+      title: RunGuidanceRequest
+      description: 'Operator guidance for a live run. ``operator_id`` is in the body because this
+
+        router is not under ``/operators/{operator_id}`` — it is bound to the authenticated
+
+        caller by ``_enforce_operator_identity`` (no impersonation).'
+    RunAccessTokenResponse:
+      properties:
+        token:
+          type: string
+          title: Token
+        identity:
+          type: string
+          title: Identity
+        conference_sid:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Conference Sid
+        connect_params:
+          additionalProperties:
+            type: string
+          type: object
+          title: Connect Params
+      type: object
+      required:
+      - token
+      - identity
+      title: RunAccessTokenResponse
+    RunsSummaryResponse:
+      properties:
+        total:
+          type: integer
+          title: Total
+        live:
+          type: integer
+          title: Live
+        running:
+          type: integer
+          title: Running
+        paused:
+          type: integer
+          title: Paused
+        completed:
+          type: integer
+          title: Completed
+        failed:
+          type: integer
+          title: Failed
+        timed_out:
+          type: integer
+          title: Timed Out
+        by_status:
+          additionalProperties:
+            type: integer
+          type: object
+          title: By Status
+        by_kind:
+          additionalProperties:
+            type: integer
+          type: object
+          title: By Kind
+      type: object
+      required:
+      - total
+      - live
+      - running
+      - paused
+      - completed
+      - failed
+      - timed_out
+      - by_status
+      - by_kind
+      title: RunsSummaryResponse
+      description: 'Aggregate run counts for the Runs page summary strip.
+
+
+        Honest workspace totals the paginated list cannot derive client-side (it only
+
+        holds the loaded page). ``by_status`` carries the full canonical breakdown
+
+        (incl. any status beyond the named convenience fields); ``by_kind`` splits
+
+        framework vs conversation. ``live`` = running + paused.'
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    Run:
+      properties:
+        run_id:
+          type: string
+          format: uuid
+          title: Run Id
+        workspace_id:
+          type: string
+          format: uuid
+          title: Workspace Id
+        kind:
+          type: string
+          enum:
+          - conversation
+          - framework
+          title: Kind
+        status:
+          type: string
+          enum:
+          - running
+          - paused
+          - completed
+          - failed
+          - timed_out
+          title: Status
+        channel:
+          anyOf:
+          - type: string
+            enum:
+            - voice
+            - text
+            - sms
+            - email
+            - web
+          - type: 'null'
+          title: Channel
+        framework:
+          anyOf:
+          - type: string
+            enum:
+            - claude-agent-sdk
+            - openai-agents
+          - type: 'null'
+          title: Framework
+        entity_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Entity Id
+        service_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Service Id
+        started_at:
+          type: string
+          format: date-time
+          title: Started At
+        ended_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Ended At
+        entity_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Entity Name
+        service_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Service Name
+        caller_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Caller Id
+        phone_number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Phone Number
+        direction:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Direction
+        turn_count:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Turn Count
+        completion_reason:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Completion Reason
+        source_call_sid:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Source Call Sid
+        source_conversation_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Source Conversation Id
+        source_framework_run_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Source Framework Run Id
+        takeover:
+          $ref: '#/components/schemas/TakeoverEligibility'
+          description: 'Channel-neutral takeover eligibility, derived from this run''s own fields.
+
+
+            A computed field (not a stored one) so eligibility is derived in ONE place and
+
+            can never drift across the reader''s per-source builders — every ``Run``, however
+
+            constructed, exposes a consistent ``takeover`` on the wire + in OpenAPI.'
+          readOnly: true
+      type: object
+      required:
+      - run_id
+      - workspace_id
+      - kind
+      - status
+      - started_at
+      - takeover
+      title: Run
+      description: 'The universal agent-run object.
+
+
+        ``run_id`` is a dedicated UUID (not an overloaded ``call_sid`` / ``conversation_id``);
+
+        the originating subsystem''s ids are kept as ``source_*`` provenance fields so a
+
+        run can always be traced back to its channel/framework origin. Conversation runs
+
+        carry a ``channel`` and no ``framework``; framework runs carry a ``framework`` and
+
+        no ``channel`` — enforced below.'
+    RunSwitchModeRequest:
+      properties:
+        operator_id:
+          type: string
+          format: uuid
+          title: Operator Id
+        participant_call_sid:
+          type: string
+          maxLength: 64
+          title: Participant Call Sid
+        mode:
+          type: string
+          enum:
+          - listen
+          - takeover
+          title: Mode
+      type: object
+      required:
+      - operator_id
+      - participant_call_sid
+      - mode
+      title: RunSwitchModeRequest
+    RunTakeoverRequest:
+      properties:
+        operator_id:
+          type: string
+          format: uuid
+          title: Operator Id
+        mode:
+          type: string
+          enum:
+          - listen
+          - takeover
+          title: Mode
+          default: takeover
+      type: object
+      required:
+      - operator_id
+      title: RunTakeoverRequest
+    RunAuthoredTurnResponse:
+      properties:
+        run_id:
+          type: string
+          format: uuid
+          title: Run Id
+        staged:
+          type: boolean
+          title: Staged
+      type: object
+      required:
+      - run_id
+      - staged
+      title: RunAuthoredTurnResponse
+    RunTrajectoryResponse:
+      properties:
+        steps:
+          items:
+            $ref: '#/components/schemas/TrajectoryStep'
+          type: array
+          title: Steps
+        truncated:
+          type: boolean
+          title: Truncated
+      type: object
+      required:
+      - steps
+      - truncated
+      title: RunTrajectoryResponse
+    RunHandbackResponse:
+      properties:
+        run_id:
+          type: string
+          format: uuid
+          title: Run Id
+        success:
+          type: boolean
+          title: Success
+      type: object
+      required:
+      - run_id
+      - success
+      title: RunHandbackResponse
+    RunHandbackRequest:
+      properties:
+        operator_id:
+          type: string
+          format: uuid
+          title: Operator Id
+      type: object
+      required:
+      - operator_id
+      title: RunHandbackRequest
+    RunGuidanceResponse:
+      properties:
+        status:
+          type: string
+          enum:
+          - delivered
+          - queued_no_subscriber
+          - deduplicated
+          - failed
+          - unknown
+          title: Status
+          description: Delivery status
+        run_id:
+          type: string
+          format: uuid
+          title: Run Id
+          description: Run the guidance was sent to
+      type: object
+      required:
+      - status
+      - run_id
+      title: RunGuidanceResponse
+    RunsResponse:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/Run'
+          type: array
+          title: Items
+        has_more:
+          type: boolean
+          title: Has More
+        continuation_token:
+          title: Continuation Token
+      type: object
+      required:
+      - items
+      - has_more
+      title: RunsResponse
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    RunAccessTokenRequest:
+      properties:
+        operator_id:
+          type: string
+          format: uuid
+          title: Operator Id
+      type: object
+      required:
+      - operator_id
+      title: RunAccessTokenRequest
+    RunAuthoredTurnRequest:
+      properties:
+        operator_id:
+          type: string
+          format: uuid
+          title: Operator Id
+        text:
+          type: string
+          maxLength: 4000
+          minLength: 1
+          title: Text
+      type: object
+      required:
+      - operator_id
+      - text
+      title: RunAuthoredTurnRequest
+    RunSwitchModeResponse:
+      properties:
+        run_id:
+          type: string
+          format: uuid
+          title: Run Id
+        mode:
+          type: string
+          enum:
+          - listen
+          - takeover
+          title: Mode
+      type: object
+      required:
+      - run_id
+      - mode
+      title: RunSwitchModeResponse
+    TrajectoryStep:
+      properties:
+        seq:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Seq
+        kind:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Kind
+        actor:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Actor
+        state:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: State
+        tool_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Tool Name
+        tool_input_summary:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Tool Input Summary
+        tool_result_summary:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Tool Result Summary
+        tool_succeeded:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Tool Succeeded
+        decision_from_state:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Decision From State
+        decision_to_state:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Decision To State
+        effective_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Effective At
+      type: object
+      title: TrajectoryStep
+      description: 'One structural step of a framework run''s trajectory. Fields are best-effort
+
+        (only those the step actually carries are present), all optional, and free ``str``
+
+        for the same read-model resilience the ``Run`` descriptive fields use.'
+    RunTakeoverResponse:
+      properties:
+        run_id:
+          type: string
+          format: uuid
+          title: Run Id
+        mode:
+          type: string
+          enum:
+          - listen
+          - takeover
+          title: Mode
+        participant_call_sid:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Participant Call Sid
+        conference_sid:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Conference Sid
+      type: object
+      required:
+      - run_id
+      - mode
+      title: RunTakeoverResponse
+    TakeoverEligibility:
+      properties:
+        eligible:
+          type: boolean
+          title: Eligible
+        mode_options:
+          items:
+            type: string
+            enum:
+            - listen
+            - takeover
+          type: array
+          title: Mode Options
+          default: []
+        reason:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Reason
+      type: object
+      required:
+      - eligible
+      title: TakeoverEligibility
+      description: 'Whether an operator can take a run over, and how — the channel-neutral signal the
+
+        console keys on instead of a per-channel heuristic.
+
+
+        ``eligible`` = an operator may take this run over right now. ``mode_options`` = the
+
+        takeover modes valid for the run''s channel (voice exposes ``listen`` + ``takeover``;
+
+        other channels none yet). ``reason`` = a short, human-facing explanation when NOT
+
+        eligible (e.g. ``"run is not live"``, ``"channel not yet supported"``), so the
+
+        console can render an honest disabled-state tooltip rather than a bare greyed button.
+
+        Server-computed (see ``Run.takeover``) so eligibility rules live in one place and the
+
+        console never re-derives them.'
+  securitySchemes:
+    Bearer-Authorization:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Amigo issued JWT token that identifies an user. It's issued either after logging in through the frontend, or manually through the [`SignInWithAPIKey`](sign-in-with-api-key) endpoint.
+    Bearer-Authorization-Organization:
+      type: apiKey
+      in: header
+      name: X-ORG-ID
+      description: An optional organization identifier that indicates from which organization the token is issued. This is used in rare cases where the user to authenticate is making a request for resources in another organization.
+    Basic:
+      type: http
+      scheme: basic
+      description: The username should be set to {org_id}_{user_id}, and the password should be the Amigo issued JWT token that identifies the user.

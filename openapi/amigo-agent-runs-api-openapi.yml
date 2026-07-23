@@ -1,0 +1,568 @@
+openapi: 3.1.0
+info:
+  title: Amigo Account Agent Runs API
+  version: 0.1.0
+servers:
+- url: https://api.amigo.ai
+- url: https://internal-api.amigo.ai
+- url: https://api-eu-central-1.amigo.ai
+- url: https://api-ap-southeast-2.amigo.ai
+- url: https://api-ca-central-1.amigo.ai
+security:
+- Bearer-Authorization: []
+  Bearer-Authorization-Organization: []
+  Basic: []
+tags:
+- name: Agent Runs
+paths:
+  /v1/{workspace_id}/agent-runs:
+    post:
+      tags:
+      - Agent Runs
+      summary: Dispatch a framework agent run
+      description: Proxies to agent-runner, which executes the chosen framework UNMODIFIED (natural setup) against the platform MCP world-tools edge under the caller's own bearer. Non-blocking — poll GET /agent-runs/{run_id} for the result.
+      operationId: create_agent_run_v1__workspace_id__agent_runs_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateAgentRunRequest'
+        required: true
+      responses:
+        '202':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateAgentRunResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+  /v1/{workspace_id}/agent-runs/harness-context:
+    get:
+      tags:
+      - Agent Runs
+      summary: Fetch the neutral session-bootstrap context for a service
+      description: 'The retrievable CONTEXT edge of the world-model harness: identity + reference instructions, world scope, tool descriptors, guardrails, and the REAL server-enforced write-floor — the byte-identical projection the hosted runner renders from, so a customer''s own framework can bootstrap a session against the same world model. PHI-free (the API-run projection carries no scoped entities or rendered caller prose).'
+      operationId: get_harness_context_v1__workspace_id__agent_runs_harness_context_get
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: service_id
+        in: query
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Service Id
+      - name: version_set
+        in: query
+        required: false
+        schema:
+          type: string
+          maxLength: 255
+          default: release
+          title: Version Set
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HarnessContext'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/agent-runs/{run_id}:
+    get:
+      tags:
+      - Agent Runs
+      summary: Get a framework agent run
+      description: Run status, final text, token usage, and the adapter-normalized trajectory of the framework's native output.
+      operationId: get_agent_run_v1__workspace_id__agent_runs__run_id__get
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: run_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Run Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentRunDetail'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+components:
+  schemas:
+    ToolDescriptor:
+      properties:
+        name:
+          type: string
+          title: Name
+        description:
+          type: string
+          title: Description
+          default: ''
+        input_schema:
+          additionalProperties: true
+          type: object
+          title: Input Schema
+          default: {}
+      type: object
+      required:
+      - name
+      title: ToolDescriptor
+    NameString:
+      type: string
+      maxLength: 256
+      minLength: 1
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    CreateAgentRunRequest:
+      properties:
+        service_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Service Id
+          description: 'Platform-authored run: the service whose pinned config the agent runs.'
+        version_set:
+          $ref: '#/components/schemas/NameString'
+          description: Named version set on the service whose pinned config the run uses (platform runs).
+          default: release
+        framework:
+          anyOf:
+          - type: string
+            enum:
+            - claude-agent-sdk
+            - openai-agents
+          - type: 'null'
+          title: Framework
+          description: Framework a PLATFORM run executes on. For a native run the framework comes from the definition.
+        native:
+          anyOf:
+          - $ref: '#/components/schemas/NativeRunRef'
+          - type: 'null'
+          description: Run a native (bring-your-own) agent definition instead of a platform service.
+        message:
+          type: string
+          maxLength: 8000
+          minLength: 1
+          title: Message
+          description: User message the framework agent is invoked with.
+        timeout_s:
+          type: integer
+          maximum: 300.0
+          exclusiveMinimum: 0.0
+          title: Timeout S
+          description: Server-side wall-clock budget for the run, in seconds (max 300).
+          default: 120
+      type: object
+      required:
+      - message
+      title: CreateAgentRunRequest
+    HarnessContext:
+      properties:
+        context_version:
+          type: integer
+          title: Context Version
+          default: 1
+        config_fingerprint:
+          type: string
+          title: Config Fingerprint
+          default: ''
+        source:
+          type: string
+          title: Source
+          default: ''
+        identity:
+          anyOf:
+          - $ref: '#/components/schemas/AgentIdentity'
+          - type: 'null'
+        world_scope:
+          $ref: '#/components/schemas/WorldScope'
+        tools:
+          $ref: '#/components/schemas/Tools'
+        guardrails:
+          $ref: '#/components/schemas/Guardrails'
+        write_floor:
+          $ref: '#/components/schemas/WriteFloor'
+        runtime:
+          $ref: '#/components/schemas/Runtime'
+      type: object
+      required:
+      - world_scope
+      - tools
+      - guardrails
+      - write_floor
+      - runtime
+      title: HarnessContext
+      description: The neutral, retrievable session-bootstrap context for ANY framework.
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    AgentIdentity:
+      properties:
+        entry_actor_name:
+          type: string
+          title: Entry Actor Name
+          default: ''
+        name:
+          type: string
+          title: Name
+          default: ''
+        role:
+          type: string
+          title: Role
+          default: ''
+        developed_by:
+          type: string
+          title: Developed By
+          default: ''
+        instructions:
+          type: string
+          title: Instructions
+          default: ''
+        initial_state:
+          type: string
+          title: Initial State
+          default: ''
+      type: object
+      title: AgentIdentity
+      description: 'Who the agent IS — platform-authored only; ``None`` for native runs
+
+        (a customer''s own definition carries its own identity). Named
+
+        ``AgentIdentity`` (not ``Identity``) to avoid colliding with the existing
+
+        ``config.models.Identity`` OpenAPI schema (a same-name collision would
+
+        force-rename that shipped schema — a breaking spec change).'
+    NativeRunRef:
+      properties:
+        definition_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Definition Id
+          description: Registered definition to run. Omit `version` for the latest.
+        version:
+          anyOf:
+          - type: integer
+            exclusiveMinimum: 0.0
+          - type: 'null'
+          title: Version
+          description: Pinned definition version; omit for latest.
+        inline:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Inline
+          description: Inline definition document (dev/playground). Validated by the platform clamp schema.
+      type: object
+      title: NativeRunRef
+      description: 'Run a customer-authored NATIVE agent definition (inc-10): a REGISTERED
+
+        definition by id (``version`` omitted = latest), or an INLINE body for
+
+        dev/playground iteration. The definition''s own ``framework`` selects the
+
+        runtime — no top-level ``framework`` needed.'
+    Runtime:
+      properties:
+        engage_model:
+          type: string
+          title: Engage Model
+          default: ''
+        channel_kind:
+          type: string
+          title: Channel Kind
+          default: ''
+        language:
+          type: string
+          title: Language
+          default: ''
+        caller_context:
+          type: string
+          title: Caller Context
+          default: ''
+      type: object
+      title: Runtime
+    Guardrails:
+      properties:
+        guardrails:
+          items:
+            additionalProperties: true
+            type: object
+          type: array
+          title: Guardrails
+          default: []
+        global_boundary_constraints:
+          items:
+            type: string
+          type: array
+          title: Global Boundary Constraints
+          default: []
+        global_action_guidelines:
+          items:
+            type: string
+          type: array
+          title: Global Action Guidelines
+          default: []
+      type: object
+      title: Guardrails
+    WorldScope:
+      properties:
+        workspace_id:
+          type: string
+          format: uuid
+          title: Workspace Id
+        scoped_entity_ids:
+          items:
+            type: string
+            format: uuid
+          type: array
+          title: Scoped Entity Ids
+          default: []
+        allow_create:
+          type: boolean
+          title: Allow Create
+          default: false
+      type: object
+      required:
+      - workspace_id
+      title: WorldScope
+      description: 'The world slice — ids only (the leaf stays I/O-free). This is the
+
+        read/subject scope, NOT the write bound (see ``write_floor``).'
+    Tools:
+      properties:
+        descriptors:
+          items:
+            $ref: '#/components/schemas/ToolDescriptor'
+          type: array
+          title: Descriptors
+          default: []
+        read_tool_names:
+          items:
+            type: string
+          type: array
+          title: Read Tool Names
+          default: []
+        write_tool_names:
+          items:
+            type: string
+          type: array
+          title: Write Tool Names
+          default: []
+      type: object
+      title: Tools
+      description: 'Discovery hint — the neutral descriptors. NOT the enforcement (the MCP
+
+        edge is; a remote agent discovers live schemas from the server too).'
+    Usage:
+      properties:
+        input_tokens:
+          type: integer
+          title: Input Tokens
+          default: 0
+        output_tokens:
+          type: integer
+          title: Output Tokens
+          default: 0
+        cached_tokens:
+          type: integer
+          title: Cached Tokens
+          description: Cache-READ input tokens (billed at the provider's cache-hit rate).
+          default: 0
+        cache_creation_tokens:
+          type: integer
+          title: Cache Creation Tokens
+          description: Cache-WRITE input tokens (Anthropic cache_creation_input_tokens; 0 on providers without it).
+          default: 0
+      type: object
+      title: Usage
+    AgentRunDetail:
+      properties:
+        run_id:
+          type: string
+          format: uuid
+          title: Run Id
+        status:
+          type: string
+          enum:
+          - running
+          - succeeded
+          - failed
+          - timed_out
+          title: Status
+        framework:
+          type: string
+          enum:
+          - claude-agent-sdk
+          - openai-agents
+          title: Framework
+        text:
+          type: string
+          title: Text
+          description: Final agent text. Empty while the run is still running or on failure.
+          default: ''
+        error:
+          type: string
+          title: Error
+          description: Failure detail for failed/timed_out runs. Empty otherwise.
+          default: ''
+        duration_ms:
+          type: number
+          minimum: 0.0
+          title: Duration Ms
+          default: 0.0
+        usage:
+          $ref: '#/components/schemas/Usage'
+        trajectory:
+          items:
+            additionalProperties: true
+            type: object
+          type: array
+          title: Trajectory
+          description: 'AgentEffect-shaped step dicts (kind, seq, content, tool_name, ...) — the adapter''s normalize() over the framework''s NATIVE output. Untyped passthrough in v1: the AgentEffect projection is a server-private shape still converging across frameworks; typing it here now would freeze a premature wire contract. A typed discriminated union lands in a follow-up.'
+          default: []
+      type: object
+      required:
+      - run_id
+      - status
+      - framework
+      title: AgentRunDetail
+    WriteFloor:
+      properties:
+        enforced_at:
+          type: string
+          title: Enforced At
+          default: mcp-world-tools-edge
+        requires_entity_anchor:
+          type: boolean
+          title: Requires Entity Anchor
+          default: true
+        clinical_write_principal:
+          type: string
+          title: Clinical Write Principal
+          default: provider-only
+        clinical_write_scope:
+          type: string
+          title: Clinical Write Scope
+          default: any-entity-in-workspace
+        enrichment_write_scope:
+          type: string
+          title: Enrichment Write Scope
+          default: caller-anchor-only
+        unanchored_or_api_key_writes:
+          type: string
+          title: Unanchored Or Api Key Writes
+          default: none
+        allow_create:
+          type: boolean
+          title: Allow Create
+          default: false
+      type: object
+      title: WriteFloor
+      description: 'The REAL server-enforced write bound (audit G8) — advisory to render;
+
+        the MCP edge enforces it regardless of what a client does.'
+    CreateAgentRunResponse:
+      properties:
+        run_id:
+          type: string
+          format: uuid
+          title: Run Id
+        status:
+          type: string
+          const: running
+          title: Status
+      type: object
+      required:
+      - run_id
+      - status
+      title: CreateAgentRunResponse
+  securitySchemes:
+    Bearer-Authorization:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Amigo issued JWT token that identifies an user. It's issued either after logging in through the frontend, or manually through the [`SignInWithAPIKey`](sign-in-with-api-key) endpoint.
+    Bearer-Authorization-Organization:
+      type: apiKey
+      in: header
+      name: X-ORG-ID
+      description: An optional organization identifier that indicates from which organization the token is issued. This is used in rare cases where the user to authenticate is making a request for resources in another organization.
+    Basic:
+      type: http
+      scheme: basic
+      description: The username should be set to {org_id}_{user_id}, and the password should be the Amigo issued JWT token that identifies the user.

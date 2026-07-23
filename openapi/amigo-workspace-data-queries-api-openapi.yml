@@ -1,0 +1,685 @@
+openapi: 3.1.0
+info:
+  title: Amigo Account Workspace Data Queries API
+  version: 0.1.0
+servers:
+- url: https://api.amigo.ai
+- url: https://internal-api.amigo.ai
+- url: https://api-eu-central-1.amigo.ai
+- url: https://api-ap-southeast-2.amigo.ai
+- url: https://api-ca-central-1.amigo.ai
+security:
+- Bearer-Authorization: []
+  Bearer-Authorization-Organization: []
+  Basic: []
+tags:
+- name: Workspace Data Queries
+paths:
+  /v1/{workspace_id}/data_queries:
+    get:
+      tags:
+      - Workspace Data Queries
+      summary: List workspace data queries
+      description: 'List every registered query for a workspace. Sort via repeated `sort_by` query params; each entry is `+field` or `-field` (allowed field: deployed_at). Default: `-deployed_at`. Cursor opaque — round-trip `continuation_token` unchanged with the same `sort_by`. Requires `Workspace.view` permission.'
+      operationId: list-workspace-data-queries
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: sort_by
+        in: query
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+          description: 'Sort axes, applied left-to-right. ``+field`` ascending, ``-field``
+
+            descending. Defaults to ``[("deployed_at", -1)]`` (newest first).'
+          default: []
+          title: Sort By
+        description: 'Sort axes, applied left-to-right. ``+field`` ascending, ``-field``
+
+          descending. Defaults to ``[("deployed_at", -1)]`` (newest first).'
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 200
+          exclusiveMinimum: 0
+          description: Maximum number of queries to return per page.
+          default: 50
+          title: Limit
+        description: Maximum number of queries to return per page.
+      - name: continuation_token
+        in: query
+        required: false
+        schema:
+          description: 'Opaque continuation token from a prior response. Treat as a
+
+            black box — the server decodes it.'
+          title: Continuation Token
+        description: 'Opaque continuation token from a prior response. Treat as a
+
+          black box — the server decodes it.'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/src__routes__workspace_data_queries__list_workspace_data_queries__Response'
+        '403':
+          description: Insufficient permissions.
+        '401':
+          description: Missing or invalid API key.
+        '422':
+          description: Query parameter failed validation or continuation_token is unparseable.
+    post:
+      tags:
+      - Workspace Data Queries
+      summary: Create Workspace Data Query
+      operationId: create-workspace-data-query
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/src__routes__workspace_data_queries__create_workspace_data_query__Request'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkspaceDataQueryItem'
+        '409':
+          description: A workspace data query with the given name already exists
+        '422':
+          description: Validation or precondition failure
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+  /v1/{workspace_id}/data_queries/{query_id}:
+    get:
+      tags:
+      - Workspace Data Queries
+      summary: Get Workspace Data Query
+      operationId: get-workspace-data-query
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: query_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Query Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkspaceDataQueryItem'
+        '404':
+          description: Workspace data query not found
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    patch:
+      tags:
+      - Workspace Data Queries
+      summary: Update Workspace Data Query
+      operationId: update-workspace-data-query
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: query_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Query Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/src__routes__workspace_data_queries__update_workspace_data_query__Request'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkspaceDataQueryItem'
+        '404':
+          description: Workspace data query not found
+        '409':
+          description: A workspace data query with the given name already exists
+        '422':
+          description: Validation failure
+    delete:
+      tags:
+      - Workspace Data Queries
+      summary: Delete Workspace Data Query
+      operationId: delete-workspace-data-query
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: query_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Query Id
+      responses:
+        '204':
+          description: Successful Response
+        '404':
+          description: Workspace data query not found
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/data_queries/{query_id}/invoke:
+    post:
+      tags:
+      - Workspace Data Queries
+      summary: Invoke Workspace Data Query
+      operationId: invoke-workspace-data-query
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: query_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Query Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/src__routes__workspace_data_queries__invoke_workspace_data_query__Request'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/src__routes__workspace_data_queries__invoke_workspace_data_query__Response'
+        '404':
+          description: Workspace data query not found
+        '503':
+          description: Execution failed
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+components:
+  schemas:
+    src__routes__workspace_data_queries__update_workspace_data_query__Request:
+      properties:
+        name:
+          anyOf:
+          - type: string
+            maxLength: 128
+            minLength: 1
+            pattern: ^[a-z][a-z0-9_]*$
+          - type: 'null'
+          title: Name
+        description:
+          anyOf:
+          - type: string
+            maxLength: 2048
+            minLength: 1
+          - type: 'null'
+          title: Description
+        sql_template:
+          anyOf:
+          - type: string
+            maxLength: 8192
+            minLength: 1
+          - type: 'null'
+          title: Sql Template
+        parameters:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/src__routes__workspace_data_queries__update_workspace_data_query__Request__Parameter'
+            type: array
+            maxItems: 32
+          - type: 'null'
+          title: Parameters
+        timeout_ms:
+          anyOf:
+          - type: integer
+            maximum: 30000.0
+            minimum: 100.0
+          - type: 'null'
+          title: Timeout Ms
+      additionalProperties: false
+      type: object
+      title: Request
+      description: PATCH body — every field optional. Present ⇒ overwrite; absent ⇒ keep.
+    src__routes__workspace_data_queries__create_workspace_data_query__Request:
+      properties:
+        name:
+          type: string
+          maxLength: 128
+          minLength: 1
+          pattern: ^[a-z][a-z0-9_]*$
+          title: Name
+        description:
+          type: string
+          maxLength: 2048
+          minLength: 1
+          title: Description
+        sql_template:
+          type: string
+          maxLength: 8192
+          minLength: 1
+          title: Sql Template
+        parameters:
+          items:
+            $ref: '#/components/schemas/src__routes__workspace_data_queries__create_workspace_data_query__Request__Parameter'
+          type: array
+          maxItems: 32
+          title: Parameters
+        timeout_ms:
+          type: integer
+          maximum: 30000.0
+          minimum: 100.0
+          title: Timeout Ms
+          default: 5000
+      additionalProperties: false
+      type: object
+      required:
+      - name
+      - description
+      - sql_template
+      title: Request
+      description: 'Create body — the authored shape of a new workspace data query.
+
+
+        The SQL template + parameters parity check + multi-statement /
+
+        session-state-command refusal runs inside :meth:`_validate_template`
+
+        so a bad payload surfaces as a Pydantic 422 with the standard wire
+
+        shape — no try/except in the handler.'
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    StoredParameter:
+      properties:
+        name:
+          type: string
+          title: Name
+        type:
+          type: string
+          enum:
+          - string
+          - integer
+          - number
+          - boolean
+          title: Type
+        description:
+          type: string
+          title: Description
+        default:
+          anyOf:
+          - type: string
+          - type: integer
+          - type: number
+          - type: boolean
+          - type: 'null'
+          title: Default
+      additionalProperties: false
+      type: object
+      required:
+      - name
+      - type
+      - description
+      title: StoredParameter
+      description: 'One typed input parameter to a workspace data query — trusted shape.
+
+
+        Read-path model: the DB''s CHECK constraints already enforced ``name``
+
+        regex and ``type`` enum on write, and the deploy endpoint''s strict
+
+        :class:`Parameter` validators enforced ``description`` length and
+
+        typo-rejection at the inbound network edge. After that, every
+
+        construction of this model (DB read projection, executor binding,
+
+        agent-engine spec, outbound response) is trusted — no 422 surface.
+
+
+        ``default is None`` is the canonical "required" signal: the executor
+
+        raises if a caller omits a required argument, otherwise substitutes
+
+        the stored default.'
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    src__routes__workspace_data_queries__create_workspace_data_query__Request__Parameter:
+      properties:
+        name:
+          type: string
+          maxLength: 64
+          minLength: 1
+          pattern: ^[a-z][a-z0-9_]*$
+          title: Name
+        type:
+          type: string
+          enum:
+          - string
+          - integer
+          - number
+          - boolean
+          title: Type
+        description:
+          type: string
+          maxLength: 512
+          minLength: 1
+          title: Description
+        default:
+          anyOf:
+          - type: string
+          - type: integer
+          - type: number
+          - type: boolean
+          - type: 'null'
+          title: Default
+      additionalProperties: false
+      type: object
+      required:
+      - name
+      - type
+      - description
+      title: Parameter
+      description: Strict write-side validator for one declared parameter.
+    src__routes__workspace_data_queries__list_workspace_data_queries__Response:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/src__routes__workspace_data_queries__list_workspace_data_queries__Response__Item'
+          type: array
+          title: Items
+        has_more:
+          type: boolean
+          title: Has More
+        continuation_token:
+          title: Continuation Token
+      type: object
+      required:
+      - items
+      - has_more
+      title: Response
+    src__routes__workspace_data_queries__invoke_workspace_data_query__Request:
+      properties:
+        input:
+          additionalProperties: true
+          type: object
+          title: Input
+          description: Caller arguments matching the declared parameters.
+      type: object
+      title: Request
+    src__routes__workspace_data_queries__list_workspace_data_queries__Response__Item:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        name:
+          type: string
+          title: Name
+        description:
+          type: string
+          title: Description
+        sql_template:
+          type: string
+          title: Sql Template
+        parameter_count:
+          type: integer
+          title: Parameter Count
+        timeout_ms:
+          type: integer
+          title: Timeout Ms
+        last_invoked_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Last Invoked At
+        deployed_at:
+          type: string
+          format: date-time
+          title: Deployed At
+        deployed_by:
+          type: string
+          format: uuid
+          title: Deployed By
+      type: object
+      required:
+      - id
+      - name
+      - description
+      - sql_template
+      - parameter_count
+      - timeout_ms
+      - deployed_at
+      - deployed_by
+      title: Item
+    src__routes__workspace_data_queries__invoke_workspace_data_query__Response:
+      properties:
+        result:
+          items:
+            additionalProperties: true
+            type: object
+          type: array
+          title: Result
+        duration_ms:
+          type: number
+          title: Duration Ms
+          default: 0.0
+        row_count:
+          type: integer
+          title: Row Count
+          default: 0
+      type: object
+      title: Response
+    WorkspaceDataQueryItem:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        name:
+          type: string
+          title: Name
+        description:
+          type: string
+          title: Description
+        sql_template:
+          type: string
+          title: Sql Template
+        parameters:
+          items:
+            $ref: '#/components/schemas/StoredParameter'
+          type: array
+          title: Parameters
+        timeout_ms:
+          type: integer
+          title: Timeout Ms
+        last_invoked_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Last Invoked At
+        deployed_at:
+          type: string
+          format: date-time
+          title: Deployed At
+        deployed_by:
+          type: string
+          format: uuid
+          title: Deployed By
+      type: object
+      required:
+      - id
+      - name
+      - description
+      - sql_template
+      - parameters
+      - timeout_ms
+      - deployed_at
+      - deployed_by
+      title: WorkspaceDataQueryItem
+      description: 'Wire shape for the response of every read + create/update handler.
+
+
+        ``id`` (UUID) is the stable handle — every URL except list takes it.
+
+        ``name`` is the workspace-visible label (UNIQUE per workspace) and is
+
+        still what the LLM tool registry keys on (``wsq_<name>``), but it is
+
+        not the route identifier.
+
+
+        ``input_schema`` is deliberately NOT exposed — it is fully derivable
+
+        from ``parameters[]``. UI consumers can build the JSON Schema view
+
+        locally if they need it.'
+    src__routes__workspace_data_queries__update_workspace_data_query__Request__Parameter:
+      properties:
+        name:
+          type: string
+          maxLength: 64
+          minLength: 1
+          pattern: ^[a-z][a-z0-9_]*$
+          title: Name
+        type:
+          type: string
+          enum:
+          - string
+          - integer
+          - number
+          - boolean
+          title: Type
+        description:
+          type: string
+          maxLength: 512
+          minLength: 1
+          title: Description
+        default:
+          anyOf:
+          - type: string
+          - type: integer
+          - type: number
+          - type: boolean
+          - type: 'null'
+          title: Default
+      additionalProperties: false
+      type: object
+      required:
+      - name
+      - type
+      - description
+      title: Parameter
+      description: Strict write-side validator for one declared parameter.
+  securitySchemes:
+    Bearer-Authorization:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Amigo issued JWT token that identifies an user. It's issued either after logging in through the frontend, or manually through the [`SignInWithAPIKey`](sign-in-with-api-key) endpoint.
+    Bearer-Authorization-Organization:
+      type: apiKey
+      in: header
+      name: X-ORG-ID
+      description: An optional organization identifier that indicates from which organization the token is issued. This is used in rare cases where the user to authenticate is making a request for resources in another organization.
+    Basic:
+      type: http
+      scheme: basic
+      description: The username should be set to {org_id}_{user_id}, and the password should be the Amigo issued JWT token that identifies the user.

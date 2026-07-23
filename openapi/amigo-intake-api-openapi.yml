@@ -1,0 +1,2212 @@
+openapi: 3.1.0
+info:
+  title: Amigo Account Intake API
+  version: 0.1.0
+servers:
+- url: https://api.amigo.ai
+- url: https://internal-api.amigo.ai
+- url: https://api-eu-central-1.amigo.ai
+- url: https://api-ap-southeast-2.amigo.ai
+- url: https://api-ca-central-1.amigo.ai
+security:
+- Bearer-Authorization: []
+  Bearer-Authorization-Organization: []
+  Basic: []
+tags:
+- name: Intake
+paths:
+  /v1/{workspace_id}/intake/files/external:
+    post:
+      tags:
+      - Intake
+      summary: Receive Intake File
+      operationId: receive_intake_file_v1__workspace_id__intake_files_external_post
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: x-amigo-intake-sha256
+        in: header
+        required: true
+        schema:
+          type: string
+          maxLength: 64
+          title: X-Amigo-Intake-Sha256
+      - name: x-amigo-intake-timestamp
+        in: header
+        required: true
+        schema:
+          type: string
+          maxLength: 20
+          title: X-Amigo-Intake-Timestamp
+      - name: x-amigo-intake-signature
+        in: header
+        required: true
+        schema:
+          type: string
+          maxLength: 512
+          title: X-Amigo-Intake-Signature
+      - name: x-amigo-intake-customer-slug
+        in: header
+        required: true
+        schema:
+          type: string
+          maxLength: 63
+          title: X-Amigo-Intake-Customer-Slug
+      - name: x-amigo-intake-filename
+        in: header
+        required: true
+        schema:
+          type: string
+          maxLength: 256
+          title: X-Amigo-Intake-Filename
+      - name: x-amigo-intake-content-type
+        in: header
+        required: false
+        schema:
+          type: string
+          maxLength: 128
+          default: application/octet-stream
+          title: X-Amigo-Intake-Content-Type
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IntakeFileResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/intake/files:
+    get:
+      tags:
+      - Intake
+      summary: List Intake Files
+      operationId: list_intake_files_v1__workspace_id__intake_files_get
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 200
+          minimum: 1
+          default: 50
+          title: Limit
+      - name: continuation_token
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 0
+          default: 0
+          title: Continuation Token
+      - name: sort_by
+        in: query
+        required: false
+        schema:
+          type: string
+          maxLength: 64
+          default: -ingested_at
+          title: Sort By
+      - name: status
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - $ref: '#/components/schemas/_FileStatus'
+          - type: 'null'
+          title: Status
+      - name: search
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            maxLength: 200
+          - type: 'null'
+          title: Search
+      - name: include_withdrawn
+        in: query
+        required: false
+        schema:
+          type: boolean
+          default: false
+          title: Include Withdrawn
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedResponse_IntakeFileRow_'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    post:
+      tags:
+      - Intake
+      summary: Upload Intake File
+      operationId: upload_intake_file_v1__workspace_id__intake_files_post
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Body_upload_intake_file_v1__workspace_id__intake_files_post'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IntakeFileRow'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+  /v1/{workspace_id}/intake/files/{file_id}/download:
+    get:
+      tags:
+      - Intake
+      summary: Download Intake File
+      operationId: download_intake_file_v1__workspace_id__intake_files__file_id__download_get
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: file_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: File Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/intake/datasets:
+    get:
+      tags:
+      - Intake
+      summary: List Intake Datasets
+      operationId: list_intake_datasets_v1__workspace_id__intake_datasets_get
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 200
+          minimum: 1
+          default: 50
+          title: Limit
+      - name: continuation_token
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 0
+          default: 0
+          title: Continuation Token
+      - name: sort_by
+        in: query
+        required: false
+        schema:
+          type: string
+          maxLength: 64
+          default: name
+          title: Sort By
+      - name: search
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            maxLength: 200
+          - type: 'null'
+          title: Search
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedResponse_DatasetRow_'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/intake/sources:
+    post:
+      tags:
+      - Intake
+      summary: Register Intake Source
+      operationId: register_intake_source_v1__workspace_id__intake_sources_post
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterSourceRequest'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IntakeSourceRow'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+    get:
+      tags:
+      - Intake
+      summary: List Intake Sources
+      operationId: list_intake_sources_v1__workspace_id__intake_sources_get
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 200
+          minimum: 1
+          default: 50
+          title: Limit
+      - name: continuation_token
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 0
+          default: 0
+          title: Continuation Token
+      - name: sort_by
+        in: query
+        required: false
+        schema:
+          type: string
+          maxLength: 64
+          default: -created_ts
+          title: Sort By
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedResponse_IntakeSourceRow_'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/intake/sources/{source_id}/sync:
+    post:
+      tags:
+      - Intake
+      summary: Sync Intake Source
+      operationId: sync_intake_source_v1__workspace_id__intake_sources__source_id__sync_post
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: source_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Source Id
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SourceSyncResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/intake/schema/register:
+    post:
+      tags:
+      - Intake
+      summary: Register Intake Schema
+      operationId: register_intake_schema_v1__workspace_id__intake_schema_register_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterSchemaRequest'
+        required: true
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DatasetRow'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+  /v1/{workspace_id}/intake/batches:
+    get:
+      tags:
+      - Intake
+      summary: List Intake Batches
+      operationId: list_intake_batches_v1__workspace_id__intake_batches_get
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 200
+          minimum: 1
+          default: 50
+          title: Limit
+      - name: continuation_token
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 0
+          default: 0
+          title: Continuation Token
+      - name: sort_by
+        in: query
+        required: false
+        schema:
+          type: string
+          maxLength: 64
+          default: -created_ts
+          title: Sort By
+      - name: source_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Source Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedResponse_BatchRow_'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/intake/batches/{batch_id}:
+    get:
+      tags:
+      - Intake
+      summary: Get Intake Batch
+      operationId: get_intake_batch_v1__workspace_id__intake_batches__batch_id__get
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: batch_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Batch Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchDetail'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/intake/batches/{batch_id}/processing-manifest:
+    get:
+      tags:
+      - Intake
+      summary: Get Batch Processing Manifest
+      description: 'The per-file params the batch-extract job needs to process every still-
+
+        ``received`` file in one run. Same workspace-scoped auth as the write-back
+
+        (the job holds the batch''s agent-session token). Documents only — snapshot/CSV
+
+        batches process in version order via the chained per-file path, not here.'
+      operationId: get_batch_processing_manifest_v1__workspace_id__intake_batches__batch_id__processing_manifest_get
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: batch_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Batch Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchProcessingManifest'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/intake/batches/{batch_id}/process:
+    post:
+      tags:
+      - Intake
+      summary: Process Intake Batch
+      operationId: process_intake_batch_v1__workspace_id__intake_batches__batch_id__process_post
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: batch_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Batch Id
+      responses:
+        '202':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchRow'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/intake/materialize:
+    post:
+      tags:
+      - Intake
+      summary: Materialize Intake
+      description: 'Trigger the intake → customer-data materializer for this workspace.
+
+
+        Fires the materializer Databricks job (run-now); it rescans the workspace''s
+
+        curated intake files and (re)materializes each snapshot dataset into
+
+        ``customer_data_<env>.<workspace_id>.<dataset>``. Every write is an idempotent
+
+        keyed MERGE / full overwrite, so a re-click is safe. Optionally scope to one
+
+        ``dataset``; omit for all curated snapshot datasets. Returns ``202`` with the
+
+        job ``run_id`` (``null`` when the job is not configured in this environment).
+
+        Same auth gate as ``POST /batches/{batch_id}/process``.'
+      operationId: materialize_intake_v1__workspace_id__intake_materialize_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              anyOf:
+              - $ref: '#/components/schemas/MaterializeRequest'
+              - type: 'null'
+              title: Body
+      responses:
+        '202':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MaterializeResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+  /v1/{workspace_id}/intake/datasets/{dataset}/update:
+    post:
+      tags:
+      - Intake
+      summary: Update Intake Dataset
+      description: 'Run the customer-facing dataset update flow.
+
+
+        This is the one-click orchestration path for the console: check mapped Drive
+
+        folders, prepare any newly landed files, and publish immediately when no
+
+        preparation is needed. If preparation is async, the run remains durable and
+
+        is advanced by file write-backs or by refresh.'
+      operationId: update_intake_dataset_v1__workspace_id__intake_datasets__dataset__update_post
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: dataset
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 2
+          maxLength: 63
+          pattern: ^[a-z0-9][a-z0-9_-]*[a-z0-9]$
+          title: Dataset
+      responses:
+        '202':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DatasetUpdateRunResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/intake/update-runs/{run_id}:
+    get:
+      tags:
+      - Intake
+      summary: Get Intake Update Run
+      operationId: get_intake_update_run_v1__workspace_id__intake_update_runs__run_id__get
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: run_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Run Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DatasetUpdateRunResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/intake/materializations:
+    get:
+      tags:
+      - Intake
+      summary: List Intake Materializations
+      description: 'Per-dataset materialization status for the workspace''s Destinations tab.
+
+
+        Lists each registered dataset alongside its customer-data destination table''s
+
+        status — ``materialized`` (with row count + last-write time) or
+
+        ``not_materialized`` (no table yet). The dataset list + pagination mirror
+
+        ``GET /datasets`` (the contracts registry); the destination status is read
+
+        from the ``customer_data_<env>`` catalog via the SQL warehouse. Member read.'
+      operationId: list_intake_materializations_v1__workspace_id__intake_materializations_get
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 200
+          minimum: 1
+          default: 50
+          title: Limit
+      - name: continuation_token
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 0
+          default: 0
+          title: Continuation Token
+      - name: sort_by
+        in: query
+        required: false
+        schema:
+          type: string
+          maxLength: 64
+          default: name
+          title: Sort By
+      - name: search
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            maxLength: 200
+          - type: 'null'
+          title: Search
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedResponse_MaterializationRow_'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/intake/files/{file_id}/status:
+    post:
+      tags:
+      - Intake
+      summary: Write Back Intake File Status
+      description: 'Advance a file''s status from the async CDC/extraction job (P4).
+
+
+        The job authenticates with the workspace''s API key (Bearer) — the same
+
+        Databricks→platform-api path launch_dpc uses — so RLS scopes the update to
+
+        that workspace. Moves the row to its terminal verdict and records the
+
+        curated/cdc paths. For a batch-sourced file, advances its batch (chain the
+
+        next snapshot version + roll up) once the verdict is terminal.'
+      operationId: write_back_intake_file_status_v1__workspace_id__intake_files__file_id__status_post
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: file_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: File Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StatusWriteBackRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IntakeFileRow'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/intake/links:
+    post:
+      tags:
+      - Intake
+      summary: Generate upload link
+      description: Create a shareable upload link for a customer.
+      operationId: create-intake-link
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateLinkRequest'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IntakeLinkResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+    get:
+      tags:
+      - Intake
+      summary: List upload links
+      operationId: list-intake-links
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: include_expired
+        in: query
+        required: false
+        schema:
+          type: boolean
+          default: false
+          title: Include Expired
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 500
+          minimum: 1
+          default: 100
+          title: Limit
+      - name: offset
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 0
+          default: 0
+          title: Offset
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/IntakeLinkResponse'
+                title: Response List-Intake-Links
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/intake/links/{link_id}:
+    delete:
+      tags:
+      - Intake
+      summary: Revoke upload link
+      operationId: revoke-intake-link
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: link_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Link Id
+      responses:
+        '204':
+          description: Successful Response
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/intake/links/{link_id}/uploads:
+    get:
+      tags:
+      - Intake
+      summary: List uploads for a link
+      operationId: list-intake-link-uploads
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: link_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Link Id
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 500
+          minimum: 1
+          default: 200
+          title: Limit
+      - name: offset
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 0
+          default: 0
+          title: Offset
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/IntakeUploadResponse'
+                title: Response List-Intake-Link-Uploads
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/intake/links/{link_id}/uploads/{upload_id}/download:
+    get:
+      tags:
+      - Intake
+      summary: Download an uploaded file
+      description: Proxy the raw file bytes from the UC Volume back to the caller.
+      operationId: download-intake-upload
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: link_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Link Id
+      - name: upload_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Upload Id
+      responses:
+        '200':
+          description: 'File bytes with Content-Disposition: attachment'
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        '404':
+          description: Link, upload, or file not found
+        '502':
+          description: UC Volume storage backend unavailable
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+components:
+  schemas:
+    DriveFolderMapping:
+      properties:
+        folder_id:
+          type: string
+          maxLength: 256
+          minLength: 1
+          pattern: ^[A-Za-z0-9_-]+$
+          title: Folder Id
+        dataset:
+          type: string
+          maxLength: 63
+          minLength: 2
+          pattern: ^[a-z0-9][a-z0-9_-]*[a-z0-9]$
+          title: Dataset
+      type: object
+      required:
+      - folder_id
+      - dataset
+      title: DriveFolderMapping
+      description: 'One Google Drive folder ↔ one intake dataset.
+
+
+        ``folder_id`` is the Drive folder id (the identity — never the folder name,
+
+        which can be renamed/moved). One folder maps to exactly one dataset.'
+    MaterializeRequest:
+      properties:
+        dataset:
+          anyOf:
+          - $ref: '#/components/schemas/_DatasetSlug'
+          - type: 'null'
+      type: object
+      title: MaterializeRequest
+    DocumentProcessingSpec:
+      properties:
+        retain_source:
+          type: boolean
+          title: Retain Source
+          default: true
+        extraction_mode:
+          type: string
+          enum:
+          - text_extract
+          - OCR
+          - hybrid
+          title: Extraction Mode
+          default: text_extract
+      type: object
+      title: DocumentProcessingSpec
+      description: 'Processing config for a document dataset (``ingestion_mode=document``).
+
+
+        Documents have no schema/primary-key/CDC; this is what the contract carries
+
+        instead (docs/plans/intake_file_processing_pipeline.md §5.9). Page-split /
+
+        output-metadata rules are stored in the same jsonb and may be added later
+
+        without a migration.'
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    IntakeLinkResponse:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        workspace_id:
+          type: string
+          format: uuid
+          title: Workspace Id
+        customer_slug:
+          $ref: '#/components/schemas/SlugString'
+        display_name:
+          anyOf:
+          - $ref: '#/components/schemas/DescriptionString'
+          - type: 'null'
+        upload_url:
+          type: string
+          maxLength: 512
+          title: Upload Url
+        link_token:
+          type: string
+          maxLength: 128
+          minLength: 32
+          title: Link Token
+        status:
+          type: string
+          enum:
+          - active
+          - expired
+          - revoked
+          - exhausted
+          title: Status
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        expires_at:
+          type: string
+          format: date-time
+          title: Expires At
+        revoked_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Revoked At
+        max_uploads:
+          type: integer
+          title: Max Uploads
+        upload_count:
+          type: integer
+          title: Upload Count
+        last_upload_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Last Upload At
+      type: object
+      required:
+      - id
+      - workspace_id
+      - customer_slug
+      - display_name
+      - upload_url
+      - link_token
+      - status
+      - created_at
+      - expires_at
+      - revoked_at
+      - max_uploads
+      - upload_count
+      - last_upload_at
+      title: IntakeLinkResponse
+    IntakeUploadResponse:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        customer_slug:
+          $ref: '#/components/schemas/SlugString'
+        filename:
+          $ref: '#/components/schemas/NameString'
+        content_type:
+          type: string
+          maxLength: 256
+          title: Content Type
+        sha256:
+          type: string
+          maxLength: 64
+          minLength: 64
+          title: Sha256
+        size_bytes:
+          type: integer
+          title: Size Bytes
+        received_at:
+          type: string
+          format: date-time
+          title: Received At
+        scan_status:
+          type: string
+          enum:
+          - skipped
+          - pending
+          - clean
+          - infected
+          title: Scan Status
+      type: object
+      required:
+      - id
+      - customer_slug
+      - filename
+      - content_type
+      - sha256
+      - size_bytes
+      - received_at
+      - scan_status
+      title: IntakeUploadResponse
+    _FileStatus:
+      type: string
+      enum:
+      - received
+      - scanned
+      - processing
+      - curated
+      - rejected
+      - failed
+      - held
+    SchemaFieldSpec:
+      properties:
+        name:
+          $ref: '#/components/schemas/_FieldName'
+        type:
+          $ref: '#/components/schemas/IntakeFieldType'
+      type: object
+      required:
+      - name
+      - type
+      title: SchemaFieldSpec
+    BatchDetail:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+          description: batch_id.
+        source_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Source Id
+        dataset:
+          type: string
+          title: Dataset
+        status:
+          type: string
+          title: Status
+          description: discovered | ready | processing | completed | failed.
+        files_found:
+          type: integer
+          title: Files Found
+        created_ts:
+          type: string
+          title: Created Ts
+        files:
+          items:
+            $ref: '#/components/schemas/IntakeFileRow'
+          type: array
+          title: Files
+          default: []
+      type: object
+      required:
+      - id
+      - dataset
+      - status
+      - files_found
+      - created_ts
+      title: BatchDetail
+    PaginatedResponse_BatchRow_:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/BatchRow'
+          type: array
+          title: Items
+        has_more:
+          type: boolean
+          title: Has More
+        continuation_token:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Continuation Token
+        total:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Total
+      type: object
+      required:
+      - items
+      - has_more
+      title: PaginatedResponse[BatchRow]
+    _DatasetSlug:
+      type: string
+      maxLength: 63
+      minLength: 2
+      pattern: ^[a-z0-9][a-z0-9_-]*[a-z0-9]$
+    IntakeFieldType:
+      type: string
+      enum:
+      - str
+      - int
+      - float
+      - bool
+      - date
+      - datetime
+      title: IntakeFieldType
+      description: 'Allowed ``schema[].type`` values for a registered contract.
+
+
+        Confirmed set (intake-ui-mvp design contract point #1): scalars plus
+
+        ISO date/datetime. Coercion semantics live in :func:`_coerces`.'
+    FileEntry:
+      properties:
+        file_id:
+          type: string
+          format: uuid
+          title: File Id
+        document_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Document Id
+        version:
+          type: integer
+          title: Version
+        source_path:
+          type: string
+          title: Source Path
+        file_type:
+          type: string
+          title: File Type
+        content_type:
+          type: string
+          title: Content Type
+        sha256:
+          type: string
+          title: Sha256
+        size_bytes:
+          type: integer
+          title: Size Bytes
+        ingested_at:
+          type: string
+          title: Ingested At
+        contract_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Contract Id
+        contract_version:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Contract Version
+      type: object
+      required:
+      - file_id
+      - version
+      - source_path
+      - file_type
+      - content_type
+      - sha256
+      - size_bytes
+      - ingested_at
+      title: FileEntry
+    PaginatedResponse_DatasetRow_:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/DatasetRow'
+          type: array
+          title: Items
+        has_more:
+          type: boolean
+          title: Has More
+        continuation_token:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Continuation Token
+        total:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Total
+      type: object
+      required:
+      - items
+      - has_more
+      title: PaginatedResponse[DatasetRow]
+    PaginatedResponse_IntakeSourceRow_:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/IntakeSourceRow'
+          type: array
+          title: Items
+        has_more:
+          type: boolean
+          title: Has More
+        continuation_token:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Continuation Token
+        total:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Total
+      type: object
+      required:
+      - items
+      - has_more
+      title: PaginatedResponse[IntakeSourceRow]
+    IntakeSourceRow:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+          description: source_id.
+        source_type:
+          type: string
+          title: Source Type
+        display_name:
+          type: string
+          title: Display Name
+        drive_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Drive Id
+        folders:
+          items:
+            $ref: '#/components/schemas/DriveFolderMapping'
+          type: array
+          title: Folders
+        credential_ssm_param_path:
+          type: string
+          title: Credential Ssm Param Path
+          description: Where the SA key must be uploaded (derived; the secret itself is never returned).
+        impersonate_subject:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Impersonate Subject
+          description: DWD impersonation subject, if this source authenticates via domain-wide delegation.
+        status:
+          type: string
+          title: Status
+        created_ts:
+          type: string
+          title: Created Ts
+          description: ISO-8601 timestamp.
+      type: object
+      required:
+      - id
+      - source_type
+      - display_name
+      - folders
+      - credential_ssm_param_path
+      - status
+      - created_ts
+      title: IntakeSourceRow
+      description: A registered intake source (Sources list).
+    SyncBatchRow:
+      properties:
+        batch_id:
+          type: string
+          format: uuid
+          title: Batch Id
+        dataset:
+          type: string
+          title: Dataset
+        files_found:
+          type: integer
+          title: Files Found
+        status:
+          type: string
+          title: Status
+      type: object
+      required:
+      - batch_id
+      - dataset
+      - files_found
+      - status
+      title: SyncBatchRow
+      description: One batch produced by a source sync (one per mapped folder/dataset).
+    Body_upload_intake_file_v1__workspace_id__intake_files_post:
+      properties:
+        dataset:
+          type: string
+          maxLength: 63
+          minLength: 2
+          pattern: ^[a-z0-9][a-z0-9_-]*[a-z0-9]$
+          title: Dataset
+        file:
+          type: string
+          contentMediaType: application/octet-stream
+          title: File
+        document_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Document Id
+      type: object
+      required:
+      - dataset
+      - file
+      title: Body_upload_intake_file_v1__workspace_id__intake_files_post
+    BatchRow:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+          description: batch_id.
+        source_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Source Id
+        dataset:
+          type: string
+          title: Dataset
+        status:
+          type: string
+          title: Status
+          description: discovered | ready | processing | completed | failed.
+        files_found:
+          type: integer
+          title: Files Found
+        created_ts:
+          type: string
+          title: Created Ts
+      type: object
+      required:
+      - id
+      - dataset
+      - status
+      - files_found
+      - created_ts
+      title: BatchRow
+      description: A source-sync batch (Batches list / detail).
+    IntakeFileRow:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+          description: file_id — used for download.
+        filename:
+          type: string
+          title: Filename
+        dataset:
+          type: string
+          title: Dataset
+          description: Schema slug (UI label "Schema").
+        schema_version:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Schema Version
+          description: The contract version this file validated against (e.g. ``v1``).
+        status:
+          $ref: '#/components/schemas/_FileStatus'
+        error_reason:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Error Reason
+          description: Null unless rejected/failed.
+        size_bytes:
+          type: integer
+          title: Size Bytes
+        ingested_at:
+          type: string
+          title: Ingested At
+          description: ISO-8601 timestamp the file was received.
+        document_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Document Id
+          description: 'The document this version belongs to (§5.9). Null for snapshot/CSV rows;
+
+            set for documents — the console groups versions by it and the version chain.'
+        version:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Version
+          description: 'The file''s version number (per-document for documents, per-dataset for
+
+            snapshot). Lets the UI render a document''s version history.'
+        source_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Source Type
+          description: 'Origin of the document this version belongs to — ``manual`` for console
+
+            uploads, ``google_shared_drive`` for the Drive connector (V269). Null for
+
+            snapshot/CSV rows.'
+        source_file_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Source File Id
+          description: 'The source''s stable external id (e.g. the Google Drive file id) for the
+
+            document. Lets the console show provenance and confirm a re-synced file
+
+            bumped the *same* document. Null for manual uploads and snapshot rows.'
+        source_folder_path:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Source Folder Path
+          description: 'Where the file lived within the mapped Drive folder tree (V279) — the
+
+            relative path, folder names joined by ``/`` (e.g. ``clinical/notes``); ``''''``
+
+            at the mapped root. Lets the console show the original folder structure. Null
+
+            for manual uploads and snapshot rows.'
+      type: object
+      required:
+      - id
+      - filename
+      - dataset
+      - status
+      - size_bytes
+      - ingested_at
+      title: IntakeFileRow
+      description: A file in the Files list (intake-ui-mvp-design.md §5.1).
+    PaginatedResponse_MaterializationRow_:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/MaterializationRow'
+          type: array
+          title: Items
+        has_more:
+          type: boolean
+          title: Has More
+        continuation_token:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Continuation Token
+        total:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Total
+      type: object
+      required:
+      - items
+      - has_more
+      title: PaginatedResponse[MaterializationRow]
+    Limits:
+      properties:
+        max_size_mb:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Max Size Mb
+      type: object
+      title: Limits
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    _DatasetUpdateStatus:
+      type: string
+      enum:
+      - checking_drive
+      - preparing
+      - publishing
+      - completed
+      - needs_review
+      - failed
+    RegisterSourceRequest:
+      properties:
+        display_name:
+          type: string
+          maxLength: 200
+          minLength: 1
+          title: Display Name
+        drive_id:
+          anyOf:
+          - type: string
+            maxLength: 256
+          - type: 'null'
+          title: Drive Id
+        folders:
+          items:
+            $ref: '#/components/schemas/DriveFolderMapping'
+          type: array
+          maxItems: 100
+          minItems: 1
+          title: Folders
+        impersonate_subject:
+          anyOf:
+          - type: string
+            maxLength: 320
+          - type: 'null'
+          title: Impersonate Subject
+      type: object
+      required:
+      - display_name
+      - folders
+      title: RegisterSourceRequest
+      description: 'Register a Google Shared Drive intake source (design §3).
+
+
+        The credential is not part of the wire contract — the server derives the
+
+        SA-key SSM path deterministically from the generated ``source_id`` (the
+
+        ``/data-sources/`` convention) and the operator uploads the key there
+
+        out-of-band. ``drive_id`` is optional (resolved at sync if omitted).'
+    IntakeFileResponse:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        volume_path:
+          type: string
+          title: Volume Path
+        sha256:
+          type: string
+          title: Sha256
+        size_bytes:
+          type: integer
+          title: Size Bytes
+        scan_status:
+          type: string
+          title: Scan Status
+      type: object
+      required:
+      - id
+      - volume_path
+      - sha256
+      - size_bytes
+      - scan_status
+      title: IntakeFileResponse
+    _FieldName:
+      type: string
+      maxLength: 128
+      minLength: 1
+      pattern: ^[A-Za-z_][A-Za-z0-9_]*$
+    PaginatedResponse_IntakeFileRow_:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/IntakeFileRow'
+          type: array
+          title: Items
+        has_more:
+          type: boolean
+          title: Has More
+        continuation_token:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Continuation Token
+        total:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Total
+      type: object
+      required:
+      - items
+      - has_more
+      title: PaginatedResponse[IntakeFileRow]
+    BatchProcessingManifest:
+      properties:
+        document_processing:
+          additionalProperties: true
+          type: object
+          title: Document Processing
+        files:
+          items:
+            $ref: '#/components/schemas/FileEntry'
+          type: array
+          title: Files
+      type: object
+      required:
+      - document_processing
+      - files
+      title: BatchProcessingManifest
+      description: 'Per-file extraction params for a document batch''s still-``received`` files —
+
+        consumed by the batch-extract job, which runs ONCE per batch and extracts
+
+        every file (instead of one run-now per file, which blows the request/gateway
+
+        timeout for large batches). Authenticated by the same short-lived
+
+        workspace-scoped token as the status write-back. ``document_processing`` is
+
+        dataset-wide (the contract); ``file_type`` is per-file (V265 multi-type).
+
+        Filenames are deliberately absent — PHI stays on the Lakebase row.'
+    DescriptionString:
+      type: string
+      maxLength: 2000
+    SourceSyncResponse:
+      properties:
+        batches:
+          items:
+            $ref: '#/components/schemas/SyncBatchRow'
+          type: array
+          title: Batches
+      type: object
+      required:
+      - batches
+      title: SourceSyncResponse
+    CreateLinkRequest:
+      properties:
+        customer_slug:
+          $ref: '#/components/schemas/SlugString'
+        display_name:
+          anyOf:
+          - $ref: '#/components/schemas/DescriptionString'
+          - type: 'null'
+        expires_in_hours:
+          type: integer
+          maximum: 720.0
+          minimum: 1.0
+          title: Expires In Hours
+          default: 168
+        max_uploads:
+          type: integer
+          maximum: 10000.0
+          minimum: 1.0
+          title: Max Uploads
+          default: 100
+      type: object
+      required:
+      - customer_slug
+      title: CreateLinkRequest
+    StatusWriteBackRequest:
+      properties:
+        status:
+          $ref: '#/components/schemas/_FileStatus'
+        error_reason:
+          anyOf:
+          - type: string
+            maxLength: 2000
+          - type: 'null'
+          title: Error Reason
+        curated_path:
+          anyOf:
+          - $ref: '#/components/schemas/_VolumePath'
+          - type: 'null'
+        cdc_path:
+          anyOf:
+          - $ref: '#/components/schemas/_VolumePath'
+          - type: 'null'
+      type: object
+      required:
+      - status
+      title: StatusWriteBackRequest
+      description: 'Status advance written by the async CDC job (P4).
+
+
+        The job posts the terminal verdict after conform/validate/diff. ``error_reason``
+
+        must be PHI-safe (the engine reports column + type + counts only — never cell
+
+        values). ``curated_path``/``cdc_path`` are set only on a clean verdict.'
+    NameString:
+      type: string
+      maxLength: 256
+      minLength: 1
+    SlugString:
+      type: string
+      maxLength: 63
+      minLength: 2
+      pattern: ^[a-z0-9][a-z0-9-]*[a-z0-9]$
+    RegisterSchemaRequest:
+      properties:
+        name:
+          $ref: '#/components/schemas/_DatasetSlug'
+        file_type:
+          $ref: '#/components/schemas/_FileType'
+        accepted_file_types:
+          items:
+            $ref: '#/components/schemas/_FileType'
+          type: array
+          maxItems: 16
+          title: Accepted File Types
+          description: 'Document only — the SET of accepted file types (V265, e.g.
+
+            ``["pdf","docx","md"]``). Empty → single-type (just ``file_type``).
+
+            ``file_type`` is included as the primary. Mixing in a tabular type
+
+            (csv/xls/xlsx) is rejected; snapshot datasets are single-type.'
+          default: []
+        primary_key:
+          items:
+            $ref: '#/components/schemas/_FieldName'
+          type: array
+          maxItems: 32
+          title: Primary Key
+          description: Snapshot only — the canonical PK column(s). Empty/ignored for documents.
+          default: []
+        schema:
+          items:
+            $ref: '#/components/schemas/SchemaFieldSpec'
+          type: array
+          maxItems: 500
+          title: Schema
+          description: Snapshot only — canonical field list ``[{name, type}]`` (wire key ``schema``).
+          default: []
+        document_processing:
+          anyOf:
+          - $ref: '#/components/schemas/DocumentProcessingSpec'
+          - type: 'null'
+          description: Document only — extraction config; defaulted server-side when omitted.
+        max_size_mb:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Max Size Mb
+      type: object
+      required:
+      - name
+      - file_type
+      title: RegisterSchemaRequest
+      description: 'Create Schema payload (intake-ui-mvp-design.md §5.4, §5.9).
+
+
+        ``ingestion_mode`` is inferred from ``file_type`` (csv/xls/xlsx → snapshot;
+
+        else document) — not part of the wire contract. Snapshot datasets require
+
+        ``primary_key`` + ``schema``; document datasets take an optional
+
+        ``document_processing`` config and ignore primary_key/schema. The backend
+
+        applies the other hidden defaults (``on_schema_change=additive``,
+
+        ``schema_version`` auto).'
+    DatasetUpdateRunResponse:
+      properties:
+        run_id:
+          type: string
+          format: uuid
+          title: Run Id
+        dataset:
+          type: string
+          title: Dataset
+        status:
+          $ref: '#/components/schemas/_DatasetUpdateStatus'
+        source_ids:
+          items:
+            type: string
+            format: uuid
+          type: array
+          title: Source Ids
+        batch_ids:
+          items:
+            type: string
+            format: uuid
+          type: array
+          title: Batch Ids
+        materialize_run_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Materialize Run Id
+        error:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Error
+        created_at:
+          type: string
+          title: Created At
+        updated_at:
+          type: string
+          title: Updated At
+        completed_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Completed At
+      type: object
+      required:
+      - run_id
+      - dataset
+      - status
+      - source_ids
+      - batch_ids
+      - created_at
+      - updated_at
+      title: DatasetUpdateRunResponse
+      description: Durable status for one dataset update action.
+    _VolumePath:
+      type: string
+      maxLength: 1024
+      minLength: 1
+      pattern: ^[A-Za-z0-9/._-]+$
+    MaterializationRow:
+      properties:
+        dataset:
+          type: string
+          title: Dataset
+        ingestion_mode:
+          type: string
+          title: Ingestion Mode
+        status:
+          type: string
+          enum:
+          - materialized
+          - not_materialized
+          title: Status
+        row_count:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Row Count
+        last_materialized_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Last Materialized At
+      type: object
+      required:
+      - dataset
+      - ingestion_mode
+      - status
+      title: MaterializationRow
+      description: 'Per-dataset status of the customer-data destination table
+
+        (``customer_data_<env>.<workspace_id>.<dataset>``).'
+    MaterializeResponse:
+      properties:
+        run_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Run Id
+      type: object
+      title: MaterializeResponse
+    _FileType:
+      type: string
+      maxLength: 16
+      minLength: 1
+      pattern: ^[a-z0-9]+$
+    DatasetRow:
+      properties:
+        name:
+          type: string
+          title: Name
+          description: Dataset slug (UI label "Schema").
+        schema_version:
+          type: string
+          title: Schema Version
+        field_count:
+          type: integer
+          title: Field Count
+        file_type:
+          type: string
+          title: File Type
+          description: Primary/representative file type (the first accepted type).
+        accepted_file_types:
+          items:
+            type: string
+          type: array
+          title: Accepted File Types
+          description: 'Document datasets: the full accepted-type set (V265). Empty for snapshot
+
+            or legacy single-type documents (the UI falls back to ``file_type``).'
+          default: []
+        ingestion_mode:
+          type: string
+          title: Ingestion Mode
+          description: '`snapshot` (CSV/Excel → CDC) or `document` (PDF/docx → extraction).'
+        limits:
+          $ref: '#/components/schemas/Limits'
+      type: object
+      required:
+      - name
+      - schema_version
+      - field_count
+      - file_type
+      - ingestion_mode
+      - limits
+      title: DatasetRow
+      description: A registered schema in the Schemas list (intake-ui-mvp-design.md §5.3).
+  securitySchemes:
+    Bearer-Authorization:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Amigo issued JWT token that identifies an user. It's issued either after logging in through the frontend, or manually through the [`SignInWithAPIKey`](sign-in-with-api-key) endpoint.
+    Bearer-Authorization-Organization:
+      type: apiKey
+      in: header
+      name: X-ORG-ID
+      description: An optional organization identifier that indicates from which organization the token is issued. This is used in rare cases where the user to authenticate is making a request for resources in another organization.
+    Basic:
+      type: http
+      scheme: basic
+      description: The username should be set to {org_id}_{user_id}, and the password should be the Amigo issued JWT token that identifies the user.

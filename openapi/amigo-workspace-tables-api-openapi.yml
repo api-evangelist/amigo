@@ -1,0 +1,819 @@
+openapi: 3.1.0
+info:
+  title: Amigo Account Workspace Tables API
+  version: 0.1.0
+servers:
+- url: https://api.amigo.ai
+- url: https://internal-api.amigo.ai
+- url: https://api-eu-central-1.amigo.ai
+- url: https://api-ap-southeast-2.amigo.ai
+- url: https://api-ca-central-1.amigo.ai
+security:
+- Bearer-Authorization: []
+  Bearer-Authorization-Organization: []
+  Basic: []
+tags:
+- name: Workspace Tables
+paths:
+  /v1/{workspace_id}/tables:
+    get:
+      tags:
+      - Workspace Tables
+      summary: List Workspace Tables
+      operationId: list-workspace-tables
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/src__routes__workspace_tables__list_workspace_tables__Response'
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+    post:
+      tags:
+      - Workspace Tables
+      summary: Create Workspace Table
+      operationId: create-workspace-table
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/src__routes__workspace_tables__create_workspace_table__Request'
+        required: true
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/src__routes__workspace_tables__create_workspace_table__Response'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+  /v1/{workspace_id}/tables/{table_id}:
+    get:
+      tags:
+      - Workspace Tables
+      summary: Get Workspace Table
+      operationId: get-workspace-table
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: table_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Table Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/src__routes__workspace_tables__get_workspace_table__Response'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    patch:
+      tags:
+      - Workspace Tables
+      summary: Update Workspace Table
+      operationId: update-workspace-table
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: table_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Table Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/src__routes__workspace_tables__update_workspace_table__Request'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/src__routes__workspace_tables__update_workspace_table__Response'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    delete:
+      tags:
+      - Workspace Tables
+      summary: Delete Workspace Table
+      operationId: delete-workspace-table
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: table_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Table Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/query:
+    post:
+      tags:
+      - Workspace Tables
+      summary: Execute Workspace Query
+      operationId: execute-workspace-query
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/src__routes__workspace_tables__execute_workspace_query__Request'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/src__routes__workspace_tables__execute_workspace_query__Response'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+components:
+  schemas:
+    Default:
+      properties:
+        kind:
+          type: string
+          enum:
+          - literal
+          - uuid_v4
+          - now
+          - current_date
+          title: Kind
+        value:
+          anyOf:
+          - type: string
+          - type: integer
+          - type: number
+          - type: boolean
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Value
+          description: 'Only meaningful for ``kind="literal"``. Other kinds ignore it.
+
+            A ``dict`` value is rendered as a JSONB literal — pair it with a
+
+            ``jsonb`` column.'
+      type: object
+      required:
+      - kind
+      title: Default
+    RenameColumnAction:
+      properties:
+        op:
+          type: string
+          const: rename_column
+          title: Op
+        from:
+          $ref: '#/components/schemas/IdentifierString'
+        to:
+          $ref: '#/components/schemas/IdentifierString'
+      type: object
+      required:
+      - op
+      - from
+      - to
+      title: RenameColumnAction
+    DropColumnDefaultAction:
+      properties:
+        op:
+          type: string
+          const: drop_column_default
+          title: Op
+        name:
+          $ref: '#/components/schemas/IdentifierString'
+      type: object
+      required:
+      - op
+      - name
+      title: DropColumnDefaultAction
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    SetColumnNullableAction:
+      properties:
+        op:
+          type: string
+          const: set_column_nullable
+          title: Op
+        name:
+          $ref: '#/components/schemas/IdentifierString'
+        nullable:
+          type: boolean
+          title: Nullable
+      type: object
+      required:
+      - op
+      - name
+      - nullable
+      title: SetColumnNullableAction
+    src__routes__workspace_tables__create_workspace_table__Request:
+      properties:
+        table_name:
+          $ref: '#/components/schemas/IdentifierString'
+        columns:
+          items:
+            $ref: '#/components/schemas/Column-Input'
+          type: array
+          maxItems: 100
+          minItems: 1
+          title: Columns
+        primary_key:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/IdentifierString'
+            type: array
+          - type: 'null'
+          title: Primary Key
+        unique:
+          items:
+            items:
+              $ref: '#/components/schemas/IdentifierString'
+            type: array
+            maxItems: 32
+            minItems: 1
+          type: array
+          title: Unique
+        indexes:
+          items:
+            $ref: '#/components/schemas/Index-Input'
+          type: array
+          title: Indexes
+      type: object
+      required:
+      - table_name
+      - columns
+      title: Request
+    src__routes__workspace_tables__create_workspace_table__Response:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        workspace_id:
+          type: string
+          format: uuid
+          title: Workspace Id
+        table_name:
+          type: string
+          title: Table Name
+        physical_name:
+          type: string
+          title: Physical Name
+      type: object
+      required:
+      - id
+      - workspace_id
+      - table_name
+      - physical_name
+      title: Response
+    AddUniqueAction:
+      properties:
+        op:
+          type: string
+          const: add_unique
+          title: Op
+        columns:
+          items:
+            $ref: '#/components/schemas/IdentifierString'
+          type: array
+          maxItems: 32
+          minItems: 1
+          title: Columns
+        constraint_name:
+          anyOf:
+          - $ref: '#/components/schemas/IdentifierString'
+          - type: 'null'
+      type: object
+      required:
+      - op
+      - columns
+      title: AddUniqueAction
+    IdentifierString:
+      type: string
+      maxLength: 63
+      minLength: 1
+      pattern: ^[a-z][a-z0-9_]{0,62}$
+    DropConstraintAction:
+      properties:
+        op:
+          type: string
+          const: drop_constraint
+          title: Op
+        name:
+          $ref: '#/components/schemas/IdentifierString'
+      type: object
+      required:
+      - op
+      - name
+      title: DropConstraintAction
+    Column-Output:
+      properties:
+        name:
+          type: string
+          title: Name
+        data_type:
+          type: string
+          title: Data Type
+          description: 'Postgres-side type as reported by ``information_schema.columns``
+
+            (e.g. ``uuid``, ``text``, ``timestamp with time zone``).'
+        is_nullable:
+          type: boolean
+          title: Is Nullable
+        default:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Default
+          description: Postgres-side default expression text, or NULL if no DEFAULT.
+      type: object
+      required:
+      - name
+      - data_type
+      - is_nullable
+      - default
+      title: Column
+    ColumnType:
+      type: string
+      enum:
+      - text
+      - int
+      - bigint
+      - numeric
+      - boolean
+      - uuid
+      - timestamptz
+      - date
+      - time
+      - jsonb
+      - bytea
+    src__routes__workspace_tables__get_workspace_table__Response:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        workspace_id:
+          type: string
+          format: uuid
+          title: Workspace Id
+        table_name:
+          type: string
+          title: Table Name
+        physical_name:
+          type: string
+          title: Physical Name
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        columns:
+          items:
+            $ref: '#/components/schemas/Column-Output'
+          type: array
+          title: Columns
+        indexes:
+          items:
+            $ref: '#/components/schemas/Index-Output'
+          type: array
+          title: Indexes
+        constraints:
+          items:
+            $ref: '#/components/schemas/Constraint'
+          type: array
+          title: Constraints
+      type: object
+      required:
+      - id
+      - workspace_id
+      - table_name
+      - physical_name
+      - created_at
+      - columns
+      - indexes
+      - constraints
+      title: Response
+    Constraint:
+      properties:
+        name:
+          type: string
+          title: Name
+        definition:
+          type: string
+          title: Definition
+          description: '``pg_get_constraintdef(oid)`` — the postgres-rendered definition.'
+      type: object
+      required:
+      - name
+      - definition
+      title: Constraint
+    AddIndexAction:
+      properties:
+        op:
+          type: string
+          const: add_index
+          title: Op
+        index_name:
+          $ref: '#/components/schemas/IdentifierString'
+        columns:
+          items:
+            $ref: '#/components/schemas/IdentifierString'
+          type: array
+          maxItems: 32
+          minItems: 1
+          title: Columns
+      type: object
+      required:
+      - op
+      - index_name
+      - columns
+      title: AddIndexAction
+    DropColumnAction:
+      properties:
+        op:
+          type: string
+          const: drop_column
+          title: Op
+        name:
+          $ref: '#/components/schemas/IdentifierString'
+      type: object
+      required:
+      - op
+      - name
+      title: DropColumnAction
+    src__routes__workspace_tables__update_workspace_table__Response:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        workspace_id:
+          type: string
+          format: uuid
+          title: Workspace Id
+        table_name:
+          type: string
+          title: Table Name
+        physical_name:
+          type: string
+          title: Physical Name
+      type: object
+      required:
+      - id
+      - workspace_id
+      - table_name
+      - physical_name
+      title: Response
+    src__routes__workspace_tables__list_workspace_tables__Response:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/src__routes__workspace_tables__list_workspace_tables__Response__Item'
+          type: array
+          title: Items
+      type: object
+      required:
+      - items
+      title: Response
+    SetColumnDefaultAction:
+      properties:
+        op:
+          type: string
+          const: set_column_default
+          title: Op
+        name:
+          $ref: '#/components/schemas/IdentifierString'
+        default:
+          $ref: '#/components/schemas/Default'
+      type: object
+      required:
+      - op
+      - name
+      - default
+      title: SetColumnDefaultAction
+    Index-Output:
+      properties:
+        name:
+          type: string
+          title: Name
+        definition:
+          type: string
+          title: Definition
+          description: '``pg_indexes.indexdef`` — the full CREATE INDEX statement.'
+      type: object
+      required:
+      - name
+      - definition
+      title: Index
+    Index-Input:
+      properties:
+        columns:
+          items:
+            $ref: '#/components/schemas/IdentifierString'
+          type: array
+          maxItems: 32
+          minItems: 1
+          title: Columns
+      type: object
+      required:
+      - columns
+      title: Index
+    src__routes__workspace_tables__execute_workspace_query__Response:
+      properties:
+        columns:
+          items:
+            type: string
+          type: array
+          title: Columns
+        rows:
+          items:
+            additionalProperties: true
+            type: object
+          type: array
+          title: Rows
+        row_count:
+          type: integer
+          title: Row Count
+      type: object
+      required:
+      - columns
+      - rows
+      - row_count
+      title: Response
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    Column-Input:
+      properties:
+        name:
+          $ref: '#/components/schemas/IdentifierString'
+        type:
+          $ref: '#/components/schemas/ColumnType'
+        nullable:
+          type: boolean
+          title: Nullable
+          default: true
+        default:
+          anyOf:
+          - $ref: '#/components/schemas/Default'
+          - type: 'null'
+      type: object
+      required:
+      - name
+      - type
+      title: Column
+    src__routes__workspace_tables__list_workspace_tables__Response__Item:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        workspace_id:
+          type: string
+          format: uuid
+          title: Workspace Id
+        table_name:
+          type: string
+          title: Table Name
+        physical_name:
+          type: string
+          title: Physical Name
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+      type: object
+      required:
+      - id
+      - workspace_id
+      - table_name
+      - physical_name
+      - created_at
+      title: Item
+    src__routes__workspace_tables__update_workspace_table__Request:
+      properties:
+        actions:
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/AlterAction'
+            discriminator:
+              propertyName: op
+              mapping:
+                add_column: '#/components/schemas/AlterAction'
+                add_index: '#/components/schemas/AlterAction'
+                add_unique: '#/components/schemas/AlterAction'
+                change_column_type: '#/components/schemas/AlterAction'
+                drop_column: '#/components/schemas/AlterAction'
+                drop_column_default: '#/components/schemas/AlterAction'
+                drop_constraint: '#/components/schemas/AlterAction'
+                drop_index: '#/components/schemas/AlterAction'
+                rename_column: '#/components/schemas/AlterAction'
+                set_column_default: '#/components/schemas/AlterAction'
+                set_column_nullable: '#/components/schemas/AlterAction'
+          type: array
+          maxItems: 50
+          minItems: 1
+          title: Actions
+      type: object
+      required:
+      - actions
+      title: Request
+    AlterAction:
+      anyOf:
+      - $ref: '#/components/schemas/AddColumnAction'
+      - $ref: '#/components/schemas/DropColumnAction'
+      - $ref: '#/components/schemas/RenameColumnAction'
+      - $ref: '#/components/schemas/ChangeColumnTypeAction'
+      - $ref: '#/components/schemas/SetColumnNullableAction'
+      - $ref: '#/components/schemas/SetColumnDefaultAction'
+      - $ref: '#/components/schemas/DropColumnDefaultAction'
+      - $ref: '#/components/schemas/AddUniqueAction'
+      - $ref: '#/components/schemas/DropConstraintAction'
+      - $ref: '#/components/schemas/AddIndexAction'
+      - $ref: '#/components/schemas/DropIndexAction'
+    AddColumnAction:
+      properties:
+        op:
+          type: string
+          const: add_column
+          title: Op
+        column:
+          $ref: '#/components/schemas/Column-Input'
+      type: object
+      required:
+      - op
+      - column
+      title: AddColumnAction
+    DropIndexAction:
+      properties:
+        op:
+          type: string
+          const: drop_index
+          title: Op
+        index_name:
+          $ref: '#/components/schemas/IdentifierString'
+      type: object
+      required:
+      - op
+      - index_name
+      title: DropIndexAction
+    ChangeColumnTypeAction:
+      properties:
+        op:
+          type: string
+          const: change_column_type
+          title: Op
+        name:
+          $ref: '#/components/schemas/IdentifierString'
+        new_type:
+          $ref: '#/components/schemas/ColumnType'
+      type: object
+      required:
+      - op
+      - name
+      - new_type
+      title: ChangeColumnTypeAction
+    src__routes__workspace_tables__execute_workspace_query__Request:
+      properties:
+        sql:
+          type: string
+          maxLength: 16384
+          minLength: 1
+          title: Sql
+          description: 'One SQL statement: SELECT / WITH ... SELECT / INSERT / UPDATE /
+
+            DELETE. Multi-statement, DDL, and session-state commands (SET ROLE,
+
+            RESET, SET SESSION AUTHORIZATION) reject with 422 at the Pydantic
+
+            boundary. ``pg_*`` function calls reject with 400 at execute time
+
+            (no grant).'
+      type: object
+      required:
+      - sql
+      title: Request
+  securitySchemes:
+    Bearer-Authorization:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Amigo issued JWT token that identifies an user. It's issued either after logging in through the frontend, or manually through the [`SignInWithAPIKey`](sign-in-with-api-key) endpoint.
+    Bearer-Authorization-Organization:
+      type: apiKey
+      in: header
+      name: X-ORG-ID
+      description: An optional organization identifier that indicates from which organization the token is issued. This is used in rare cases where the user to authenticate is making a request for resources in another organization.
+    Basic:
+      type: http
+      scheme: basic
+      description: The username should be set to {org_id}_{user_id}, and the password should be the Amigo issued JWT token that identifies the user.

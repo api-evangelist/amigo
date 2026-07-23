@@ -1,0 +1,312 @@
+openapi: 3.1.0
+info:
+  title: Amigo Account Recordings API
+  version: 0.1.0
+servers:
+- url: https://api.amigo.ai
+- url: https://internal-api.amigo.ai
+- url: https://api-eu-central-1.amigo.ai
+- url: https://api-ap-southeast-2.amigo.ai
+- url: https://api-ca-central-1.amigo.ai
+security:
+- Bearer-Authorization: []
+  Bearer-Authorization-Organization: []
+  Basic: []
+tags:
+- name: Recordings
+paths:
+  /v1/{workspace_id}/recordings/{call_sid}/urls:
+    get:
+      tags:
+      - Recordings
+      summary: Get recording download paths
+      description: Generate download paths for call recording playback. Returns separate paths for inbound (caller) and outbound (agent) audio channels, plus the recording metadata file.
+      operationId: get-recording-urls
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: call_sid
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Call Sid
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecordingUrlsResponse'
+        '404':
+          description: Recording not found
+        '503':
+          description: Call recording not configured
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/recordings/{call_sid}/metadata:
+    get:
+      tags:
+      - Recordings
+      summary: Get recording metadata
+      description: Fetch metadata for a call recording including duration, audio formats, sample rates, and file sizes.
+      operationId: get-recording-metadata
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: call_sid
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Call Sid
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecordingMetadataResponse'
+        '404':
+          description: Recording not found
+        '503':
+          description: Call recording not configured
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/{workspace_id}/recordings/{call_sid}/download/{filename}:
+    get:
+      tags:
+      - Recordings
+      summary: Download recording file
+      description: Proxy download a recording file (inbound audio, outbound audio, or metadata) from UC Volume.
+      operationId: download-recording-file
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: call_sid
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Call Sid
+      - name: filename
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Filename
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '400':
+          description: Invalid filename
+        '404':
+          description: Recording file not found
+        '503':
+          description: Call recording not configured
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+components:
+  schemas:
+    RecordingUrlsResponse:
+      properties:
+        call_sid:
+          type: string
+          title: Call Sid
+          description: Twilio call SID
+        status:
+          type: string
+          const: available
+          title: Status
+          description: Recording availability status
+          default: available
+        inbound_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Inbound Url
+          description: Download URL for inbound (caller) audio
+        outbound_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Outbound Url
+          description: Download URL for outbound (agent) audio
+        metadata_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Metadata Url
+          description: Download URL for recording metadata JSON
+      type: object
+      required:
+      - call_sid
+      title: RecordingUrlsResponse
+      description: Download paths for call recording playback.
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    RecordingMetadataResponse:
+      properties:
+        call_sid:
+          type: string
+          title: Call Sid
+          description: Twilio call SID
+        workspace_id:
+          type: string
+          format: uuid
+          title: Workspace Id
+          description: Workspace that owns this recording
+        service_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Service Id
+          description: Service (agent) that handled the call
+        direction:
+          type: string
+          enum:
+          - inbound
+          - outbound
+          title: Direction
+          description: Call direction
+        duration_seconds:
+          type: number
+          title: Duration Seconds
+          description: Total call duration in seconds
+        inbound_format:
+          type: string
+          title: Inbound Format
+          description: Audio format for the inbound (caller) channel
+        inbound_sample_rate:
+          type: integer
+          title: Inbound Sample Rate
+          description: Sample rate in Hz for the inbound channel
+        outbound_format:
+          type: string
+          title: Outbound Format
+          description: Audio format for the outbound (agent) channel
+        outbound_sample_rate:
+          type: integer
+          title: Outbound Sample Rate
+          description: Sample rate in Hz for the outbound channel
+        tts_provider:
+          type: string
+          title: Tts Provider
+          description: Text-to-speech provider used for the call
+        call_start_iso:
+          type: string
+          title: Call Start Iso
+          description: Call start time as ISO-8601 string
+        call_end_iso:
+          type: string
+          title: Call End Iso
+          description: Call end time as ISO-8601 string
+        inbound_size_bytes:
+          type: integer
+          title: Inbound Size Bytes
+          description: Inbound audio file size in bytes
+        outbound_size_bytes:
+          type: integer
+          title: Outbound Size Bytes
+          description: Outbound audio file size in bytes
+        media_start_epoch_ms:
+          type: number
+          title: Media Start Epoch Ms
+          description: Media stream start time as Unix epoch milliseconds
+      type: object
+      required:
+      - call_sid
+      - workspace_id
+      - direction
+      - duration_seconds
+      - inbound_format
+      - inbound_sample_rate
+      - outbound_format
+      - outbound_sample_rate
+      - tts_provider
+      - call_start_iso
+      - call_end_iso
+      - inbound_size_bytes
+      - outbound_size_bytes
+      - media_start_epoch_ms
+      title: RecordingMetadataResponse
+      description: Call recording metadata.
+  securitySchemes:
+    Bearer-Authorization:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Amigo issued JWT token that identifies an user. It's issued either after logging in through the frontend, or manually through the [`SignInWithAPIKey`](sign-in-with-api-key) endpoint.
+    Bearer-Authorization-Organization:
+      type: apiKey
+      in: header
+      name: X-ORG-ID
+      description: An optional organization identifier that indicates from which organization the token is issued. This is used in rare cases where the user to authenticate is making a request for resources in another organization.
+    Basic:
+      type: http
+      scheme: basic
+      description: The username should be set to {org_id}_{user_id}, and the password should be the Amigo issued JWT token that identifies the user.

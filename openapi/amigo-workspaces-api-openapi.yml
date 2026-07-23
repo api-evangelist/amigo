@@ -1,0 +1,652 @@
+openapi: 3.1.0
+info:
+  title: Amigo Account Workspaces API
+  version: 0.1.0
+servers:
+- url: https://api.amigo.ai
+- url: https://internal-api.amigo.ai
+- url: https://api-eu-central-1.amigo.ai
+- url: https://api-ap-southeast-2.amigo.ai
+- url: https://api-ca-central-1.amigo.ai
+security:
+- Bearer-Authorization: []
+  Bearer-Authorization-Organization: []
+  Basic: []
+tags:
+- name: Workspaces
+paths:
+  /v1/workspaces/{workspace_id}:
+    get:
+      tags:
+      - Workspaces
+      summary: Get a workspace
+      description: Retrieve a workspace by ID. Requires `Workspace.view` permission.
+      operationId: get-workspace
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkspaceResponse'
+        '404':
+          description: Workspace not found.
+        '403':
+          description: Insufficient permissions.
+        '401':
+          description: Missing or invalid API key.
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+    patch:
+      tags:
+      - Workspaces
+      summary: Update a workspace
+      description: Update workspace fields. Requires `Workspace.update` permission.
+      operationId: update-workspace
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateWorkspaceRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkspaceResponse'
+        '404':
+          description: Workspace not found.
+        '403':
+          description: Insufficient permissions.
+        '401':
+          description: Missing or invalid API key.
+        '422':
+          description: Invalid request body, or region provided (immutable).
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+  /v1/workspaces:
+    get:
+      tags:
+      - Workspaces
+      summary: List workspaces
+      description: List workspaces accessible to this API key. Requires `Workspace.view` permission.
+      operationId: list-workspaces
+      parameters:
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 100
+          exclusiveMinimum: 0
+          default: 10
+          title: Limit
+      - name: continuation_token
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 0
+          title: Continuation Token
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedResponse_WorkspaceResponse_'
+        '403':
+          description: Insufficient permissions.
+        '401':
+          description: Missing or invalid API key.
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/workspaces/{workspace_id}/provision:
+    post:
+      tags:
+      - Workspaces
+      summary: Provision workspace resources
+      description: Seed default integrations and mark workspace as provisioned. Idempotent. Requires `Workspace.update` permission.
+      operationId: provision-workspace
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProvisionResponse'
+        '404':
+          description: Workspace not found.
+        '403':
+          description: Insufficient permissions.
+        '401':
+          description: Missing or invalid API key.
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+  /v1/workspaces/{workspace_id}/archive:
+    post:
+      tags:
+      - Workspaces
+      summary: Archive a workspace
+      description: Archive a workspace and remove it from active access flows while preserving underlying data. Requires owner access and slug confirmation.
+      operationId: archive-workspace
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ArchiveWorkspaceRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkspaceResponse'
+        '404':
+          description: Workspace not found.
+        '403':
+          description: Only owners can archive a workspace.
+        '401':
+          description: Missing or invalid API key.
+        '422':
+          description: Workspace slug confirmation did not match.
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+  /v1/workspaces/{workspace_id}/environment-check:
+    get:
+      tags:
+      - Workspaces
+      summary: Pre-check environment conversion
+      description: Returns compliance warnings for converting between staging and production. Does not mutate.
+      operationId: check-environment-conversion
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: target
+        in: query
+        required: false
+        schema:
+          enum:
+          - production
+          - staging
+          type: string
+          default: production
+          title: Target
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvironmentCheckResponse'
+        '403':
+          description: Insufficient permissions.
+        '401':
+          description: Missing or invalid API key.
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/workspaces/{workspace_id}/convert-environment:
+    post:
+      tags:
+      - Workspaces
+      summary: Convert workspace environment
+      description: Convert workspace between staging and production. Requires slug confirmation.
+      operationId: convert-workspace-environment
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConvertEnvironmentRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkspaceResponse'
+        '404':
+          description: Workspace not found.
+        '403':
+          description: Insufficient permissions.
+        '401':
+          description: Missing or invalid API key.
+        '422':
+          description: Workspace slug confirmation did not match.
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+  /v1/workspaces/{workspace_id}/test-caller-numbers:
+    get:
+      tags:
+      - Workspaces
+      summary: Get test caller numbers
+      description: Get phone numbers configured as test callers for this workspace.
+      operationId: get-test-caller-numbers
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TestCallerNumbersResponse'
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+    put:
+      tags:
+      - Workspaces
+      summary: Update test caller numbers
+      description: Set phone numbers to be treated as test callers. Calls from these numbers are tagged source='test' and excluded from billing, scores, analytics, outbound EHR sync, and entity views.
+      operationId: update-test-caller-numbers
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TestCallerNumbersRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TestCallerNumbersResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+  /v1/workspaces/{workspace_id}/test-credential-ids:
+    get:
+      tags:
+      - Workspaces
+      summary: Get test credential IDs
+      description: Get the credential IDs configured as test principals for this workspace's text channel.
+      operationId: get-test-credential-ids
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TestCredentialIdsResponse'
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+    put:
+      tags:
+      - Workspaces
+      summary: Update test credential IDs
+      description: Set credential IDs to be treated as test principals. Text turns from these credentials are tagged source='test' and excluded from billing, scores, analytics, outbound EHR sync, and entity views.
+      operationId: update-test-credential-ids
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TestCredentialIdsRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TestCredentialIdsResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+components:
+  schemas:
+    StrippedNonemptyString:
+      type: string
+      minLength: 1
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    TestCallerNumbersRequest:
+      properties:
+        numbers:
+          items:
+            type: string
+          type: array
+          maxItems: 100
+          title: Numbers
+      type: object
+      required:
+      - numbers
+      title: TestCallerNumbersRequest
+    UpdateWorkspaceRequest:
+      properties:
+        name:
+          anyOf:
+          - $ref: '#/components/schemas/StrippedNonemptyString'
+          - type: 'null'
+        environment:
+          anyOf:
+          - type: string
+            enum:
+            - production
+            - staging
+            - development
+          - type: 'null'
+          title: Environment
+        region:
+          anyOf:
+          - type: string
+            enum:
+            - us-east-1
+            - ap-southeast-2
+            - eu-central-1
+            - ca-central-1
+          - type: 'null'
+          title: Region
+        connector_type:
+          anyOf:
+          - type: string
+            enum:
+            - epic
+            - cerner
+            - allscripts
+            - fhir_store
+            - athenahealth
+            - charmhealth
+            - eclinicalworks
+            - meditab
+          - type: 'null'
+          title: Connector Type
+      type: object
+      title: UpdateWorkspaceRequest
+    SlugString:
+      type: string
+      maxLength: 63
+      minLength: 2
+      pattern: ^[a-z0-9][a-z0-9-]*[a-z0-9]$
+    TestCallerNumbersResponse:
+      properties:
+        numbers:
+          items:
+            type: string
+          type: array
+          title: Numbers
+      type: object
+      required:
+      - numbers
+      title: TestCallerNumbersResponse
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    TestCredentialIdsRequest:
+      properties:
+        credential_ids:
+          items:
+            type: string
+            format: uuid
+          type: array
+          maxItems: 100
+          title: Credential Ids
+      type: object
+      required:
+      - credential_ids
+      title: TestCredentialIdsRequest
+    TestCredentialIdsResponse:
+      properties:
+        credential_ids:
+          items:
+            type: string
+            format: uuid
+          type: array
+          title: Credential Ids
+      type: object
+      required:
+      - credential_ids
+      title: TestCredentialIdsResponse
+    EnvironmentCheckResponse:
+      properties:
+        current:
+          type: string
+          title: Current
+        target:
+          type: string
+          title: Target
+        warnings:
+          items:
+            type: string
+          type: array
+          title: Warnings
+      type: object
+      required:
+      - current
+      - target
+      - warnings
+      title: EnvironmentCheckResponse
+    ConvertEnvironmentRequest:
+      properties:
+        target:
+          type: string
+          enum:
+          - production
+          - staging
+          title: Target
+        confirm_slug:
+          $ref: '#/components/schemas/SlugString'
+      type: object
+      required:
+      - target
+      - confirm_slug
+      title: ConvertEnvironmentRequest
+    PaginatedResponse_WorkspaceResponse_:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/WorkspaceResponse'
+          type: array
+          title: Items
+        has_more:
+          type: boolean
+          title: Has More
+        continuation_token:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Continuation Token
+        total:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Total
+      type: object
+      required:
+      - items
+      - has_more
+      title: PaginatedResponse[WorkspaceResponse]
+    ProvisionResponse:
+      properties:
+        workspace:
+          $ref: '#/components/schemas/WorkspaceResponse'
+      type: object
+      required:
+      - workspace
+      title: ProvisionResponse
+    WorkspaceResponse:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        slug:
+          type: string
+          title: Slug
+        name:
+          type: string
+          title: Name
+        environment:
+          type: string
+          title: Environment
+        backend_org_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Backend Org Id
+        region:
+          type: string
+          title: Region
+        connector_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Connector Type
+        provisioned_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Provisioned At
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+      type: object
+      required:
+      - id
+      - slug
+      - name
+      - environment
+      - backend_org_id
+      - region
+      - connector_type
+      - provisioned_at
+      - created_at
+      - updated_at
+      title: WorkspaceResponse
+    ArchiveWorkspaceRequest:
+      properties:
+        slug:
+          $ref: '#/components/schemas/SlugString'
+      type: object
+      required:
+      - slug
+      title: ArchiveWorkspaceRequest
+  securitySchemes:
+    Bearer-Authorization:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Amigo issued JWT token that identifies an user. It's issued either after logging in through the frontend, or manually through the [`SignInWithAPIKey`](sign-in-with-api-key) endpoint.
+    Bearer-Authorization-Organization:
+      type: apiKey
+      in: header
+      name: X-ORG-ID
+      description: An optional organization identifier that indicates from which organization the token is issued. This is used in rare cases where the user to authenticate is making a request for resources in another organization.
+    Basic:
+      type: http
+      scheme: basic
+      description: The username should be set to {org_id}_{user_id}, and the password should be the Amigo issued JWT token that identifies the user.

@@ -1,0 +1,337 @@
+openapi: 3.1.0
+info:
+  title: Amigo Account Role Grants API
+  version: 0.1.0
+servers:
+- url: https://api.amigo.ai
+- url: https://internal-api.amigo.ai
+- url: https://api-eu-central-1.amigo.ai
+- url: https://api-ap-southeast-2.amigo.ai
+- url: https://api-ca-central-1.amigo.ai
+security:
+- Bearer-Authorization: []
+  Bearer-Authorization-Organization: []
+  Basic: []
+tags:
+- name: Role Grants
+paths:
+  /v1/{workspace_id}/role-grants:
+    get:
+      tags:
+      - Role Grants
+      summary: List Role Grants
+      operationId: list-role-grants
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: sort_by
+        in: query
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+          default: []
+          title: Sort By
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 200
+          exclusiveMinimum: 0
+          default: 50
+          title: Limit
+      - name: continuation_token
+        in: query
+        required: false
+        schema:
+          title: Continuation Token
+      - name: status
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - enum:
+            - active
+            - superseded
+            type: string
+          - type: 'null'
+          title: Status
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/src__routes__role_grants__ListResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    post:
+      tags:
+      - Role Grants
+      summary: Create Role Grant
+      operationId: create-role-grant
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/src__routes__role_grants__CreateRequest'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RoleGrantItem'
+        '409':
+          description: An active grant for this (role, resource, access) already exists
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+  /v1/{workspace_id}/role-grants/{grant_id}:
+    get:
+      tags:
+      - Role Grants
+      summary: Get Role Grant
+      operationId: get-role-grant
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: grant_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Grant Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RoleGrantItem'
+        '404':
+          description: Role grant not found
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    delete:
+      tags:
+      - Role Grants
+      summary: Delete Role Grant
+      description: Supersede an active grant (immutable history) — never a physical delete.
+      operationId: supersede-role-grant
+      parameters:
+      - name: workspace_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Workspace Id
+      - name: grant_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Grant Id
+      responses:
+        '204':
+          description: Successful Response
+        '404':
+          description: Active role grant not found
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+components:
+  schemas:
+    _Access:
+      type: string
+      enum:
+      - read
+      - write
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    src__routes__role_grants__CreateRequest:
+      properties:
+        role_id:
+          type: string
+          format: uuid
+          title: Role Id
+        resource_type:
+          $ref: '#/components/schemas/_ResourceType'
+        resource_key:
+          type: string
+          maxLength: 512
+          minLength: 1
+          title: Resource Key
+        access:
+          $ref: '#/components/schemas/_Access'
+        param_binding:
+          anyOf:
+          - type: string
+            maxLength: 256
+          - type: 'null'
+          title: Param Binding
+      additionalProperties: false
+      type: object
+      required:
+      - role_id
+      - resource_type
+      - resource_key
+      - access
+      title: CreateRequest
+    _ResourceType:
+      type: string
+      enum:
+      - integration_endpoint
+      - skill
+      - kb_scope
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    RoleGrantItem:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        role_id:
+          type: string
+          format: uuid
+          title: Role Id
+        resource_type:
+          $ref: '#/components/schemas/_ResourceType'
+        resource_key:
+          type: string
+          title: Resource Key
+        access:
+          $ref: '#/components/schemas/_Access'
+        param_binding:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Param Binding
+        status:
+          type: string
+          enum:
+          - active
+          - superseded
+          title: Status
+        changed_by:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Changed By
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+      type: object
+      required:
+      - id
+      - role_id
+      - resource_type
+      - resource_key
+      - access
+      - status
+      - created_at
+      title: RoleGrantItem
+    src__routes__role_grants__ListResponse:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/RoleGrantItem'
+          type: array
+          title: Items
+        has_more:
+          type: boolean
+          title: Has More
+        continuation_token:
+          title: Continuation Token
+      type: object
+      required:
+      - items
+      - has_more
+      title: ListResponse
+  securitySchemes:
+    Bearer-Authorization:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Amigo issued JWT token that identifies an user. It's issued either after logging in through the frontend, or manually through the [`SignInWithAPIKey`](sign-in-with-api-key) endpoint.
+    Bearer-Authorization-Organization:
+      type: apiKey
+      in: header
+      name: X-ORG-ID
+      description: An optional organization identifier that indicates from which organization the token is issued. This is used in rare cases where the user to authenticate is making a request for resources in another organization.
+    Basic:
+      type: http
+      scheme: basic
+      description: The username should be set to {org_id}_{user_id}, and the password should be the Amigo issued JWT token that identifies the user.
