@@ -1,0 +1,44 @@
+generated: '2026-07-17'
+method: searched
+source:
+  - https://api.platform.amigo.ai/.well-known/openid-configuration
+  - https://docs.amigo.ai/operations-and-safety/compliance.md
+  - openapi/amigo-platform-openapi-original.json
+standards:
+  - id: oauth2
+    conforms: true
+    evidence: Platform API supports OAuth2 client_credentials (M2M); token endpoint and 53 scopes published.
+  - id: oidc-discovery
+    conforms: true
+    evidence: /.well-known/openid-configuration served at api.platform.amigo.ai (issuer identity.platform.amigo.ai).
+  - id: oauth-device-code
+    conforms: true
+    evidence: grant_types_supported includes urn:ietf:params:oauth:grant-type:device_code with a device_authorization_endpoint.
+  - id: openapi-3.1
+    conforms: true
+    evidence: Both Classic and Platform specs declare openapi 3.1.0.
+  - id: fhir
+    conforms: true
+    evidence: Platform API exposes an FHIR tag/resource surface for EHR interoperability.
+  - id: rfc9457-problem-details
+    conforms: false
+    evidence: Errors use FastAPI HTTPValidationError JSON, not application/problem+json.
+  - id: webhooks
+    conforms: true
+    evidence: Classic API provides webhook destinations with HMAC signature verification and secret rotation.
+  - id: soc2-type-ii
+    conforms: true
+    evidence: Docs state SOC 2 Type II certification for regulated healthcare environments.
+  - id: hipaa
+    conforms: true
+    evidence: HIPAA isolation, PHI access logging, and HITRUST/HIPAA-compliant intake documented.
+  - id: hitrust
+    conforms: true
+    evidence: Customer data intake documented as HITRUST/HIPAA-compliant.
+  - id: gdpr
+    conforms: true
+    evidence: Multi-region data residency and data sovereignty controls documented.
+compliance_program:
+  certifications: [SOC 2 Type II, HIPAA, HITRUST, GDPR]
+  docs: https://docs.amigo.ai/operations-and-safety/compliance.md
+  trust_center: https://trust.amigo.ai

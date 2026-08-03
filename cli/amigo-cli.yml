@@ -1,0 +1,37 @@
+generated: '2026-07-17'
+method: searched
+source: https://docs.amigo.ai/reference/agent-forge.md
+name: Agent Forge
+binary: forge
+description: >-
+  First-party CLI for syncing, versioning, validating, and promoting Amigo agent
+  configurations across staging and production. Ships as a self-contained Go
+  binary (recommended) and a legacy Python build.
+install:
+  - method: go-binary
+    command: curl -fsSL https://forge.platform.amigo.ai/install.sh | sh
+    note: Detects OS/arch (macOS Intel/Apple Silicon, Linux amd64/arm64), verifies SHA256, adds to PATH.
+    recommended: true
+  - method: python-legacy
+    command: poetry install && poetry run forge ...
+    note: Requires Python 3.13 and Poetry 2.x; also supports Classic API operations.
+command_groups:
+  - group: forge auth
+    purpose: Authentication and credentials management.
+  - group: forge validate
+    purpose: Pre-push validation of entity configurations.
+  - group: forge platform
+    purpose: Core agent building — agents, context graphs, services, skills.
+  - group: forge platform sim
+    purpose: Voice simulation and VoiceSim tuning.
+  - group: forge platform conversation
+    purpose: Text conversation testing.
+  - group: forge platform tool-test
+    purpose: Context graph tool validation.
+  - group: forge platform function
+    purpose: Platform function management.
+  - group: forge platform triggers
+    purpose: Scheduled action automation.
+notes: >-
+  The Go build focuses on Platform API workflows; the legacy Python build adds
+  Classic API operations. The binary itself is catalogued in packages/amigo-packages.yml.

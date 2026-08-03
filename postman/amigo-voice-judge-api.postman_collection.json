@@ -1,0 +1,337 @@
+{
+  "info": {
+    "_postman_id": "bff9037b-d21f-451e-aaeb-0e75134b7b2c",
+    "name": "Amigo Account Voice Judge API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "createdAt": "2026-07-28T01:03:02.000Z",
+    "updatedAt": "2026-07-28T01:03:02.000Z",
+    "lastUpdatedBy": "35240",
+    "uid": "35240-bff9037b-d21f-451e-aaeb-0e75134b7b2c"
+  },
+  "item": [
+    {
+      "name": "v1",
+      "item": [
+        {
+          "name": "{workspace_id}",
+          "item": [
+            {
+              "name": "services",
+              "item": [
+                {
+                  "name": "{service_id}",
+                  "item": [
+                    {
+                      "name": "voice-judge",
+                      "item": [
+                        {
+                          "name": "recent",
+                          "item": [
+                            {
+                              "name": "Recent voice-judge results for a service",
+                              "id": "be184129-73f9-4ae1-b753-d08850d371a3",
+                              "protocolProfileBehavior": {
+                                "disableBodyPruning": true
+                              },
+                              "request": {
+                                "method": "GET",
+                                "header": [
+                                  {
+                                    "key": "Accept",
+                                    "value": "application/json"
+                                  }
+                                ],
+                                "url": {
+                                  "raw": "{{baseUrl}}/v1/:workspace_id/services/:service_id/voice-judge/recent?limit=20&offset=0",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "v1",
+                                    ":workspace_id",
+                                    "services",
+                                    ":service_id",
+                                    "voice-judge",
+                                    "recent"
+                                  ],
+                                  "query": [
+                                    {
+                                      "description": "Max rows to return (default 20, max 100)",
+                                      "key": "limit",
+                                      "value": "20"
+                                    },
+                                    {
+                                      "description": "Offset for pagination (default 0)",
+                                      "key": "offset",
+                                      "value": "0"
+                                    }
+                                  ],
+                                  "variable": [
+                                    {
+                                      "id": "dab67a69-415c-4b0e-adc4-e1324d256a64",
+                                      "key": "workspace_id",
+                                      "value": "<uuid>",
+                                      "description": "(Required) "
+                                    },
+                                    {
+                                      "id": "bc7e0350-24a9-4d3a-925e-b53ecc3063dc",
+                                      "key": "service_id",
+                                      "value": "<uuid>",
+                                      "description": "(Required) Service UUID"
+                                    }
+                                  ]
+                                },
+                                "description": "Returns the most recent per-call voice-judge scores for one service, ordered newest first. Produced by the Databricks `voice_judge` job (stereo audio \u2192 Gemini 2.5 Flash \u2192 10-dimension rubric). Used by the Agent Readiness page to populate Voice Quality criterion cards.\n\n**Latency**: 500ms-2s (reads from analytics warehouse, not OLTP).\n\n**Default limit**: 20. Max 100."
+                              },
+                              "response": [
+                                {
+                                  "id": "f779f497-5075-46a8-ac17-734044902449",
+                                  "name": "Voice judge rows (newest first)",
+                                  "originalRequest": {
+                                    "method": "GET",
+                                    "header": [
+                                      {
+                                        "key": "Accept",
+                                        "value": "application/json"
+                                      },
+                                      {
+                                        "description": "Added as a part of security scheme: bearer",
+                                        "key": "Authorization",
+                                        "value": "Bearer <token>"
+                                      }
+                                    ],
+                                    "url": {
+                                      "raw": "{{baseUrl}}/v1/:workspace_id/services/:service_id/voice-judge/recent?limit=20&offset=0",
+                                      "host": [
+                                        "{{baseUrl}}"
+                                      ],
+                                      "path": [
+                                        "v1",
+                                        ":workspace_id",
+                                        "services",
+                                        ":service_id",
+                                        "voice-judge",
+                                        "recent"
+                                      ],
+                                      "query": [
+                                        {
+                                          "description": "Max rows to return (default 20, max 100)",
+                                          "key": "limit",
+                                          "value": "20"
+                                        },
+                                        {
+                                          "description": "Offset for pagination (default 0)",
+                                          "key": "offset",
+                                          "value": "0"
+                                        }
+                                      ],
+                                      "variable": [
+                                        {
+                                          "key": "workspace_id"
+                                        },
+                                        {
+                                          "key": "service_id"
+                                        }
+                                      ]
+                                    }
+                                  },
+                                  "status": "OK",
+                                  "code": 200,
+                                  "_postman_previewlanguage": "json",
+                                  "header": [
+                                    {
+                                      "key": "Content-Type",
+                                      "value": "application/json"
+                                    }
+                                  ],
+                                  "cookie": [],
+                                  "responseTime": null,
+                                  "body": "{\n  \"service_id\": \"<uuid>\",\n  \"count\": \"<integer>\",\n  \"items\": [\n    {\n      \"call_sid\": \"<string>\",\n      \"call_entity_id\": \"<uuid>\",\n      \"service_id\": \"<uuid>\",\n      \"latency_dead_air_score\": \"<number>\",\n      \"pronunciation_score\": \"<number>\",\n      \"clarity_score\": \"<number>\",\n      \"filler_silence_score\": \"<number>\",\n      \"interruption_handling_score\": \"<number>\",\n      \"audio_consistency_score\": \"<number>\",\n      \"pacing_score\": \"<number>\",\n      \"warmth_tone_score\": \"<number>\",\n      \"accent_quality_score\": \"<number>\",\n      \"voice_identity_score\": \"<number>\",\n      \"overall_score\": \"<number>\",\n      \"critical_count\": \"<integer>\",\n      \"flag_count\": \"<integer>\",\n      \"warning_count\": \"<integer>\",\n      \"judge_json\": \"<string>\",\n      \"computed_at\": \"<dateTime>\"\n    },\n    {\n      \"call_sid\": \"<string>\",\n      \"call_entity_id\": \"<uuid>\",\n      \"service_id\": \"<uuid>\",\n      \"latency_dead_air_score\": \"<number>\",\n      \"pronunciation_score\": \"<number>\",\n      \"clarity_score\": \"<number>\",\n      \"filler_silence_score\": \"<number>\",\n      \"interruption_handling_score\": \"<number>\",\n      \"audio_consistency_score\": \"<number>\",\n      \"pacing_score\": \"<number>\",\n      \"warmth_tone_score\": \"<number>\",\n      \"accent_quality_score\": \"<number>\",\n      \"voice_identity_score\": \"<number>\",\n      \"overall_score\": \"<number>\",\n      \"critical_count\": \"<integer>\",\n      \"flag_count\": \"<integer>\",\n      \"warning_count\": \"<integer>\",\n      \"judge_json\": \"<string>\",\n      \"computed_at\": \"<dateTime>\"\n    }\n  ]\n}",
+                                  "createdAt": "2026-07-28T01:03:03.000Z",
+                                  "updatedAt": "2026-07-28T01:03:03.000Z",
+                                  "uid": "35240-f779f497-5075-46a8-ac17-734044902449"
+                                },
+                                {
+                                  "id": "8aa7c179-9c09-4efe-bc0b-65bcd4ac3425",
+                                  "name": "Validation Error",
+                                  "originalRequest": {
+                                    "method": "GET",
+                                    "header": [
+                                      {
+                                        "key": "Accept",
+                                        "value": "application/json"
+                                      },
+                                      {
+                                        "description": "Added as a part of security scheme: bearer",
+                                        "key": "Authorization",
+                                        "value": "Bearer <token>"
+                                      }
+                                    ],
+                                    "url": {
+                                      "raw": "{{baseUrl}}/v1/:workspace_id/services/:service_id/voice-judge/recent?limit=20&offset=0",
+                                      "host": [
+                                        "{{baseUrl}}"
+                                      ],
+                                      "path": [
+                                        "v1",
+                                        ":workspace_id",
+                                        "services",
+                                        ":service_id",
+                                        "voice-judge",
+                                        "recent"
+                                      ],
+                                      "query": [
+                                        {
+                                          "description": "Max rows to return (default 20, max 100)",
+                                          "key": "limit",
+                                          "value": "20"
+                                        },
+                                        {
+                                          "description": "Offset for pagination (default 0)",
+                                          "key": "offset",
+                                          "value": "0"
+                                        }
+                                      ],
+                                      "variable": [
+                                        {
+                                          "key": "workspace_id"
+                                        },
+                                        {
+                                          "key": "service_id"
+                                        }
+                                      ]
+                                    }
+                                  },
+                                  "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+                                  "code": 422,
+                                  "_postman_previewlanguage": "json",
+                                  "header": [
+                                    {
+                                      "key": "Content-Type",
+                                      "value": "application/json"
+                                    }
+                                  ],
+                                  "cookie": [],
+                                  "responseTime": null,
+                                  "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"msg\": \"<string>\",\n      \"type\": \"<string>\",\n      \"input\": {\n        \"title\": \"Input\"\n      },\n      \"ctx\": {}\n    },\n    {\n      \"loc\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"msg\": \"<string>\",\n      \"type\": \"<string>\",\n      \"input\": {\n        \"title\": \"Input\"\n      },\n      \"ctx\": {}\n    }\n  ]\n}",
+                                  "createdAt": "2026-07-28T01:03:03.000Z",
+                                  "updatedAt": "2026-07-28T01:03:03.000Z",
+                                  "uid": "35240-8aa7c179-9c09-4efe-bc0b-65bcd4ac3425"
+                                },
+                                {
+                                  "id": "d946bd05-37e5-4b5f-87ef-fbff14592eb5",
+                                  "name": "Analytics warehouse not configured or transiently unavailable",
+                                  "originalRequest": {
+                                    "method": "GET",
+                                    "header": [
+                                      {
+                                        "description": "Added as a part of security scheme: bearer",
+                                        "key": "Authorization",
+                                        "value": "Bearer <token>"
+                                      }
+                                    ],
+                                    "url": {
+                                      "raw": "{{baseUrl}}/v1/:workspace_id/services/:service_id/voice-judge/recent?limit=20&offset=0",
+                                      "host": [
+                                        "{{baseUrl}}"
+                                      ],
+                                      "path": [
+                                        "v1",
+                                        ":workspace_id",
+                                        "services",
+                                        ":service_id",
+                                        "voice-judge",
+                                        "recent"
+                                      ],
+                                      "query": [
+                                        {
+                                          "description": "Max rows to return (default 20, max 100)",
+                                          "key": "limit",
+                                          "value": "20"
+                                        },
+                                        {
+                                          "description": "Offset for pagination (default 0)",
+                                          "key": "offset",
+                                          "value": "0"
+                                        }
+                                      ],
+                                      "variable": [
+                                        {
+                                          "key": "workspace_id"
+                                        },
+                                        {
+                                          "key": "service_id"
+                                        }
+                                      ]
+                                    }
+                                  },
+                                  "status": "Service Unavailable",
+                                  "code": 503,
+                                  "_postman_previewlanguage": "text",
+                                  "header": [],
+                                  "cookie": [],
+                                  "responseTime": null,
+                                  "body": null,
+                                  "createdAt": "2026-07-28T01:03:03.000Z",
+                                  "updatedAt": "2026-07-28T01:03:03.000Z",
+                                  "uid": "35240-d946bd05-37e5-4b5f-87ef-fbff14592eb5"
+                                }
+                              ],
+                              "createdAt": "2026-07-28T01:03:03.000Z",
+                              "updatedAt": "2026-07-28T01:03:03.000Z",
+                              "uid": "35240-be184129-73f9-4ae1-b753-d08850d371a3"
+                            }
+                          ],
+                          "id": "3fd09544-fb0c-49c8-b5d4-939de2679417",
+                          "createdAt": "2026-07-28T01:03:03.000Z",
+                          "updatedAt": "2026-07-28T01:03:03.000Z",
+                          "uid": "35240-3fd09544-fb0c-49c8-b5d4-939de2679417"
+                        }
+                      ],
+                      "id": "371dd645-e5af-4546-a6cb-bca8c9a36f9a",
+                      "createdAt": "2026-07-28T01:03:03.000Z",
+                      "updatedAt": "2026-07-28T01:03:03.000Z",
+                      "uid": "35240-371dd645-e5af-4546-a6cb-bca8c9a36f9a"
+                    }
+                  ],
+                  "id": "b2caf31e-3f52-40d2-afdc-d74cefe9deea",
+                  "createdAt": "2026-07-28T01:03:03.000Z",
+                  "updatedAt": "2026-07-28T01:03:03.000Z",
+                  "uid": "35240-b2caf31e-3f52-40d2-afdc-d74cefe9deea"
+                }
+              ],
+              "id": "8434a0d6-e2f6-455d-bc51-6dd35c89c56d",
+              "createdAt": "2026-07-28T01:03:03.000Z",
+              "updatedAt": "2026-07-28T01:03:03.000Z",
+              "uid": "35240-8434a0d6-e2f6-455d-bc51-6dd35c89c56d"
+            }
+          ],
+          "id": "cd4e6628-6dcc-465c-8a91-a5b7d36d93ae",
+          "createdAt": "2026-07-28T01:03:03.000Z",
+          "updatedAt": "2026-07-28T01:03:03.000Z",
+          "uid": "35240-cd4e6628-6dcc-465c-8a91-a5b7d36d93ae"
+        }
+      ],
+      "id": "9a9099af-061c-4428-bcdc-fe842a99e949",
+      "createdAt": "2026-07-28T01:03:03.000Z",
+      "updatedAt": "2026-07-28T01:03:03.000Z",
+      "uid": "35240-9a9099af-061c-4428-bcdc-fe842a99e949"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{bearerToken}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://api.amigo.ai"
+    }
+  ]
+}

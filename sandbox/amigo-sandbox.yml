@@ -1,0 +1,31 @@
+generated: '2026-07-17'
+method: searched
+source:
+  - https://docs.amigo.ai/reference/agent-forge.md
+  - https://docs.amigo.ai/platform-overview/deployment-model.md
+  - openapi/amigo-platform-openapi-original.json
+environments:
+  model: >-
+    Amigo separates staging and production environments. Agent and service
+    configurations are validated then promoted from staging to production via
+    the Agent Forge CLI (forge validate / forge platform promote). Workspaces
+    can be converted between environment types.
+  operations:
+    - check-environment-conversion (GET /v1/workspaces/{workspace_id}/environment-check)
+    - convert-workspace-environment (POST /v1/workspaces/{workspace_id}/convert-environment)
+test_data:
+  test_caller_numbers:
+    operation: get-test-caller-numbers (GET /v1/workspaces/{workspace_id}/test-caller-numbers)
+    note: >-
+      The Platform API exposes workspace-specific test caller phone numbers for
+      exercising voice/telephony flows without live calls. Values are
+      workspace-scoped and returned by the API — not published as fixed magic
+      numbers, so none are hard-coded here.
+  voice_simulation:
+    tool: forge platform sim (VoiceSim)
+    note: Simulated patient interactions and voice simulation for testing agents.
+    docs: https://docs.amigo.ai/developer-guide/classic-api/core-api/simulations/simulation-personas.md
+notes: >-
+  Amigo's testing model is simulation-first ("Digital Residency"): agents are
+  trained and evaluated against simulated patient personas before promotion.
+  No static test card/token fixtures are published (not a payments provider).

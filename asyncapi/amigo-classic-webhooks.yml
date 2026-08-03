@@ -1,0 +1,40 @@
+generated: '2026-07-17'
+method: searched
+type: Webhooks
+source:
+  - https://docs.amigo.ai/developer-guide/classic-api/webhooks.md
+  - https://docs.amigo.ai/developer-guide/classic-api/webhooks/webhook-events.md
+  - openapi/amigo-classic-openapi-original.json
+description: >-
+  The Amigo Classic API delivers events to configured webhook destinations with
+  HMAC signature verification and rotatable signing secrets. No AsyncAPI document
+  is published; this captures the webhook catalog and management surface.
+management_operations:
+  - operationId: create-webhook-destination
+    method: POST
+    path: /v1/{organization}/webhook_destination/
+  - operationId: get_webhook_destinations
+    method: GET
+    path: /v1/{organization}/webhook_destination/
+  - operationId: update-webhook-destination
+    method: POST
+    path: /v1/{organization}/webhook_destination/{webhook_destination_id}
+  - operationId: delete-webhook-destination
+    method: DELETE
+    path: /v1/{organization}/webhook_destination/{webhook_destination_id}
+  - operationId: rotate-webhook-destination-secret
+    method: POST
+    path: /v1/{organization}/webhook_destination/{webhook_destination_id}/rotate-secret
+  - operationId: get-webhook-deliveries
+    method: GET
+    path: /v1/{organization}/webhook_destination/{webhook_destination_id}/delivery
+event_types:
+  - name: api-key-expiration-soon
+    description: An organization API key is approaching expiration.
+  - name: conversation-post-processing-complete
+    description: Post-processing for a conversation has finished.
+  - name: agent-framework-resource-updated
+    description: An agent-framework resource has been updated.
+security:
+  signature: HMAC signature verification with a per-destination signing secret.
+  secret_rotation: Supported via rotate-webhook-destination-secret.

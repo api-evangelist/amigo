@@ -1,0 +1,311 @@
+# Amigo Documentation
+
+## Concepts
+
+- [Welcome](https://docs.amigo.ai/readme.md): Healthcare AI platform with an event-sourced data foundation, multi-channel agent engine, EHR connectors, and operator workflows.
+- [What Amigo Does](https://docs.amigo.ai/platform-overview/what-amigo-does.md): A concrete scenario showing what Amigo does - from patient contact to verified EHR writeback - and why the data foundation matters.
+- [How It Works](https://docs.amigo.ai/platform-overview/how-it-works.md): Walk through a complete interaction lifecycle from patient contact to post-call analysis, mapping each step to real system components.
+- [Design Principles](https://docs.amigo.ai/platform-overview/design-principles.md): Four engineering principles that guide every architecture decision - measurement-first, composable, risk-calibrated, and goal-oriented.
+- [Deployment Model](https://docs.amigo.ai/platform-overview/deployment-model.md): Phased rollout from baseline parity to proven improvement, plus version sets, runtime release management, multi-workspace tenancy, and channel tagging.
+- [Data Residency](https://docs.amigo.ai/platform-overview/data-residency.md): Multi-region deployment options and data sovereignty controls for healthcare compliance.
+- [Cost and Latency Optimization](https://docs.amigo.ai/platform-overview/cost-and-latency.md): How prompt caching, model routing, and pipeline design keep costs low and responses fast.
+- [Agent Core](https://docs.amigo.ai/agent/agents.md): The agent core provides the interpretive framework for measurements, shaping how domain expertise drives conversation behavior.
+- [Reasoning Engine](https://docs.amigo.ai/agent/reasoning-engine.md): The modality-independent reasoning core that processes signals and emits effects, powering voice, text, simulation, and API agent interactions through a unified pipeline.
+- [Context Graphs](https://docs.amigo.ai/agent/context-graphs.md): Structured state machines that define conversation flow, decision points, and safety boundaries for agent workflows.
+- [Memory](https://docs.amigo.ai/agent/memory.md): A hierarchical memory system that maintains enough context for critical enterprise decisions
+- [Clinical Tools](https://docs.amigo.ai/agent/clinical-tools.md): Built-in clinical data capabilities for patient lookup, scheduling, insurance, and outbound management.
+- [Platform Functions](https://docs.amigo.ai/agent/platform-functions.md): The universal tool primitive - SQL, AI, Python, and table-valued functions that give agents direct access to world model data and analytics during conversations.
+- [Continuous Improvement](https://docs.amigo.ai/agent/pattern-discovery-and-reuse.md): How the platform automatically identifies what works, tests improvements, and compounds performance gains across every interaction.
+- [Overview](https://docs.amigo.ai/channels/conversations.md): A single reasoning engine powers voice calls, text conversations, email, and web-based data collection - same context graphs, same tools, same safety rules across every channel.
+- [Phone](https://docs.amigo.ai/channels/voice.md): Real-time phone-based conversations with conference-first architecture, emotion detection, and adaptive voice delivery.
+- [Audio Pipeline](https://docs.amigo.ai/channels/voice/audio-pipeline.md): How speech recognition, emotion detection, filler speech, barge-in detection, and TTS work together in real time.
+- [Emotion Detection](https://docs.amigo.ai/channels/voice/emotion-detection.md): Prosody, vocal burst, and language analysis track caller emotional state in real time, with per-caller normalization, context fusion, and compound emotion resolution.
+- [Compound Emotions](https://docs.amigo.ai/channels/voice/compound-emotions.md): Turn-gated compound emotions derived from acoustic, linguistic, behavioral, and contextual evidence using Plutchik's dyad algebra and temporal trajectory analysis.
+- [Call Recordings](https://docs.amigo.ai/channels/voice/recordings.md): Dual-channel stereo recording with tiered storage and secure playback access.
+- [Text Sessions](https://docs.amigo.ai/channels/text-sessions.md): Multi-turn text conversations over SMS, WhatsApp, iMessage, and WebSocket - same reasoning engine, context graphs, and safety boundaries as voice calls.
+- [SMS](https://docs.amigo.ai/channels/sms.md): SMS channel for outbound and inbound text messaging through provisioned phone numbers.
+- [WhatsApp](https://docs.amigo.ai/channels/whatsapp.md): Inbound WhatsApp messages follow the same durable text session path as all other text channels, with conversations keyed on the customer and agent phone pair.
+- [iMessage](https://docs.amigo.ai/channels/imessage.md): iMessage channel for patient communication through Apple's messaging platform.
+- [Email](https://docs.amigo.ai/channels/email.md): Email channel with domain verification, inbound reply handling, thread continuity, and transactional and marketing use cases.
+- [Voicemail](https://docs.amigo.ai/channels/voicemail.md): Ringless voicemail delivery for non-intrusive outreach like appointment reminders and follow-up notifications.
+- [Surfaces](https://docs.amigo.ai/channels/surfaces.md): Agent-generated data collection interfaces delivered to patients via email or web - with optional form templates and calendar booking.
+- [Outbound](https://docs.amigo.ai/channels/outbound.md): Platform-initiated outbound contact driven by clinical rules, care plans, agent decisions, and direct API calls - with full lifecycle tracking in the world model.
+- [World Model](https://docs.amigo.ai/data/world-model.md): Event-sourced data store that ingests healthcare data from any source, scores it by confidence, and projects clean entity state.
+- [Connectors and EHR](https://docs.amigo.ai/data/connectors-and-ehr.md): Bidirectional data pipeline that syncs healthcare systems, FHIR stores, CRMs, and other external sources with the world model.
+- [Customer Data Intake](https://docs.amigo.ai/data/customer-data-intake.md): HITRUST/HIPAA-compliant upload channel for customers to stream PHI documents directly into the workspace, where they are logged, retained, and projected as signal events for downstream pipelines.
+- [Workspaces](https://docs.amigo.ai/data/workspaces.md): Tenant isolation boundaries with separate world models, data sources, voice configs, and role-based access control.
+- [Review Queue](https://docs.amigo.ai/data/review-queue.md): Human review workflow for flagged events with approve, reject, and correct actions.
+- [Data Access (MCP)](https://docs.amigo.ai/data/data-mcp.md): MCP server that exposes workspace data through SQL query tools for use with any MCP-compatible client.
+- [Operators and Escalation](https://docs.amigo.ai/operations-and-safety/operators.md): Human operators monitor live interactions, take over when needed, and hand control back to the agent. Conference-based escalation with zero disruption.
+- [Runtime Safety](https://docs.amigo.ai/operations-and-safety/runtime-safety.md): Real-time conversation monitoring, regulatory triage, risk scoring, and deployment validation that prevent harm structurally rather than reactively.
+- [Compliance and Audit](https://docs.amigo.ai/operations-and-safety/compliance.md): Authentication, access control, audit trails, HIPAA isolation, confidence gates, and SOC 2 Type II certification for regulated healthcare environments.
+- [Intelligence Overview](https://docs.amigo.ai/intelligence-and-analytics/intelligence.md): What the intelligence layer provides - per-call intelligence and quality scoring, workspace analytics and dashboards, and the config-driven metric store.
+- [Call Intelligence](https://docs.amigo.ai/intelligence-and-analytics/intelligence/call-intelligence.md): How Amigo scores every interaction - real-time profiles, post-call quality dimensions, the audio-native Voice Judge, decision traces, and playback timelines.
+- [Analytics and Dashboards](https://docs.amigo.ai/intelligence-and-analytics/intelligence/analytics-dashboards.md): Workspace-level analytics for call quality, pipeline health, data quality, and entities - plus built-in and embeddable dashboards and the Insights Agent.
+- [Proactive Journeys](https://docs.amigo.ai/intelligence-and-analytics/intelligence/proactive-journeys.md): Sample-data preview of proactive journey observability covering signal, outreach, conversation, evaluation, and outcome evidence.
+- [Metric Store](https://docs.amigo.ai/intelligence-and-analytics/metric-store.md): Config-driven metric infrastructure - 41 built-in metrics across six categories, custom AI-powered metrics, per-metric latency tiers, and freshness SLAs across all channels.
+- [Testing Overview](https://docs.amigo.ai/testing/testing.md): Simulations, playground testing, voice simulation, metrics, and drift detection form a continuous loop for verifying agent behavior before and after deployment.
+- [Simulations](https://docs.amigo.ai/testing/testing/simulations.md): Test agents against synthetic personas and scenarios with frozen world model snapshots and boundary-isolated integration stubs.
+- [Playground and Interactive Testing](https://docs.amigo.ai/testing/testing/playground.md): Test agents interactively in the Developer Console playground - voice, text, and streaming modes, isolated tool testing, call timelines, and test traffic rules.
+- [Voice Simulation](https://docs.amigo.ai/testing/testing/voice-simulation.md): Explore the voice configuration space systematically to find optimal settings for barge-in, speed, empathy, safety, and other voice parameters.
+- [Metrics and Quality](https://docs.amigo.ai/testing/testing/metrics.md): Configure multi-objective scoring across safety, accuracy, empathy, and domain-specific dimensions with hard gates and soft targets.
+- [Drift Detection](https://docs.amigo.ai/testing/testing/drift-detection.md): Detect gradual performance degradation through metric tracking across cohorts, blueprint comparison, and automatic rollback triggers.
+- [Healthcare Overview](https://docs.amigo.ai/use-cases/use-cases.md): Healthcare-specific workflows showing how the agent engine, world model, and EHR integration come together in production.
+- [Patient Scheduling and Outreach](https://docs.amigo.ai/use-cases/use-cases/scheduling-outreach.md): End-to-end patient scheduling and outbound outreach workflow - from EHR data loading through interaction completion and writeback.
+- [Care Coordination](https://docs.amigo.ai/use-cases/use-cases/care-coordination.md): Multi-encounter care coordination with cross-session memory, world model data unification, and personalized patient interactions.
+- [Clinical Verification](https://docs.amigo.ai/use-cases/use-cases/clinical-verification.md): How to verify clinical safety using simulation scenarios, metric-based quality gates, and structured human review workflows.
+- [Population Health](https://docs.amigo.ai/use-cases/use-cases/population-health.md): Risk stratification, prediction, and evidence-based outreach using population-level clinical and sociodemographic data.
+- [Healthcare Contact Center](https://docs.amigo.ai/use-cases/use-cases/contact-center.md): How an AI-first patient communication platform replaces the traditional contact center stack.
+- [Glossary](https://docs.amigo.ai/reference/glossary.md): Definitions of key platform terms - from acceptance regions and actions to world model and workspaces.
+- [API Terminology Mapping](https://docs.amigo.ai/reference/api-terminology-mapping.md): Map between conceptual documentation names and API endpoint paths, SDK resources, and streaming event types.
+- [Agent Forge CLI](https://docs.amigo.ai/reference/agent-forge.md): CLI tool for syncing, versioning, and promoting agent configurations across staging and production environments. Ships as two builds - the current Go binary and the legacy Python CLI.
+- [Performance Characteristics](https://docs.amigo.ai/reference/performance.md): Latency, throughput, and capacity numbers for voice pipeline, connector runner, and emotion detection.
+
+## Developer Guide
+
+- [Welcome](https://docs.amigo.ai/developer-guide/readme.md): Get started with the Amigo AI platform APIs: Classic for text-based digital health, Platform for enterprise voice and healthcare.
+- [Getting Started](https://docs.amigo.ai/developer-guide/getting-started.md): Prerequisites, core documentation links, and quick start paths for both Classic and Platform APIs.
+- [Core Concepts](https://docs.amigo.ai/developer-guide/getting-started/core-concepts.md): Understand the building blocks of both APIs: users, services, conversations, tools, workspaces, and skills.
+- [Authentication](https://docs.amigo.ai/developer-guide/getting-started/authentication.md): Set up API key authentication and understand the two auth methods for Classic and Platform APIs.
+- [Regions & Endpoints](https://docs.amigo.ai/developer-guide/getting-started/regions-and-endpoints.md): Configure regional base URLs for both APIs, LLM availability by region, and dedicated cluster headers.
+- [Guides](https://docs.amigo.ai/developer-guide/guides.md): End-to-end playbooks for building production agents on the Amigo platform.
+- [Build a KB Agent End to End](https://docs.amigo.ai/developer-guide/guides/build-a-kb-agent-end-to-end.md): Build a role-scoped knowledge-base agent end to end: load your data, assign roles, build the agent, test it, and manage it over time.
+- [KB Agent: Retrieval & Build Methodology](https://docs.amigo.ai/developer-guide/guides/building-a-knowledge-base-agent.md): How to choose a retrieval architecture for a knowledge-base agent, and a measurement-driven process for building one.
+- [Classic API](https://docs.amigo.ai/developer-guide/classic-api/core-api.md): Classic API reference for text-based conversations, user management, tools, simulations, and metrics.
+- [Organization](https://docs.amigo.ai/developer-guide/classic-api/core-api/organization.md): Create, modify, and delete organizations. Manage user dimensions and branding configuration.
+- [Agents & Context Graphs](https://docs.amigo.ai/developer-guide/classic-api/core-api/agents-and-context-graphs.md): Define agent personas and versioned context graphs (state machines) that power conversation flows.
+- [Users](https://docs.amigo.ai/developer-guide/classic-api/core-api/users.md): Create, list, update, and delete users. Manage variables, memories, and authentication tokens.
+- [User Models](https://docs.amigo.ai/developer-guide/classic-api/core-api/users/user-models.md): Read and update Amigo-managed user models with additional context from your systems.
+- [Services](https://docs.amigo.ai/developer-guide/classic-api/core-api/services.md): Discover, create, and manage services with version sets, dynamic behaviors, and deployment routing.
+- [Conversations](https://docs.amigo.ai/developer-guide/classic-api/core-api/conversations.md): Core conversation API for creating, interacting with, and managing AI-powered conversations.
+- [Create](https://docs.amigo.ai/developer-guide/classic-api/core-api/conversations/conversations-create.md): Initialize conversations with agent-first, user-first, or external-event message types.
+- [Interact](https://docs.amigo.ai/developer-guide/classic-api/core-api/conversations/conversations-interact.md): Send user messages to active conversations and process streaming NDJSON responses.
+- [Events](https://docs.amigo.ai/developer-guide/classic-api/core-api/conversations/conversations-events.md): NDJSON event types for conversation streams: messages, actions, errors, and audio fillers.
+- [Lifecycle & Finish](https://docs.amigo.ai/developer-guide/classic-api/core-api/conversations/conversations-lifecycle.md): Manage conversation states, finish sessions manually or automatically, and handle dangling conversations.
+- [Starters](https://docs.amigo.ai/developer-guide/classic-api/core-api/conversations/conversations-starters.md): Generate contextual conversation starter prompts for UI widgets and onboarding flows.
+- [Voice](https://docs.amigo.ai/developer-guide/classic-api/core-api/conversations/conversations-voice.md): Voice note exchange over HTTP and real-time WebSocket voice with audio filler management.
+- [Real-time Voice (WebSocket)](https://docs.amigo.ai/developer-guide/classic-api/core-api/conversations/conversations-realtime.md): WebSocket API for low-latency bidirectional voice with VAD, interruption, and streaming TTS.
+- [External Events & Multi-Stream (WebSocket)](https://docs.amigo.ai/developer-guide/classic-api/core-api/conversations/conversations-realtime-external-events.md): Send external events alongside user input on WebSocket connections for multi-stream apps.
+- [Conversation History](https://docs.amigo.ai/developer-guide/classic-api/core-api/conversations/conversation-history.md): Retrieve conversation history, messages, audio sources, tags, response recommendations, and insights.
+- [Tools](https://docs.amigo.ai/developer-guide/classic-api/core-api/tools.md): Create, publish, version, and invoke organization-scoped tools with environment variables and Git integration.
+- [Metrics](https://docs.amigo.ai/developer-guide/classic-api/core-api/metrics.md): Define and evaluate conversation quality metrics (boolean, numerical, or categorical) with automated scoring.
+- [Simulations](https://docs.amigo.ai/developer-guide/classic-api/core-api/simulations.md): Automated agent testing with personas, scenarios, unit tests, and configurable success criteria.
+- [Personas](https://docs.amigo.ai/developer-guide/classic-api/core-api/simulations/simulation-personas.md): Create and version simulated user profiles with background, role, and language for testing.
+- [Scenarios](https://docs.amigo.ai/developer-guide/classic-api/core-api/simulations/simulation-scenarios.md): Define conversation test scripts with objectives, instructions, and initial message types.
+- [Unit Tests](https://docs.amigo.ai/developer-guide/classic-api/core-api/simulations/simulation-unit-tests.md): Combine a persona, scenario, service, and success criteria into a single repeatable test case.
+- [Unit Test Sets](https://docs.amigo.ai/developer-guide/classic-api/core-api/simulations/simulation-unit-test-sets.md): Group unit tests into suites with configurable run counts for batch execution.
+- [Unit Test Set Runs](https://docs.amigo.ai/developer-guide/classic-api/core-api/simulations/simulation-unit-test-set-runs.md): Execute test suites, monitor progress, cancel runs, and download result artifacts.
+- [Admin](https://docs.amigo.ai/developer-guide/classic-api/core-api/admin.md): Administrative endpoints for listing available LLM models and downloading prompt logs for debugging.
+- [Classic SDKs](https://docs.amigo.ai/developer-guide/classic-api/sdks.md): Official Python and TypeScript SDKs for the Classic API with streaming, auth, and error handling.
+- [Installation](https://docs.amigo.ai/developer-guide/classic-api/sdks/sdk-installation.md): Install the Amigo SDK in Python (pip) or TypeScript (npm) with environment setup instructions.
+- [Configuration](https://docs.amigo.ai/developer-guide/classic-api/sdks/sdk-configuration.md): Configure SDK clients with API keys, regional endpoints, and environment variable support.
+- [Hello World Example](https://docs.amigo.ai/developer-guide/classic-api/sdks/sdk-hello-world.md): Create your first conversation with a step-by-step tutorial in Python and TypeScript.
+- [Error Handling](https://docs.amigo.ai/developer-guide/classic-api/sdks/sdk-error-handling.md): Handle API errors with typed exceptions, stream error events, and built-in retry logic.
+- [Data Access](https://docs.amigo.ai/developer-guide/classic-api/data-access.md): Read operational data from Amigo via SQL API (serverless) or Delta Sharing into your warehouse.
+- [SQL API (Serverless)](https://docs.amigo.ai/developer-guide/classic-api/data-access/sql-api.md): Run read-only SQL queries against organization tables over HTTPS with serverless compute.
+- [Delta Sharing](https://docs.amigo.ai/developer-guide/classic-api/data-access/delta-sharing.md): Governed, read-only table sharing into your warehouse or lakehouse via the open Delta Sharing protocol.
+- [Organization Tables & Schemas](https://docs.amigo.ai/developer-guide/classic-api/data-access/organization-tables.md): Schema reference for organization tables - conversations, users, services, tools, and more.
+- [Conversation](https://docs.amigo.ai/developer-guide/classic-api/data-access/organization-tables/conversation.md): Table schemas for conversations, messages, and extracted memories.
+- [User](https://docs.amigo.ai/developer-guide/classic-api/data-access/organization-tables/user.md): Table schema for user profiles, preferences, and dimensions.
+- [Service](https://docs.amigo.ai/developer-guide/classic-api/data-access/organization-tables/service.md): Table schema for service configurations and version sets.
+- [Organization](https://docs.amigo.ai/developer-guide/classic-api/data-access/organization-tables/organization.md): Table schema for organization details, agents, and state machines.
+- [Metric](https://docs.amigo.ai/developer-guide/classic-api/data-access/organization-tables/metric.md): Table schema for metrics and evaluation results.
+- [Role](https://docs.amigo.ai/developer-guide/classic-api/data-access/organization-tables/role.md): Table schema for roles and permission definitions.
+- [Tool](https://docs.amigo.ai/developer-guide/classic-api/data-access/organization-tables/tool.md): Table schema for tools, versions, and invocation history.
+- [Simulation](https://docs.amigo.ai/developer-guide/classic-api/data-access/organization-tables/simulation.md): Table schema for simulation personas, scenarios, unit tests, and run results.
+- [Common Query Patterns](https://docs.amigo.ai/developer-guide/classic-api/data-access/organization-tables/common-query-patterns.md): SQL examples for common analytics queries across organization tables.
+- [Webhooks](https://docs.amigo.ai/developer-guide/classic-api/webhooks.md): Configure webhook destinations, event subscriptions, signature verification, and secret rotation.
+- [Webhook Event Types](https://docs.amigo.ai/developer-guide/classic-api/webhooks/webhook-events.md): Payload reference for each Classic API webhook event type: api-key-expiration-soon, conversation-post-processing-complete, and agent-framework-resource-updated.
+- [Permissions](https://docs.amigo.ai/developer-guide/classic-api/permissions.md): Role-based access control and temporary, time-limited permission grants for Classic API users and organizations.
+- [Role-Based Permissions](https://docs.amigo.ai/developer-guide/classic-api/permissions/role-based-permissions.md): Configure and manage user roles and granular permissions via the role management APIs.
+- [Temporary Permission Grants](https://docs.amigo.ai/developer-guide/classic-api/permissions/temporary-permission-grants.md): Request time-limited, scoped access to specific conversations for debugging and QA.
+- [Platform API Overview](https://docs.amigo.ai/developer-guide/platform-api/platform-api.md): Platform API reference for voice agents, EHR integration, operators, FHIR, and safety monitoring.
+- [Authentication & API Keys](https://docs.amigo.ai/developer-guide/platform-api/platform-api/authentication.md): Workspace-scoped API key authentication, RBAC roles, and key rotation for the Platform API.
+- [OAuth2 (Machine-to-Machine)](https://docs.amigo.ai/developer-guide/platform-api/platform-api/oauth2.md): Machine-to-machine OAuth2 client credentials flow for programmatic access to the Platform API.
+- [OAuth2 Clients](https://docs.amigo.ai/developer-guide/platform-api/platform-api/oauth2-clients.md): Register and manage OAuth2 clients for machine-to-machine authentication using the client\_credentials grant.
+- [Sessions](https://docs.amigo.ai/developer-guide/platform-api/platform-api/sessions.md): Persistent WebSocket endpoint for low-latency text conversations with streamed agent responses.
+- [Pagination](https://docs.amigo.ai/developer-guide/platform-api/platform-api/pagination.md): How Platform API list endpoints paginate - continuation-token pagination for resource lists and limit/offset for analytics and audit endpoints.
+- [Health](https://docs.amigo.ai/developer-guide/platform-api/platform-api/health.md): Health check endpoints for monitoring platform subsystem status, including whether feature-flag rollouts are live.
+- [Workspaces](https://docs.amigo.ai/developer-guide/platform-api/workspaces.md): Manage workspaces: tenant isolation, voice settings, speech recognition, and test caller numbers.
+- [Agents](https://docs.amigo.ai/developer-guide/platform-api/workspaces/agents.md): Define agent identity, voice, background, and behaviors with immutable versioning in the Platform API.
+- [Skills](https://docs.amigo.ai/developer-guide/platform-api/workspaces/skills.md): Configure LLM-backed micro-agent capabilities with system prompts, schemas, and tool access.
+- [Data & World Model](https://docs.amigo.ai/developer-guide/platform-api/data-and-world-model.md)
+- [Bulk Import (Migration)](https://docs.amigo.ai/developer-guide/platform-api/data-and-world-model/bulk-import.md): Bulk-import historical conversation envelopes into the world model for self-serve migration from external systems.
+- [Services](https://docs.amigo.ai/developer-guide/platform-api/data-and-world-model/services.md): Bind agents and context graphs into deployable services with version sets and structured actions.
+- [Use Cases & Bindings](https://docs.amigo.ai/developer-guide/platform-api/data-and-world-model/use-cases.md): List channel use cases for voice, SMS, iMessage, and email, and bind each use case to the platform service that handles its conversations.
+- [Scheduling Rule Sets](https://docs.amigo.ai/developer-guide/platform-api/data-and-world-model/scheduling-rule-sets.md): Configure deterministic scheduling rules that filter appointment slots before they reach the agent.
+- [Voice Configuration](https://docs.amigo.ai/developer-guide/platform-api/data-and-world-model/voice-configuration.md): Per-service voice pipeline tuning for latency, fillers, response limits, barge-in sensitivity, and emotion control.
+- [Client Config](https://docs.amigo.ai/developer-guide/platform-api/data-and-world-model/client-config.md): Retrieve client-safe configuration values for embedding in browser-side applications.
+- [Scribe](https://docs.amigo.ai/developer-guide/platform-api/scribe.md): Session-centric API for providers to access their clinical documentation sessions and artifacts.
+- [Sessions](https://docs.amigo.ai/developer-guide/platform-api/scribe/sessions.md): List and retrieve clinical documentation sessions owned by the authenticated provider.
+- [Artifacts](https://docs.amigo.ai/developer-guide/platform-api/scribe/artifacts.md): Retrieve transcripts, clinical notes, and ICD code suggestions for a provider's session.
+- [Conversations](https://docs.amigo.ai/developer-guide/platform-api/conversations.md): Text-based agent conversations over REST and WebSocket - full CRUD lifecycle, persistent freeze-thaw, cross-channel continuity.
+- [Runs](https://docs.amigo.ai/developer-guide/platform-api/conversations/runs.md): Unified runs endpoint that federates framework and conversation runs into a single paginated list.
+- [Channels](https://docs.amigo.ai/developer-guide/platform-api/conversations/channels.md): Internal-preview channels - email, SMS, iMessage, and WhatsApp - and how agents deliver long-running tool results on non-live channels.
+- [Channel Manager](https://docs.amigo.ai/developer-guide/platform-api/conversations/channel-manager.md): Manage workspace communication channel setup and use case provisioning.
+- [Calls](https://docs.amigo.ai/developer-guide/platform-api/conversations/calls.md): Trigger outbound voice calls with patient lineage, goal context, and end-to-end traceability in the world model.
+- [Voice Agent](https://docs.amigo.ai/developer-guide/platform-api/conversations/voice-agent.md): Real-time voice pipeline with emotion detection, context graph engine, tool execution, and post-call analysis.
+- [Desktop Sessions](https://docs.amigo.ai/developer-guide/platform-api/conversations/desktop-sessions.md): The remote desktop session endpoints have been removed from the Platform API.
+- [Voicemail](https://docs.amigo.ai/developer-guide/platform-api/conversations/voicemail.md): Send ringless voicemail drops and track their delivery status through channel use cases.
+- [SMS](https://docs.amigo.ai/developer-guide/platform-api/conversations/sms.md): Send SMS messages and track delivery status through the SMS channel.
+- [Surfaces](https://docs.amigo.ai/developer-guide/platform-api/conversations/surfaces.md): Agent-generated data collection interfaces: SurfaceSpec, fields, channels, lifecycle, and submission handling.
+- [Operators](https://docs.amigo.ai/developer-guide/platform-api/conversations/operators.md): Human-in-the-loop call monitoring, takeover, escalation management, and operator analytics.
+- [SSE Events](https://docs.amigo.ai/developer-guide/platform-api/conversations/sse-events.md): Real-time workspace event stream delivered via Server-Sent Events (SSE).
+- [Observer Events](https://docs.amigo.ai/developer-guide/platform-api/conversations/observer-events.md): Real-time event types delivered over the observer WebSocket connection during a voice session.
+- [Serve an Agent From a Web App](https://docs.amigo.ai/developer-guide/platform-api/conversations/serve-agent-from-web-app.md): Serve a Platform agent from a customer web application using External Integration credentials and external-user session tokens.
+- [Platform Functions](https://docs.amigo.ai/developer-guide/platform-api/functions.md): SQL, Python, AI, and UDTF functions that give agents direct access to world model data and analytics during conversations, with endpoints to register, invoke, test, list, and delete them.
+- [Workspace Data Queries](https://docs.amigo.ai/developer-guide/platform-api/functions/workspace-data-queries.md): Register, manage, and invoke parameterized SQL queries against workspace custom tables.
+- [Tool Testing](https://docs.amigo.ai/developer-guide/platform-api/functions/tool-testing.md): Test context graph tools in isolation without making phone calls. Execute world tools, skills, and integrations with source isolation and dry run mode.
+- [Triggers](https://docs.amigo.ai/developer-guide/platform-api/functions/triggers.md): Schedule recurring automated actions with cron-based triggers that dispatch workspace actions on a defined cadence.
+- [MCP Server](https://docs.amigo.ai/developer-guide/platform-api/functions/mcp-server.md): The workspace-scoped Model Context Protocol server built into the Platform API - world-model read tools for MCP clients and partner agents.
+- [Agent Runs](https://docs.amigo.ai/developer-guide/platform-api/functions/agent-runs.md): Dispatch and poll framework agent runs that execute unmodified against the platform world-tools surface.
+- [List Agent Runs](https://docs.amigo.ai/developer-guide/platform-api/functions/list-agent-runs.md): Paginated list of framework agent runs for a workspace, with optional filtering by framework and status.
+- [Harness Context](https://docs.amigo.ai/developer-guide/platform-api/functions/harness-context.md): Retrieve the neutral session-bootstrap context for a service so your own framework can bootstrap against the same world model the hosted runner uses.
+- [Agent Definitions](https://docs.amigo.ai/developer-guide/platform-api/functions/agent-definitions.md): Register, version, validate, and manage native agent definitions within a workspace.
+- [Integrations](https://docs.amigo.ai/developer-guide/platform-api/integrations.md): Connect workspaces to REST APIs with managed credentials, endpoint definitions, and isolated endpoint tests.
+- [Approval-Gated Integration Writes](https://docs.amigo.ai/developer-guide/platform-api/integrations/approval-gated-integration-writes.md): Require human approval before an agent performs an integration write. Approved writes resume on the agent's next turn across streaming chat, REST, and SMS.
+- [Review Queue](https://docs.amigo.ai/developer-guide/platform-api/integrations/review-queue.md): List, inspect, approve, and reject external write proposals in the review queue.
+- [External Integrations](https://docs.amigo.ai/developer-guide/platform-api/integrations/external-integrations.md): Manage external integration credentials for scoped third-party access to external user session creation.
+- [External Principals](https://docs.amigo.ai/developer-guide/platform-api/integrations/external-principals.md): Entity-anchored, role-scoped tool access for external users driving agent sessions.
+- [External User Subject-Key Binding](https://docs.amigo.ai/developer-guide/platform-api/integrations/external-user-subject-key-binding.md): Bind a verified external-user subject key into an integration token exchange parameter.
+- [Data & World Model](https://docs.amigo.ai/developer-guide/platform-api/data-world-model.md): Event-sourced world model with confidence scoring, entity graphs, enrichment, entity intelligence, and structured query endpoints.
+- [Entity Resolve](https://docs.amigo.ai/developer-guide/platform-api/data-world-model/entity-resolve.md): Resolve a polymorphic identifier to ranked entity candidates.
+- [Workspace Tables](https://docs.amigo.ai/developer-guide/platform-api/data-world-model/workspace-tables.md): Create, manage, and query workspace-owned custom data tables.
+- [Customer Data Intake](https://docs.amigo.ai/developer-guide/platform-api/data-world-model/intake.md): Console-facing intake file catalog, upload, download, and schema registry endpoints.
+- [Intake Sources](https://docs.amigo.ai/developer-guide/platform-api/data-world-model/intake-sources.md): Register and manage external file sources for the customer data intake pipeline.
+- [Intake Upload Links](https://docs.amigo.ai/developer-guide/platform-api/data-world-model/intake-links.md): Generate, list, and revoke shareable upload links for non-technical customers.
+- [Connector Runner](https://docs.amigo.ai/developer-guide/platform-api/data-world-model/connector-runner.md): Bidirectional sync with external systems (EHR, FHIR store, CRM): entity resolution, confidence-gated writes, outbound handler registry, and call dispatch.
+- [FHIR](https://docs.amigo.ai/developer-guide/platform-api/data-world-model/fhir.md): FHIR endpoints for patient search, clinical timelines, resource CRUD, and bundle import.
+- [Data Access (MCP)](https://docs.amigo.ai/developer-guide/platform-api/data-world-model/data-mcp.md): Query workspace data through the Model Context Protocol using SQL tools compatible with any MCP client.
+- [Safety & Monitoring](https://docs.amigo.ai/developer-guide/platform-api/safety.md): The agent safety model, unified audit trail, PHI access logging, retention policies, and compliance reporting.
+- [Analytics & Observability](https://docs.amigo.ai/developer-guide/platform-api/safety/analytics.md): Workspace analytics, call management, recording access, and the external-write review queue.
+- [Insights](https://docs.amigo.ai/developer-guide/platform-api/safety/insights.md): Query workspace data, explore schema metadata, and get health digests through the platform insights endpoints.
+- [Metric Store](https://docs.amigo.ai/developer-guide/platform-api/safety/metric-store.md): Define custom metrics, evaluate conversations with AI, and query metric values across all channels.
+- [Call Trace Analysis](https://docs.amigo.ai/developer-guide/platform-api/safety/call-trace-analysis.md): Deep call understanding with emotional arcs, key decision moments, coaching recommendations, and signal-response alignment.
+- [Voice Judge](https://docs.amigo.ai/developer-guide/platform-api/safety/voice-judge.md): Retrieve audio-native voice quality scores for your voice agent calls.
+- [Production Evals](https://docs.amigo.ai/developer-guide/platform-api/safety/production-evals.md): Define eval criteria for production calls and evaluate completed calls against them.
+- [Simulation Coverage](https://docs.amigo.ai/developer-guide/platform-api/safety/simulation-coverage.md): Branch-and-bound simulation coverage API for systematic context graph state space exploration.
+- [Prompt Logs](https://docs.amigo.ai/developer-guide/platform-api/safety/prompt-logs.md): Query LLM prompt logs for auditing and debugging agent conversations across a workspace.
+- [Trace Export](https://docs.amigo.ai/developer-guide/platform-api/safety/trace-export.md): Export durable tool-call and voice-isolation infra trace spans as OTLP/JSON for external observability collectors.
+- [Platform SDK](https://docs.amigo.ai/developer-guide/platform-api/platform-sdk.md): Official TypeScript SDK for the Platform API. Manage agents, calls, analytics, and more.
+- [Installation](https://docs.amigo.ai/developer-guide/platform-api/platform-sdk/installation.md): Install the Platform SDK with npm or yarn and configure TypeScript for type-safe API access.
+- [Configuration](https://docs.amigo.ai/developer-guide/platform-api/platform-sdk/configuration.md): Configure the Platform SDK client with API keys, workspace ID, and optional base URL overrides.
+- [Quickstart](https://docs.amigo.ai/developer-guide/platform-api/platform-sdk/quickstart.md): Common Platform SDK operations: agents, services, simulations, analytics, streaming, and entities.
+- [Error Handling](https://docs.amigo.ai/developer-guide/platform-api/platform-sdk/error-handling.md): Handle API errors with typed exceptions and built-in retry logic in the Platform SDK.
+- [Best Practices](https://docs.amigo.ai/developer-guide/operations/devops.md): Operational best practices for version sets, channel tagging, multi-org tenancy, PHI isolation, and information ingestion.
+- [Multi-Org Strategy (Region x Project)](https://docs.amigo.ai/developer-guide/operations/devops/multi-org-tenancy.md): Create and operate multiple Amigo organizations by region and project for tenant isolation.
+- [Version Sets & Promotion](https://docs.amigo.ai/developer-guide/operations/devops/version-sets-best-practices.md): Manage version sets for safe deployment promotion from development through production.
+- [Version Set CLI Reference](https://docs.amigo.ai/developer-guide/operations/devops/version-sets-best-practices/version-set-cli.md): Complete forge version-set, forge service, and forge asset command reference for listing, pinning, promoting, and rolling back Amigo service version sets.
+- [Channel Tagging System](https://docs.amigo.ai/developer-guide/operations/devops/channel-tagging.md): Configure services for deployment channels (voice, text, async) with LLM preset validation.
+- [PHI Isolation & Selective Sharing](https://docs.amigo.ai/developer-guide/operations/devops/phi-isolation-and-selective-sharing.md): Design patterns for PHI isolation and controlled cross-user data sharing.
+- [Information Ingestion & Exchange](https://docs.amigo.ai/developer-guide/operations/devops/information-ingestion-and-exchange.md): Three paths for getting external information into ongoing conversations or user models.
+- [Reference](https://docs.amigo.ai/developer-guide/operations/reference.md): Technical reference for rate limits, memory architecture, terminology mapping, common patterns, and architecture decisions.
+- [Terminology Mapping](https://docs.amigo.ai/developer-guide/operations/reference/terminology-mapping.md): Complete mapping between platform documentation names and REST API field names.
+- [Rate Limits](https://docs.amigo.ai/developer-guide/operations/reference/rate-limits.md): Per-endpoint Classic API rate limits, response headers, and retry guidance.
+- [Memory Architecture & API Mapping](https://docs.amigo.ai/developer-guide/operations/reference/memory-architecture.md): Four-layer memory model (L0-L3) mapped to Classic API endpoints, plus where to find Platform API memory queries.
+- [Common Patterns](https://docs.amigo.ai/developer-guide/operations/reference/common-patterns.md): Production-ready Classic API patterns for conversation lifecycle, user models, webhooks, routing, and CI simulation gates.
+- [Architecture Decisions](https://docs.amigo.ai/developer-guide/operations/reference/architecture-decisions.md): Key architectural decisions in the Amigo API design and their rationale.
+
+## API Reference
+
+- [REST API Specs](https://docs.amigo.ai/api-reference/readme.md): API reference for Classic and Platform APIs with OpenAPI specs, SDKs, and developer tooling.
+- [Classic](https://docs.amigo.ai/api-reference/readme/classic.md): Endpoints for text-based digital health. Chat agents, voice notes, streaming, user management, and simulations.
+- [Organization](https://docs.amigo.ai/api-reference/readme/classic/organization.md)
+- [Service](https://docs.amigo.ai/api-reference/readme/classic/service.md)
+- [Conversation](https://docs.amigo.ai/api-reference/readme/classic/conversation.md)
+- [User](https://docs.amigo.ai/api-reference/readme/classic/user.md)
+- [Role](https://docs.amigo.ai/api-reference/readme/classic/role.md)
+- [Admin](https://docs.amigo.ai/api-reference/readme/classic/admin.md)
+- [Webhook Destination](https://docs.amigo.ai/api-reference/readme/classic/webhook-destination.md)
+- [Dynamic Behavior Set](https://docs.amigo.ai/api-reference/readme/classic/dynamic-behavior-set.md)
+- [Metric](https://docs.amigo.ai/api-reference/readme/classic/metric.md)
+- [Simulation](https://docs.amigo.ai/api-reference/readme/classic/simulation.md)
+- [Tool](https://docs.amigo.ai/api-reference/readme/classic/tool.md)
+- [Models](https://docs.amigo.ai/api-reference/readme/classic/models.md)
+- [Platform](https://docs.amigo.ai/api-reference/readme/platform.md): Endpoints for enterprise voice and healthcare. Phone agents, EHR integration, operator escalation, and FHIR data.
+- [Workspaces](https://docs.amigo.ai/api-reference/readme/platform/workspaces.md)
+- [Account](https://docs.amigo.ai/api-reference/readme/platform/account.md)
+- [API Keys](https://docs.amigo.ai/api-reference/readme/platform/api-keys.md)
+- [Skills](https://docs.amigo.ai/api-reference/readme/platform/skills.md)
+- [Integrations](https://docs.amigo.ai/api-reference/readme/platform/integrations.md)
+- [External Integrations](https://docs.amigo.ai/api-reference/readme/platform/external-integrations.md)
+- [Conversations](https://docs.amigo.ai/api-reference/readme/platform/conversations.md)
+- [Agent Runs](https://docs.amigo.ai/api-reference/readme/platform/agent-runs.md)
+- [Runs](https://docs.amigo.ai/api-reference/readme/platform/runs.md)
+- [Agent Definitions](https://docs.amigo.ai/api-reference/readme/platform/agent-definitions.md)
+- [Use Cases](https://docs.amigo.ai/api-reference/readme/platform/use-cases.md)
+- [Workspace Tables](https://docs.amigo.ai/api-reference/readme/platform/workspace-tables.md)
+- [Workspace Data Queries](https://docs.amigo.ai/api-reference/readme/platform/workspace-data-queries.md)
+- [External Roles](https://docs.amigo.ai/api-reference/readme/platform/external-roles.md)
+- [External Role Assignments](https://docs.amigo.ai/api-reference/readme/platform/external-role-assignments.md)
+- [Role Grants](https://docs.amigo.ai/api-reference/readme/platform/role-grants.md)
+- [Config](https://docs.amigo.ai/api-reference/readme/platform/config.md)
+- [Agents](https://docs.amigo.ai/api-reference/readme/platform/agents.md)
+- [Context Graphs](https://docs.amigo.ai/api-reference/readme/platform/context-graphs.md)
+- [Services](https://docs.amigo.ai/api-reference/readme/platform/services.md)
+- [Voice Judge](https://docs.amigo.ai/api-reference/readme/platform/voice-judge.md)
+- [FHIR](https://docs.amigo.ai/api-reference/readme/platform/fhir.md)
+- [Data Sources](https://docs.amigo.ai/api-reference/readme/platform/data-sources.md)
+- [Calls](https://docs.amigo.ai/api-reference/readme/platform/calls.md)
+- [Evaluations](https://docs.amigo.ai/api-reference/readme/platform/evaluations.md)
+- [Review Queue](https://docs.amigo.ai/api-reference/readme/platform/review-queue.md)
+- [Sessions](https://docs.amigo.ai/api-reference/readme/platform/sessions.md)
+- [Operators](https://docs.amigo.ai/api-reference/readme/platform/operators.md)
+- [Entity Intelligence](https://docs.amigo.ai/api-reference/readme/platform/entity-intelligence.md)
+- [World](https://docs.amigo.ai/api-reference/readme/platform/world.md)
+- [Data Query](https://docs.amigo.ai/api-reference/readme/platform/data-query.md)
+- [Pipeline](https://docs.amigo.ai/api-reference/readme/platform/pipeline.md)
+- [Analytics](https://docs.amigo.ai/api-reference/readme/platform/analytics.md)
+- [Traces](https://docs.amigo.ai/api-reference/readme/platform/traces.md)
+- [M42](https://docs.amigo.ai/api-reference/readme/platform/m42.md)
+- [Sensorium](https://docs.amigo.ai/api-reference/readme/platform/sensorium.md)
+- [Command Center](https://docs.amigo.ai/api-reference/readme/platform/command-center.md)
+- [Audit](https://docs.amigo.ai/api-reference/readme/platform/audit.md)
+- [Functions](https://docs.amigo.ai/api-reference/readme/platform/functions.md)
+- [Settings](https://docs.amigo.ai/api-reference/readme/platform/settings.md)
+- [Metrics](https://docs.amigo.ai/api-reference/readme/platform/metrics.md)
+- [Form Templates](https://docs.amigo.ai/api-reference/readme/platform/form-templates.md)
+- [Scheduling Rules](https://docs.amigo.ai/api-reference/readme/platform/scheduling-rules.md)
+- [Network](https://docs.amigo.ai/api-reference/readme/platform/network.md)
+- [Compliance](https://docs.amigo.ai/api-reference/readme/platform/compliance.md)
+- [Simulations](https://docs.amigo.ai/api-reference/readme/platform/simulations.md)
+- [Insights](https://docs.amigo.ai/api-reference/readme/platform/insights.md)
+- [Intake](https://docs.amigo.ai/api-reference/readme/platform/intake.md)
+- [Intake Upload](https://docs.amigo.ai/api-reference/readme/platform/intake-upload.md)
+- [Surfaces](https://docs.amigo.ai/api-reference/readme/platform/surfaces.md)
+- [Events](https://docs.amigo.ai/api-reference/readme/platform/events.md)
+- [Self Image](https://docs.amigo.ai/api-reference/readme/platform/self-image.md)
+- [Surface Patient](https://docs.amigo.ai/api-reference/readme/platform/surface-patient.md)
+- [Recordings](https://docs.amigo.ai/api-reference/readme/platform/recordings.md)
+- [Tool Testing](https://docs.amigo.ai/api-reference/readme/platform/tool-testing.md)
+- [Triggers](https://docs.amigo.ai/api-reference/readme/platform/triggers.md)
+- [Dashboards](https://docs.amigo.ai/api-reference/readme/platform/dashboards.md)
+- [Billing](https://docs.amigo.ai/api-reference/readme/platform/billing.md)
+- [Metering](https://docs.amigo.ai/api-reference/readme/platform/metering.md)
+- [Prompt Logs](https://docs.amigo.ai/api-reference/readme/platform/prompt-logs.md)
+- [Auth](https://docs.amigo.ai/api-reference/readme/platform/auth.md)
+- [Models](https://docs.amigo.ai/api-reference/readme/platform/models.md)
+- [Change Logs](https://docs.amigo.ai/api-reference/change-logs.md): Change logs for the Amigo API, Agent Forge, Web Platform, and SDK ecosystem.
+- [Amigo API](https://docs.amigo.ai/api-reference/change-logs/amigo-api.md): Release history for the Amigo API backend. Classic API and Platform API changes, new endpoints, and migrations.
+- [Archive: v0.9.250 - v0.9.399](https://docs.amigo.ai/api-reference/change-logs/amigo-api/amigo-api-archive-v0-9-250-399.md): Archived Amigo API release notes covering v0.9.250 - v0.9.399. For current releases, see the main Amigo API changelog.
+- [Archive: v0.9.100 - v0.9.249](https://docs.amigo.ai/api-reference/change-logs/amigo-api/amigo-api-archive-v0-9-100-249.md): Archived Amigo API release notes covering v0.9.100 - v0.9.249. For current releases, see the main Amigo API changelog.
+- [Archive: v0.6.0 - v0.9.99](https://docs.amigo.ai/api-reference/change-logs/amigo-api/amigo-api-archive-v0-6-v0-9-99.md): Archived Amigo API release notes covering v0.6.0 - v0.9.99. For current releases, see the main Amigo API changelog.
+- [Web Platform](https://docs.amigo.ai/api-reference/change-logs/web-platform.md): Release history for the Amigo Web Platform. Admin Portal (Classic API) and Developer Console (Platform API).
+- [SDK Ecosystem](https://docs.amigo.ai/api-reference/change-logs/sdk-ecosystem.md): Release history for Amigo TypeScript, Python, and Platform SDKs. New resources, breaking changes, and type safety updates.
+- [Agent Forge CLI](https://docs.amigo.ai/api-reference/change-logs/agent-forge.md): Release history for the Agent Forge CLI. Commands, authentication, entity sync, simulation, and tool development updates.
+
+
+---
+
+# Agent Instructions
+This documentation is published with GitBook. GitBook is the documentation platform designed so that both humans and AI agents can read, navigate, and reason over technical content effectively. Learn more at gitbook.com.
+
+## Querying This Documentation
+If you need additional information, you can query the documentation dynamically by asking a question.
+Perform an HTTP GET request on a page URL with the `ask` query parameter:
+```
+GET https://docs.amigo.ai/readme.md?ask=<question>
+```
+The question should be specific, self-contained, and written in natural language.
+The response will contain a direct answer to the question and relevant excerpts and sources from the documentation.
+Use this mechanism when the answer is not explicitly present in the current page, you need clarification or additional context, or you want to retrieve related documentation sections.

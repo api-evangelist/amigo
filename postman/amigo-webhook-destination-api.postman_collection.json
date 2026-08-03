@@ -1,0 +1,3477 @@
+{
+  "info": {
+    "_postman_id": "c7579a75-7ce9-4d81-a48d-8df2d546e501",
+    "name": "Amigo Account Webhook Destination API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "createdAt": "2026-07-28T01:03:03.000Z",
+    "updatedAt": "2026-07-28T01:03:03.000Z",
+    "lastUpdatedBy": "35240",
+    "uid": "35240-c7579a75-7ce9-4d81-a48d-8df2d546e501"
+  },
+  "item": [
+    {
+      "name": "v1",
+      "item": [
+        {
+          "name": "{organization}",
+          "item": [
+            {
+              "name": "webhook_destination",
+              "item": [
+                {
+                  "name": "{webhook_destination_id}",
+                  "item": [
+                    {
+                      "name": "rotate-secret",
+                      "item": [
+                        {
+                          "name": "Rotate the secret of a webhook destination",
+                          "id": "d5be0344-e0e2-4373-a0af-19a0f8c6e6c8",
+                          "protocolProfileBehavior": {
+                            "disableBodyPruning": true
+                          },
+                          "request": {
+                            "method": "POST",
+                            "header": [
+                              {
+                                "description": "The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.",
+                                "key": "x-mongo-cluster-name",
+                                "value": "<string>"
+                              },
+                              {
+                                "key": "Sec-WebSocket-Protocol",
+                                "value": ""
+                              },
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              }
+                            ],
+                            "url": {
+                              "raw": "{{baseUrl}}/v1/:organization/webhook_destination/:webhook_destination_id/rotate-secret",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v1",
+                                ":organization",
+                                "webhook_destination",
+                                ":webhook_destination_id",
+                                "rotate-secret"
+                              ],
+                              "variable": [
+                                {
+                                  "id": "e23469cc-86f8-4e2a-9d5d-178d7db675c1",
+                                  "key": "organization",
+                                  "value": "<string>",
+                                  "description": "(Required) "
+                                },
+                                {
+                                  "id": "d9f79368-b201-4c4b-b2c4-4bbff608ffcf",
+                                  "key": "webhook_destination_id",
+                                  "value": "469ff5220c953bc04cb53141",
+                                  "description": "(Required) The ID for the webhook destination to rotate the secret for."
+                                }
+                              ]
+                            },
+                            "description": "Replace the secret for the given webhook destination. The new secret will be returned and cannot be retrieved later.\n\nUntil the `dual_signing_stops_at` timestamp in the response, which is roughly 30 minutes after the generation of the new secret, the webhook\nwill be signed by both the old and the new secret. This allows the webhook consumer to transition to the new secret without downtime.\n\nThe webhook rotation can occur at most once per hour for each webhook destination.\n\n#### Permissions\nThis endpoint requires the following permissions:\n* `Webhook:UpdateWebhookDestination` for the webhook destination."
+                          },
+                          "response": [
+                            {
+                              "id": "1ca7fed5-3225-4183-99b9-a7e7e60d069b",
+                              "name": "Succeeded.",
+                              "originalRequest": {
+                                "method": "POST",
+                                "header": [
+                                  {
+                                    "description": "The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.",
+                                    "key": "x-mongo-cluster-name",
+                                    "value": "<string>"
+                                  },
+                                  {
+                                    "key": "Sec-WebSocket-Protocol",
+                                    "value": ""
+                                  },
+                                  {
+                                    "key": "Accept",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "url": {
+                                  "raw": "{{baseUrl}}/v1/:organization/webhook_destination/:webhook_destination_id/rotate-secret",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "v1",
+                                    ":organization",
+                                    "webhook_destination",
+                                    ":webhook_destination_id",
+                                    "rotate-secret"
+                                  ],
+                                  "variable": [
+                                    {
+                                      "key": "organization"
+                                    },
+                                    {
+                                      "key": "webhook_destination_id"
+                                    }
+                                  ]
+                                }
+                              },
+                              "status": "OK",
+                              "code": 200,
+                              "_postman_previewlanguage": "json",
+                              "header": [
+                                {
+                                  "key": "Content-Type",
+                                  "value": "application/json"
+                                }
+                              ],
+                              "cookie": [],
+                              "responseTime": null,
+                              "body": "{\n  \"secret\": \"<string>\",\n  \"dual_signing_stops_at\": \"<dateTime>\"\n}",
+                              "createdAt": "2026-07-28T01:03:04.000Z",
+                              "updatedAt": "2026-07-28T01:03:04.000Z",
+                              "uid": "35240-1ca7fed5-3225-4183-99b9-a7e7e60d069b"
+                            },
+                            {
+                              "id": "93cfb2f9-1ba1-4f34-bb0e-a4ce4ca41398",
+                              "name": "The frequency of secret rotation is limited to once per hour.",
+                              "originalRequest": {
+                                "method": "POST",
+                                "header": [
+                                  {
+                                    "description": "The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.",
+                                    "key": "x-mongo-cluster-name",
+                                    "value": "<string>"
+                                  },
+                                  {
+                                    "key": "Sec-WebSocket-Protocol",
+                                    "value": ""
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "url": {
+                                  "raw": "{{baseUrl}}/v1/:organization/webhook_destination/:webhook_destination_id/rotate-secret",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "v1",
+                                    ":organization",
+                                    "webhook_destination",
+                                    ":webhook_destination_id",
+                                    "rotate-secret"
+                                  ],
+                                  "variable": [
+                                    {
+                                      "key": "organization"
+                                    },
+                                    {
+                                      "key": "webhook_destination_id"
+                                    }
+                                  ]
+                                }
+                              },
+                              "status": "Bad Request",
+                              "code": 400,
+                              "_postman_previewlanguage": "text",
+                              "header": [],
+                              "cookie": [],
+                              "responseTime": null,
+                              "body": null,
+                              "createdAt": "2026-07-28T01:03:04.000Z",
+                              "updatedAt": "2026-07-28T01:03:04.000Z",
+                              "uid": "35240-93cfb2f9-1ba1-4f34-bb0e-a4ce4ca41398"
+                            },
+                            {
+                              "id": "95d28846-99e0-4d3e-b432-6f96234e1cd0",
+                              "name": "Invalid authorization credentials.",
+                              "originalRequest": {
+                                "method": "POST",
+                                "header": [
+                                  {
+                                    "description": "The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.",
+                                    "key": "x-mongo-cluster-name",
+                                    "value": "<string>"
+                                  },
+                                  {
+                                    "key": "Sec-WebSocket-Protocol",
+                                    "value": ""
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "url": {
+                                  "raw": "{{baseUrl}}/v1/:organization/webhook_destination/:webhook_destination_id/rotate-secret",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "v1",
+                                    ":organization",
+                                    "webhook_destination",
+                                    ":webhook_destination_id",
+                                    "rotate-secret"
+                                  ],
+                                  "variable": [
+                                    {
+                                      "key": "organization"
+                                    },
+                                    {
+                                      "key": "webhook_destination_id"
+                                    }
+                                  ]
+                                }
+                              },
+                              "status": "Unauthorized",
+                              "code": 401,
+                              "_postman_previewlanguage": "text",
+                              "header": [],
+                              "cookie": [],
+                              "responseTime": null,
+                              "body": null,
+                              "createdAt": "2026-07-28T01:03:04.000Z",
+                              "updatedAt": "2026-07-28T01:03:04.000Z",
+                              "uid": "35240-95d28846-99e0-4d3e-b432-6f96234e1cd0"
+                            },
+                            {
+                              "id": "cffe49a0-dcef-4d25-9739-fbdfb2f6c46a",
+                              "name": "Missing required permissions.",
+                              "originalRequest": {
+                                "method": "POST",
+                                "header": [
+                                  {
+                                    "description": "The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.",
+                                    "key": "x-mongo-cluster-name",
+                                    "value": "<string>"
+                                  },
+                                  {
+                                    "key": "Sec-WebSocket-Protocol",
+                                    "value": ""
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "url": {
+                                  "raw": "{{baseUrl}}/v1/:organization/webhook_destination/:webhook_destination_id/rotate-secret",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "v1",
+                                    ":organization",
+                                    "webhook_destination",
+                                    ":webhook_destination_id",
+                                    "rotate-secret"
+                                  ],
+                                  "variable": [
+                                    {
+                                      "key": "organization"
+                                    },
+                                    {
+                                      "key": "webhook_destination_id"
+                                    }
+                                  ]
+                                }
+                              },
+                              "status": "Forbidden",
+                              "code": 403,
+                              "_postman_previewlanguage": "text",
+                              "header": [],
+                              "cookie": [],
+                              "responseTime": null,
+                              "body": null,
+                              "createdAt": "2026-07-28T01:03:04.000Z",
+                              "updatedAt": "2026-07-28T01:03:04.000Z",
+                              "uid": "35240-cffe49a0-dcef-4d25-9739-fbdfb2f6c46a"
+                            },
+                            {
+                              "id": "a33b73c4-e342-4a0c-ae9a-347cf58ae7de",
+                              "name": "Specified organization or webhook destination is not found.",
+                              "originalRequest": {
+                                "method": "POST",
+                                "header": [
+                                  {
+                                    "description": "The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.",
+                                    "key": "x-mongo-cluster-name",
+                                    "value": "<string>"
+                                  },
+                                  {
+                                    "key": "Sec-WebSocket-Protocol",
+                                    "value": ""
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "url": {
+                                  "raw": "{{baseUrl}}/v1/:organization/webhook_destination/:webhook_destination_id/rotate-secret",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "v1",
+                                    ":organization",
+                                    "webhook_destination",
+                                    ":webhook_destination_id",
+                                    "rotate-secret"
+                                  ],
+                                  "variable": [
+                                    {
+                                      "key": "organization"
+                                    },
+                                    {
+                                      "key": "webhook_destination_id"
+                                    }
+                                  ]
+                                }
+                              },
+                              "status": "Not Found",
+                              "code": 404,
+                              "_postman_previewlanguage": "text",
+                              "header": [],
+                              "cookie": [],
+                              "responseTime": null,
+                              "body": null,
+                              "createdAt": "2026-07-28T01:03:04.000Z",
+                              "updatedAt": "2026-07-28T01:03:04.000Z",
+                              "uid": "35240-a33b73c4-e342-4a0c-ae9a-347cf58ae7de"
+                            },
+                            {
+                              "id": "7bb27603-2954-4ce8-96ee-e95f415734de",
+                              "name": "A related operation is in progress.",
+                              "originalRequest": {
+                                "method": "POST",
+                                "header": [
+                                  {
+                                    "description": "The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.",
+                                    "key": "x-mongo-cluster-name",
+                                    "value": "<string>"
+                                  },
+                                  {
+                                    "key": "Sec-WebSocket-Protocol",
+                                    "value": ""
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "url": {
+                                  "raw": "{{baseUrl}}/v1/:organization/webhook_destination/:webhook_destination_id/rotate-secret",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "v1",
+                                    ":organization",
+                                    "webhook_destination",
+                                    ":webhook_destination_id",
+                                    "rotate-secret"
+                                  ],
+                                  "variable": [
+                                    {
+                                      "key": "organization"
+                                    },
+                                    {
+                                      "key": "webhook_destination_id"
+                                    }
+                                  ]
+                                }
+                              },
+                              "status": "Conflict",
+                              "code": 409,
+                              "_postman_previewlanguage": "text",
+                              "header": [],
+                              "cookie": [],
+                              "responseTime": null,
+                              "body": null,
+                              "createdAt": "2026-07-28T01:03:04.000Z",
+                              "updatedAt": "2026-07-28T01:03:04.000Z",
+                              "uid": "35240-7bb27603-2954-4ce8-96ee-e95f415734de"
+                            },
+                            {
+                              "id": "1164d5a6-1abc-43c4-83e5-3944a3c6312f",
+                              "name": "Invalid request path parameter failed validation.",
+                              "originalRequest": {
+                                "method": "POST",
+                                "header": [
+                                  {
+                                    "description": "The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.",
+                                    "key": "x-mongo-cluster-name",
+                                    "value": "<string>"
+                                  },
+                                  {
+                                    "key": "Sec-WebSocket-Protocol",
+                                    "value": ""
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "url": {
+                                  "raw": "{{baseUrl}}/v1/:organization/webhook_destination/:webhook_destination_id/rotate-secret",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "v1",
+                                    ":organization",
+                                    "webhook_destination",
+                                    ":webhook_destination_id",
+                                    "rotate-secret"
+                                  ],
+                                  "variable": [
+                                    {
+                                      "key": "organization"
+                                    },
+                                    {
+                                      "key": "webhook_destination_id"
+                                    }
+                                  ]
+                                }
+                              },
+                              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+                              "code": 422,
+                              "_postman_previewlanguage": "text",
+                              "header": [],
+                              "cookie": [],
+                              "responseTime": null,
+                              "body": null,
+                              "createdAt": "2026-07-28T01:03:04.000Z",
+                              "updatedAt": "2026-07-28T01:03:04.000Z",
+                              "uid": "35240-1164d5a6-1abc-43c4-83e5-3944a3c6312f"
+                            },
+                            {
+                              "id": "c17d8618-b03a-47f7-8703-c8097d226f52",
+                              "name": "The user has exceeded the rate limit of 20 requests per minute for this endpoint.",
+                              "originalRequest": {
+                                "method": "POST",
+                                "header": [
+                                  {
+                                    "description": "The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.",
+                                    "key": "x-mongo-cluster-name",
+                                    "value": "<string>"
+                                  },
+                                  {
+                                    "key": "Sec-WebSocket-Protocol",
+                                    "value": ""
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "url": {
+                                  "raw": "{{baseUrl}}/v1/:organization/webhook_destination/:webhook_destination_id/rotate-secret",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "v1",
+                                    ":organization",
+                                    "webhook_destination",
+                                    ":webhook_destination_id",
+                                    "rotate-secret"
+                                  ],
+                                  "variable": [
+                                    {
+                                      "key": "organization"
+                                    },
+                                    {
+                                      "key": "webhook_destination_id"
+                                    }
+                                  ]
+                                }
+                              },
+                              "status": "Too Many Requests",
+                              "code": 429,
+                              "_postman_previewlanguage": "text",
+                              "header": [],
+                              "cookie": [],
+                              "responseTime": null,
+                              "body": null,
+                              "createdAt": "2026-07-28T01:03:04.000Z",
+                              "updatedAt": "2026-07-28T01:03:04.000Z",
+                              "uid": "35240-c17d8618-b03a-47f7-8703-c8097d226f52"
+                            },
+                            {
+                              "id": "ad535887-cff3-4acc-8d5d-0be51f9995ac",
+                              "name": "The service is going through temporary maintenance.",
+                              "originalRequest": {
+                                "method": "POST",
+                                "header": [
+                                  {
+                                    "description": "The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.",
+                                    "key": "x-mongo-cluster-name",
+                                    "value": "<string>"
+                                  },
+                                  {
+                                    "key": "Sec-WebSocket-Protocol",
+                                    "value": ""
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "url": {
+                                  "raw": "{{baseUrl}}/v1/:organization/webhook_destination/:webhook_destination_id/rotate-secret",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "v1",
+                                    ":organization",
+                                    "webhook_destination",
+                                    ":webhook_destination_id",
+                                    "rotate-secret"
+                                  ],
+                                  "variable": [
+                                    {
+                                      "key": "organization"
+                                    },
+                                    {
+                                      "key": "webhook_destination_id"
+                                    }
+                                  ]
+                                }
+                              },
+                              "status": "Service Unavailable",
+                              "code": 503,
+                              "_postman_previewlanguage": "text",
+                              "header": [],
+                              "cookie": [],
+                              "responseTime": null,
+                              "body": null,
+                              "createdAt": "2026-07-28T01:03:04.000Z",
+                              "updatedAt": "2026-07-28T01:03:04.000Z",
+                              "uid": "35240-ad535887-cff3-4acc-8d5d-0be51f9995ac"
+                            }
+                          ],
+                          "createdAt": "2026-07-28T01:03:04.000Z",
+                          "updatedAt": "2026-07-28T01:03:04.000Z",
+                          "uid": "35240-d5be0344-e0e2-4373-a0af-19a0f8c6e6c8"
+                        }
+                      ],
+                      "id": "2cd3d7dd-fa84-49e1-8b96-5a88f407e266",
+                      "createdAt": "2026-07-28T01:03:04.000Z",
+                      "updatedAt": "2026-07-28T01:03:04.000Z",
+                      "uid": "35240-2cd3d7dd-fa84-49e1-8b96-5a88f407e266"
+                    },
+                    {
+                      "name": "delivery",
+                      "item": [
+                        {
+                          "name": "Get webhook deliveries",
+                          "id": "dafe01df-9f44-40e0-9800-1918824ddfe5",
+                          "protocolProfileBehavior": {
+                            "disableBodyPruning": true
+                          },
+                          "request": {
+                            "method": "GET",
+                            "header": [
+                              {
+                                "description": "The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.",
+                                "key": "x-mongo-cluster-name",
+                                "value": "<string>"
+                              },
+                              {
+                                "key": "Sec-WebSocket-Protocol",
+                                "value": ""
+                              },
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              }
+                            ],
+                            "url": {
+                              "raw": "{{baseUrl}}/v1/:organization/webhook_destination/:webhook_destination_id/delivery?status=failed&type=<string>&created_after=<dateTime>&created_before=<dateTime>&limit=50&continuation_token=0",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v1",
+                                ":organization",
+                                "webhook_destination",
+                                ":webhook_destination_id",
+                                "delivery"
+                              ],
+                              "query": [
+                                {
+                                  "description": "The status of the webhook delivery.",
+                                  "key": "status",
+                                  "value": "failed"
+                                },
+                                {
+                                  "description": "The type of the webhook.",
+                                  "key": "type",
+                                  "value": "<string>"
+                                },
+                                {
+                                  "description": "An ISO8601 timestamp in UTC of the earliest creation time of the webhook deliveries to retrieve.",
+                                  "key": "created_after",
+                                  "value": "<dateTime>"
+                                },
+                                {
+                                  "description": "An ISO8601 timestamp in UTC of the latest creation time of the webhook deliveries to retrieve.",
+                                  "key": "created_before",
+                                  "value": "<dateTime>"
+                                },
+                                {
+                                  "description": "The maximum number of webhook deliveries to retrieve.",
+                                  "key": "limit",
+                                  "value": "50"
+                                },
+                                {
+                                  "description": "The token from the previous request to return the next page of webhook deliveries.",
+                                  "key": "continuation_token",
+                                  "value": "0"
+                                }
+                              ],
+                              "variable": [
+                                {
+                                  "id": "a29593e7-8d1d-4338-b3a7-4307c92f9e25",
+                                  "key": "organization",
+                                  "value": "<string>",
+                                  "description": "(Required) "
+                                },
+                                {
+                                  "id": "0c828f5d-34c6-4f34-b26e-61127b1dc432",
+                                  "key": "webhook_destination_id",
+                                  "value": "f29a457112b71908d486d162",
+                                  "description": "(Required) The ID of the webhook destination whose deliveries to retrieve."
+                                }
+                              ]
+                            },
+                            "description": "Retrieve the webhook deliveries to a webhook destination.\n\n#### Permissions\nThis endpoint may be impacted by the following permissions:\n* `Webhook:GetWebhookDeliveries` on the webhook deliveries to retrieve."
+                          },
+                          "response": [
+                            {
+                              "id": "bc4e5ee3-5a4a-4e49-9fc0-340b1b20feaf",
+                              "name": "Succeeded.",
+                              "originalRequest": {
+                                "method": "GET",
+                                "header": [
+                                  {
+                                    "description": "The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.",
+                                    "key": "x-mongo-cluster-name",
+                                    "value": "<string>"
+                                  },
+                                  {
+                                    "key": "Sec-WebSocket-Protocol",
+                                    "value": ""
+                                  },
+                                  {
+                                    "key": "Accept",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "url": {
+                                  "raw": "{{baseUrl}}/v1/:organization/webhook_destination/:webhook_destination_id/delivery?status=failed&type=<string>&created_after=<dateTime>&created_before=<dateTime>&limit=50&continuation_token=0",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "v1",
+                                    ":organization",
+                                    "webhook_destination",
+                                    ":webhook_destination_id",
+                                    "delivery"
+                                  ],
+                                  "query": [
+                                    {
+                                      "description": "The status of the webhook delivery.",
+                                      "key": "status",
+                                      "value": "failed"
+                                    },
+                                    {
+                                      "description": "The type of the webhook.",
+                                      "key": "type",
+                                      "value": "<string>"
+                                    },
+                                    {
+                                      "description": "An ISO8601 timestamp in UTC of the earliest creation time of the webhook deliveries to retrieve.",
+                                      "key": "created_after",
+                                      "value": "<dateTime>"
+                                    },
+                                    {
+                                      "description": "An ISO8601 timestamp in UTC of the latest creation time of the webhook deliveries to retrieve.",
+                                      "key": "created_before",
+                                      "value": "<dateTime>"
+                                    },
+                                    {
+                                      "description": "The maximum number of webhook deliveries to retrieve.",
+                                      "key": "limit",
+                                      "value": "50"
+                                    },
+                                    {
+                                      "description": "The token from the previous request to return the next page of webhook deliveries.",
+                                      "key": "continuation_token",
+                                      "value": "0"
+                                    }
+                                  ],
+                                  "variable": [
+                                    {
+                                      "key": "organization"
+                                    },
+                                    {
+                                      "key": "webhook_destination_id"
+                                    }
+                                  ]
+                                }
+                              },
+                              "status": "OK",
+                              "code": 200,
+                              "_postman_previewlanguage": "json",
+                              "header": [
+                                {
+                                  "key": "Content-Type",
+                                  "value": "application/json"
+                                }
+                              ],
+                              "cookie": [],
+                              "responseTime": null,
+                              "body": "{\n  \"webhook_deliveries\": [\n    {\n      \"id\": \"<string>\",\n      \"type\": \"<string>\",\n      \"webhook_content\": {\n        \"aliquip0\": 90366317,\n        \"culpa_73c\": 10481377.227099165\n      },\n      \"status\": \"failed\",\n      \"delivery_attempts\": [\n        {\n          \"delivery_time\": \"<dateTime>\",\n          \"status_code\": \"<integer>\"\n        },\n        {\n          \"delivery_time\": \"<dateTime>\",\n          \"status_code\": \"<integer>\"\n        }\n      ],\n      \"dual_signed\": \"<boolean>\",\n      \"created_at\": \"<dateTime>\"\n    },\n    {\n      \"id\": \"<string>\",\n      \"type\": \"<string>\",\n      \"webhook_content\": {\n        \"magnaa\": -72748943\n      },\n      \"status\": \"failed\",\n      \"delivery_attempts\": [\n        {\n          \"delivery_time\": \"<dateTime>\",\n          \"status_code\": \"<integer>\"\n        },\n        {\n          \"delivery_time\": \"<dateTime>\",\n          \"status_code\": \"<integer>\"\n        }\n      ],\n      \"dual_signed\": \"<boolean>\",\n      \"created_at\": \"<dateTime>\"\n    }\n  ],\n  \"has_more\": \"<boolean>\",\n  \"continuation_token\": \"<integer>\"\n}",
+                              "createdAt": "2026-07-28T01:03:04.000Z",
+                              "updatedAt": "2026-07-28T01:03:04.000Z",
+                              "uid": "35240-bc4e5ee3-5a4a-4e49-9fc0-340b1b20feaf"
+                            },
+                            {
+                              "id": "7de183cc-1a51-4e1f-a20c-1b94eb750be8",
+                              "name": "Invalid authorization credentials.",
+                              "originalRequest": {
+                                "method": "GET",
+                                "header": [
+                                  {
+                                    "description": "The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.",
+                                    "key": "x-mongo-cluster-name",
+                                    "value": "<string>"
+                                  },
+                                  {
+                                    "key": "Sec-WebSocket-Protocol",
+                                    "value": ""
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "url": {
+                                  "raw": "{{baseUrl}}/v1/:organization/webhook_destination/:webhook_destination_id/delivery?status=failed&type=<string>&created_after=<dateTime>&created_before=<dateTime>&limit=50&continuation_token=0",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "v1",
+                                    ":organization",
+                                    "webhook_destination",
+                                    ":webhook_destination_id",
+                                    "delivery"
+                                  ],
+                                  "query": [
+                                    {
+                                      "description": "The status of the webhook delivery.",
+                                      "key": "status",
+                                      "value": "failed"
+                                    },
+                                    {
+                                      "description": "The type of the webhook.",
+                                      "key": "type",
+                                      "value": "<string>"
+                                    },
+                                    {
+                                      "description": "An ISO8601 timestamp in UTC of the earliest creation time of the webhook deliveries to retrieve.",
+                                      "key": "created_after",
+                                      "value": "<dateTime>"
+                                    },
+                                    {
+                                      "description": "An ISO8601 timestamp in UTC of the latest creation time of the webhook deliveries to retrieve.",
+                                      "key": "created_before",
+                                      "value": "<dateTime>"
+                                    },
+                                    {
+                                      "description": "The maximum number of webhook deliveries to retrieve.",
+                                      "key": "limit",
+                                      "value": "50"
+                                    },
+                                    {
+                                      "description": "The token from the previous request to return the next page of webhook deliveries.",
+                                      "key": "continuation_token",
+                                      "value": "0"
+                                    }
+                                  ],
+                                  "variable": [
+                                    {
+                                      "key": "organization"
+                                    },
+                                    {
+                                      "key": "webhook_destination_id"
+                                    }
+                                  ]
+                                }
+                              },
+                              "status": "Unauthorized",
+                              "code": 401,
+                              "_postman_previewlanguage": "text",
+                              "header": [],
+                              "cookie": [],
+                              "responseTime": null,
+                              "body": null,
+                              "createdAt": "2026-07-28T01:03:04.000Z",
+                              "updatedAt": "2026-07-28T01:03:04.000Z",
+                              "uid": "35240-7de183cc-1a51-4e1f-a20c-1b94eb750be8"
+                            },
+                            {
+                              "id": "82206c2c-6b68-4974-b691-edb5ce102939",
+                              "name": "Missing required permissions.",
+                              "originalRequest": {
+                                "method": "GET",
+                                "header": [
+                                  {
+                                    "description": "The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.",
+                                    "key": "x-mongo-cluster-name",
+                                    "value": "<string>"
+                                  },
+                                  {
+                                    "key": "Sec-WebSocket-Protocol",
+                                    "value": ""
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "url": {
+                                  "raw": "{{baseUrl}}/v1/:organization/webhook_destination/:webhook_destination_id/delivery?status=failed&type=<string>&created_after=<dateTime>&created_before=<dateTime>&limit=50&continuation_token=0",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "v1",
+                                    ":organization",
+                                    "webhook_destination",
+                                    ":webhook_destination_id",
+                                    "delivery"
+                                  ],
+                                  "query": [
+                                    {
+                                      "description": "The status of the webhook delivery.",
+                                      "key": "status",
+                                      "value": "failed"
+                                    },
+                                    {
+                                      "description": "The type of the webhook.",
+                                      "key": "type",
+                                      "value": "<string>"
+                                    },
+                                    {
+                                      "description": "An ISO8601 timestamp in UTC of the earliest creation time of the webhook deliveries to retrieve.",
+                                      "key": "created_after",
+                                      "value": "<dateTime>"
+                                    },
+                                    {
+                                      "description": "An ISO8601 timestamp in UTC of the latest creation time of the webhook deliveries to retrieve.",
+                                      "key": "created_before",
+                                      "value": "<dateTime>"
+                                    },
+                                    {
+                                      "description": "The maximum number of webhook deliveries to retrieve.",
+                                      "key": "limit",
+                                      "value": "50"
+                                    },
+                                    {
+                                      "description": "The token from the previous request to return the next page of webhook deliveries.",
+                                      "key": "continuation_token",
+                                      "value": "0"
+                                    }
+                                  ],
+                                  "variable": [
+                                    {
+                                      "key": "organization"
+                                    },
+                                    {
+                                      "key": "webhook_destination_id"
+                                    }
+                                  ]
+                                }
+                              },
+                              "status": "Forbidden",
+                              "code": 403,
+                              "_postman_previewlanguage": "text",
+                              "header": [],
+                              "cookie": [],
+                              "responseTime": null,
+                              "body": null,
+                              "createdAt": "2026-07-28T01:03:04.000Z",
+                              "updatedAt": "2026-07-28T01:03:04.000Z",
+                              "uid": "35240-82206c2c-6b68-4974-b691-edb5ce102939"
+                            },
+                            {
+                              "id": "d609dad7-276f-447d-bc0f-8896c1928465",
+                              "name": "Specified organization or webhook destination is not found.",
+                              "originalRequest": {
+                                "method": "GET",
+                                "header": [
+                                  {
+                                    "description": "The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.",
+                                    "key": "x-mongo-cluster-name",
+                                    "value": "<string>"
+                                  },
+                                  {
+                                    "key": "Sec-WebSocket-Protocol",
+                                    "value": ""
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "url": {
+                                  "raw": "{{baseUrl}}/v1/:organization/webhook_destination/:webhook_destination_id/delivery?status=failed&type=<string>&created_after=<dateTime>&created_before=<dateTime>&limit=50&continuation_token=0",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "v1",
+                                    ":organization",
+                                    "webhook_destination",
+                                    ":webhook_destination_id",
+                                    "delivery"
+                                  ],
+                                  "query": [
+                                    {
+                                      "description": "The status of the webhook delivery.",
+                                      "key": "status",
+                                      "value": "failed"
+                                    },
+                                    {
+                                      "description": "The type of the webhook.",
+                                      "key": "type",
+                                      "value": "<string>"
+                                    },
+                                    {
+                                      "description": "An ISO8601 timestamp in UTC of the earliest creation time of the webhook deliveries to retrieve.",
+                                      "key": "created_after",
+                                      "value": "<dateTime>"
+                                    },
+                                    {
+                                      "description": "An ISO8601 timestamp in UTC of the latest creation time of the webhook deliveries to retrieve.",
+                                      "key": "created_before",
+                                      "value": "<dateTime>"
+                                    },
+                                    {
+                                      "description": "The maximum number of webhook deliveries to retrieve.",
+                                      "key": "limit",
+                                      "value": "50"
+                                    },
+                                    {
+                                      "description": "The token from the previous request to return the next page of webhook deliveries.",
+                                      "key": "continuation_token",
+                                      "value": "0"
+                                    }
+                                  ],
+                                  "variable": [
+                                    {
+                                      "key": "organization"
+                                    },
+                                    {
+                                      "key": "webhook_destination_id"
+                                    }
+                                  ]
+                                }
+                              },
+                              "status": "Not Found",
+                              "code": 404,
+                              "_postman_previewlanguage": "text",
+                              "header": [],
+                              "cookie": [],
+                              "responseTime": null,
+                              "body": null,
+                              "createdAt": "2026-07-28T01:03:04.000Z",
+                              "updatedAt": "2026-07-28T01:03:04.000Z",
+                              "uid": "35240-d609dad7-276f-447d-bc0f-8896c1928465"
+                            },
+                            {
+                              "id": "e4cdb59a-d3ac-4387-93f6-21881d227c46",
+                              "name": "Invalid request path parameter or request query parameter failed validation.",
+                              "originalRequest": {
+                                "method": "GET",
+                                "header": [
+                                  {
+                                    "description": "The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.",
+                                    "key": "x-mongo-cluster-name",
+                                    "value": "<string>"
+                                  },
+                                  {
+                                    "key": "Sec-WebSocket-Protocol",
+                                    "value": ""
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "url": {
+                                  "raw": "{{baseUrl}}/v1/:organization/webhook_destination/:webhook_destination_id/delivery?status=failed&type=<string>&created_after=<dateTime>&created_before=<dateTime>&limit=50&continuation_token=0",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "v1",
+                                    ":organization",
+                                    "webhook_destination",
+                                    ":webhook_destination_id",
+                                    "delivery"
+                                  ],
+                                  "query": [
+                                    {
+                                      "description": "The status of the webhook delivery.",
+                                      "key": "status",
+                                      "value": "failed"
+                                    },
+                                    {
+                                      "description": "The type of the webhook.",
+                                      "key": "type",
+                                      "value": "<string>"
+                                    },
+                                    {
+                                      "description": "An ISO8601 timestamp in UTC of the earliest creation time of the webhook deliveries to retrieve.",
+                                      "key": "created_after",
+                                      "value": "<dateTime>"
+                                    },
+                                    {
+                                      "description": "An ISO8601 timestamp in UTC of the latest creation time of the webhook deliveries to retrieve.",
+                                      "key": "created_before",
+                                      "value": "<dateTime>"
+                                    },
+                                    {
+                                      "description": "The maximum number of webhook deliveries to retrieve.",
+                                      "key": "limit",
+                                      "value": "50"
+                                    },
+                                    {
+                                      "description": "The token from the previous request to return the next page of webhook deliveries.",
+                                      "key": "continuation_token",
+                                      "value": "0"
+                                    }
+                                  ],
+                                  "variable": [
+                                    {
+                                      "key": "organization"
+                                    },
+                                    {
+                                      "key": "webhook_destination_id"
+                                    }
+                                  ]
+                                }
+                              },
+                              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+                              "code": 422,
+                              "_postman_previewlanguage": "text",
+                              "header": [],
+                              "cookie": [],
+                              "responseTime": null,
+                              "body": null,
+                              "createdAt": "2026-07-28T01:03:04.000Z",
+                              "updatedAt": "2026-07-28T01:03:04.000Z",
+                              "uid": "35240-e4cdb59a-d3ac-4387-93f6-21881d227c46"
+                            },
+                            {
+                              "id": "2d552ee1-5a63-4103-a856-1ab4b09072d7",
+                              "name": "The user has exceeded the rate limit of 5 requests per minute for this endpoint.",
+                              "originalRequest": {
+                                "method": "GET",
+                                "header": [
+                                  {
+                                    "description": "The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.",
+                                    "key": "x-mongo-cluster-name",
+                                    "value": "<string>"
+                                  },
+                                  {
+                                    "key": "Sec-WebSocket-Protocol",
+                                    "value": ""
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "url": {
+                                  "raw": "{{baseUrl}}/v1/:organization/webhook_destination/:webhook_destination_id/delivery?status=failed&type=<string>&created_after=<dateTime>&created_before=<dateTime>&limit=50&continuation_token=0",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "v1",
+                                    ":organization",
+                                    "webhook_destination",
+                                    ":webhook_destination_id",
+                                    "delivery"
+                                  ],
+                                  "query": [
+                                    {
+                                      "description": "The status of the webhook delivery.",
+                                      "key": "status",
+                                      "value": "failed"
+                                    },
+                                    {
+                                      "description": "The type of the webhook.",
+                                      "key": "type",
+                                      "value": "<string>"
+                                    },
+                                    {
+                                      "description": "An ISO8601 timestamp in UTC of the earliest creation time of the webhook deliveries to retrieve.",
+                                      "key": "created_after",
+                                      "value": "<dateTime>"
+                                    },
+                                    {
+                                      "description": "An ISO8601 timestamp in UTC of the latest creation time of the webhook deliveries to retrieve.",
+                                      "key": "created_before",
+                                      "value": "<dateTime>"
+                                    },
+                                    {
+                                      "description": "The maximum number of webhook deliveries to retrieve.",
+                                      "key": "limit",
+                                      "value": "50"
+                                    },
+                                    {
+                                      "description": "The token from the previous request to return the next page of webhook deliveries.",
+                                      "key": "continuation_token",
+                                      "value": "0"
+                                    }
+                                  ],
+                                  "variable": [
+                                    {
+                                      "key": "organization"
+                                    },
+                                    {
+                                      "key": "webhook_destination_id"
+                                    }
+                                  ]
+                                }
+                              },
+                              "status": "Too Many Requests",
+                              "code": 429,
+                              "_postman_previewlanguage": "text",
+                              "header": [],
+                              "cookie": [],
+                              "responseTime": null,
+                              "body": null,
+                              "createdAt": "2026-07-28T01:03:04.000Z",
+                              "updatedAt": "2026-07-28T01:03:04.000Z",
+                              "uid": "35240-2d552ee1-5a63-4103-a856-1ab4b09072d7"
+                            },
+                            {
+                              "id": "a1ee99cc-d603-469b-8700-cbe228e8e64d",
+                              "name": "The service is going through temporary maintenance.",
+                              "originalRequest": {
+                                "method": "GET",
+                                "header": [
+                                  {
+                                    "description": "The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.",
+                                    "key": "x-mongo-cluster-name",
+                                    "value": "<string>"
+                                  },
+                                  {
+                                    "key": "Sec-WebSocket-Protocol",
+                                    "value": ""
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "url": {
+                                  "raw": "{{baseUrl}}/v1/:organization/webhook_destination/:webhook_destination_id/delivery?status=failed&type=<string>&created_after=<dateTime>&created_before=<dateTime>&limit=50&continuation_token=0",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "v1",
+                                    ":organization",
+                                    "webhook_destination",
+                                    ":webhook_destination_id",
+                                    "delivery"
+                                  ],
+                                  "query": [
+                                    {
+                                      "description": "The status of the webhook delivery.",
+                                      "key": "status",
+                                      "value": "failed"
+                                    },
+                                    {
+                                      "description": "The type of the webhook.",
+                                      "key": "type",
+                                      "value": "<string>"
+                                    },
+                                    {
+                                      "description": "An ISO8601 timestamp in UTC of the earliest creation time of the webhook deliveries to retrieve.",
+                                      "key": "created_after",
+                                      "value": "<dateTime>"
+                                    },
+                                    {
+                                      "description": "An ISO8601 timestamp in UTC of the latest creation time of the webhook deliveries to retrieve.",
+                                      "key": "created_before",
+                                      "value": "<dateTime>"
+                                    },
+                                    {
+                                      "description": "The maximum number of webhook deliveries to retrieve.",
+                                      "key": "limit",
+                                      "value": "50"
+                                    },
+                                    {
+                                      "description": "The token from the previous request to return the next page of webhook deliveries.",
+                                      "key": "continuation_token",
+                                      "value": "0"
+                                    }
+                                  ],
+                                  "variable": [
+                                    {
+                                      "key": "organization"
+                                    },
+                                    {
+                                      "key": "webhook_destination_id"
+                                    }
+                                  ]
+                                }
+                              },
+                              "status": "Service Unavailable",
+                              "code": 503,
+                              "_postman_previewlanguage": "text",
+                              "header": [],
+                              "cookie": [],
+                              "responseTime": null,
+                              "body": null,
+                              "createdAt": "2026-07-28T01:03:04.000Z",
+                              "updatedAt": "2026-07-28T01:03:04.000Z",
+                              "uid": "35240-a1ee99cc-d603-469b-8700-cbe228e8e64d"
+                            }
+                          ],
+                          "createdAt": "2026-07-28T01:03:04.000Z",
+                          "updatedAt": "2026-07-28T01:03:04.000Z",
+                          "uid": "35240-dafe01df-9f44-40e0-9800-1918824ddfe5"
+                        }
+                      ],
+                      "id": "ac94ee2f-eee5-41a3-a541-d8e34d51c574",
+                      "createdAt": "2026-07-28T01:03:04.000Z",
+                      "updatedAt": "2026-07-28T01:03:04.000Z",
+                      "uid": "35240-ac94ee2f-eee5-41a3-a541-d8e34d51c574"
+                    },
+                    {
+                      "name": "Update a webhook destination",
+                      "id": "789a38ad-5e7c-4607-9bbb-804396e5bbe4",
+                      "protocolProfileBehavior": {
+                        "disableBodyPruning": true
+                      },
+                      "request": {
+                        "method": "POST",
+                        "header": [
+                          {
+                            "description": "The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.",
+                            "key": "x-mongo-cluster-name",
+                            "value": "<string>"
+                          },
+                          {
+                            "key": "Sec-WebSocket-Protocol",
+                            "value": ""
+                          },
+                          {
+                            "key": "Content-Type",
+                            "value": "application/json"
+                          }
+                        ],
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\n  \"retry_attempts\": \"<integer>\",\n  \"accepted_types\": [\n    \"conversation-post-processing-complete\",\n    \"api-key-expiration-soon\"\n  ]\n}",
+                          "options": {
+                            "raw": {
+                              "headerFamily": "json",
+                              "language": "json"
+                            }
+                          }
+                        },
+                        "url": {
+                          "raw": "{{baseUrl}}/v1/:organization/webhook_destination/:webhook_destination_id",
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "v1",
+                            ":organization",
+                            "webhook_destination",
+                            ":webhook_destination_id"
+                          ],
+                          "variable": [
+                            {
+                              "id": "2c456958-a895-4647-84ea-fb6c02277a0d",
+                              "key": "organization",
+                              "value": "<string>",
+                              "description": "(Required) "
+                            },
+                            {
+                              "id": "1f05ded7-1924-44eb-8916-4d47d6197cbe",
+                              "key": "webhook_destination_id",
+                              "value": "85bcbae3c90c4d2741da7279",
+                              "description": "(Required) The identifier of the webhook destination to update."
+                            }
+                          ]
+                        },
+                        "description": "Update certain configs for a webhook destination. The changes will only take effect a few seconds after this endpoint returns.\n\nThe URL of a webhook destination cannot be changed. Use [`Create a webhook destination`](create-webhook-destination) instead.\n\n#### Permissions\nThis endpoint requires the following permissions:\n* `Webhook:UpdateWebhookDestination` for the webhook destination."
+                      },
+                      "response": [
+                        {
+                          "id": "e8a2cb6c-30b7-4449-8633-04504fd67da6",
+                          "name": "Succeeded.",
+                          "originalRequest": {
+                            "method": "POST",
+                            "header": [
+                              {
+                                "description": "The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.",
+                                "key": "x-mongo-cluster-name",
+                                "value": "<string>"
+                              },
+                              {
+                                "key": "Sec-WebSocket-Protocol",
+                                "value": ""
+                              },
+                              {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                              },
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "body": {
+                              "mode": "raw",
+                              "raw": "{\n  \"retry_attempts\": \"<integer>\",\n  \"accepted_types\": [\n    \"conversation-post-processing-complete\",\n    \"api-key-expiration-soon\"\n  ]\n}",
+                              "options": {
+                                "raw": {
+                                  "headerFamily": "json",
+                                  "language": "json"
+                                }
+                              }
+                            },
+                            "url": {
+                              "raw": "{{baseUrl}}/v1/:organization/webhook_destination/:webhook_destination_id",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v1",
+                                ":organization",
+                                "webhook_destination",
+                                ":webhook_destination_id"
+                              ],
+                              "variable": [
+                                {
+                                  "key": "organization"
+                                },
+                                {
+                                  "key": "webhook_destination_id"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "No Content",
+                          "code": 204,
+                          "_postman_previewlanguage": "text",
+                          "header": [],
+                          "cookie": [],
+                          "responseTime": null,
+                          "body": null,
+                          "createdAt": "2026-07-28T01:03:04.000Z",
+                          "updatedAt": "2026-07-28T01:03:04.000Z",
+                          "uid": "35240-e8a2cb6c-30b7-4449-8633-04504fd67da6"
+                        },
+                        {
+                          "id": "758f44ae-e47a-493f-bcbe-ca0b00fcea9e",
+                          "name": "Invalid authorization credentials.",
+                          "originalRequest": {
+                            "method": "POST",
+                            "header": [
+                              {
+                                "description": "The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.",
+                                "key": "x-mongo-cluster-name",
+                                "value": "<string>"
+                              },
+                              {
+                                "key": "Sec-WebSocket-Protocol",
+                                "value": ""
+                              },
+                              {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                              },
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "body": {
+                              "mode": "raw",
+                              "raw": "{\n  \"retry_attempts\": \"<integer>\",\n  \"accepted_types\": [\n    \"conversation-post-processing-complete\",\n    \"api-key-expiration-soon\"\n  ]\n}",
+                              "options": {
+                                "raw": {
+                                  "headerFamily": "json",
+                                  "language": "json"
+                                }
+                              }
+                            },
+                            "url": {
+                              "raw": "{{baseUrl}}/v1/:organization/webhook_destination/:webhook_destination_id",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v1",
+                                ":organization",
+                                "webhook_destination",
+                                ":webhook_destination_id"
+                              ],
+                              "variable": [
+                                {
+                                  "key": "organization"
+                                },
+                                {
+                                  "key": "webhook_destination_id"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "Unauthorized",
+                          "code": 401,
+                          "_postman_previewlanguage": "text",
+                          "header": [],
+                          "cookie": [],
+                          "responseTime": null,
+                          "body": null,
+                          "createdAt": "2026-07-28T01:03:04.000Z",
+                          "updatedAt": "2026-07-28T01:03:04.000Z",
+                          "uid": "35240-758f44ae-e47a-493f-bcbe-ca0b00fcea9e"
+                        },
+                        {
+                          "id": "518327d7-1862-4ec7-a77b-886d613f8bf5",
+                          "name": "Missing required permissions.",
+                          "originalRequest": {
+                            "method": "POST",
+                            "header": [
+                              {
+                                "description": "The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.",
+                                "key": "x-mongo-cluster-name",
+                                "value": "<string>"
+                              },
+                              {
+                                "key": "Sec-WebSocket-Protocol",
+                                "value": ""
+                              },
+                              {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                              },
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "body": {
+                              "mode": "raw",
+                              "raw": "{\n  \"retry_attempts\": \"<integer>\",\n  \"accepted_types\": [\n    \"conversation-post-processing-complete\",\n    \"api-key-expiration-soon\"\n  ]\n}",
+                              "options": {
+                                "raw": {
+                                  "headerFamily": "json",
+                                  "language": "json"
+                                }
+                              }
+                            },
+                            "url": {
+                              "raw": "{{baseUrl}}/v1/:organization/webhook_destination/:webhook_destination_id",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v1",
+                                ":organization",
+                                "webhook_destination",
+                                ":webhook_destination_id"
+                              ],
+                              "variable": [
+                                {
+                                  "key": "organization"
+                                },
+                                {
+                                  "key": "webhook_destination_id"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "Forbidden",
+                          "code": 403,
+                          "_postman_previewlanguage": "text",
+                          "header": [],
+                          "cookie": [],
+                          "responseTime": null,
+                          "body": null,
+                          "createdAt": "2026-07-28T01:03:04.000Z",
+                          "updatedAt": "2026-07-28T01:03:04.000Z",
+                          "uid": "35240-518327d7-1862-4ec7-a77b-886d613f8bf5"
+                        },
+                        {
+                          "id": "1a906c2e-9983-4eeb-88ca-740b7d57ba3c",
+                          "name": "Specified organization or webhook destination is not found.",
+                          "originalRequest": {
+                            "method": "POST",
+                            "header": [
+                              {
+                                "description": "The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.",
+                                "key": "x-mongo-cluster-name",
+                                "value": "<string>"
+                              },
+                              {
+                                "key": "Sec-WebSocket-Protocol",
+                                "value": ""
+                              },
+                              {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                              },
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "body": {
+                              "mode": "raw",
+                              "raw": "{\n  \"retry_attempts\": \"<integer>\",\n  \"accepted_types\": [\n    \"conversation-post-processing-complete\",\n    \"api-key-expiration-soon\"\n  ]\n}",
+                              "options": {
+                                "raw": {
+                                  "headerFamily": "json",
+                                  "language": "json"
+                                }
+                              }
+                            },
+                            "url": {
+                              "raw": "{{baseUrl}}/v1/:organization/webhook_destination/:webhook_destination_id",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v1",
+                                ":organization",
+                                "webhook_destination",
+                                ":webhook_destination_id"
+                              ],
+                              "variable": [
+                                {
+                                  "key": "organization"
+                                },
+                                {
+                                  "key": "webhook_destination_id"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "Not Found",
+                          "code": 404,
+                          "_postman_previewlanguage": "text",
+                          "header": [],
+                          "cookie": [],
+                          "responseTime": null,
+                          "body": null,
+                          "createdAt": "2026-07-28T01:03:04.000Z",
+                          "updatedAt": "2026-07-28T01:03:04.000Z",
+                          "uid": "35240-1a906c2e-9983-4eeb-88ca-740b7d57ba3c"
+                        },
+                        {
+                          "id": "e211c726-3944-4324-82aa-47d9b18acae5",
+                          "name": "A related operation is in progress.",
+                          "originalRequest": {
+                            "method": "POST",
+                            "header": [
+                              {
+                                "description": "The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.",
+                                "key": "x-mongo-cluster-name",
+                                "value": "<string>"
+                              },
+                              {
+                                "key": "Sec-WebSocket-Protocol",
+                                "value": ""
+                              },
+                              {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                              },
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "body": {
+                              "mode": "raw",
+                              "raw": "{\n  \"retry_attempts\": \"<integer>\",\n  \"accepted_types\": [\n    \"conversation-post-processing-complete\",\n    \"api-key-expiration-soon\"\n  ]\n}",
+                              "options": {
+                                "raw": {
+                                  "headerFamily": "json",
+                                  "language": "json"
+                                }
+                              }
+                            },
+                            "url": {
+                              "raw": "{{baseUrl}}/v1/:organization/webhook_destination/:webhook_destination_id",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v1",
+                                ":organization",
+                                "webhook_destination",
+                                ":webhook_destination_id"
+                              ],
+                              "variable": [
+                                {
+                                  "key": "organization"
+                                },
+                                {
+                                  "key": "webhook_destination_id"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "Conflict",
+                          "code": 409,
+                          "_postman_previewlanguage": "text",
+                          "header": [],
+                          "cookie": [],
+                          "responseTime": null,
+                          "body": null,
+                          "createdAt": "2026-07-28T01:03:04.000Z",
+                          "updatedAt": "2026-07-28T01:03:04.000Z",
+                          "uid": "35240-e211c726-3944-4324-82aa-47d9b18acae5"
+                        },
+                        {
+                          "id": "d39f574d-2f95-442b-bbf7-3d30d1a7f2e8",
+                          "name": "Invalid request path parameter or request body failed validation.",
+                          "originalRequest": {
+                            "method": "POST",
+                            "header": [
+                              {
+                                "description": "The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.",
+                                "key": "x-mongo-cluster-name",
+                                "value": "<string>"
+                              },
+                              {
+                                "key": "Sec-WebSocket-Protocol",
+                                "value": ""
+                              },
+                              {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                              },
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "body": {
+                              "mode": "raw",
+                              "raw": "{\n  \"retry_attempts\": \"<integer>\",\n  \"accepted_types\": [\n    \"conversation-post-processing-complete\",\n    \"api-key-expiration-soon\"\n  ]\n}",
+                              "options": {
+                                "raw": {
+                                  "headerFamily": "json",
+                                  "language": "json"
+                                }
+                              }
+                            },
+                            "url": {
+                              "raw": "{{baseUrl}}/v1/:organization/webhook_destination/:webhook_destination_id",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v1",
+                                ":organization",
+                                "webhook_destination",
+                                ":webhook_destination_id"
+                              ],
+                              "variable": [
+                                {
+                                  "key": "organization"
+                                },
+                                {
+                                  "key": "webhook_destination_id"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+                          "code": 422,
+                          "_postman_previewlanguage": "text",
+                          "header": [],
+                          "cookie": [],
+                          "responseTime": null,
+                          "body": null,
+                          "createdAt": "2026-07-28T01:03:04.000Z",
+                          "updatedAt": "2026-07-28T01:03:04.000Z",
+                          "uid": "35240-d39f574d-2f95-442b-bbf7-3d30d1a7f2e8"
+                        },
+                        {
+                          "id": "df01aa5a-101c-4932-b766-7aa54a628e55",
+                          "name": "The user has exceeded the rate limit of 20 requests per minute for this endpoint.",
+                          "originalRequest": {
+                            "method": "POST",
+                            "header": [
+                              {
+                                "description": "The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.",
+                                "key": "x-mongo-cluster-name",
+                                "value": "<string>"
+                              },
+                              {
+                                "key": "Sec-WebSocket-Protocol",
+                                "value": ""
+                              },
+                              {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                              },
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "body": {
+                              "mode": "raw",
+                              "raw": "{\n  \"retry_attempts\": \"<integer>\",\n  \"accepted_types\": [\n    \"conversation-post-processing-complete\",\n    \"api-key-expiration-soon\"\n  ]\n}",
+                              "options": {
+                                "raw": {
+                                  "headerFamily": "json",
+                                  "language": "json"
+                                }
+                              }
+                            },
+                            "url": {
+                              "raw": "{{baseUrl}}/v1/:organization/webhook_destination/:webhook_destination_id",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v1",
+                                ":organization",
+                                "webhook_destination",
+                                ":webhook_destination_id"
+                              ],
+                              "variable": [
+                                {
+                                  "key": "organization"
+                                },
+                                {
+                                  "key": "webhook_destination_id"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "Too Many Requests",
+                          "code": 429,
+                          "_postman_previewlanguage": "text",
+                          "header": [],
+                          "cookie": [],
+                          "responseTime": null,
+                          "body": null,
+                          "createdAt": "2026-07-28T01:03:04.000Z",
+                          "updatedAt": "2026-07-28T01:03:04.000Z",
+                          "uid": "35240-df01aa5a-101c-4932-b766-7aa54a628e55"
+                        },
+                        {
+                          "id": "a90dea6b-ce9f-4b2c-9333-41b9127dbc66",
+                          "name": "The service is going through temporary maintenance.",
+                          "originalRequest": {
+                            "method": "POST",
+                            "header": [
+                              {
+                                "description": "The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.",
+                                "key": "x-mongo-cluster-name",
+                                "value": "<string>"
+                              },
+                              {
+                                "key": "Sec-WebSocket-Protocol",
+                                "value": ""
+                              },
+                              {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                              },
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "body": {
+                              "mode": "raw",
+                              "raw": "{\n  \"retry_attempts\": \"<integer>\",\n  \"accepted_types\": [\n    \"conversation-post-processing-complete\",\n    \"api-key-expiration-soon\"\n  ]\n}",
+                              "options": {
+                                "raw": {
+                                  "headerFamily": "json",
+                                  "language": "json"
+                                }
+                              }
+                            },
+                            "url": {
+                              "raw": "{{baseUrl}}/v1/:organization/webhook_destination/:webhook_destination_id",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v1",
+                                ":organization",
+                                "webhook_destination",
+                                ":webhook_destination_id"
+                              ],
+                              "variable": [
+                                {
+                                  "key": "organization"
+                                },
+                                {
+                                  "key": "webhook_destination_id"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "Service Unavailable",
+                          "code": 503,
+                          "_postman_previewlanguage": "text",
+                          "header": [],
+                          "cookie": [],
+                          "responseTime": null,
+                          "body": null,
+                          "createdAt": "2026-07-28T01:03:04.000Z",
+                          "updatedAt": "2026-07-28T01:03:04.000Z",
+                          "uid": "35240-a90dea6b-ce9f-4b2c-9333-41b9127dbc66"
+                        }
+                      ],
+                      "createdAt": "2026-07-28T01:03:04.000Z",
+                      "updatedAt": "2026-07-28T01:03:04.000Z",
+                      "uid": "35240-789a38ad-5e7c-4607-9bbb-804396e5bbe4"
+                    },
+                    {
+                      "name": "Delete a webhook destination",
+                      "id": "01d6ee45-5b4f-4917-96ef-979661730198",
+                      "protocolProfileBehavior": {
+                        "disableBodyPruning": true
+                      },
+                      "request": {
+                        "method": "DELETE",
+                        "header": [
+                          {
+                            "description": "The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.",
+                            "key": "x-mongo-cluster-name",
+                            "value": "<string>"
+                          },
+                          {
+                            "key": "Sec-WebSocket-Protocol",
+                            "value": ""
+                          }
+                        ],
+                        "url": {
+                          "raw": "{{baseUrl}}/v1/:organization/webhook_destination/:webhook_destination_id",
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "v1",
+                            ":organization",
+                            "webhook_destination",
+                            ":webhook_destination_id"
+                          ],
+                          "variable": [
+                            {
+                              "id": "3f4d3bb3-6029-44d4-9752-32ed7bd6d509",
+                              "key": "organization",
+                              "value": "<string>",
+                              "description": "(Required) "
+                            },
+                            {
+                              "id": "1d8df0e4-a3e9-4757-a5c9-5c118fc1a4a7",
+                              "key": "webhook_destination_id",
+                              "value": "85bcbae3c90c4d2741da7279",
+                              "description": "(Required) The identifier of the webhook destination to update."
+                            }
+                          ]
+                        },
+                        "description": "Remove a webhook destination from the organization. The webhook destination might still be active for a few seconds after this endpoint returns.\n\n#### Permissions\nThis endpoint requires the following permissions:\n* `Webhook:DeleteWebhookDestination` for the webhook destination."
+                      },
+                      "response": [
+                        {
+                          "id": "5d7f28b6-82f5-42a5-a52d-ea36c3293975",
+                          "name": "Succeeded.",
+                          "originalRequest": {
+                            "method": "DELETE",
+                            "header": [
+                              {
+                                "description": "The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.",
+                                "key": "x-mongo-cluster-name",
+                                "value": "<string>"
+                              },
+                              {
+                                "key": "Sec-WebSocket-Protocol",
+                                "value": ""
+                              },
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "url": {
+                              "raw": "{{baseUrl}}/v1/:organization/webhook_destination/:webhook_destination_id",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v1",
+                                ":organization",
+                                "webhook_destination",
+                                ":webhook_destination_id"
+                              ],
+                              "variable": [
+                                {
+                                  "key": "organization"
+                                },
+                                {
+                                  "key": "webhook_destination_id"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "No Content",
+                          "code": 204,
+                          "_postman_previewlanguage": "text",
+                          "header": [],
+                          "cookie": [],
+                          "responseTime": null,
+                          "body": null,
+                          "createdAt": "2026-07-28T01:03:04.000Z",
+                          "updatedAt": "2026-07-28T01:03:04.000Z",
+                          "uid": "35240-5d7f28b6-82f5-42a5-a52d-ea36c3293975"
+                        },
+                        {
+                          "id": "776cfbb2-6327-4908-bcf5-4f49917f5abb",
+                          "name": "Invalid authorization credentials.",
+                          "originalRequest": {
+                            "method": "DELETE",
+                            "header": [
+                              {
+                                "description": "The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.",
+                                "key": "x-mongo-cluster-name",
+                                "value": "<string>"
+                              },
+                              {
+                                "key": "Sec-WebSocket-Protocol",
+                                "value": ""
+                              },
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "url": {
+                              "raw": "{{baseUrl}}/v1/:organization/webhook_destination/:webhook_destination_id",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v1",
+                                ":organization",
+                                "webhook_destination",
+                                ":webhook_destination_id"
+                              ],
+                              "variable": [
+                                {
+                                  "key": "organization"
+                                },
+                                {
+                                  "key": "webhook_destination_id"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "Unauthorized",
+                          "code": 401,
+                          "_postman_previewlanguage": "text",
+                          "header": [],
+                          "cookie": [],
+                          "responseTime": null,
+                          "body": null,
+                          "createdAt": "2026-07-28T01:03:04.000Z",
+                          "updatedAt": "2026-07-28T01:03:04.000Z",
+                          "uid": "35240-776cfbb2-6327-4908-bcf5-4f49917f5abb"
+                        },
+                        {
+                          "id": "b1ec38d4-9ac5-46c6-b067-b1ffc846db25",
+                          "name": "Missing required permissions.",
+                          "originalRequest": {
+                            "method": "DELETE",
+                            "header": [
+                              {
+                                "description": "The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.",
+                                "key": "x-mongo-cluster-name",
+                                "value": "<string>"
+                              },
+                              {
+                                "key": "Sec-WebSocket-Protocol",
+                                "value": ""
+                              },
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "url": {
+                              "raw": "{{baseUrl}}/v1/:organization/webhook_destination/:webhook_destination_id",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v1",
+                                ":organization",
+                                "webhook_destination",
+                                ":webhook_destination_id"
+                              ],
+                              "variable": [
+                                {
+                                  "key": "organization"
+                                },
+                                {
+                                  "key": "webhook_destination_id"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "Forbidden",
+                          "code": 403,
+                          "_postman_previewlanguage": "text",
+                          "header": [],
+                          "cookie": [],
+                          "responseTime": null,
+                          "body": null,
+                          "createdAt": "2026-07-28T01:03:04.000Z",
+                          "updatedAt": "2026-07-28T01:03:04.000Z",
+                          "uid": "35240-b1ec38d4-9ac5-46c6-b067-b1ffc846db25"
+                        },
+                        {
+                          "id": "a50a5b5d-1ef8-4bc8-a8e2-f09a64feefdb",
+                          "name": "Specified organization or webhook destination is not found.",
+                          "originalRequest": {
+                            "method": "DELETE",
+                            "header": [
+                              {
+                                "description": "The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.",
+                                "key": "x-mongo-cluster-name",
+                                "value": "<string>"
+                              },
+                              {
+                                "key": "Sec-WebSocket-Protocol",
+                                "value": ""
+                              },
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "url": {
+                              "raw": "{{baseUrl}}/v1/:organization/webhook_destination/:webhook_destination_id",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v1",
+                                ":organization",
+                                "webhook_destination",
+                                ":webhook_destination_id"
+                              ],
+                              "variable": [
+                                {
+                                  "key": "organization"
+                                },
+                                {
+                                  "key": "webhook_destination_id"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "Not Found",
+                          "code": 404,
+                          "_postman_previewlanguage": "text",
+                          "header": [],
+                          "cookie": [],
+                          "responseTime": null,
+                          "body": null,
+                          "createdAt": "2026-07-28T01:03:04.000Z",
+                          "updatedAt": "2026-07-28T01:03:04.000Z",
+                          "uid": "35240-a50a5b5d-1ef8-4bc8-a8e2-f09a64feefdb"
+                        },
+                        {
+                          "id": "ac1af40f-67e2-4559-96c3-a8aba883edf5",
+                          "name": "A related operation is in progress.",
+                          "originalRequest": {
+                            "method": "DELETE",
+                            "header": [
+                              {
+                                "description": "The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.",
+                                "key": "x-mongo-cluster-name",
+                                "value": "<string>"
+                              },
+                              {
+                                "key": "Sec-WebSocket-Protocol",
+                                "value": ""
+                              },
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "url": {
+                              "raw": "{{baseUrl}}/v1/:organization/webhook_destination/:webhook_destination_id",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v1",
+                                ":organization",
+                                "webhook_destination",
+                                ":webhook_destination_id"
+                              ],
+                              "variable": [
+                                {
+                                  "key": "organization"
+                                },
+                                {
+                                  "key": "webhook_destination_id"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "Conflict",
+                          "code": 409,
+                          "_postman_previewlanguage": "text",
+                          "header": [],
+                          "cookie": [],
+                          "responseTime": null,
+                          "body": null,
+                          "createdAt": "2026-07-28T01:03:04.000Z",
+                          "updatedAt": "2026-07-28T01:03:04.000Z",
+                          "uid": "35240-ac1af40f-67e2-4559-96c3-a8aba883edf5"
+                        },
+                        {
+                          "id": "1146e2f0-241c-4e52-a823-d7915f9d5026",
+                          "name": "Invalid request path parameter failed validation.",
+                          "originalRequest": {
+                            "method": "DELETE",
+                            "header": [
+                              {
+                                "description": "The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.",
+                                "key": "x-mongo-cluster-name",
+                                "value": "<string>"
+                              },
+                              {
+                                "key": "Sec-WebSocket-Protocol",
+                                "value": ""
+                              },
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "url": {
+                              "raw": "{{baseUrl}}/v1/:organization/webhook_destination/:webhook_destination_id",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v1",
+                                ":organization",
+                                "webhook_destination",
+                                ":webhook_destination_id"
+                              ],
+                              "variable": [
+                                {
+                                  "key": "organization"
+                                },
+                                {
+                                  "key": "webhook_destination_id"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+                          "code": 422,
+                          "_postman_previewlanguage": "text",
+                          "header": [],
+                          "cookie": [],
+                          "responseTime": null,
+                          "body": null,
+                          "createdAt": "2026-07-28T01:03:04.000Z",
+                          "updatedAt": "2026-07-28T01:03:04.000Z",
+                          "uid": "35240-1146e2f0-241c-4e52-a823-d7915f9d5026"
+                        },
+                        {
+                          "id": "2a952cda-6dd0-4ac2-9696-8b149cf64c73",
+                          "name": "The user has exceeded the rate limit of 20 requests per minute for this endpoint.",
+                          "originalRequest": {
+                            "method": "DELETE",
+                            "header": [
+                              {
+                                "description": "The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.",
+                                "key": "x-mongo-cluster-name",
+                                "value": "<string>"
+                              },
+                              {
+                                "key": "Sec-WebSocket-Protocol",
+                                "value": ""
+                              },
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "url": {
+                              "raw": "{{baseUrl}}/v1/:organization/webhook_destination/:webhook_destination_id",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v1",
+                                ":organization",
+                                "webhook_destination",
+                                ":webhook_destination_id"
+                              ],
+                              "variable": [
+                                {
+                                  "key": "organization"
+                                },
+                                {
+                                  "key": "webhook_destination_id"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "Too Many Requests",
+                          "code": 429,
+                          "_postman_previewlanguage": "text",
+                          "header": [],
+                          "cookie": [],
+                          "responseTime": null,
+                          "body": null,
+                          "createdAt": "2026-07-28T01:03:04.000Z",
+                          "updatedAt": "2026-07-28T01:03:04.000Z",
+                          "uid": "35240-2a952cda-6dd0-4ac2-9696-8b149cf64c73"
+                        },
+                        {
+                          "id": "68693c1f-753f-4053-b178-8b3714d880c4",
+                          "name": "The service is going through temporary maintenance.",
+                          "originalRequest": {
+                            "method": "DELETE",
+                            "header": [
+                              {
+                                "description": "The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.",
+                                "key": "x-mongo-cluster-name",
+                                "value": "<string>"
+                              },
+                              {
+                                "key": "Sec-WebSocket-Protocol",
+                                "value": ""
+                              },
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "url": {
+                              "raw": "{{baseUrl}}/v1/:organization/webhook_destination/:webhook_destination_id",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v1",
+                                ":organization",
+                                "webhook_destination",
+                                ":webhook_destination_id"
+                              ],
+                              "variable": [
+                                {
+                                  "key": "organization"
+                                },
+                                {
+                                  "key": "webhook_destination_id"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "Service Unavailable",
+                          "code": 503,
+                          "_postman_previewlanguage": "text",
+                          "header": [],
+                          "cookie": [],
+                          "responseTime": null,
+                          "body": null,
+                          "createdAt": "2026-07-28T01:03:04.000Z",
+                          "updatedAt": "2026-07-28T01:03:04.000Z",
+                          "uid": "35240-68693c1f-753f-4053-b178-8b3714d880c4"
+                        }
+                      ],
+                      "createdAt": "2026-07-28T01:03:04.000Z",
+                      "updatedAt": "2026-07-28T01:03:04.000Z",
+                      "uid": "35240-01d6ee45-5b4f-4917-96ef-979661730198"
+                    }
+                  ],
+                  "id": "ce84f21f-e0ab-4380-b408-b5ceb4f8b034",
+                  "createdAt": "2026-07-28T01:03:04.000Z",
+                  "updatedAt": "2026-07-28T01:03:04.000Z",
+                  "uid": "35240-ce84f21f-e0ab-4380-b408-b5ceb4f8b034"
+                },
+                {
+                  "name": "Create a webhook destination",
+                  "id": "4fa3e6e0-60bc-4c4d-8f2a-720143c55665",
+                  "protocolProfileBehavior": {
+                    "disableBodyPruning": true
+                  },
+                  "request": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "description": "The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.",
+                        "key": "x-mongo-cluster-name",
+                        "value": "<string>"
+                      },
+                      {
+                        "key": "Sec-WebSocket-Protocol",
+                        "value": ""
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"url\": \"<uri>\",\n  \"accepted_types\": [\n    \"agent-framework-resource-updated\",\n    \"conversation-post-processing-complete\"\n  ],\n  \"retry_attempts\": 3\n}",
+                      "options": {
+                        "raw": {
+                          "headerFamily": "json",
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/v1/:organization/webhook_destination/",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "v1",
+                        ":organization",
+                        "webhook_destination",
+                        ""
+                      ],
+                      "variable": [
+                        {
+                          "id": "994dea3a-7381-4323-b101-53de6e830f0e",
+                          "key": "organization",
+                          "value": "<string>",
+                          "description": "(Required) "
+                        }
+                      ]
+                    },
+                    "description": "Create a new webhook destination. At most 10 webhook destinations can be defined per organization.\n\nA secret will immediately be issued for the webhook destination. Every webhook sent to this destination will be signed using this secret.\nThis secret is one-view only and cannot be retrieved later.\n\n#### Permissions\nThis endpoint requires the following permissions:\n* `Webhook:CreateWebhookDestination` for the webhook destination."
+                  },
+                  "response": [
+                    {
+                      "id": "380e6cbf-e10d-4cba-8c85-2c12baf561d4",
+                      "name": "Succeeded.",
+                      "originalRequest": {
+                        "method": "POST",
+                        "header": [
+                          {
+                            "description": "The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.",
+                            "key": "x-mongo-cluster-name",
+                            "value": "<string>"
+                          },
+                          {
+                            "key": "Sec-WebSocket-Protocol",
+                            "value": ""
+                          },
+                          {
+                            "key": "Content-Type",
+                            "value": "application/json"
+                          },
+                          {
+                            "key": "Accept",
+                            "value": "application/json"
+                          },
+                          {
+                            "description": "Added as a part of security scheme: bearer",
+                            "key": "Authorization",
+                            "value": "Bearer <token>"
+                          }
+                        ],
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\n  \"url\": \"<uri>\",\n  \"accepted_types\": [\n    \"agent-framework-resource-updated\",\n    \"conversation-post-processing-complete\"\n  ],\n  \"retry_attempts\": 3\n}",
+                          "options": {
+                            "raw": {
+                              "headerFamily": "json",
+                              "language": "json"
+                            }
+                          }
+                        },
+                        "url": {
+                          "raw": "{{baseUrl}}/v1/:organization/webhook_destination/",
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "v1",
+                            ":organization",
+                            "webhook_destination",
+                            ""
+                          ],
+                          "variable": [
+                            {
+                              "key": "organization"
+                            }
+                          ]
+                        }
+                      },
+                      "status": "Created",
+                      "code": 201,
+                      "_postman_previewlanguage": "json",
+                      "header": [
+                        {
+                          "key": "Content-Type",
+                          "value": "application/json"
+                        }
+                      ],
+                      "cookie": [],
+                      "responseTime": null,
+                      "body": "{\n  \"webhook_destination_id\": \"<string>\",\n  \"secret\": \"<string>\"\n}",
+                      "createdAt": "2026-07-28T01:03:04.000Z",
+                      "updatedAt": "2026-07-28T01:03:04.000Z",
+                      "uid": "35240-380e6cbf-e10d-4cba-8c85-2c12baf561d4"
+                    },
+                    {
+                      "id": "4d3c3918-4868-46f6-b53d-8ccb5a3a9091",
+                      "name": "The organization already has the maximum amount of webhook destinations defined.",
+                      "originalRequest": {
+                        "method": "POST",
+                        "header": [
+                          {
+                            "description": "The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.",
+                            "key": "x-mongo-cluster-name",
+                            "value": "<string>"
+                          },
+                          {
+                            "key": "Sec-WebSocket-Protocol",
+                            "value": ""
+                          },
+                          {
+                            "key": "Content-Type",
+                            "value": "application/json"
+                          },
+                          {
+                            "description": "Added as a part of security scheme: bearer",
+                            "key": "Authorization",
+                            "value": "Bearer <token>"
+                          }
+                        ],
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\n  \"url\": \"<uri>\",\n  \"accepted_types\": [\n    \"agent-framework-resource-updated\",\n    \"conversation-post-processing-complete\"\n  ],\n  \"retry_attempts\": 3\n}",
+                          "options": {
+                            "raw": {
+                              "headerFamily": "json",
+                              "language": "json"
+                            }
+                          }
+                        },
+                        "url": {
+                          "raw": "{{baseUrl}}/v1/:organization/webhook_destination/",
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "v1",
+                            ":organization",
+                            "webhook_destination",
+                            ""
+                          ],
+                          "variable": [
+                            {
+                              "key": "organization"
+                            }
+                          ]
+                        }
+                      },
+                      "status": "Bad Request",
+                      "code": 400,
+                      "_postman_previewlanguage": "text",
+                      "header": [],
+                      "cookie": [],
+                      "responseTime": null,
+                      "body": null,
+                      "createdAt": "2026-07-28T01:03:04.000Z",
+                      "updatedAt": "2026-07-28T01:03:04.000Z",
+                      "uid": "35240-4d3c3918-4868-46f6-b53d-8ccb5a3a9091"
+                    },
+                    {
+                      "id": "515b1e0b-0676-4db4-86f1-44c244164f0e",
+                      "name": "Invalid authorization credentials.",
+                      "originalRequest": {
+                        "method": "POST",
+                        "header": [
+                          {
+                            "description": "The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.",
+                            "key": "x-mongo-cluster-name",
+                            "value": "<string>"
+                          },
+                          {
+                            "key": "Sec-WebSocket-Protocol",
+                            "value": ""
+                          },
+                          {
+                            "key": "Content-Type",
+                            "value": "application/json"
+                          },
+                          {
+                            "description": "Added as a part of security scheme: bearer",
+                            "key": "Authorization",
+                            "value": "Bearer <token>"
+                          }
+                        ],
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\n  \"url\": \"<uri>\",\n  \"accepted_types\": [\n    \"agent-framework-resource-updated\",\n    \"conversation-post-processing-complete\"\n  ],\n  \"retry_attempts\": 3\n}",
+                          "options": {
+                            "raw": {
+                              "headerFamily": "json",
+                              "language": "json"
+                            }
+                          }
+                        },
+                        "url": {
+                          "raw": "{{baseUrl}}/v1/:organization/webhook_destination/",
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "v1",
+                            ":organization",
+                            "webhook_destination",
+                            ""
+                          ],
+                          "variable": [
+                            {
+                              "key": "organization"
+                            }
+                          ]
+                        }
+                      },
+                      "status": "Unauthorized",
+                      "code": 401,
+                      "_postman_previewlanguage": "text",
+                      "header": [],
+                      "cookie": [],
+                      "responseTime": null,
+                      "body": null,
+                      "createdAt": "2026-07-28T01:03:04.000Z",
+                      "updatedAt": "2026-07-28T01:03:04.000Z",
+                      "uid": "35240-515b1e0b-0676-4db4-86f1-44c244164f0e"
+                    },
+                    {
+                      "id": "68f80a61-03d2-449a-8a9e-aaa59febca81",
+                      "name": "Missing required permissions.",
+                      "originalRequest": {
+                        "method": "POST",
+                        "header": [
+                          {
+                            "description": "The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.",
+                            "key": "x-mongo-cluster-name",
+                            "value": "<string>"
+                          },
+                          {
+                            "key": "Sec-WebSocket-Protocol",
+                            "value": ""
+                          },
+                          {
+                            "key": "Content-Type",
+                            "value": "application/json"
+                          },
+                          {
+                            "description": "Added as a part of security scheme: bearer",
+                            "key": "Authorization",
+                            "value": "Bearer <token>"
+                          }
+                        ],
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\n  \"url\": \"<uri>\",\n  \"accepted_types\": [\n    \"agent-framework-resource-updated\",\n    \"conversation-post-processing-complete\"\n  ],\n  \"retry_attempts\": 3\n}",
+                          "options": {
+                            "raw": {
+                              "headerFamily": "json",
+                              "language": "json"
+                            }
+                          }
+                        },
+                        "url": {
+                          "raw": "{{baseUrl}}/v1/:organization/webhook_destination/",
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "v1",
+                            ":organization",
+                            "webhook_destination",
+                            ""
+                          ],
+                          "variable": [
+                            {
+                              "key": "organization"
+                            }
+                          ]
+                        }
+                      },
+                      "status": "Forbidden",
+                      "code": 403,
+                      "_postman_previewlanguage": "text",
+                      "header": [],
+                      "cookie": [],
+                      "responseTime": null,
+                      "body": null,
+                      "createdAt": "2026-07-28T01:03:04.000Z",
+                      "updatedAt": "2026-07-28T01:03:04.000Z",
+                      "uid": "35240-68f80a61-03d2-449a-8a9e-aaa59febca81"
+                    },
+                    {
+                      "id": "40980735-9739-470f-ba69-6d497bb0daa4",
+                      "name": "Specified organization is not found.",
+                      "originalRequest": {
+                        "method": "POST",
+                        "header": [
+                          {
+                            "description": "The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.",
+                            "key": "x-mongo-cluster-name",
+                            "value": "<string>"
+                          },
+                          {
+                            "key": "Sec-WebSocket-Protocol",
+                            "value": ""
+                          },
+                          {
+                            "key": "Content-Type",
+                            "value": "application/json"
+                          },
+                          {
+                            "description": "Added as a part of security scheme: bearer",
+                            "key": "Authorization",
+                            "value": "Bearer <token>"
+                          }
+                        ],
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\n  \"url\": \"<uri>\",\n  \"accepted_types\": [\n    \"agent-framework-resource-updated\",\n    \"conversation-post-processing-complete\"\n  ],\n  \"retry_attempts\": 3\n}",
+                          "options": {
+                            "raw": {
+                              "headerFamily": "json",
+                              "language": "json"
+                            }
+                          }
+                        },
+                        "url": {
+                          "raw": "{{baseUrl}}/v1/:organization/webhook_destination/",
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "v1",
+                            ":organization",
+                            "webhook_destination",
+                            ""
+                          ],
+                          "variable": [
+                            {
+                              "key": "organization"
+                            }
+                          ]
+                        }
+                      },
+                      "status": "Not Found",
+                      "code": 404,
+                      "_postman_previewlanguage": "text",
+                      "header": [],
+                      "cookie": [],
+                      "responseTime": null,
+                      "body": null,
+                      "createdAt": "2026-07-28T01:03:04.000Z",
+                      "updatedAt": "2026-07-28T01:03:04.000Z",
+                      "uid": "35240-40980735-9739-470f-ba69-6d497bb0daa4"
+                    },
+                    {
+                      "id": "9f83f501-d232-498a-a353-25c28b50b5fa",
+                      "name": "A related operation is in progress.",
+                      "originalRequest": {
+                        "method": "POST",
+                        "header": [
+                          {
+                            "description": "The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.",
+                            "key": "x-mongo-cluster-name",
+                            "value": "<string>"
+                          },
+                          {
+                            "key": "Sec-WebSocket-Protocol",
+                            "value": ""
+                          },
+                          {
+                            "key": "Content-Type",
+                            "value": "application/json"
+                          },
+                          {
+                            "description": "Added as a part of security scheme: bearer",
+                            "key": "Authorization",
+                            "value": "Bearer <token>"
+                          }
+                        ],
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\n  \"url\": \"<uri>\",\n  \"accepted_types\": [\n    \"agent-framework-resource-updated\",\n    \"conversation-post-processing-complete\"\n  ],\n  \"retry_attempts\": 3\n}",
+                          "options": {
+                            "raw": {
+                              "headerFamily": "json",
+                              "language": "json"
+                            }
+                          }
+                        },
+                        "url": {
+                          "raw": "{{baseUrl}}/v1/:organization/webhook_destination/",
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "v1",
+                            ":organization",
+                            "webhook_destination",
+                            ""
+                          ],
+                          "variable": [
+                            {
+                              "key": "organization"
+                            }
+                          ]
+                        }
+                      },
+                      "status": "Conflict",
+                      "code": 409,
+                      "_postman_previewlanguage": "text",
+                      "header": [],
+                      "cookie": [],
+                      "responseTime": null,
+                      "body": null,
+                      "createdAt": "2026-07-28T01:03:04.000Z",
+                      "updatedAt": "2026-07-28T01:03:04.000Z",
+                      "uid": "35240-9f83f501-d232-498a-a353-25c28b50b5fa"
+                    },
+                    {
+                      "id": "cd4fe8a2-c727-4990-8832-0475f4d26c67",
+                      "name": "Invalid request path parameter or request body failed validation.",
+                      "originalRequest": {
+                        "method": "POST",
+                        "header": [
+                          {
+                            "description": "The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.",
+                            "key": "x-mongo-cluster-name",
+                            "value": "<string>"
+                          },
+                          {
+                            "key": "Sec-WebSocket-Protocol",
+                            "value": ""
+                          },
+                          {
+                            "key": "Content-Type",
+                            "value": "application/json"
+                          },
+                          {
+                            "description": "Added as a part of security scheme: bearer",
+                            "key": "Authorization",
+                            "value": "Bearer <token>"
+                          }
+                        ],
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\n  \"url\": \"<uri>\",\n  \"accepted_types\": [\n    \"agent-framework-resource-updated\",\n    \"conversation-post-processing-complete\"\n  ],\n  \"retry_attempts\": 3\n}",
+                          "options": {
+                            "raw": {
+                              "headerFamily": "json",
+                              "language": "json"
+                            }
+                          }
+                        },
+                        "url": {
+                          "raw": "{{baseUrl}}/v1/:organization/webhook_destination/",
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "v1",
+                            ":organization",
+                            "webhook_destination",
+                            ""
+                          ],
+                          "variable": [
+                            {
+                              "key": "organization"
+                            }
+                          ]
+                        }
+                      },
+                      "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+                      "code": 422,
+                      "_postman_previewlanguage": "text",
+                      "header": [],
+                      "cookie": [],
+                      "responseTime": null,
+                      "body": null,
+                      "createdAt": "2026-07-28T01:03:04.000Z",
+                      "updatedAt": "2026-07-28T01:03:04.000Z",
+                      "uid": "35240-cd4fe8a2-c727-4990-8832-0475f4d26c67"
+                    },
+                    {
+                      "id": "0b7bf1a6-811b-4ed7-86f2-2bba22a981be",
+                      "name": "The user has exceeded the rate limit of 20 requests per minute for this endpoint.",
+                      "originalRequest": {
+                        "method": "POST",
+                        "header": [
+                          {
+                            "description": "The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.",
+                            "key": "x-mongo-cluster-name",
+                            "value": "<string>"
+                          },
+                          {
+                            "key": "Sec-WebSocket-Protocol",
+                            "value": ""
+                          },
+                          {
+                            "key": "Content-Type",
+                            "value": "application/json"
+                          },
+                          {
+                            "description": "Added as a part of security scheme: bearer",
+                            "key": "Authorization",
+                            "value": "Bearer <token>"
+                          }
+                        ],
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\n  \"url\": \"<uri>\",\n  \"accepted_types\": [\n    \"agent-framework-resource-updated\",\n    \"conversation-post-processing-complete\"\n  ],\n  \"retry_attempts\": 3\n}",
+                          "options": {
+                            "raw": {
+                              "headerFamily": "json",
+                              "language": "json"
+                            }
+                          }
+                        },
+                        "url": {
+                          "raw": "{{baseUrl}}/v1/:organization/webhook_destination/",
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "v1",
+                            ":organization",
+                            "webhook_destination",
+                            ""
+                          ],
+                          "variable": [
+                            {
+                              "key": "organization"
+                            }
+                          ]
+                        }
+                      },
+                      "status": "Too Many Requests",
+                      "code": 429,
+                      "_postman_previewlanguage": "text",
+                      "header": [],
+                      "cookie": [],
+                      "responseTime": null,
+                      "body": null,
+                      "createdAt": "2026-07-28T01:03:04.000Z",
+                      "updatedAt": "2026-07-28T01:03:04.000Z",
+                      "uid": "35240-0b7bf1a6-811b-4ed7-86f2-2bba22a981be"
+                    },
+                    {
+                      "id": "cebf598b-518f-42bf-b41f-d90b55011daf",
+                      "name": "The service is going through temporary maintenance.",
+                      "originalRequest": {
+                        "method": "POST",
+                        "header": [
+                          {
+                            "description": "The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.",
+                            "key": "x-mongo-cluster-name",
+                            "value": "<string>"
+                          },
+                          {
+                            "key": "Sec-WebSocket-Protocol",
+                            "value": ""
+                          },
+                          {
+                            "key": "Content-Type",
+                            "value": "application/json"
+                          },
+                          {
+                            "description": "Added as a part of security scheme: bearer",
+                            "key": "Authorization",
+                            "value": "Bearer <token>"
+                          }
+                        ],
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\n  \"url\": \"<uri>\",\n  \"accepted_types\": [\n    \"agent-framework-resource-updated\",\n    \"conversation-post-processing-complete\"\n  ],\n  \"retry_attempts\": 3\n}",
+                          "options": {
+                            "raw": {
+                              "headerFamily": "json",
+                              "language": "json"
+                            }
+                          }
+                        },
+                        "url": {
+                          "raw": "{{baseUrl}}/v1/:organization/webhook_destination/",
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "v1",
+                            ":organization",
+                            "webhook_destination",
+                            ""
+                          ],
+                          "variable": [
+                            {
+                              "key": "organization"
+                            }
+                          ]
+                        }
+                      },
+                      "status": "Service Unavailable",
+                      "code": 503,
+                      "_postman_previewlanguage": "text",
+                      "header": [],
+                      "cookie": [],
+                      "responseTime": null,
+                      "body": null,
+                      "createdAt": "2026-07-28T01:03:04.000Z",
+                      "updatedAt": "2026-07-28T01:03:04.000Z",
+                      "uid": "35240-cebf598b-518f-42bf-b41f-d90b55011daf"
+                    }
+                  ],
+                  "createdAt": "2026-07-28T01:03:04.000Z",
+                  "updatedAt": "2026-07-28T01:03:04.000Z",
+                  "uid": "35240-4fa3e6e0-60bc-4c4d-8f2a-720143c55665"
+                },
+                {
+                  "name": "Get webhook destinations",
+                  "id": "fc20e522-d39b-4e2f-85e8-c5c96ac2880a",
+                  "protocolProfileBehavior": {
+                    "disableBodyPruning": true
+                  },
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "description": "The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.",
+                        "key": "x-mongo-cluster-name",
+                        "value": "<string>"
+                      },
+                      {
+                        "key": "Sec-WebSocket-Protocol",
+                        "value": ""
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{baseUrl}}/v1/:organization/webhook_destination/",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "v1",
+                        ":organization",
+                        "webhook_destination",
+                        ""
+                      ],
+                      "variable": [
+                        {
+                          "id": "6b713f29-4e8a-452b-b5b0-7e7d58017be7",
+                          "key": "organization",
+                          "value": "<string>",
+                          "description": "(Required) "
+                        }
+                      ]
+                    },
+                    "description": "Retrieve this organization's webhook destinations.\n\n#### Permissions\nThis endpoint may be impacted by the following permissions:\n* `Webhook:GetWebhookDestination` on the webhook destinations to retrieve."
+                  },
+                  "response": [
+                    {
+                      "id": "9b4a0742-e380-4872-bb2a-00503e4a93a7",
+                      "name": "Succeeded.",
+                      "originalRequest": {
+                        "method": "GET",
+                        "header": [
+                          {
+                            "description": "The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.",
+                            "key": "x-mongo-cluster-name",
+                            "value": "<string>"
+                          },
+                          {
+                            "key": "Sec-WebSocket-Protocol",
+                            "value": ""
+                          },
+                          {
+                            "key": "Accept",
+                            "value": "application/json"
+                          },
+                          {
+                            "description": "Added as a part of security scheme: bearer",
+                            "key": "Authorization",
+                            "value": "Bearer <token>"
+                          }
+                        ],
+                        "url": {
+                          "raw": "{{baseUrl}}/v1/:organization/webhook_destination/",
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "v1",
+                            ":organization",
+                            "webhook_destination",
+                            ""
+                          ],
+                          "variable": [
+                            {
+                              "key": "organization"
+                            }
+                          ]
+                        }
+                      },
+                      "status": "OK",
+                      "code": 200,
+                      "_postman_previewlanguage": "json",
+                      "header": [
+                        {
+                          "key": "Content-Type",
+                          "value": "application/json"
+                        }
+                      ],
+                      "cookie": [],
+                      "responseTime": null,
+                      "body": "{\n  \"webhook_destinations\": [\n    {\n      \"id\": \"<string>\",\n      \"url\": \"<string>\",\n      \"secret_generated_at\": \"<dateTime>\",\n      \"retry_attempts\": \"<integer>\",\n      \"accepted_types\": [\n        \"<string>\",\n        \"<string>\"\n      ]\n    },\n    {\n      \"id\": \"<string>\",\n      \"url\": \"<string>\",\n      \"secret_generated_at\": \"<dateTime>\",\n      \"retry_attempts\": \"<integer>\",\n      \"accepted_types\": [\n        \"<string>\",\n        \"<string>\"\n      ]\n    }\n  ]\n}",
+                      "createdAt": "2026-07-28T01:03:04.000Z",
+                      "updatedAt": "2026-07-28T01:03:04.000Z",
+                      "uid": "35240-9b4a0742-e380-4872-bb2a-00503e4a93a7"
+                    },
+                    {
+                      "id": "f63f852f-0e1e-4486-b283-3fe4929e97bd",
+                      "name": "Invalid authorization credentials.",
+                      "originalRequest": {
+                        "method": "GET",
+                        "header": [
+                          {
+                            "description": "The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.",
+                            "key": "x-mongo-cluster-name",
+                            "value": "<string>"
+                          },
+                          {
+                            "key": "Sec-WebSocket-Protocol",
+                            "value": ""
+                          },
+                          {
+                            "description": "Added as a part of security scheme: bearer",
+                            "key": "Authorization",
+                            "value": "Bearer <token>"
+                          }
+                        ],
+                        "url": {
+                          "raw": "{{baseUrl}}/v1/:organization/webhook_destination/",
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "v1",
+                            ":organization",
+                            "webhook_destination",
+                            ""
+                          ],
+                          "variable": [
+                            {
+                              "key": "organization"
+                            }
+                          ]
+                        }
+                      },
+                      "status": "Unauthorized",
+                      "code": 401,
+                      "_postman_previewlanguage": "text",
+                      "header": [],
+                      "cookie": [],
+                      "responseTime": null,
+                      "body": null,
+                      "createdAt": "2026-07-28T01:03:04.000Z",
+                      "updatedAt": "2026-07-28T01:03:04.000Z",
+                      "uid": "35240-f63f852f-0e1e-4486-b283-3fe4929e97bd"
+                    },
+                    {
+                      "id": "59509f8a-d8cc-4715-b00c-60f051747b07",
+                      "name": "Missing required permissions.",
+                      "originalRequest": {
+                        "method": "GET",
+                        "header": [
+                          {
+                            "description": "The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.",
+                            "key": "x-mongo-cluster-name",
+                            "value": "<string>"
+                          },
+                          {
+                            "key": "Sec-WebSocket-Protocol",
+                            "value": ""
+                          },
+                          {
+                            "description": "Added as a part of security scheme: bearer",
+                            "key": "Authorization",
+                            "value": "Bearer <token>"
+                          }
+                        ],
+                        "url": {
+                          "raw": "{{baseUrl}}/v1/:organization/webhook_destination/",
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "v1",
+                            ":organization",
+                            "webhook_destination",
+                            ""
+                          ],
+                          "variable": [
+                            {
+                              "key": "organization"
+                            }
+                          ]
+                        }
+                      },
+                      "status": "Forbidden",
+                      "code": 403,
+                      "_postman_previewlanguage": "text",
+                      "header": [],
+                      "cookie": [],
+                      "responseTime": null,
+                      "body": null,
+                      "createdAt": "2026-07-28T01:03:04.000Z",
+                      "updatedAt": "2026-07-28T01:03:04.000Z",
+                      "uid": "35240-59509f8a-d8cc-4715-b00c-60f051747b07"
+                    },
+                    {
+                      "id": "92ac905b-1aa7-4690-a7c9-f880a33c36ba",
+                      "name": "Specified organization is not found.",
+                      "originalRequest": {
+                        "method": "GET",
+                        "header": [
+                          {
+                            "description": "The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.",
+                            "key": "x-mongo-cluster-name",
+                            "value": "<string>"
+                          },
+                          {
+                            "key": "Sec-WebSocket-Protocol",
+                            "value": ""
+                          },
+                          {
+                            "description": "Added as a part of security scheme: bearer",
+                            "key": "Authorization",
+                            "value": "Bearer <token>"
+                          }
+                        ],
+                        "url": {
+                          "raw": "{{baseUrl}}/v1/:organization/webhook_destination/",
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "v1",
+                            ":organization",
+                            "webhook_destination",
+                            ""
+                          ],
+                          "variable": [
+                            {
+                              "key": "organization"
+                            }
+                          ]
+                        }
+                      },
+                      "status": "Not Found",
+                      "code": 404,
+                      "_postman_previewlanguage": "text",
+                      "header": [],
+                      "cookie": [],
+                      "responseTime": null,
+                      "body": null,
+                      "createdAt": "2026-07-28T01:03:04.000Z",
+                      "updatedAt": "2026-07-28T01:03:04.000Z",
+                      "uid": "35240-92ac905b-1aa7-4690-a7c9-f880a33c36ba"
+                    },
+                    {
+                      "id": "ed4ddf56-bb26-4f1e-8645-c149d56d5408",
+                      "name": "Invalid request path parameter or request query parameter failed validation.",
+                      "originalRequest": {
+                        "method": "GET",
+                        "header": [
+                          {
+                            "description": "The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.",
+                            "key": "x-mongo-cluster-name",
+                            "value": "<string>"
+                          },
+                          {
+                            "key": "Sec-WebSocket-Protocol",
+                            "value": ""
+                          },
+                          {
+                            "description": "Added as a part of security scheme: bearer",
+                            "key": "Authorization",
+                            "value": "Bearer <token>"
+                          }
+                        ],
+                        "url": {
+                          "raw": "{{baseUrl}}/v1/:organization/webhook_destination/",
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "v1",
+                            ":organization",
+                            "webhook_destination",
+                            ""
+                          ],
+                          "variable": [
+                            {
+                              "key": "organization"
+                            }
+                          ]
+                        }
+                      },
+                      "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+                      "code": 422,
+                      "_postman_previewlanguage": "text",
+                      "header": [],
+                      "cookie": [],
+                      "responseTime": null,
+                      "body": null,
+                      "createdAt": "2026-07-28T01:03:04.000Z",
+                      "updatedAt": "2026-07-28T01:03:04.000Z",
+                      "uid": "35240-ed4ddf56-bb26-4f1e-8645-c149d56d5408"
+                    },
+                    {
+                      "id": "dc88088e-ac38-4a0d-a056-2de14427530a",
+                      "name": "The user has exceeded the rate limit of 20 requests per minute for this endpoint.",
+                      "originalRequest": {
+                        "method": "GET",
+                        "header": [
+                          {
+                            "description": "The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.",
+                            "key": "x-mongo-cluster-name",
+                            "value": "<string>"
+                          },
+                          {
+                            "key": "Sec-WebSocket-Protocol",
+                            "value": ""
+                          },
+                          {
+                            "description": "Added as a part of security scheme: bearer",
+                            "key": "Authorization",
+                            "value": "Bearer <token>"
+                          }
+                        ],
+                        "url": {
+                          "raw": "{{baseUrl}}/v1/:organization/webhook_destination/",
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "v1",
+                            ":organization",
+                            "webhook_destination",
+                            ""
+                          ],
+                          "variable": [
+                            {
+                              "key": "organization"
+                            }
+                          ]
+                        }
+                      },
+                      "status": "Too Many Requests",
+                      "code": 429,
+                      "_postman_previewlanguage": "text",
+                      "header": [],
+                      "cookie": [],
+                      "responseTime": null,
+                      "body": null,
+                      "createdAt": "2026-07-28T01:03:04.000Z",
+                      "updatedAt": "2026-07-28T01:03:04.000Z",
+                      "uid": "35240-dc88088e-ac38-4a0d-a056-2de14427530a"
+                    },
+                    {
+                      "id": "58b871d3-d777-495d-ac23-19224c99d189",
+                      "name": "The service is going through temporary maintenance.",
+                      "originalRequest": {
+                        "method": "GET",
+                        "header": [
+                          {
+                            "description": "The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.",
+                            "key": "x-mongo-cluster-name",
+                            "value": "<string>"
+                          },
+                          {
+                            "key": "Sec-WebSocket-Protocol",
+                            "value": ""
+                          },
+                          {
+                            "description": "Added as a part of security scheme: bearer",
+                            "key": "Authorization",
+                            "value": "Bearer <token>"
+                          }
+                        ],
+                        "url": {
+                          "raw": "{{baseUrl}}/v1/:organization/webhook_destination/",
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "v1",
+                            ":organization",
+                            "webhook_destination",
+                            ""
+                          ],
+                          "variable": [
+                            {
+                              "key": "organization"
+                            }
+                          ]
+                        }
+                      },
+                      "status": "Service Unavailable",
+                      "code": 503,
+                      "_postman_previewlanguage": "text",
+                      "header": [],
+                      "cookie": [],
+                      "responseTime": null,
+                      "body": null,
+                      "createdAt": "2026-07-28T01:03:04.000Z",
+                      "updatedAt": "2026-07-28T01:03:04.000Z",
+                      "uid": "35240-58b871d3-d777-495d-ac23-19224c99d189"
+                    }
+                  ],
+                  "createdAt": "2026-07-28T01:03:04.000Z",
+                  "updatedAt": "2026-07-28T01:03:04.000Z",
+                  "uid": "35240-fc20e522-d39b-4e2f-85e8-c5c96ac2880a"
+                }
+              ],
+              "id": "86d5cd71-b72b-42ff-aa78-bd1a30a285a2",
+              "createdAt": "2026-07-28T01:03:04.000Z",
+              "updatedAt": "2026-07-28T01:03:04.000Z",
+              "uid": "35240-86d5cd71-b72b-42ff-aa78-bd1a30a285a2"
+            }
+          ],
+          "id": "87ca9b34-7c92-4de8-a308-0e9ffe69c9d5",
+          "createdAt": "2026-07-28T01:03:04.000Z",
+          "updatedAt": "2026-07-28T01:03:04.000Z",
+          "uid": "35240-87ca9b34-7c92-4de8-a308-0e9ffe69c9d5"
+        }
+      ],
+      "id": "4f798923-9b6b-4301-b1df-dd6def22c02e",
+      "createdAt": "2026-07-28T01:03:04.000Z",
+      "updatedAt": "2026-07-28T01:03:04.000Z",
+      "uid": "35240-4f798923-9b6b-4301-b1df-dd6def22c02e"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{bearerToken}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://api.amigo.ai"
+    }
+  ]
+}

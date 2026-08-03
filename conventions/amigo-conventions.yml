@@ -1,0 +1,56 @@
+generated: '2026-07-17'
+method: searched
+source:
+  - https://docs.amigo.ai/developer-guide/getting-started/authentication.md
+  - https://docs.amigo.ai/developer-guide/getting-started/regions-and-endpoints.md
+  - openapi/amigo-classic-openapi-original.json
+  - openapi/amigo-platform-openapi-original.json
+authentication:
+  classic:
+    style: JWT bearer (organization-scoped)
+    header: 'Authorization: Bearer <jwt>'
+    obtain: sign-in-with-api-key / sign-in-with-email
+    org_header: X-ORG-ID (optional cross-org)
+  platform:
+    style: Workspace-scoped API key as Bearer, or OAuth2 client_credentials (M2M)
+    header: 'Authorization: Bearer <api_key|access_token>'
+    oauth2_token_url: https://identity.platform.amigo.ai/token
+  ref: authentication/amigo-authentication.yml
+idempotency:
+  supported: true
+  mechanism: request-body field
+  field: idempotency_key
+  scope: per-operation (e.g. create-outbound-call, sessions)
+  max_length: 256
+  notes: >-
+    Several write operations accept an idempotency_key body field so retries do
+    not duplicate side effects (create-outbound-call, session start). Additional
+    operations are documented as inherently idempotent (workspace provision,
+    use-case ownership, billing invoice generation).
+pagination:
+  style: cursor + offset
+  params: [continuation_token, limit, offset]
+  notes: List endpoints support search filtering; the Platform API uses
+    continuation_token for cursoring with limit; some endpoints also accept offset.
+versioning:
+  scheme: uri-path
+  current: v1
+  ref: lifecycle/amigo-lifecycle.yml
+regions:
+  scheme: regional base URLs (dedicated cluster headers)
+  hosts:
+    - https://api.amigo.ai
+    - https://api-eu-central-1.amigo.ai
+    - https://api-ap-southeast-2.amigo.ai
+    - https://api-ca-central-1.amigo.ai
+  docs: https://docs.amigo.ai/developer-guide/getting-started/regions-and-endpoints.md
+error_envelope:
+  validation: 'HTTPValidationError { detail: [ { loc, msg, type } ] }'
+  format: 'json (not RFC 9457 application/problem+json)'
+  ref: errors/amigo-problem-types.yml
+rate_limiting:
+  signal: HTTP 429 Too Many Requests on both APIs
+  notes: 429 responses are declared across the majority of operations; explicit
+    RateLimit-* response headers are not documented in the spec.
+webhooks:
+  ref: asyncapi/amigo-classic-webhooks.yml

@@ -1,0 +1,1479 @@
+{
+  "info": {
+    "_postman_id": "6fb97675-e5c5-4a94-a742-4558fa752c21",
+    "name": "Amigo Account API Keys API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "createdAt": "2026-07-28T00:59:47.000Z",
+    "updatedAt": "2026-07-28T00:59:48.000Z",
+    "lastUpdatedBy": "35240",
+    "uid": "35240-6fb97675-e5c5-4a94-a742-4558fa752c21"
+  },
+  "item": [
+    {
+      "name": "v1",
+      "item": [
+        {
+          "name": "{workspace_id}",
+          "item": [
+            {
+              "name": "api-keys",
+              "item": [
+                {
+                  "name": "permission-catalog",
+                  "item": [
+                    {
+                      "name": "Get the API-key role/permission catalog",
+                      "id": "aa1d63d1-f4ba-47c2-a8a9-12415f39c25a",
+                      "protocolProfileBehavior": {
+                        "disableBodyPruning": true
+                      },
+                      "request": {
+                        "method": "GET",
+                        "header": [
+                          {
+                            "key": "Accept",
+                            "value": "application/json"
+                          }
+                        ],
+                        "url": {
+                          "raw": "{{baseUrl}}/v1/:workspace_id/api-keys/permission-catalog",
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "v1",
+                            ":workspace_id",
+                            "api-keys",
+                            "permission-catalog"
+                          ],
+                          "variable": [
+                            {
+                              "id": "07e487ae-988f-48ab-bfde-8748c0fe9c5a",
+                              "key": "workspace_id",
+                              "value": "<uuid>",
+                              "description": "(Required) "
+                            }
+                          ]
+                        },
+                        "description": "Return the authoritative role\u2192permission model: each role's default permission set (what an API key of that role may carry) plus the full permission universe. Clients use this to build the create-key form instead of hard-coding the matrix. Requires `ApiKey.view` permission."
+                      },
+                      "response": [
+                        {
+                          "id": "d571ebc7-0ade-4717-99a7-76c61445be9e",
+                          "name": "Successful Response",
+                          "originalRequest": {
+                            "method": "GET",
+                            "header": [
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              },
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "url": {
+                              "raw": "{{baseUrl}}/v1/:workspace_id/api-keys/permission-catalog",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v1",
+                                ":workspace_id",
+                                "api-keys",
+                                "permission-catalog"
+                              ],
+                              "variable": [
+                                {
+                                  "key": "workspace_id"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "OK",
+                          "code": 200,
+                          "_postman_previewlanguage": "json",
+                          "header": [
+                            {
+                              "key": "Content-Type",
+                              "value": "application/json"
+                            }
+                          ],
+                          "cookie": [],
+                          "responseTime": null,
+                          "body": "{\n  \"roles\": [\n    {\n      \"name\": \"<string>\",\n      \"priority\": \"<integer>\",\n      \"description\": \"<string>\",\n      \"permission_names\": [\n        \"<string>\",\n        \"<string>\"\n      ]\n    },\n    {\n      \"name\": \"<string>\",\n      \"priority\": \"<integer>\",\n      \"description\": \"<string>\",\n      \"permission_names\": [\n        \"<string>\",\n        \"<string>\"\n      ]\n    }\n  ],\n  \"permissions\": [\n    {\n      \"name\": \"<string>\",\n      \"namespace\": \"<string>\",\n      \"action\": \"<string>\"\n    },\n    {\n      \"name\": \"<string>\",\n      \"namespace\": \"<string>\",\n      \"action\": \"<string>\"\n    }\n  ]\n}",
+                          "createdAt": "2026-07-28T00:59:48.000Z",
+                          "updatedAt": "2026-07-28T00:59:48.000Z",
+                          "uid": "35240-d571ebc7-0ade-4717-99a7-76c61445be9e"
+                        },
+                        {
+                          "id": "39ce203b-2ae1-44fc-8f36-5ae9fd59e270",
+                          "name": "Missing or invalid API key.",
+                          "originalRequest": {
+                            "method": "GET",
+                            "header": [
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "url": {
+                              "raw": "{{baseUrl}}/v1/:workspace_id/api-keys/permission-catalog",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v1",
+                                ":workspace_id",
+                                "api-keys",
+                                "permission-catalog"
+                              ],
+                              "variable": [
+                                {
+                                  "key": "workspace_id"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "Unauthorized",
+                          "code": 401,
+                          "_postman_previewlanguage": "text",
+                          "header": [],
+                          "cookie": [],
+                          "responseTime": null,
+                          "body": null,
+                          "createdAt": "2026-07-28T00:59:48.000Z",
+                          "updatedAt": "2026-07-28T00:59:48.000Z",
+                          "uid": "35240-39ce203b-2ae1-44fc-8f36-5ae9fd59e270"
+                        },
+                        {
+                          "id": "291b06f9-91a3-4ee4-ade1-130d951ba62a",
+                          "name": "Insufficient permissions.",
+                          "originalRequest": {
+                            "method": "GET",
+                            "header": [
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "url": {
+                              "raw": "{{baseUrl}}/v1/:workspace_id/api-keys/permission-catalog",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v1",
+                                ":workspace_id",
+                                "api-keys",
+                                "permission-catalog"
+                              ],
+                              "variable": [
+                                {
+                                  "key": "workspace_id"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "Forbidden",
+                          "code": 403,
+                          "_postman_previewlanguage": "text",
+                          "header": [],
+                          "cookie": [],
+                          "responseTime": null,
+                          "body": null,
+                          "createdAt": "2026-07-28T00:59:48.000Z",
+                          "updatedAt": "2026-07-28T00:59:48.000Z",
+                          "uid": "35240-291b06f9-91a3-4ee4-ade1-130d951ba62a"
+                        }
+                      ],
+                      "createdAt": "2026-07-28T00:59:48.000Z",
+                      "updatedAt": "2026-07-28T00:59:48.000Z",
+                      "uid": "35240-aa1d63d1-f4ba-47c2-a8a9-12415f39c25a"
+                    }
+                  ],
+                  "id": "f0992897-1b60-4433-9138-db31c8f654c1",
+                  "createdAt": "2026-07-28T00:59:48.000Z",
+                  "updatedAt": "2026-07-28T00:59:48.000Z",
+                  "uid": "35240-f0992897-1b60-4433-9138-db31c8f654c1"
+                },
+                {
+                  "name": "{key_id}",
+                  "item": [
+                    {
+                      "name": "rotate",
+                      "item": [
+                        {
+                          "name": "Rotate an API key",
+                          "id": "aeefd59b-dcde-4b79-9141-819961a77eed",
+                          "protocolProfileBehavior": {
+                            "disableBodyPruning": true
+                          },
+                          "request": {
+                            "method": "POST",
+                            "header": [
+                              {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                              },
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              }
+                            ],
+                            "body": {
+                              "mode": "raw",
+                              "raw": "{\n  \"duration_days\": \"<integer>\"\n}",
+                              "options": {
+                                "raw": {
+                                  "headerFamily": "json",
+                                  "language": "json"
+                                }
+                              }
+                            },
+                            "url": {
+                              "raw": "{{baseUrl}}/v1/:workspace_id/api-keys/:key_id/rotate",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v1",
+                                ":workspace_id",
+                                "api-keys",
+                                ":key_id",
+                                "rotate"
+                              ],
+                              "variable": [
+                                {
+                                  "id": "e6be9bad-0123-4755-bfde-72047ab3e6d2",
+                                  "key": "workspace_id",
+                                  "value": "<uuid>",
+                                  "description": "(Required) "
+                                },
+                                {
+                                  "id": "ab5adf73-2f2e-4465-9b1f-ecca13164ec7",
+                                  "key": "key_id",
+                                  "value": "<string>",
+                                  "description": "(Required) "
+                                }
+                              ]
+                            },
+                            "description": "Replace an API key secret in one step. The old secret stops working immediately, and the response includes the new plaintext `api_key` exactly once."
+                          },
+                          "response": [
+                            {
+                              "id": "a6495054-4666-4b04-af27-4c0d034297c5",
+                              "name": "Successful Response",
+                              "originalRequest": {
+                                "method": "POST",
+                                "header": [
+                                  {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "key": "Accept",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "body": {
+                                  "mode": "raw",
+                                  "raw": "{\n  \"duration_days\": \"<integer>\"\n}",
+                                  "options": {
+                                    "raw": {
+                                      "headerFamily": "json",
+                                      "language": "json"
+                                    }
+                                  }
+                                },
+                                "url": {
+                                  "raw": "{{baseUrl}}/v1/:workspace_id/api-keys/:key_id/rotate",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "v1",
+                                    ":workspace_id",
+                                    "api-keys",
+                                    ":key_id",
+                                    "rotate"
+                                  ],
+                                  "variable": [
+                                    {
+                                      "key": "workspace_id"
+                                    },
+                                    {
+                                      "key": "key_id"
+                                    }
+                                  ]
+                                }
+                              },
+                              "status": "OK",
+                              "code": 200,
+                              "_postman_previewlanguage": "json",
+                              "header": [
+                                {
+                                  "key": "Content-Type",
+                                  "value": "application/json"
+                                }
+                              ],
+                              "cookie": [],
+                              "responseTime": null,
+                              "body": "{\n  \"key_id\": \"<string>\",\n  \"api_key\": \"<string>\",\n  \"name\": \"<string>\",\n  \"role\": \"<string>\",\n  \"permissions\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"expires_at\": \"<dateTime>\",\n  \"created_by_entity_id\": \"<uuid>\",\n  \"created_by_credential_id\": \"<uuid>\"\n}",
+                              "createdAt": "2026-07-28T00:59:48.000Z",
+                              "updatedAt": "2026-07-28T00:59:48.000Z",
+                              "uid": "35240-a6495054-4666-4b04-af27-4c0d034297c5"
+                            },
+                            {
+                              "id": "6058c5b9-d54f-41df-b5c4-f8745c15d370",
+                              "name": "Missing or invalid API key.",
+                              "originalRequest": {
+                                "method": "POST",
+                                "header": [
+                                  {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "body": {
+                                  "mode": "raw",
+                                  "raw": "{\n  \"duration_days\": \"<integer>\"\n}",
+                                  "options": {
+                                    "raw": {
+                                      "headerFamily": "json",
+                                      "language": "json"
+                                    }
+                                  }
+                                },
+                                "url": {
+                                  "raw": "{{baseUrl}}/v1/:workspace_id/api-keys/:key_id/rotate",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "v1",
+                                    ":workspace_id",
+                                    "api-keys",
+                                    ":key_id",
+                                    "rotate"
+                                  ],
+                                  "variable": [
+                                    {
+                                      "key": "workspace_id"
+                                    },
+                                    {
+                                      "key": "key_id"
+                                    }
+                                  ]
+                                }
+                              },
+                              "status": "Unauthorized",
+                              "code": 401,
+                              "_postman_previewlanguage": "text",
+                              "header": [],
+                              "cookie": [],
+                              "responseTime": null,
+                              "body": null,
+                              "createdAt": "2026-07-28T00:59:48.000Z",
+                              "updatedAt": "2026-07-28T00:59:48.000Z",
+                              "uid": "35240-6058c5b9-d54f-41df-b5c4-f8745c15d370"
+                            },
+                            {
+                              "id": "833bcee1-1f9a-4b4b-850c-4b4f9ced47a3",
+                              "name": "Insufficient permissions.",
+                              "originalRequest": {
+                                "method": "POST",
+                                "header": [
+                                  {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "body": {
+                                  "mode": "raw",
+                                  "raw": "{\n  \"duration_days\": \"<integer>\"\n}",
+                                  "options": {
+                                    "raw": {
+                                      "headerFamily": "json",
+                                      "language": "json"
+                                    }
+                                  }
+                                },
+                                "url": {
+                                  "raw": "{{baseUrl}}/v1/:workspace_id/api-keys/:key_id/rotate",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "v1",
+                                    ":workspace_id",
+                                    "api-keys",
+                                    ":key_id",
+                                    "rotate"
+                                  ],
+                                  "variable": [
+                                    {
+                                      "key": "workspace_id"
+                                    },
+                                    {
+                                      "key": "key_id"
+                                    }
+                                  ]
+                                }
+                              },
+                              "status": "Forbidden",
+                              "code": 403,
+                              "_postman_previewlanguage": "text",
+                              "header": [],
+                              "cookie": [],
+                              "responseTime": null,
+                              "body": null,
+                              "createdAt": "2026-07-28T00:59:48.000Z",
+                              "updatedAt": "2026-07-28T00:59:48.000Z",
+                              "uid": "35240-833bcee1-1f9a-4b4b-850c-4b4f9ced47a3"
+                            },
+                            {
+                              "id": "b18eda9c-9852-4781-8186-ec77f9bfd4fc",
+                              "name": "API key not found.",
+                              "originalRequest": {
+                                "method": "POST",
+                                "header": [
+                                  {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "body": {
+                                  "mode": "raw",
+                                  "raw": "{\n  \"duration_days\": \"<integer>\"\n}",
+                                  "options": {
+                                    "raw": {
+                                      "headerFamily": "json",
+                                      "language": "json"
+                                    }
+                                  }
+                                },
+                                "url": {
+                                  "raw": "{{baseUrl}}/v1/:workspace_id/api-keys/:key_id/rotate",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "v1",
+                                    ":workspace_id",
+                                    "api-keys",
+                                    ":key_id",
+                                    "rotate"
+                                  ],
+                                  "variable": [
+                                    {
+                                      "key": "workspace_id"
+                                    },
+                                    {
+                                      "key": "key_id"
+                                    }
+                                  ]
+                                }
+                              },
+                              "status": "Not Found",
+                              "code": 404,
+                              "_postman_previewlanguage": "text",
+                              "header": [],
+                              "cookie": [],
+                              "responseTime": null,
+                              "body": null,
+                              "createdAt": "2026-07-28T00:59:48.000Z",
+                              "updatedAt": "2026-07-28T00:59:48.000Z",
+                              "uid": "35240-b18eda9c-9852-4781-8186-ec77f9bfd4fc"
+                            },
+                            {
+                              "id": "90d6e698-1204-41b4-9169-239796cf8d8a",
+                              "name": "Validation Error",
+                              "originalRequest": {
+                                "method": "POST",
+                                "header": [
+                                  {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "key": "Accept",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "body": {
+                                  "mode": "raw",
+                                  "raw": "{\n  \"duration_days\": \"<integer>\"\n}",
+                                  "options": {
+                                    "raw": {
+                                      "headerFamily": "json",
+                                      "language": "json"
+                                    }
+                                  }
+                                },
+                                "url": {
+                                  "raw": "{{baseUrl}}/v1/:workspace_id/api-keys/:key_id/rotate",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "v1",
+                                    ":workspace_id",
+                                    "api-keys",
+                                    ":key_id",
+                                    "rotate"
+                                  ],
+                                  "variable": [
+                                    {
+                                      "key": "workspace_id"
+                                    },
+                                    {
+                                      "key": "key_id"
+                                    }
+                                  ]
+                                }
+                              },
+                              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+                              "code": 422,
+                              "_postman_previewlanguage": "json",
+                              "header": [
+                                {
+                                  "key": "Content-Type",
+                                  "value": "application/json"
+                                }
+                              ],
+                              "cookie": [],
+                              "responseTime": null,
+                              "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"msg\": \"<string>\",\n      \"type\": \"<string>\",\n      \"input\": {\n        \"title\": \"Input\"\n      },\n      \"ctx\": {}\n    },\n    {\n      \"loc\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"msg\": \"<string>\",\n      \"type\": \"<string>\",\n      \"input\": {\n        \"title\": \"Input\"\n      },\n      \"ctx\": {}\n    }\n  ]\n}",
+                              "createdAt": "2026-07-28T00:59:48.000Z",
+                              "updatedAt": "2026-07-28T00:59:48.000Z",
+                              "uid": "35240-90d6e698-1204-41b4-9169-239796cf8d8a"
+                            }
+                          ],
+                          "createdAt": "2026-07-28T00:59:48.000Z",
+                          "updatedAt": "2026-07-28T00:59:48.000Z",
+                          "uid": "35240-aeefd59b-dcde-4b79-9141-819961a77eed"
+                        }
+                      ],
+                      "id": "ec174e90-951d-424a-b14b-01b9fdbc6ae3",
+                      "createdAt": "2026-07-28T00:59:48.000Z",
+                      "updatedAt": "2026-07-28T00:59:48.000Z",
+                      "uid": "35240-ec174e90-951d-424a-b14b-01b9fdbc6ae3"
+                    },
+                    {
+                      "name": "Delete an API key",
+                      "id": "581370ab-c9f8-4c6b-8eb2-9471596e1bc3",
+                      "protocolProfileBehavior": {
+                        "disableBodyPruning": true
+                      },
+                      "request": {
+                        "method": "DELETE",
+                        "header": [
+                          {
+                            "key": "Accept",
+                            "value": "application/json"
+                          }
+                        ],
+                        "url": {
+                          "raw": "{{baseUrl}}/v1/:workspace_id/api-keys/:key_id",
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "v1",
+                            ":workspace_id",
+                            "api-keys",
+                            ":key_id"
+                          ],
+                          "variable": [
+                            {
+                              "id": "a78bebe5-960c-4f93-9fc8-3d298bf8a045",
+                              "key": "workspace_id",
+                              "value": "<uuid>",
+                              "description": "(Required) "
+                            },
+                            {
+                              "id": "c0b9643f-3185-49ba-a3c6-2993054f77c5",
+                              "key": "key_id",
+                              "value": "<string>",
+                              "description": "(Required) "
+                            }
+                          ]
+                        },
+                        "description": "Revoke an API key. Requires `ApiKey.delete` permission."
+                      },
+                      "response": [
+                        {
+                          "id": "2f382134-a948-4f9d-b57d-d6ae553148ab",
+                          "name": "Successful Response",
+                          "originalRequest": {
+                            "method": "DELETE",
+                            "header": [
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "url": {
+                              "raw": "{{baseUrl}}/v1/:workspace_id/api-keys/:key_id",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v1",
+                                ":workspace_id",
+                                "api-keys",
+                                ":key_id"
+                              ],
+                              "variable": [
+                                {
+                                  "key": "workspace_id"
+                                },
+                                {
+                                  "key": "key_id"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "No Content",
+                          "code": 204,
+                          "_postman_previewlanguage": "text",
+                          "header": [],
+                          "cookie": [],
+                          "responseTime": null,
+                          "body": null,
+                          "createdAt": "2026-07-28T00:59:48.000Z",
+                          "updatedAt": "2026-07-28T00:59:48.000Z",
+                          "uid": "35240-2f382134-a948-4f9d-b57d-d6ae553148ab"
+                        },
+                        {
+                          "id": "ef0a4714-90ce-496a-9eaa-9ff050227401",
+                          "name": "Missing or invalid API key.",
+                          "originalRequest": {
+                            "method": "DELETE",
+                            "header": [
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "url": {
+                              "raw": "{{baseUrl}}/v1/:workspace_id/api-keys/:key_id",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v1",
+                                ":workspace_id",
+                                "api-keys",
+                                ":key_id"
+                              ],
+                              "variable": [
+                                {
+                                  "key": "workspace_id"
+                                },
+                                {
+                                  "key": "key_id"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "Unauthorized",
+                          "code": 401,
+                          "_postman_previewlanguage": "text",
+                          "header": [],
+                          "cookie": [],
+                          "responseTime": null,
+                          "body": null,
+                          "createdAt": "2026-07-28T00:59:48.000Z",
+                          "updatedAt": "2026-07-28T00:59:48.000Z",
+                          "uid": "35240-ef0a4714-90ce-496a-9eaa-9ff050227401"
+                        },
+                        {
+                          "id": "6cbf9834-f044-4579-87a1-da5eb5ba7fab",
+                          "name": "Insufficient permissions.",
+                          "originalRequest": {
+                            "method": "DELETE",
+                            "header": [
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "url": {
+                              "raw": "{{baseUrl}}/v1/:workspace_id/api-keys/:key_id",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v1",
+                                ":workspace_id",
+                                "api-keys",
+                                ":key_id"
+                              ],
+                              "variable": [
+                                {
+                                  "key": "workspace_id"
+                                },
+                                {
+                                  "key": "key_id"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "Forbidden",
+                          "code": 403,
+                          "_postman_previewlanguage": "text",
+                          "header": [],
+                          "cookie": [],
+                          "responseTime": null,
+                          "body": null,
+                          "createdAt": "2026-07-28T00:59:48.000Z",
+                          "updatedAt": "2026-07-28T00:59:48.000Z",
+                          "uid": "35240-6cbf9834-f044-4579-87a1-da5eb5ba7fab"
+                        },
+                        {
+                          "id": "c898831c-24ce-4b7c-ac51-5e62160d9009",
+                          "name": "API key not found.",
+                          "originalRequest": {
+                            "method": "DELETE",
+                            "header": [
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "url": {
+                              "raw": "{{baseUrl}}/v1/:workspace_id/api-keys/:key_id",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v1",
+                                ":workspace_id",
+                                "api-keys",
+                                ":key_id"
+                              ],
+                              "variable": [
+                                {
+                                  "key": "workspace_id"
+                                },
+                                {
+                                  "key": "key_id"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "Not Found",
+                          "code": 404,
+                          "_postman_previewlanguage": "text",
+                          "header": [],
+                          "cookie": [],
+                          "responseTime": null,
+                          "body": null,
+                          "createdAt": "2026-07-28T00:59:48.000Z",
+                          "updatedAt": "2026-07-28T00:59:48.000Z",
+                          "uid": "35240-c898831c-24ce-4b7c-ac51-5e62160d9009"
+                        },
+                        {
+                          "id": "71ac8e48-5c97-491e-991f-d6fd6ebbc13b",
+                          "name": "Validation Error",
+                          "originalRequest": {
+                            "method": "DELETE",
+                            "header": [
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              },
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "url": {
+                              "raw": "{{baseUrl}}/v1/:workspace_id/api-keys/:key_id",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v1",
+                                ":workspace_id",
+                                "api-keys",
+                                ":key_id"
+                              ],
+                              "variable": [
+                                {
+                                  "key": "workspace_id"
+                                },
+                                {
+                                  "key": "key_id"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+                          "code": 422,
+                          "_postman_previewlanguage": "json",
+                          "header": [
+                            {
+                              "key": "Content-Type",
+                              "value": "application/json"
+                            }
+                          ],
+                          "cookie": [],
+                          "responseTime": null,
+                          "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"msg\": \"<string>\",\n      \"type\": \"<string>\",\n      \"input\": {\n        \"title\": \"Input\"\n      },\n      \"ctx\": {}\n    },\n    {\n      \"loc\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"msg\": \"<string>\",\n      \"type\": \"<string>\",\n      \"input\": {\n        \"title\": \"Input\"\n      },\n      \"ctx\": {}\n    }\n  ]\n}",
+                          "createdAt": "2026-07-28T00:59:48.000Z",
+                          "updatedAt": "2026-07-28T00:59:48.000Z",
+                          "uid": "35240-71ac8e48-5c97-491e-991f-d6fd6ebbc13b"
+                        }
+                      ],
+                      "createdAt": "2026-07-28T00:59:48.000Z",
+                      "updatedAt": "2026-07-28T00:59:48.000Z",
+                      "uid": "35240-581370ab-c9f8-4c6b-8eb2-9471596e1bc3"
+                    }
+                  ],
+                  "id": "28a6926f-a6f8-48fb-b5c1-56256c9c505c",
+                  "createdAt": "2026-07-28T00:59:48.000Z",
+                  "updatedAt": "2026-07-28T00:59:48.000Z",
+                  "uid": "35240-28a6926f-a6f8-48fb-b5c1-56256c9c505c"
+                },
+                {
+                  "name": "Create an API key",
+                  "id": "ccc864e5-e487-4629-86f6-5a8009a49657",
+                  "protocolProfileBehavior": {
+                    "disableBodyPruning": true
+                  },
+                  "request": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"duration_days\": \"<integer>\",\n  \"name\": \"<string>\",\n  \"role\": \"member\",\n  \"permissions\": [\n    \"<string>\",\n    \"<string>\"\n  ]\n}",
+                      "options": {
+                        "raw": {
+                          "headerFamily": "json",
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/v1/:workspace_id/api-keys",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "v1",
+                        ":workspace_id",
+                        "api-keys"
+                      ],
+                      "variable": [
+                        {
+                          "id": "614916ab-cc21-40a6-85ba-0f229ef3a9b5",
+                          "key": "workspace_id",
+                          "value": "<uuid>",
+                          "description": "(Required) "
+                        }
+                      ]
+                    },
+                    "description": "Create a new API key for a workspace. The response includes the plaintext `api_key` \u2014 store it securely, it cannot be retrieved again."
+                  },
+                  "response": [
+                    {
+                      "id": "29a0c1b1-874e-45fe-a48f-36eb55d5bbfd",
+                      "name": "Successful Response",
+                      "originalRequest": {
+                        "method": "POST",
+                        "header": [
+                          {
+                            "key": "Content-Type",
+                            "value": "application/json"
+                          },
+                          {
+                            "key": "Accept",
+                            "value": "application/json"
+                          },
+                          {
+                            "description": "Added as a part of security scheme: bearer",
+                            "key": "Authorization",
+                            "value": "Bearer <token>"
+                          }
+                        ],
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\n  \"duration_days\": \"<integer>\",\n  \"name\": \"<string>\",\n  \"role\": \"member\",\n  \"permissions\": [\n    \"<string>\",\n    \"<string>\"\n  ]\n}",
+                          "options": {
+                            "raw": {
+                              "headerFamily": "json",
+                              "language": "json"
+                            }
+                          }
+                        },
+                        "url": {
+                          "raw": "{{baseUrl}}/v1/:workspace_id/api-keys",
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "v1",
+                            ":workspace_id",
+                            "api-keys"
+                          ],
+                          "variable": [
+                            {
+                              "key": "workspace_id"
+                            }
+                          ]
+                        }
+                      },
+                      "status": "Created",
+                      "code": 201,
+                      "_postman_previewlanguage": "json",
+                      "header": [
+                        {
+                          "key": "Content-Type",
+                          "value": "application/json"
+                        }
+                      ],
+                      "cookie": [],
+                      "responseTime": null,
+                      "body": "{\n  \"key_id\": \"<string>\",\n  \"api_key\": \"<string>\",\n  \"name\": \"<string>\",\n  \"role\": \"<string>\",\n  \"permissions\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"expires_at\": \"<dateTime>\",\n  \"created_by_entity_id\": \"<uuid>\",\n  \"created_by_credential_id\": \"<uuid>\"\n}",
+                      "createdAt": "2026-07-28T00:59:48.000Z",
+                      "updatedAt": "2026-07-28T00:59:48.000Z",
+                      "uid": "35240-29a0c1b1-874e-45fe-a48f-36eb55d5bbfd"
+                    },
+                    {
+                      "id": "1c491ae3-f3fe-4f91-a7b2-4d3dde57bd99",
+                      "name": "Missing or invalid API key.",
+                      "originalRequest": {
+                        "method": "POST",
+                        "header": [
+                          {
+                            "key": "Content-Type",
+                            "value": "application/json"
+                          },
+                          {
+                            "description": "Added as a part of security scheme: bearer",
+                            "key": "Authorization",
+                            "value": "Bearer <token>"
+                          }
+                        ],
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\n  \"duration_days\": \"<integer>\",\n  \"name\": \"<string>\",\n  \"role\": \"member\",\n  \"permissions\": [\n    \"<string>\",\n    \"<string>\"\n  ]\n}",
+                          "options": {
+                            "raw": {
+                              "headerFamily": "json",
+                              "language": "json"
+                            }
+                          }
+                        },
+                        "url": {
+                          "raw": "{{baseUrl}}/v1/:workspace_id/api-keys",
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "v1",
+                            ":workspace_id",
+                            "api-keys"
+                          ],
+                          "variable": [
+                            {
+                              "key": "workspace_id"
+                            }
+                          ]
+                        }
+                      },
+                      "status": "Unauthorized",
+                      "code": 401,
+                      "_postman_previewlanguage": "text",
+                      "header": [],
+                      "cookie": [],
+                      "responseTime": null,
+                      "body": null,
+                      "createdAt": "2026-07-28T00:59:48.000Z",
+                      "updatedAt": "2026-07-28T00:59:48.000Z",
+                      "uid": "35240-1c491ae3-f3fe-4f91-a7b2-4d3dde57bd99"
+                    },
+                    {
+                      "id": "b3db335f-d736-4019-b74b-177c4693631b",
+                      "name": "Insufficient permissions or requested role exceeds caller access.",
+                      "originalRequest": {
+                        "method": "POST",
+                        "header": [
+                          {
+                            "key": "Content-Type",
+                            "value": "application/json"
+                          },
+                          {
+                            "description": "Added as a part of security scheme: bearer",
+                            "key": "Authorization",
+                            "value": "Bearer <token>"
+                          }
+                        ],
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\n  \"duration_days\": \"<integer>\",\n  \"name\": \"<string>\",\n  \"role\": \"member\",\n  \"permissions\": [\n    \"<string>\",\n    \"<string>\"\n  ]\n}",
+                          "options": {
+                            "raw": {
+                              "headerFamily": "json",
+                              "language": "json"
+                            }
+                          }
+                        },
+                        "url": {
+                          "raw": "{{baseUrl}}/v1/:workspace_id/api-keys",
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "v1",
+                            ":workspace_id",
+                            "api-keys"
+                          ],
+                          "variable": [
+                            {
+                              "key": "workspace_id"
+                            }
+                          ]
+                        }
+                      },
+                      "status": "Forbidden",
+                      "code": 403,
+                      "_postman_previewlanguage": "text",
+                      "header": [],
+                      "cookie": [],
+                      "responseTime": null,
+                      "body": null,
+                      "createdAt": "2026-07-28T00:59:48.000Z",
+                      "updatedAt": "2026-07-28T00:59:48.000Z",
+                      "uid": "35240-b3db335f-d736-4019-b74b-177c4693631b"
+                    },
+                    {
+                      "id": "d3a7734e-fdbf-45e2-8dbf-24770123f002",
+                      "name": "Invalid request body or role.",
+                      "originalRequest": {
+                        "method": "POST",
+                        "header": [
+                          {
+                            "key": "Content-Type",
+                            "value": "application/json"
+                          },
+                          {
+                            "description": "Added as a part of security scheme: bearer",
+                            "key": "Authorization",
+                            "value": "Bearer <token>"
+                          }
+                        ],
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\n  \"duration_days\": \"<integer>\",\n  \"name\": \"<string>\",\n  \"role\": \"member\",\n  \"permissions\": [\n    \"<string>\",\n    \"<string>\"\n  ]\n}",
+                          "options": {
+                            "raw": {
+                              "headerFamily": "json",
+                              "language": "json"
+                            }
+                          }
+                        },
+                        "url": {
+                          "raw": "{{baseUrl}}/v1/:workspace_id/api-keys",
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "v1",
+                            ":workspace_id",
+                            "api-keys"
+                          ],
+                          "variable": [
+                            {
+                              "key": "workspace_id"
+                            }
+                          ]
+                        }
+                      },
+                      "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+                      "code": 422,
+                      "_postman_previewlanguage": "text",
+                      "header": [],
+                      "cookie": [],
+                      "responseTime": null,
+                      "body": null,
+                      "createdAt": "2026-07-28T00:59:48.000Z",
+                      "updatedAt": "2026-07-28T00:59:48.000Z",
+                      "uid": "35240-d3a7734e-fdbf-45e2-8dbf-24770123f002"
+                    }
+                  ],
+                  "createdAt": "2026-07-28T00:59:48.000Z",
+                  "updatedAt": "2026-07-28T00:59:48.000Z",
+                  "uid": "35240-ccc864e5-e487-4629-86f6-5a8009a49657"
+                },
+                {
+                  "name": "List API keys",
+                  "id": "97ade10e-c4db-4828-af5e-9aec118ded28",
+                  "protocolProfileBehavior": {
+                    "disableBodyPruning": true
+                  },
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{baseUrl}}/v1/:workspace_id/api-keys?mine_only=false&limit=10&continuation_token=0",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "v1",
+                        ":workspace_id",
+                        "api-keys"
+                      ],
+                      "query": [
+                        {
+                          "key": "mine_only",
+                          "value": "false"
+                        },
+                        {
+                          "key": "limit",
+                          "value": "10"
+                        },
+                        {
+                          "key": "continuation_token",
+                          "value": "0"
+                        }
+                      ],
+                      "variable": [
+                        {
+                          "id": "ff517535-c8d5-4ab9-b446-cc2ac668e808",
+                          "key": "workspace_id",
+                          "value": "<uuid>",
+                          "description": "(Required) "
+                        }
+                      ]
+                    },
+                    "description": "List all API keys for a workspace with pagination. Requires `ApiKey.view` permission."
+                  },
+                  "response": [
+                    {
+                      "id": "2cae1eb1-b2b9-417c-8bf6-962d26f9893b",
+                      "name": "Successful Response",
+                      "originalRequest": {
+                        "method": "GET",
+                        "header": [
+                          {
+                            "key": "Accept",
+                            "value": "application/json"
+                          },
+                          {
+                            "description": "Added as a part of security scheme: bearer",
+                            "key": "Authorization",
+                            "value": "Bearer <token>"
+                          }
+                        ],
+                        "url": {
+                          "raw": "{{baseUrl}}/v1/:workspace_id/api-keys?mine_only=false&limit=10&continuation_token=0",
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "v1",
+                            ":workspace_id",
+                            "api-keys"
+                          ],
+                          "query": [
+                            {
+                              "key": "mine_only",
+                              "value": "false"
+                            },
+                            {
+                              "key": "limit",
+                              "value": "10"
+                            },
+                            {
+                              "key": "continuation_token",
+                              "value": "0"
+                            }
+                          ],
+                          "variable": [
+                            {
+                              "key": "workspace_id"
+                            }
+                          ]
+                        }
+                      },
+                      "status": "OK",
+                      "code": 200,
+                      "_postman_previewlanguage": "json",
+                      "header": [
+                        {
+                          "key": "Content-Type",
+                          "value": "application/json"
+                        }
+                      ],
+                      "cookie": [],
+                      "responseTime": null,
+                      "body": "{\n  \"items\": [\n    {\n      \"id\": \"<uuid>\",\n      \"workspace_id\": \"<uuid>\",\n      \"created_by_entity_id\": \"<uuid>\",\n      \"created_by_credential_id\": \"<uuid>\",\n      \"key_id\": \"<string>\",\n      \"name\": \"<string>\",\n      \"role\": \"<string>\",\n      \"permissions\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"expires_at\": \"<dateTime>\",\n      \"last_used_at\": \"<dateTime>\",\n      \"created_at\": \"<dateTime>\",\n      \"updated_at\": \"<dateTime>\"\n    },\n    {\n      \"id\": \"<uuid>\",\n      \"workspace_id\": \"<uuid>\",\n      \"created_by_entity_id\": \"<uuid>\",\n      \"created_by_credential_id\": \"<uuid>\",\n      \"key_id\": \"<string>\",\n      \"name\": \"<string>\",\n      \"role\": \"<string>\",\n      \"permissions\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"expires_at\": \"<dateTime>\",\n      \"last_used_at\": \"<dateTime>\",\n      \"created_at\": \"<dateTime>\",\n      \"updated_at\": \"<dateTime>\"\n    }\n  ],\n  \"has_more\": \"<boolean>\",\n  \"continuation_token\": \"<integer>\",\n  \"total\": \"<integer>\"\n}",
+                      "createdAt": "2026-07-28T00:59:48.000Z",
+                      "updatedAt": "2026-07-28T00:59:48.000Z",
+                      "uid": "35240-2cae1eb1-b2b9-417c-8bf6-962d26f9893b"
+                    },
+                    {
+                      "id": "1fcb17b8-e09f-4f0a-b87d-5d79ef8c2e05",
+                      "name": "Missing or invalid API key.",
+                      "originalRequest": {
+                        "method": "GET",
+                        "header": [
+                          {
+                            "description": "Added as a part of security scheme: bearer",
+                            "key": "Authorization",
+                            "value": "Bearer <token>"
+                          }
+                        ],
+                        "url": {
+                          "raw": "{{baseUrl}}/v1/:workspace_id/api-keys?mine_only=false&limit=10&continuation_token=0",
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "v1",
+                            ":workspace_id",
+                            "api-keys"
+                          ],
+                          "query": [
+                            {
+                              "key": "mine_only",
+                              "value": "false"
+                            },
+                            {
+                              "key": "limit",
+                              "value": "10"
+                            },
+                            {
+                              "key": "continuation_token",
+                              "value": "0"
+                            }
+                          ],
+                          "variable": [
+                            {
+                              "key": "workspace_id"
+                            }
+                          ]
+                        }
+                      },
+                      "status": "Unauthorized",
+                      "code": 401,
+                      "_postman_previewlanguage": "text",
+                      "header": [],
+                      "cookie": [],
+                      "responseTime": null,
+                      "body": null,
+                      "createdAt": "2026-07-28T00:59:48.000Z",
+                      "updatedAt": "2026-07-28T00:59:48.000Z",
+                      "uid": "35240-1fcb17b8-e09f-4f0a-b87d-5d79ef8c2e05"
+                    },
+                    {
+                      "id": "06d2fb72-053b-4b8d-80e8-69dbab700493",
+                      "name": "Insufficient permissions.",
+                      "originalRequest": {
+                        "method": "GET",
+                        "header": [
+                          {
+                            "description": "Added as a part of security scheme: bearer",
+                            "key": "Authorization",
+                            "value": "Bearer <token>"
+                          }
+                        ],
+                        "url": {
+                          "raw": "{{baseUrl}}/v1/:workspace_id/api-keys?mine_only=false&limit=10&continuation_token=0",
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "v1",
+                            ":workspace_id",
+                            "api-keys"
+                          ],
+                          "query": [
+                            {
+                              "key": "mine_only",
+                              "value": "false"
+                            },
+                            {
+                              "key": "limit",
+                              "value": "10"
+                            },
+                            {
+                              "key": "continuation_token",
+                              "value": "0"
+                            }
+                          ],
+                          "variable": [
+                            {
+                              "key": "workspace_id"
+                            }
+                          ]
+                        }
+                      },
+                      "status": "Forbidden",
+                      "code": 403,
+                      "_postman_previewlanguage": "text",
+                      "header": [],
+                      "cookie": [],
+                      "responseTime": null,
+                      "body": null,
+                      "createdAt": "2026-07-28T00:59:48.000Z",
+                      "updatedAt": "2026-07-28T00:59:48.000Z",
+                      "uid": "35240-06d2fb72-053b-4b8d-80e8-69dbab700493"
+                    },
+                    {
+                      "id": "ceb05a18-b90f-42e0-ba35-f32408c10597",
+                      "name": "Validation Error",
+                      "originalRequest": {
+                        "method": "GET",
+                        "header": [
+                          {
+                            "key": "Accept",
+                            "value": "application/json"
+                          },
+                          {
+                            "description": "Added as a part of security scheme: bearer",
+                            "key": "Authorization",
+                            "value": "Bearer <token>"
+                          }
+                        ],
+                        "url": {
+                          "raw": "{{baseUrl}}/v1/:workspace_id/api-keys?mine_only=false&limit=10&continuation_token=0",
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "v1",
+                            ":workspace_id",
+                            "api-keys"
+                          ],
+                          "query": [
+                            {
+                              "key": "mine_only",
+                              "value": "false"
+                            },
+                            {
+                              "key": "limit",
+                              "value": "10"
+                            },
+                            {
+                              "key": "continuation_token",
+                              "value": "0"
+                            }
+                          ],
+                          "variable": [
+                            {
+                              "key": "workspace_id"
+                            }
+                          ]
+                        }
+                      },
+                      "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+                      "code": 422,
+                      "_postman_previewlanguage": "json",
+                      "header": [
+                        {
+                          "key": "Content-Type",
+                          "value": "application/json"
+                        }
+                      ],
+                      "cookie": [],
+                      "responseTime": null,
+                      "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"msg\": \"<string>\",\n      \"type\": \"<string>\",\n      \"input\": {\n        \"title\": \"Input\"\n      },\n      \"ctx\": {}\n    },\n    {\n      \"loc\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"msg\": \"<string>\",\n      \"type\": \"<string>\",\n      \"input\": {\n        \"title\": \"Input\"\n      },\n      \"ctx\": {}\n    }\n  ]\n}",
+                      "createdAt": "2026-07-28T00:59:48.000Z",
+                      "updatedAt": "2026-07-28T00:59:48.000Z",
+                      "uid": "35240-ceb05a18-b90f-42e0-ba35-f32408c10597"
+                    }
+                  ],
+                  "createdAt": "2026-07-28T00:59:48.000Z",
+                  "updatedAt": "2026-07-28T00:59:48.000Z",
+                  "uid": "35240-97ade10e-c4db-4828-af5e-9aec118ded28"
+                }
+              ],
+              "id": "1e9be3e8-4f29-4078-aee0-8222f2bba371",
+              "createdAt": "2026-07-28T00:59:48.000Z",
+              "updatedAt": "2026-07-28T00:59:48.000Z",
+              "uid": "35240-1e9be3e8-4f29-4078-aee0-8222f2bba371"
+            }
+          ],
+          "id": "3de4bc7a-e715-4c99-a506-d301449f1544",
+          "createdAt": "2026-07-28T00:59:48.000Z",
+          "updatedAt": "2026-07-28T00:59:48.000Z",
+          "uid": "35240-3de4bc7a-e715-4c99-a506-d301449f1544"
+        }
+      ],
+      "id": "0fb404a7-3ba4-4a25-b773-215c365d8efc",
+      "createdAt": "2026-07-28T00:59:48.000Z",
+      "updatedAt": "2026-07-28T00:59:48.000Z",
+      "uid": "35240-0fb404a7-3ba4-4a25-b773-215c365d8efc"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{bearerToken}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://api.amigo.ai"
+    }
+  ]
+}

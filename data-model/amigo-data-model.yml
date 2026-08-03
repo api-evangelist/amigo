@@ -1,0 +1,757 @@
+generated: '2026-07-17'
+method: derived
+source:
+- openapi/amigo-classic-openapi-original.json
+- openapi/amigo-platform-openapi-original.json
+docs: https://docs.amigo.ai/reference/api-terminology-mapping.md
+apis:
+- api: amigo-classic
+  domains:
+  - Admin
+  - Conversation
+  - Dynamic Behavior Set
+  - Metric
+  - Organization
+  - Role
+  - Service
+  - Simulation
+  - Tool
+  - User
+  - Webhook Destination
+  entities:
+  - entity: DynamicBehaviorInvocation
+    id_field: null
+    relationships:
+    - type: belongs_to
+      via: _id
+      target: ''
+    - type: belongs_to
+      via: org_id
+      target: org
+    - type: belongs_to
+      via: conversation_id
+      target: conversation
+    - type: belongs_to
+      via: service_id
+      target: service
+    - type: belongs_to
+      via: user_id
+      target: user
+    - type: belongs_to
+      via: initial_message_id
+      target: initial_message
+    - type: belongs_to
+      via: agent_message_id
+      target: agent_message
+  - entity: SimulationUnitTest
+    id_field: null
+    relationships:
+    - type: belongs_to
+      via: _id
+      target: ''
+    - type: belongs_to
+      via: org_id
+      target: org
+    - type: belongs_to
+      via: service_id
+      target: service
+    - type: belongs_to
+      via: persona_id
+      target: persona
+    - type: belongs_to
+      via: scenario_id
+      target: scenario
+  - entity: APIKeyInstance
+    id_field: null
+    relationships:
+    - type: belongs_to
+      via: _id
+      target: ''
+    - type: belongs_to
+      via: org_id
+      target: org
+    - type: belongs_to
+      via: key_id
+      target: key
+    - type: belongs_to
+      via: role_id
+      target: role
+  - entity: SimulationUnitTestInstance
+    id_field: id
+    relationships:
+    - type: belongs_to
+      via: org_id
+      target: org
+    - type: belongs_to
+      via: service_id
+      target: service
+    - type: belongs_to
+      via: persona_id
+      target: persona
+    - type: belongs_to
+      via: scenario_id
+      target: scenario
+  - entity: DynamicBehaviorSetVersion
+    id_field: null
+    relationships:
+    - type: belongs_to
+      via: _id
+      target: ''
+    - type: belongs_to
+      via: org_id
+      target: org
+    - type: belongs_to
+      via: dynamic_behavior_set_id
+      target: dynamic_behavior_set
+  - entity: RegularConversationInvocationSource
+    id_field: null
+    relationships:
+    - type: belongs_to
+      via: user_id
+      target: user
+    - type: belongs_to
+      via: conversation_id
+      target: conversation
+    - type: belongs_to
+      via: interaction_id
+      target: interaction
+  - entity: SimulationPersonaVersion
+    id_field: null
+    relationships:
+    - type: belongs_to
+      via: _id
+      target: ''
+    - type: belongs_to
+      via: org_id
+      target: org
+    - type: belongs_to
+      via: simulation_persona_id
+      target: simulation_persona
+  - entity: SimulationScenarioVersion
+    id_field: null
+    relationships:
+    - type: belongs_to
+      via: _id
+      target: ''
+    - type: belongs_to
+      via: org_id
+      target: org
+    - type: belongs_to
+      via: simulation_scenario_id
+      target: simulation_scenario
+  - entity: SimulationUnitTestSet
+    id_field: null
+    relationships:
+    - type: belongs_to
+      via: _id
+      target: ''
+    - type: belongs_to
+      via: org_id
+      target: org
+    - type: belongs_to
+      via: last_triggered_run_id
+      target: last_triggered_run
+  - entity: TemporaryPermissionGrant
+    id_field: null
+    relationships:
+    - type: belongs_to
+      via: _id
+      target: ''
+    - type: belongs_to
+      via: org_id
+      target: org
+    - type: belongs_to
+      via: user_id
+      target: user
+  - entity: src__app__endpoints__simulation__create_simulation_unit_test__Request
+    id_field: null
+    relationships:
+    - type: belongs_to
+      via: service_id
+      target: service
+    - type: belongs_to
+      via: persona_id
+      target: persona
+    - type: belongs_to
+      via: scenario_id
+      target: scenario
+  - entity: src__app__endpoints__simulation__update_simulation_unit_test__Request
+    id_field: null
+    relationships:
+    - type: belongs_to
+      via: service_id
+      target: service
+    - type: belongs_to
+      via: persona_id
+      target: persona
+    - type: belongs_to
+      via: scenario_id
+      target: scenario
+  - entity: ConversationInstance
+    id_field: id
+    relationships:
+    - type: belongs_to
+      via: user_id
+      target: user
+    - type: belongs_to
+      via: service_id
+      target: service
+  - entity: InteractionCompleteEvent
+    id_field: null
+    relationships:
+    - type: belongs_to
+      via: message_id
+      target: message
+    - type: belongs_to
+      via: interaction_id
+      target: interaction
+  - entity: ManualEvaluationSource
+    id_field: null
+    relationships:
+    - type: belongs_to
+      via: conversation_id
+      target: conversation
+    - type: belongs_to
+      via: evaluate_to_interaction_id
+      target: evaluate_to_interaction
+  - entity: Metric
+    id_field: null
+    relationships:
+    - type: belongs_to
+      via: _id
+      target: ''
+    - type: belongs_to
+      via: org_id
+      target: org
+  - entity: MetricEvaluationResultInstance
+    id_field: id
+    relationships:
+    - type: belongs_to
+      via: org_id
+      target: org
+    - type: belongs_to
+      via: metric_id
+      target: metric
+  - entity: ServiceHierarchicalStateMachineInstance
+    id_field: null
+    relationships:
+    - type: belongs_to
+      via: org_id
+      target: org
+    - type: belongs_to
+      via: service_hierarchical_state_machine_id
+      target: service_hierarchical_state_machine
+  - entity: ServiceInstance
+    id_field: id
+    relationships:
+    - type: belongs_to
+      via: service_hierarchical_state_machine_id
+      target: service_hierarchical_state_machine
+    - type: belongs_to
+      via: agent_id
+      target: agent
+  - entity: SimulationConversationInvocationSource
+    id_field: null
+    relationships:
+    - type: belongs_to
+      via: simulation_unit_test_set_run_id
+      target: simulation_unit_test_set_run
+    - type: belongs_to
+      via: unit_test_id
+      target: unit_test
+  - entity: SimulationEvaluationSource
+    id_field: null
+    relationships:
+    - type: belongs_to
+      via: simulation_unit_test_set_run_id
+      target: simulation_unit_test_set_run
+    - type: belongs_to
+      via: unit_test_id
+      target: unit_test
+  - entity: SimulationUnitTestSetInstance
+    id_field: id
+    relationships:
+    - type: belongs_to
+      via: org_id
+      target: org
+    - type: belongs_to
+      via: last_triggered_run_id
+      target: last_triggered_run
+  - entity: SimulationUnitTestSetRunInstance
+    id_field: id
+    relationships:
+    - type: belongs_to
+      via: org_id
+      target: org
+    - type: belongs_to
+      via: simulation_unit_test_set_id
+      target: simulation_unit_test_set
+  - entity: ToolInvocationInstance
+    id_field: id
+    relationships:
+    - type: belongs_to
+      via: org_id
+      target: org
+    - type: belongs_to
+      via: tool_id
+      target: tool
+  - entity: ToolVersionInstance
+    id_field: id
+    relationships:
+    - type: belongs_to
+      via: org_id
+      target: org
+    - type: belongs_to
+      via: tool_id
+      target: tool
+- api: amigo-platform
+  domains:
+  - API Keys
+  - Account
+  - Agent Definitions
+  - Agent Runs
+  - Agents
+  - Analytics
+  - Audit
+  - Auth
+  - Billing
+  - Calls
+  - Command Center
+  - Compliance
+  - Config
+  - Context Graphs
+  - Dashboards
+  - Data Query
+  - Data Sources
+  - Entity Intelligence
+  - Evaluations
+  - Events
+  - External Integrations
+  - External Role Assignments
+  - External Roles
+  - FHIR
+  - Form Templates
+  - Functions
+  - Insights
+  - Intake
+  - Intake Upload
+  - Integrations
+  - M42
+  - Metering
+  - Metrics
+  - Network
+  - Operators
+  - Pipeline
+  - Prompt Logs
+  - Recordings
+  - Review Queue
+  - Role Grants
+  - Runs
+  - Scheduling Rules
+  - Self-Image
+  - Sensorium
+  - Services
+  - Sessions
+  - Settings
+  - Simulations
+  - Skills
+  - Surface Patient
+  - Surfaces
+  - Tool Testing
+  - Traces
+  - Triggers
+  - Use Cases
+  - Voice Judge
+  - Workspace Data Queries
+  - Workspace Tables
+  - Workspaces
+  - World
+  - conversations
+  entities:
+  - entity: ExternalWriteProposal
+    id_field: id
+    relationships:
+    - type: belongs_to
+      via: workspace_id
+      target: workspace
+    - type: belongs_to
+      via: data_source_id
+      target: data_source
+    - type: belongs_to
+      via: fhir_resource_id
+      target: fhir_resource
+    - type: belongs_to
+      via: origin_run_id
+      target: origin_run
+    - type: belongs_to
+      via: origin_event_id
+      target: origin_event
+    - type: belongs_to
+      via: entity_id
+      target: entity
+    - type: belongs_to
+      via: vendor_resource_id
+      target: vendor_resource
+  - entity: Run
+    id_field: null
+    relationships:
+    - type: belongs_to
+      via: run_id
+      target: run
+    - type: belongs_to
+      via: workspace_id
+      target: workspace
+    - type: belongs_to
+      via: entity_id
+      target: entity
+    - type: belongs_to
+      via: service_id
+      target: service
+    - type: belongs_to
+      via: caller_id
+      target: caller
+    - type: belongs_to
+      via: source_conversation_id
+      target: source_conversation
+    - type: belongs_to
+      via: source_framework_run_id
+      target: source_framework_run
+  - entity: CallDetailResponse
+    id_field: id
+    relationships:
+    - type: belongs_to
+      via: workspace_id
+      target: workspace
+    - type: belongs_to
+      via: service_id
+      target: service
+    - type: belongs_to
+      via: caller_id
+      target: caller
+    - type: belongs_to
+      via: run_id
+      target: run
+    - type: belongs_to
+      via: parent_session_id
+      target: parent_session
+  - entity: CallIntelligenceMetricProjectionRequest
+    id_field: null
+    relationships:
+    - type: belongs_to
+      via: workspace_id
+      target: workspace
+    - type: belongs_to
+      via: service_id
+      target: service
+    - type: belongs_to
+      via: call_id
+      target: call
+    - type: belongs_to
+      via: run_id
+      target: run
+    - type: belongs_to
+      via: session_id
+      target: session
+  - entity: CallSummary
+    id_field: null
+    relationships:
+    - type: belongs_to
+      via: entity_id
+      target: entity
+    - type: belongs_to
+      via: caller_id
+      target: caller
+    - type: belongs_to
+      via: service_id
+      target: service
+    - type: belongs_to
+      via: run_id
+      target: run
+    - type: belongs_to
+      via: parent_session_id
+      target: parent_session
+  - entity: ConversationThreadResponse
+    id_field: null
+    relationships:
+    - type: belongs_to
+      via: conversation_id
+      target: conversation
+    - type: belongs_to
+      via: workspace_id
+      target: workspace
+    - type: belongs_to
+      via: provider_thread_id
+      target: provider_thread
+    - type: belongs_to
+      via: entity_id
+      target: entity
+    - type: belongs_to
+      via: service_id
+      target: service
+  - entity: CreateOutboundCallRequest
+    id_field: null
+    relationships:
+    - type: belongs_to
+      via: use_case_id
+      target: use_case
+    - type: belongs_to
+      via: patient_entity_id
+      target: patient_entity
+    - type: belongs_to
+      via: patient_canonical_id
+      target: patient_canonical
+    - type: belongs_to
+      via: service_id
+      target: service
+    - type: belongs_to
+      via: outbound_task_entity_id
+      target: outbound_task_entity
+  - entity: ActiveEscalationItem
+    id_field: null
+    relationships:
+    - type: belongs_to
+      via: call_entity_id
+      target: call_entity
+    - type: belongs_to
+      via: escalation_id
+      target: escalation
+    - type: belongs_to
+      via: operator_entity_id
+      target: operator_entity
+    - type: belongs_to
+      via: caller_id
+      target: caller
+  - entity: ApiKeyResponse
+    id_field: id
+    relationships:
+    - type: belongs_to
+      via: workspace_id
+      target: workspace
+    - type: belongs_to
+      via: created_by_entity_id
+      target: created_by_entity
+    - type: belongs_to
+      via: created_by_credential_id
+      target: created_by_credential
+    - type: belongs_to
+      via: key_id
+      target: key
+  - entity: BooleanMetricValueResponse
+    id_field: null
+    relationships:
+    - type: belongs_to
+      via: entity_id
+      target: entity
+    - type: belongs_to
+      via: service_id
+      target: service
+    - type: belongs_to
+      via: run_id
+      target: run
+    - type: belongs_to
+      via: session_id
+      target: session
+  - entity: CategoricalMetricValueResponse
+    id_field: null
+    relationships:
+    - type: belongs_to
+      via: entity_id
+      target: entity
+    - type: belongs_to
+      via: service_id
+      target: service
+    - type: belongs_to
+      via: run_id
+      target: run
+    - type: belongs_to
+      via: session_id
+      target: session
+  - entity: EvaluationResultView
+    id_field: null
+    relationships:
+    - type: belongs_to
+      via: run_id
+      target: run
+    - type: belongs_to
+      via: case_id
+      target: case
+    - type: belongs_to
+      via: session_id
+      target: session
+    - type: belongs_to
+      via: trace_id
+      target: trace
+  - entity: FhirPatientView
+    id_field: null
+    relationships:
+    - type: belongs_to
+      via: entity_id
+      target: entity
+    - type: belongs_to
+      via: practice_payer_id
+      target: practice_payer
+    - type: belongs_to
+      via: member_id
+      target: member
+    - type: belongs_to
+      via: canonical_id
+      target: canonical
+  - entity: FhirSlotView
+    id_field: null
+    relationships:
+    - type: belongs_to
+      via: entity_id
+      target: entity
+    - type: belongs_to
+      via: provider_id
+      target: provider
+    - type: belongs_to
+      via: facility_id
+      target: facility
+    - type: belongs_to
+      via: canonical_id
+      target: canonical
+  - entity: NumericalMetricValueResponse
+    id_field: null
+    relationships:
+    - type: belongs_to
+      via: entity_id
+      target: entity
+    - type: belongs_to
+      via: service_id
+      target: service
+    - type: belongs_to
+      via: run_id
+      target: run
+    - type: belongs_to
+      via: session_id
+      target: session
+  - entity: PromptLogEntry
+    id_field: null
+    relationships:
+    - type: belongs_to
+      via: event_id
+      target: event
+    - type: belongs_to
+      via: workspace_id
+      target: workspace
+    - type: belongs_to
+      via: service_id
+      target: service
+    - type: belongs_to
+      via: session_id
+      target: session
+  - entity: SessionStartEvent
+    id_field: null
+    relationships:
+    - type: belongs_to
+      via: session_id
+      target: session
+    - type: belongs_to
+      via: service_id
+      target: service
+    - type: belongs_to
+      via: workspace_id
+      target: workspace
+    - type: belongs_to
+      via: trace_id
+      target: trace
+  - entity: src__routes__audit__AuditEventResponse
+    id_field: id
+    relationships:
+    - type: belongs_to
+      via: workspace_id
+      target: workspace
+    - type: belongs_to
+      via: actor_entity_id
+      target: actor_entity
+    - type: belongs_to
+      via: actor_credential_id
+      target: actor_credential
+    - type: belongs_to
+      via: resource_id
+      target: resource
+  - entity: ActiveSession
+    id_field: null
+    relationships:
+    - type: belongs_to
+      via: service_id
+      target: service
+    - type: belongs_to
+      via: workspace_id
+      target: workspace
+    - type: belongs_to
+      via: caller_id
+      target: caller
+  - entity: CallEvalResult
+    id_field: id
+    relationships:
+    - type: belongs_to
+      via: workspace_id
+      target: workspace
+    - type: belongs_to
+      via: service_id
+      target: service
+    - type: belongs_to
+      via: conversation_id
+      target: conversation
+  - entity: ConversationDetail
+    id_field: id
+    relationships:
+    - type: belongs_to
+      via: entity_id
+      target: entity
+    - type: belongs_to
+      via: service_id
+      target: service
+    - type: belongs_to
+      via: caller_id
+      target: caller
+  - entity: ConversationThreadRequest
+    id_field: null
+    relationships:
+    - type: belongs_to
+      via: provider_thread_id
+      target: provider_thread
+    - type: belongs_to
+      via: entity_id
+      target: entity
+    - type: belongs_to
+      via: service_id
+      target: service
+  - entity: CreateApiKeyResponse
+    id_field: null
+    relationships:
+    - type: belongs_to
+      via: key_id
+      target: key
+    - type: belongs_to
+      via: created_by_entity_id
+      target: created_by_entity
+    - type: belongs_to
+      via: created_by_credential_id
+      target: created_by_credential
+  - entity: CreateConversationRequest
+    id_field: null
+    relationships:
+    - type: belongs_to
+      via: service_id
+      target: service
+    - type: belongs_to
+      via: entity_id
+      target: entity
+    - type: belongs_to
+      via: use_case_id
+      target: use_case
+  - entity: CreateSessionRequest
+    id_field: null
+    relationships:
+    - type: belongs_to
+      via: service_id
+      target: service
+    - type: belongs_to
+      via: caller_id
+      target: caller
+    - type: belongs_to
+      via: entity_id
+      target: entity

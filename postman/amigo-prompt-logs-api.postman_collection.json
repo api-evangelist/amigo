@@ -1,0 +1,649 @@
+{
+  "info": {
+    "_postman_id": "736e66ad-5526-4938-a605-051eb6e951ac",
+    "name": "Amigo Account Prompt Logs API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "createdAt": "2026-07-28T01:01:42.000Z",
+    "updatedAt": "2026-07-28T01:01:43.000Z",
+    "lastUpdatedBy": "35240",
+    "uid": "35240-736e66ad-5526-4938-a605-051eb6e951ac"
+  },
+  "item": [
+    {
+      "name": "v1",
+      "item": [
+        {
+          "name": "{workspace_id}",
+          "item": [
+            {
+              "name": "prompt-logs",
+              "item": [
+                {
+                  "name": "List prompt logs for a workspace",
+                  "id": "07e8a796-832a-4ffc-82e6-4ab22cb6039d",
+                  "protocolProfileBehavior": {
+                    "disableBodyPruning": true
+                  },
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{baseUrl}}/v1/:workspace_id/prompt-logs?conversation_id=<uuid>&call_sid=<string>&prompt_type=<string>&state_name=<string>&from_ts=<dateTime>&to_ts=<dateTime>&limit=20&offset=0",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "v1",
+                        ":workspace_id",
+                        "prompt-logs"
+                      ],
+                      "query": [
+                        {
+                          "description": "Conversation entity UUID (canonical identifier across all modalities \u2014 voice, text/web, sms, sim). Resolves text conversations through the durable ``world.conversations`` row, then falls back to the voice/call entity projection. Mutually exclusive with the ``call_sid`` query parameter.",
+                          "key": "conversation_id",
+                          "value": "<uuid>"
+                        },
+                        {
+                          "description": "Direct conversation identifier as stored on the prompt-log event: Twilio CA-SID for voice calls, session_id UUID for text/sim sessions. Most callers should use ``conversation_id`` instead \u2014 this is kept for legacy callers and external systems that hold the SID directly. Mutually exclusive with ``conversation_id``.",
+                          "key": "call_sid",
+                          "value": "<string>"
+                        },
+                        {
+                          "description": "Filter by prompt_type (e.g. engage_user, navigation, tool)",
+                          "key": "prompt_type",
+                          "value": "<string>"
+                        },
+                        {
+                          "description": "Filter by HSM state_name at render time",
+                          "key": "state_name",
+                          "value": "<string>"
+                        },
+                        {
+                          "description": "Inclusive lower bound on effective_at",
+                          "key": "from_ts",
+                          "value": "<dateTime>"
+                        },
+                        {
+                          "description": "Exclusive upper bound on effective_at",
+                          "key": "to_ts",
+                          "value": "<dateTime>"
+                        },
+                        {
+                          "description": "Max rows to return (default 20, max 200)",
+                          "key": "limit",
+                          "value": "20"
+                        },
+                        {
+                          "description": "Offset for pagination (max 10000)",
+                          "key": "offset",
+                          "value": "0"
+                        }
+                      ],
+                      "variable": [
+                        {
+                          "id": "b025db9c-3f78-48aa-a672-2966f5479634",
+                          "key": "workspace_id",
+                          "value": "<uuid>",
+                          "description": "(Required) "
+                        }
+                      ]
+                    },
+                    "description": "Lists ``prompt_log`` events emitted by agent-engine \u2014 full system prompt, conversation history, tool catalog, LLM model, and response \u2014 for auditing and debugging. Reads the Delta ``world_events`` ledger via Databricks SQL; typical latency is 1-5s with a 15s ceiling on cold-start.\n\n**Conversation filter**: pass ``conversation_id`` for the canonical mental model. Text conversations resolve from ``world.conversations``; voice/call IDs resolve through the projected conversation entity. ``call_sid`` is the legacy direct-SID filter (Twilio CA-SID for voice, session_id UUID otherwise) and is mutually exclusive with ``conversation_id``.\n\n**Other filters**: ``prompt_type``, ``state_name``, ``from_ts``, ``to_ts``. When no selectivity-bearing filter (conversation_id / call_sid / time range) is supplied, the query is auto-capped to the last 7 days; the applied window is reported in ``applied_time_window_days``.\n\n**Pagination**: peek-ahead \u2014 ``has_more`` is true when more rows exist; use ``next_offset`` to fetch the next page.\n\n**Auth**: admin or owner role required. Reads are audit-logged (``prompt_logs.queried``); responses can include PHI from prompt history."
+                  },
+                  "response": [
+                    {
+                      "id": "9b7c6183-0ced-48a6-8aa7-79ffc9f69080",
+                      "name": "Prompt log entries (newest first)",
+                      "originalRequest": {
+                        "method": "GET",
+                        "header": [
+                          {
+                            "key": "Accept",
+                            "value": "application/json"
+                          },
+                          {
+                            "description": "Added as a part of security scheme: bearer",
+                            "key": "Authorization",
+                            "value": "Bearer <token>"
+                          }
+                        ],
+                        "url": {
+                          "raw": "{{baseUrl}}/v1/:workspace_id/prompt-logs?conversation_id=<uuid>&call_sid=<string>&prompt_type=<string>&state_name=<string>&from_ts=<dateTime>&to_ts=<dateTime>&limit=20&offset=0",
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "v1",
+                            ":workspace_id",
+                            "prompt-logs"
+                          ],
+                          "query": [
+                            {
+                              "description": "Conversation entity UUID (canonical identifier across all modalities \u2014 voice, text/web, sms, sim). Resolves text conversations through the durable ``world.conversations`` row, then falls back to the voice/call entity projection. Mutually exclusive with the ``call_sid`` query parameter.",
+                              "key": "conversation_id",
+                              "value": "<uuid>"
+                            },
+                            {
+                              "description": "Direct conversation identifier as stored on the prompt-log event: Twilio CA-SID for voice calls, session_id UUID for text/sim sessions. Most callers should use ``conversation_id`` instead \u2014 this is kept for legacy callers and external systems that hold the SID directly. Mutually exclusive with ``conversation_id``.",
+                              "key": "call_sid",
+                              "value": "<string>"
+                            },
+                            {
+                              "description": "Filter by prompt_type (e.g. engage_user, navigation, tool)",
+                              "key": "prompt_type",
+                              "value": "<string>"
+                            },
+                            {
+                              "description": "Filter by HSM state_name at render time",
+                              "key": "state_name",
+                              "value": "<string>"
+                            },
+                            {
+                              "description": "Inclusive lower bound on effective_at",
+                              "key": "from_ts",
+                              "value": "<dateTime>"
+                            },
+                            {
+                              "description": "Exclusive upper bound on effective_at",
+                              "key": "to_ts",
+                              "value": "<dateTime>"
+                            },
+                            {
+                              "description": "Max rows to return (default 20, max 200)",
+                              "key": "limit",
+                              "value": "20"
+                            },
+                            {
+                              "description": "Offset for pagination (max 10000)",
+                              "key": "offset",
+                              "value": "0"
+                            }
+                          ],
+                          "variable": [
+                            {
+                              "key": "workspace_id"
+                            }
+                          ]
+                        }
+                      },
+                      "status": "OK",
+                      "code": 200,
+                      "_postman_previewlanguage": "json",
+                      "header": [
+                        {
+                          "key": "Content-Type",
+                          "value": "application/json"
+                        }
+                      ],
+                      "cookie": [],
+                      "responseTime": null,
+                      "body": "{\n  \"items\": [\n    {\n      \"event_id\": \"<uuid>\",\n      \"workspace_id\": \"<uuid>\",\n      \"call_sid\": \"<string>\",\n      \"effective_at\": \"<dateTime>\",\n      \"ingested_at\": \"<dateTime>\",\n      \"source\": \"<string>\",\n      \"source_system\": \"<string>\",\n      \"prompt_type\": \"<string>\",\n      \"turn_index\": \"<integer>\",\n      \"system_prompt\": \"<string>\",\n      \"history\": [\n        {\n          \"nisi_7c\": -89242134.37313941\n        },\n        {\n          \"cupidatatb\": 65041464,\n          \"cupidatat7\": \"minim do in commodo\",\n          \"esse_c9\": true\n        }\n      ],\n      \"full_prompt\": \"<string>\",\n      \"llm_model\": \"<string>\",\n      \"llm_response\": \"<string>\",\n      \"state_name\": \"<string>\",\n      \"action\": \"<string>\",\n      \"tool_names\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"has_tools\": \"<boolean>\",\n      \"service_id\": \"<uuid>\",\n      \"session_id\": \"<string>\",\n      \"data_parse_error\": false\n    },\n    {\n      \"event_id\": \"<uuid>\",\n      \"workspace_id\": \"<uuid>\",\n      \"call_sid\": \"<string>\",\n      \"effective_at\": \"<dateTime>\",\n      \"ingested_at\": \"<dateTime>\",\n      \"source\": \"<string>\",\n      \"source_system\": \"<string>\",\n      \"prompt_type\": \"<string>\",\n      \"turn_index\": \"<integer>\",\n      \"system_prompt\": \"<string>\",\n      \"history\": [\n        {\n          \"utc1a\": -76912436\n        },\n        {\n          \"cupidatat_e\": false\n        }\n      ],\n      \"full_prompt\": \"<string>\",\n      \"llm_model\": \"<string>\",\n      \"llm_response\": \"<string>\",\n      \"state_name\": \"<string>\",\n      \"action\": \"<string>\",\n      \"tool_names\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"has_tools\": \"<boolean>\",\n      \"service_id\": \"<uuid>\",\n      \"session_id\": \"<string>\",\n      \"data_parse_error\": false\n    }\n  ],\n  \"count\": \"<integer>\",\n  \"has_more\": \"<boolean>\",\n  \"next_offset\": \"<integer>\",\n  \"applied_time_window_days\": \"<integer>\",\n  \"resolved_call_sid\": \"<string>\",\n  \"resolved_conversation_kind\": \"call\"\n}",
+                      "createdAt": "2026-07-28T01:01:43.000Z",
+                      "updatedAt": "2026-07-28T01:01:43.000Z",
+                      "uid": "35240-9b7c6183-0ced-48a6-8aa7-79ffc9f69080"
+                    },
+                    {
+                      "id": "e13db472-3275-47b1-abbf-ff50a730357a",
+                      "name": "Mutually exclusive filters supplied",
+                      "originalRequest": {
+                        "method": "GET",
+                        "header": [
+                          {
+                            "description": "Added as a part of security scheme: bearer",
+                            "key": "Authorization",
+                            "value": "Bearer <token>"
+                          }
+                        ],
+                        "url": {
+                          "raw": "{{baseUrl}}/v1/:workspace_id/prompt-logs?conversation_id=<uuid>&call_sid=<string>&prompt_type=<string>&state_name=<string>&from_ts=<dateTime>&to_ts=<dateTime>&limit=20&offset=0",
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "v1",
+                            ":workspace_id",
+                            "prompt-logs"
+                          ],
+                          "query": [
+                            {
+                              "description": "Conversation entity UUID (canonical identifier across all modalities \u2014 voice, text/web, sms, sim). Resolves text conversations through the durable ``world.conversations`` row, then falls back to the voice/call entity projection. Mutually exclusive with the ``call_sid`` query parameter.",
+                              "key": "conversation_id",
+                              "value": "<uuid>"
+                            },
+                            {
+                              "description": "Direct conversation identifier as stored on the prompt-log event: Twilio CA-SID for voice calls, session_id UUID for text/sim sessions. Most callers should use ``conversation_id`` instead \u2014 this is kept for legacy callers and external systems that hold the SID directly. Mutually exclusive with ``conversation_id``.",
+                              "key": "call_sid",
+                              "value": "<string>"
+                            },
+                            {
+                              "description": "Filter by prompt_type (e.g. engage_user, navigation, tool)",
+                              "key": "prompt_type",
+                              "value": "<string>"
+                            },
+                            {
+                              "description": "Filter by HSM state_name at render time",
+                              "key": "state_name",
+                              "value": "<string>"
+                            },
+                            {
+                              "description": "Inclusive lower bound on effective_at",
+                              "key": "from_ts",
+                              "value": "<dateTime>"
+                            },
+                            {
+                              "description": "Exclusive upper bound on effective_at",
+                              "key": "to_ts",
+                              "value": "<dateTime>"
+                            },
+                            {
+                              "description": "Max rows to return (default 20, max 200)",
+                              "key": "limit",
+                              "value": "20"
+                            },
+                            {
+                              "description": "Offset for pagination (max 10000)",
+                              "key": "offset",
+                              "value": "0"
+                            }
+                          ],
+                          "variable": [
+                            {
+                              "key": "workspace_id"
+                            }
+                          ]
+                        }
+                      },
+                      "status": "Bad Request",
+                      "code": 400,
+                      "_postman_previewlanguage": "text",
+                      "header": [],
+                      "cookie": [],
+                      "responseTime": null,
+                      "body": null,
+                      "createdAt": "2026-07-28T01:01:43.000Z",
+                      "updatedAt": "2026-07-28T01:01:43.000Z",
+                      "uid": "35240-e13db472-3275-47b1-abbf-ff50a730357a"
+                    },
+                    {
+                      "id": "8dbd44fc-7d1d-429c-9f49-9b26b727cd6c",
+                      "name": "Caller is not admin/owner",
+                      "originalRequest": {
+                        "method": "GET",
+                        "header": [
+                          {
+                            "description": "Added as a part of security scheme: bearer",
+                            "key": "Authorization",
+                            "value": "Bearer <token>"
+                          }
+                        ],
+                        "url": {
+                          "raw": "{{baseUrl}}/v1/:workspace_id/prompt-logs?conversation_id=<uuid>&call_sid=<string>&prompt_type=<string>&state_name=<string>&from_ts=<dateTime>&to_ts=<dateTime>&limit=20&offset=0",
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "v1",
+                            ":workspace_id",
+                            "prompt-logs"
+                          ],
+                          "query": [
+                            {
+                              "description": "Conversation entity UUID (canonical identifier across all modalities \u2014 voice, text/web, sms, sim). Resolves text conversations through the durable ``world.conversations`` row, then falls back to the voice/call entity projection. Mutually exclusive with the ``call_sid`` query parameter.",
+                              "key": "conversation_id",
+                              "value": "<uuid>"
+                            },
+                            {
+                              "description": "Direct conversation identifier as stored on the prompt-log event: Twilio CA-SID for voice calls, session_id UUID for text/sim sessions. Most callers should use ``conversation_id`` instead \u2014 this is kept for legacy callers and external systems that hold the SID directly. Mutually exclusive with ``conversation_id``.",
+                              "key": "call_sid",
+                              "value": "<string>"
+                            },
+                            {
+                              "description": "Filter by prompt_type (e.g. engage_user, navigation, tool)",
+                              "key": "prompt_type",
+                              "value": "<string>"
+                            },
+                            {
+                              "description": "Filter by HSM state_name at render time",
+                              "key": "state_name",
+                              "value": "<string>"
+                            },
+                            {
+                              "description": "Inclusive lower bound on effective_at",
+                              "key": "from_ts",
+                              "value": "<dateTime>"
+                            },
+                            {
+                              "description": "Exclusive upper bound on effective_at",
+                              "key": "to_ts",
+                              "value": "<dateTime>"
+                            },
+                            {
+                              "description": "Max rows to return (default 20, max 200)",
+                              "key": "limit",
+                              "value": "20"
+                            },
+                            {
+                              "description": "Offset for pagination (max 10000)",
+                              "key": "offset",
+                              "value": "0"
+                            }
+                          ],
+                          "variable": [
+                            {
+                              "key": "workspace_id"
+                            }
+                          ]
+                        }
+                      },
+                      "status": "Forbidden",
+                      "code": 403,
+                      "_postman_previewlanguage": "text",
+                      "header": [],
+                      "cookie": [],
+                      "responseTime": null,
+                      "body": null,
+                      "createdAt": "2026-07-28T01:01:43.000Z",
+                      "updatedAt": "2026-07-28T01:01:43.000Z",
+                      "uid": "35240-8dbd44fc-7d1d-429c-9f49-9b26b727cd6c"
+                    },
+                    {
+                      "id": "3a36c6c3-a54d-4459-9ed5-2ed727403ca3",
+                      "name": "conversation_id does not match any conversation in this workspace",
+                      "originalRequest": {
+                        "method": "GET",
+                        "header": [
+                          {
+                            "description": "Added as a part of security scheme: bearer",
+                            "key": "Authorization",
+                            "value": "Bearer <token>"
+                          }
+                        ],
+                        "url": {
+                          "raw": "{{baseUrl}}/v1/:workspace_id/prompt-logs?conversation_id=<uuid>&call_sid=<string>&prompt_type=<string>&state_name=<string>&from_ts=<dateTime>&to_ts=<dateTime>&limit=20&offset=0",
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "v1",
+                            ":workspace_id",
+                            "prompt-logs"
+                          ],
+                          "query": [
+                            {
+                              "description": "Conversation entity UUID (canonical identifier across all modalities \u2014 voice, text/web, sms, sim). Resolves text conversations through the durable ``world.conversations`` row, then falls back to the voice/call entity projection. Mutually exclusive with the ``call_sid`` query parameter.",
+                              "key": "conversation_id",
+                              "value": "<uuid>"
+                            },
+                            {
+                              "description": "Direct conversation identifier as stored on the prompt-log event: Twilio CA-SID for voice calls, session_id UUID for text/sim sessions. Most callers should use ``conversation_id`` instead \u2014 this is kept for legacy callers and external systems that hold the SID directly. Mutually exclusive with ``conversation_id``.",
+                              "key": "call_sid",
+                              "value": "<string>"
+                            },
+                            {
+                              "description": "Filter by prompt_type (e.g. engage_user, navigation, tool)",
+                              "key": "prompt_type",
+                              "value": "<string>"
+                            },
+                            {
+                              "description": "Filter by HSM state_name at render time",
+                              "key": "state_name",
+                              "value": "<string>"
+                            },
+                            {
+                              "description": "Inclusive lower bound on effective_at",
+                              "key": "from_ts",
+                              "value": "<dateTime>"
+                            },
+                            {
+                              "description": "Exclusive upper bound on effective_at",
+                              "key": "to_ts",
+                              "value": "<dateTime>"
+                            },
+                            {
+                              "description": "Max rows to return (default 20, max 200)",
+                              "key": "limit",
+                              "value": "20"
+                            },
+                            {
+                              "description": "Offset for pagination (max 10000)",
+                              "key": "offset",
+                              "value": "0"
+                            }
+                          ],
+                          "variable": [
+                            {
+                              "key": "workspace_id"
+                            }
+                          ]
+                        }
+                      },
+                      "status": "Not Found",
+                      "code": 404,
+                      "_postman_previewlanguage": "text",
+                      "header": [],
+                      "cookie": [],
+                      "responseTime": null,
+                      "body": null,
+                      "createdAt": "2026-07-28T01:01:43.000Z",
+                      "updatedAt": "2026-07-28T01:01:43.000Z",
+                      "uid": "35240-3a36c6c3-a54d-4459-9ed5-2ed727403ca3"
+                    },
+                    {
+                      "id": "60cc917b-0e2b-461f-a0c6-8d3c6fe2edec",
+                      "name": "Validation Error",
+                      "originalRequest": {
+                        "method": "GET",
+                        "header": [
+                          {
+                            "key": "Accept",
+                            "value": "application/json"
+                          },
+                          {
+                            "description": "Added as a part of security scheme: bearer",
+                            "key": "Authorization",
+                            "value": "Bearer <token>"
+                          }
+                        ],
+                        "url": {
+                          "raw": "{{baseUrl}}/v1/:workspace_id/prompt-logs?conversation_id=<uuid>&call_sid=<string>&prompt_type=<string>&state_name=<string>&from_ts=<dateTime>&to_ts=<dateTime>&limit=20&offset=0",
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "v1",
+                            ":workspace_id",
+                            "prompt-logs"
+                          ],
+                          "query": [
+                            {
+                              "description": "Conversation entity UUID (canonical identifier across all modalities \u2014 voice, text/web, sms, sim). Resolves text conversations through the durable ``world.conversations`` row, then falls back to the voice/call entity projection. Mutually exclusive with the ``call_sid`` query parameter.",
+                              "key": "conversation_id",
+                              "value": "<uuid>"
+                            },
+                            {
+                              "description": "Direct conversation identifier as stored on the prompt-log event: Twilio CA-SID for voice calls, session_id UUID for text/sim sessions. Most callers should use ``conversation_id`` instead \u2014 this is kept for legacy callers and external systems that hold the SID directly. Mutually exclusive with ``conversation_id``.",
+                              "key": "call_sid",
+                              "value": "<string>"
+                            },
+                            {
+                              "description": "Filter by prompt_type (e.g. engage_user, navigation, tool)",
+                              "key": "prompt_type",
+                              "value": "<string>"
+                            },
+                            {
+                              "description": "Filter by HSM state_name at render time",
+                              "key": "state_name",
+                              "value": "<string>"
+                            },
+                            {
+                              "description": "Inclusive lower bound on effective_at",
+                              "key": "from_ts",
+                              "value": "<dateTime>"
+                            },
+                            {
+                              "description": "Exclusive upper bound on effective_at",
+                              "key": "to_ts",
+                              "value": "<dateTime>"
+                            },
+                            {
+                              "description": "Max rows to return (default 20, max 200)",
+                              "key": "limit",
+                              "value": "20"
+                            },
+                            {
+                              "description": "Offset for pagination (max 10000)",
+                              "key": "offset",
+                              "value": "0"
+                            }
+                          ],
+                          "variable": [
+                            {
+                              "key": "workspace_id"
+                            }
+                          ]
+                        }
+                      },
+                      "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+                      "code": 422,
+                      "_postman_previewlanguage": "json",
+                      "header": [
+                        {
+                          "key": "Content-Type",
+                          "value": "application/json"
+                        }
+                      ],
+                      "cookie": [],
+                      "responseTime": null,
+                      "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"msg\": \"<string>\",\n      \"type\": \"<string>\",\n      \"input\": {\n        \"title\": \"Input\"\n      },\n      \"ctx\": {}\n    },\n    {\n      \"loc\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"msg\": \"<string>\",\n      \"type\": \"<string>\",\n      \"input\": {\n        \"title\": \"Input\"\n      },\n      \"ctx\": {}\n    }\n  ]\n}",
+                      "createdAt": "2026-07-28T01:01:43.000Z",
+                      "updatedAt": "2026-07-28T01:01:43.000Z",
+                      "uid": "35240-60cc917b-0e2b-461f-a0c6-8d3c6fe2edec"
+                    },
+                    {
+                      "id": "2aca665f-2425-40a9-a169-c418dc8b33ca",
+                      "name": "Raw world event reads disabled or warehouse unavailable",
+                      "originalRequest": {
+                        "method": "GET",
+                        "header": [
+                          {
+                            "description": "Added as a part of security scheme: bearer",
+                            "key": "Authorization",
+                            "value": "Bearer <token>"
+                          }
+                        ],
+                        "url": {
+                          "raw": "{{baseUrl}}/v1/:workspace_id/prompt-logs?conversation_id=<uuid>&call_sid=<string>&prompt_type=<string>&state_name=<string>&from_ts=<dateTime>&to_ts=<dateTime>&limit=20&offset=0",
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "v1",
+                            ":workspace_id",
+                            "prompt-logs"
+                          ],
+                          "query": [
+                            {
+                              "description": "Conversation entity UUID (canonical identifier across all modalities \u2014 voice, text/web, sms, sim). Resolves text conversations through the durable ``world.conversations`` row, then falls back to the voice/call entity projection. Mutually exclusive with the ``call_sid`` query parameter.",
+                              "key": "conversation_id",
+                              "value": "<uuid>"
+                            },
+                            {
+                              "description": "Direct conversation identifier as stored on the prompt-log event: Twilio CA-SID for voice calls, session_id UUID for text/sim sessions. Most callers should use ``conversation_id`` instead \u2014 this is kept for legacy callers and external systems that hold the SID directly. Mutually exclusive with ``conversation_id``.",
+                              "key": "call_sid",
+                              "value": "<string>"
+                            },
+                            {
+                              "description": "Filter by prompt_type (e.g. engage_user, navigation, tool)",
+                              "key": "prompt_type",
+                              "value": "<string>"
+                            },
+                            {
+                              "description": "Filter by HSM state_name at render time",
+                              "key": "state_name",
+                              "value": "<string>"
+                            },
+                            {
+                              "description": "Inclusive lower bound on effective_at",
+                              "key": "from_ts",
+                              "value": "<dateTime>"
+                            },
+                            {
+                              "description": "Exclusive upper bound on effective_at",
+                              "key": "to_ts",
+                              "value": "<dateTime>"
+                            },
+                            {
+                              "description": "Max rows to return (default 20, max 200)",
+                              "key": "limit",
+                              "value": "20"
+                            },
+                            {
+                              "description": "Offset for pagination (max 10000)",
+                              "key": "offset",
+                              "value": "0"
+                            }
+                          ],
+                          "variable": [
+                            {
+                              "key": "workspace_id"
+                            }
+                          ]
+                        }
+                      },
+                      "status": "Service Unavailable",
+                      "code": 503,
+                      "_postman_previewlanguage": "text",
+                      "header": [],
+                      "cookie": [],
+                      "responseTime": null,
+                      "body": null,
+                      "createdAt": "2026-07-28T01:01:43.000Z",
+                      "updatedAt": "2026-07-28T01:01:43.000Z",
+                      "uid": "35240-2aca665f-2425-40a9-a169-c418dc8b33ca"
+                    }
+                  ],
+                  "createdAt": "2026-07-28T01:01:43.000Z",
+                  "updatedAt": "2026-07-28T01:01:43.000Z",
+                  "uid": "35240-07e8a796-832a-4ffc-82e6-4ab22cb6039d"
+                }
+              ],
+              "id": "7778943b-a906-4a88-9790-7becfef16671",
+              "createdAt": "2026-07-28T01:01:43.000Z",
+              "updatedAt": "2026-07-28T01:01:43.000Z",
+              "uid": "35240-7778943b-a906-4a88-9790-7becfef16671"
+            }
+          ],
+          "id": "f9429e9f-224f-4f10-8aef-8f6d8abb15ac",
+          "createdAt": "2026-07-28T01:01:43.000Z",
+          "updatedAt": "2026-07-28T01:01:43.000Z",
+          "uid": "35240-f9429e9f-224f-4f10-8aef-8f6d8abb15ac"
+        }
+      ],
+      "id": "50798147-fe5e-4fd2-9fe6-abf78f14afbc",
+      "createdAt": "2026-07-28T01:01:43.000Z",
+      "updatedAt": "2026-07-28T01:01:43.000Z",
+      "uid": "35240-50798147-fe5e-4fd2-9fe6-abf78f14afbc"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{bearerToken}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://api.amigo.ai"
+    }
+  ]
+}

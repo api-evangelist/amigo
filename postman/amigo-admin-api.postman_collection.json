@@ -1,0 +1,1574 @@
+{
+  "info": {
+    "_postman_id": "8a38c450-93c1-4bc8-9439-f5be12a76751",
+    "name": "Amigo Account Admin API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "createdAt": "2026-07-28T00:59:42.000Z",
+    "updatedAt": "2026-07-28T00:59:42.000Z",
+    "lastUpdatedBy": "35240",
+    "uid": "35240-8a38c450-93c1-4bc8-9439-f5be12a76751"
+  },
+  "item": [
+    {
+      "name": "v1",
+      "item": [
+        {
+          "name": "{organization}",
+          "item": [
+            {
+              "name": "admin",
+              "item": [
+                {
+                  "name": "get_prompt_logs",
+                  "item": [
+                    {
+                      "name": "Get prompt logs",
+                      "id": "cfe10fa4-9d3e-466c-8a21-fd475e0e6d32",
+                      "protocolProfileBehavior": {
+                        "disableBodyPruning": true
+                      },
+                      "request": {
+                        "method": "GET",
+                        "header": [
+                          {
+                            "description": "The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.",
+                            "key": "x-mongo-cluster-name",
+                            "value": "<string>"
+                          },
+                          {
+                            "key": "Sec-WebSocket-Protocol",
+                            "value": ""
+                          },
+                          {
+                            "key": "Accept",
+                            "value": "application/zip"
+                          }
+                        ],
+                        "url": {
+                          "raw": "{{baseUrl}}/v1/:organization/admin/get_prompt_logs/?prompt_log_prefix=<string>",
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "v1",
+                            ":organization",
+                            "admin",
+                            "get_prompt_logs",
+                            ""
+                          ],
+                          "query": [
+                            {
+                              "description": "(Required) The prefix of the prompt log to retrieve.",
+                              "key": "prompt_log_prefix",
+                              "value": "<string>"
+                            }
+                          ],
+                          "variable": [
+                            {
+                              "id": "427726fd-e4c4-42de-89cf-81e8eecfdf87",
+                              "key": "organization",
+                              "value": "<string>",
+                              "description": "(Required) "
+                            }
+                          ]
+                        },
+                        "description": "Download all rendered prompt logs whose log keys match the supplied prefix that are produced in the past 30 days. Only prefixes corresponding to less than or equal to 1000 prompt logs are allowed.\nThe prompt logs will be returned in a zip file format, with each prompt log corresponding to at most 2 files -- `{log_key}-system` for the rendered system prompt, and `{log_key}-history` for the\nrendered history prompts, where each history prompt is separated by `---`.\n\nIf an error is encountered during the download stream that is scoped to an individual prompt log, a `{log_key}-error` file will be generated which contains a description of the error.\nIf an error is encountered that causes the generation to stop completely, no error message will be returned. Instead, the stream will end, and the transmitted bytes wouldn't constitute\na valid zip file.\n\n#### Permissions\nThis endpoint may be impacted by the following permissions:\n* Each prompt log requires its own set of permissions. If the authenticated user does not have the required permissions, a `{log_key}-error` file will be generated in place of the actual\nprompt log."
+                      },
+                      "response": [
+                        {
+                          "id": "2dfd68e2-42bc-4e83-8b48-6225d1f178b0",
+                          "name": "Succeeded.",
+                          "originalRequest": {
+                            "method": "GET",
+                            "header": [
+                              {
+                                "description": "The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.",
+                                "key": "x-mongo-cluster-name",
+                                "value": "<string>"
+                              },
+                              {
+                                "key": "Sec-WebSocket-Protocol",
+                                "value": ""
+                              },
+                              {
+                                "key": "Accept",
+                                "value": "application/zip"
+                              },
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "url": {
+                              "raw": "{{baseUrl}}/v1/:organization/admin/get_prompt_logs/?prompt_log_prefix=<string>",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v1",
+                                ":organization",
+                                "admin",
+                                "get_prompt_logs",
+                                ""
+                              ],
+                              "query": [
+                                {
+                                  "description": "(Required) The prefix of the prompt log to retrieve.",
+                                  "key": "prompt_log_prefix",
+                                  "value": "<string>"
+                                }
+                              ],
+                              "variable": [
+                                {
+                                  "key": "organization"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "OK",
+                          "code": 200,
+                          "_postman_previewlanguage": "text",
+                          "header": [
+                            {
+                              "key": "Content-Type",
+                              "value": "application/zip"
+                            }
+                          ],
+                          "cookie": [],
+                          "responseTime": null,
+                          "body": "<string>",
+                          "createdAt": "2026-07-28T00:59:43.000Z",
+                          "updatedAt": "2026-07-28T00:59:43.000Z",
+                          "uid": "35240-2dfd68e2-42bc-4e83-8b48-6225d1f178b0"
+                        },
+                        {
+                          "id": "ae26cb7b-8fe1-4524-a4b0-ff8d817738b5",
+                          "name": "Invalid authorization credentials.",
+                          "originalRequest": {
+                            "method": "GET",
+                            "header": [
+                              {
+                                "description": "The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.",
+                                "key": "x-mongo-cluster-name",
+                                "value": "<string>"
+                              },
+                              {
+                                "key": "Sec-WebSocket-Protocol",
+                                "value": ""
+                              },
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "url": {
+                              "raw": "{{baseUrl}}/v1/:organization/admin/get_prompt_logs/?prompt_log_prefix=<string>",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v1",
+                                ":organization",
+                                "admin",
+                                "get_prompt_logs",
+                                ""
+                              ],
+                              "query": [
+                                {
+                                  "description": "(Required) The prefix of the prompt log to retrieve.",
+                                  "key": "prompt_log_prefix",
+                                  "value": "<string>"
+                                }
+                              ],
+                              "variable": [
+                                {
+                                  "key": "organization"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "Unauthorized",
+                          "code": 401,
+                          "_postman_previewlanguage": "text",
+                          "header": [],
+                          "cookie": [],
+                          "responseTime": null,
+                          "body": null,
+                          "createdAt": "2026-07-28T00:59:43.000Z",
+                          "updatedAt": "2026-07-28T00:59:43.000Z",
+                          "uid": "35240-ae26cb7b-8fe1-4524-a4b0-ff8d817738b5"
+                        },
+                        {
+                          "id": "51966ac5-ff90-4e91-bcf0-86219baddafc",
+                          "name": "Missing required permissions.",
+                          "originalRequest": {
+                            "method": "GET",
+                            "header": [
+                              {
+                                "description": "The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.",
+                                "key": "x-mongo-cluster-name",
+                                "value": "<string>"
+                              },
+                              {
+                                "key": "Sec-WebSocket-Protocol",
+                                "value": ""
+                              },
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "url": {
+                              "raw": "{{baseUrl}}/v1/:organization/admin/get_prompt_logs/?prompt_log_prefix=<string>",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v1",
+                                ":organization",
+                                "admin",
+                                "get_prompt_logs",
+                                ""
+                              ],
+                              "query": [
+                                {
+                                  "description": "(Required) The prefix of the prompt log to retrieve.",
+                                  "key": "prompt_log_prefix",
+                                  "value": "<string>"
+                                }
+                              ],
+                              "variable": [
+                                {
+                                  "key": "organization"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "Forbidden",
+                          "code": 403,
+                          "_postman_previewlanguage": "text",
+                          "header": [],
+                          "cookie": [],
+                          "responseTime": null,
+                          "body": null,
+                          "createdAt": "2026-07-28T00:59:43.000Z",
+                          "updatedAt": "2026-07-28T00:59:43.000Z",
+                          "uid": "35240-51966ac5-ff90-4e91-bcf0-86219baddafc"
+                        },
+                        {
+                          "id": "5445cda7-9129-4f60-9ef4-4b90d61496f3",
+                          "name": "No prompt logs found matching the supplied prefix",
+                          "originalRequest": {
+                            "method": "GET",
+                            "header": [
+                              {
+                                "description": "The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.",
+                                "key": "x-mongo-cluster-name",
+                                "value": "<string>"
+                              },
+                              {
+                                "key": "Sec-WebSocket-Protocol",
+                                "value": ""
+                              },
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "url": {
+                              "raw": "{{baseUrl}}/v1/:organization/admin/get_prompt_logs/?prompt_log_prefix=<string>",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v1",
+                                ":organization",
+                                "admin",
+                                "get_prompt_logs",
+                                ""
+                              ],
+                              "query": [
+                                {
+                                  "description": "(Required) The prefix of the prompt log to retrieve.",
+                                  "key": "prompt_log_prefix",
+                                  "value": "<string>"
+                                }
+                              ],
+                              "variable": [
+                                {
+                                  "key": "organization"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "Not Found",
+                          "code": 404,
+                          "_postman_previewlanguage": "text",
+                          "header": [],
+                          "cookie": [],
+                          "responseTime": null,
+                          "body": null,
+                          "createdAt": "2026-07-28T00:59:43.000Z",
+                          "updatedAt": "2026-07-28T00:59:43.000Z",
+                          "uid": "35240-5445cda7-9129-4f60-9ef4-4b90d61496f3"
+                        },
+                        {
+                          "id": "3c607de8-793b-4702-a68a-445e182ae049",
+                          "name": "Invalid request path parameter or query parameter failed validation.",
+                          "originalRequest": {
+                            "method": "GET",
+                            "header": [
+                              {
+                                "description": "The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.",
+                                "key": "x-mongo-cluster-name",
+                                "value": "<string>"
+                              },
+                              {
+                                "key": "Sec-WebSocket-Protocol",
+                                "value": ""
+                              },
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "url": {
+                              "raw": "{{baseUrl}}/v1/:organization/admin/get_prompt_logs/?prompt_log_prefix=<string>",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v1",
+                                ":organization",
+                                "admin",
+                                "get_prompt_logs",
+                                ""
+                              ],
+                              "query": [
+                                {
+                                  "description": "(Required) The prefix of the prompt log to retrieve.",
+                                  "key": "prompt_log_prefix",
+                                  "value": "<string>"
+                                }
+                              ],
+                              "variable": [
+                                {
+                                  "key": "organization"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+                          "code": 422,
+                          "_postman_previewlanguage": "text",
+                          "header": [],
+                          "cookie": [],
+                          "responseTime": null,
+                          "body": null,
+                          "createdAt": "2026-07-28T00:59:43.000Z",
+                          "updatedAt": "2026-07-28T00:59:43.000Z",
+                          "uid": "35240-3c607de8-793b-4702-a68a-445e182ae049"
+                        },
+                        {
+                          "id": "26687d5f-6301-4a8a-a8c2-b488577e4864",
+                          "name": "The user has exceeded the rate limit of 20 requests per minute for this endpoint.",
+                          "originalRequest": {
+                            "method": "GET",
+                            "header": [
+                              {
+                                "description": "The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.",
+                                "key": "x-mongo-cluster-name",
+                                "value": "<string>"
+                              },
+                              {
+                                "key": "Sec-WebSocket-Protocol",
+                                "value": ""
+                              },
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "url": {
+                              "raw": "{{baseUrl}}/v1/:organization/admin/get_prompt_logs/?prompt_log_prefix=<string>",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v1",
+                                ":organization",
+                                "admin",
+                                "get_prompt_logs",
+                                ""
+                              ],
+                              "query": [
+                                {
+                                  "description": "(Required) The prefix of the prompt log to retrieve.",
+                                  "key": "prompt_log_prefix",
+                                  "value": "<string>"
+                                }
+                              ],
+                              "variable": [
+                                {
+                                  "key": "organization"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "Too Many Requests",
+                          "code": 429,
+                          "_postman_previewlanguage": "text",
+                          "header": [],
+                          "cookie": [],
+                          "responseTime": null,
+                          "body": null,
+                          "createdAt": "2026-07-28T00:59:43.000Z",
+                          "updatedAt": "2026-07-28T00:59:43.000Z",
+                          "uid": "35240-26687d5f-6301-4a8a-a8c2-b488577e4864"
+                        },
+                        {
+                          "id": "2b117e49-38f0-4be9-b93f-39cbd836dd86",
+                          "name": "The service is going through temporary maintenance.",
+                          "originalRequest": {
+                            "method": "GET",
+                            "header": [
+                              {
+                                "description": "The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.",
+                                "key": "x-mongo-cluster-name",
+                                "value": "<string>"
+                              },
+                              {
+                                "key": "Sec-WebSocket-Protocol",
+                                "value": ""
+                              },
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "url": {
+                              "raw": "{{baseUrl}}/v1/:organization/admin/get_prompt_logs/?prompt_log_prefix=<string>",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v1",
+                                ":organization",
+                                "admin",
+                                "get_prompt_logs",
+                                ""
+                              ],
+                              "query": [
+                                {
+                                  "description": "(Required) The prefix of the prompt log to retrieve.",
+                                  "key": "prompt_log_prefix",
+                                  "value": "<string>"
+                                }
+                              ],
+                              "variable": [
+                                {
+                                  "key": "organization"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "Service Unavailable",
+                          "code": 503,
+                          "_postman_previewlanguage": "text",
+                          "header": [],
+                          "cookie": [],
+                          "responseTime": null,
+                          "body": null,
+                          "createdAt": "2026-07-28T00:59:43.000Z",
+                          "updatedAt": "2026-07-28T00:59:43.000Z",
+                          "uid": "35240-2b117e49-38f0-4be9-b93f-39cbd836dd86"
+                        }
+                      ],
+                      "createdAt": "2026-07-28T00:59:43.000Z",
+                      "updatedAt": "2026-07-28T00:59:43.000Z",
+                      "uid": "35240-cfe10fa4-9d3e-466c-8a21-fd475e0e6d32"
+                    }
+                  ],
+                  "id": "04e008a5-01df-4189-a86f-fd64a2da302a",
+                  "createdAt": "2026-07-28T00:59:42.000Z",
+                  "updatedAt": "2026-07-28T00:59:42.000Z",
+                  "uid": "35240-04e008a5-01df-4189-a86f-fd64a2da302a"
+                },
+                {
+                  "name": "sql_query",
+                  "item": [
+                    {
+                      "name": "Submit a SQL query",
+                      "id": "81f1aa71-982d-441b-8b3a-bcb33a54e122",
+                      "protocolProfileBehavior": {
+                        "disableBodyPruning": true
+                      },
+                      "request": {
+                        "method": "POST",
+                        "header": [
+                          {
+                            "description": "The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.",
+                            "key": "x-mongo-cluster-name",
+                            "value": "<string>"
+                          },
+                          {
+                            "key": "Sec-WebSocket-Protocol",
+                            "value": ""
+                          },
+                          {
+                            "key": "Content-Type",
+                            "value": "application/json"
+                          },
+                          {
+                            "key": "Accept",
+                            "value": "application/json"
+                          }
+                        ],
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\n  \"sql_query\": \"<string>\",\n  \"async_query\": \"<boolean>\"\n}",
+                          "options": {
+                            "raw": {
+                              "headerFamily": "json",
+                              "language": "json"
+                            }
+                          }
+                        },
+                        "url": {
+                          "raw": "{{baseUrl}}/v1/:organization/admin/sql_query",
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "v1",
+                            ":organization",
+                            "admin",
+                            "sql_query"
+                          ],
+                          "variable": [
+                            {
+                              "id": "3ce95bad-7b0f-4c36-9096-b46927281d90",
+                              "key": "organization",
+                              "value": "<string>",
+                              "description": "(Required) "
+                            }
+                          ]
+                        },
+                        "description": "Execute a read-only SQL query on Amigo's databases for the specified organization.\n\n#### Permissions\nThis endpoint requires the authenticated user to have greater privileges than the `DefaultAdministratorRole`."
+                      },
+                      "response": [
+                        {
+                          "id": "e3f61bcf-45ba-413d-8e8f-6d0a7ccafde2",
+                          "name": "Succeeded.",
+                          "originalRequest": {
+                            "method": "POST",
+                            "header": [
+                              {
+                                "description": "The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.",
+                                "key": "x-mongo-cluster-name",
+                                "value": "<string>"
+                              },
+                              {
+                                "key": "Sec-WebSocket-Protocol",
+                                "value": ""
+                              },
+                              {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                              },
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              },
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "body": {
+                              "mode": "raw",
+                              "raw": "{\n  \"sql_query\": \"<string>\",\n  \"async_query\": \"<boolean>\"\n}",
+                              "options": {
+                                "raw": {
+                                  "headerFamily": "json",
+                                  "language": "json"
+                                }
+                              }
+                            },
+                            "url": {
+                              "raw": "{{baseUrl}}/v1/:organization/admin/sql_query",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v1",
+                                ":organization",
+                                "admin",
+                                "sql_query"
+                              ],
+                              "variable": [
+                                {
+                                  "key": "organization"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "OK",
+                          "code": 200,
+                          "_postman_previewlanguage": "json",
+                          "header": [
+                            {
+                              "key": "Content-Type",
+                              "value": "application/json"
+                            }
+                          ],
+                          "cookie": [],
+                          "responseTime": null,
+                          "body": "{\n  \"execution_time_ms\": \"<integer>\",\n  \"result\": [\n    [],\n    []\n  ],\n  \"truncated\": \"<boolean>\",\n  \"columns\": [\n    {\n      \"name\": \"<string>\",\n      \"type\": \"<string>\"\n    },\n    {\n      \"name\": \"<string>\",\n      \"type\": \"<string>\"\n    }\n  ]\n}",
+                          "createdAt": "2026-07-28T00:59:43.000Z",
+                          "updatedAt": "2026-07-28T00:59:43.000Z",
+                          "uid": "35240-e3f61bcf-45ba-413d-8e8f-6d0a7ccafde2"
+                        },
+                        {
+                          "id": "c4e0f3e6-58a2-42ee-b3e5-fb4e54860392",
+                          "name": "This endpoint is not supported in the current environment, or the SQL query is invalid.",
+                          "originalRequest": {
+                            "method": "POST",
+                            "header": [
+                              {
+                                "description": "The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.",
+                                "key": "x-mongo-cluster-name",
+                                "value": "<string>"
+                              },
+                              {
+                                "key": "Sec-WebSocket-Protocol",
+                                "value": ""
+                              },
+                              {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                              },
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "body": {
+                              "mode": "raw",
+                              "raw": "{\n  \"sql_query\": \"<string>\",\n  \"async_query\": \"<boolean>\"\n}",
+                              "options": {
+                                "raw": {
+                                  "headerFamily": "json",
+                                  "language": "json"
+                                }
+                              }
+                            },
+                            "url": {
+                              "raw": "{{baseUrl}}/v1/:organization/admin/sql_query",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v1",
+                                ":organization",
+                                "admin",
+                                "sql_query"
+                              ],
+                              "variable": [
+                                {
+                                  "key": "organization"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "Bad Request",
+                          "code": 400,
+                          "_postman_previewlanguage": "text",
+                          "header": [],
+                          "cookie": [],
+                          "responseTime": null,
+                          "body": null,
+                          "createdAt": "2026-07-28T00:59:43.000Z",
+                          "updatedAt": "2026-07-28T00:59:43.000Z",
+                          "uid": "35240-c4e0f3e6-58a2-42ee-b3e5-fb4e54860392"
+                        },
+                        {
+                          "id": "30ea3010-9f16-4a14-b03c-3f08cc47cfa4",
+                          "name": "Invalid authorization credentials.",
+                          "originalRequest": {
+                            "method": "POST",
+                            "header": [
+                              {
+                                "description": "The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.",
+                                "key": "x-mongo-cluster-name",
+                                "value": "<string>"
+                              },
+                              {
+                                "key": "Sec-WebSocket-Protocol",
+                                "value": ""
+                              },
+                              {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                              },
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "body": {
+                              "mode": "raw",
+                              "raw": "{\n  \"sql_query\": \"<string>\",\n  \"async_query\": \"<boolean>\"\n}",
+                              "options": {
+                                "raw": {
+                                  "headerFamily": "json",
+                                  "language": "json"
+                                }
+                              }
+                            },
+                            "url": {
+                              "raw": "{{baseUrl}}/v1/:organization/admin/sql_query",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v1",
+                                ":organization",
+                                "admin",
+                                "sql_query"
+                              ],
+                              "variable": [
+                                {
+                                  "key": "organization"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "Unauthorized",
+                          "code": 401,
+                          "_postman_previewlanguage": "text",
+                          "header": [],
+                          "cookie": [],
+                          "responseTime": null,
+                          "body": null,
+                          "createdAt": "2026-07-28T00:59:43.000Z",
+                          "updatedAt": "2026-07-28T00:59:43.000Z",
+                          "uid": "35240-30ea3010-9f16-4a14-b03c-3f08cc47cfa4"
+                        },
+                        {
+                          "id": "f2793398-b4f0-4237-a7f6-13263f8f0fce",
+                          "name": "Missing required permissions.",
+                          "originalRequest": {
+                            "method": "POST",
+                            "header": [
+                              {
+                                "description": "The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.",
+                                "key": "x-mongo-cluster-name",
+                                "value": "<string>"
+                              },
+                              {
+                                "key": "Sec-WebSocket-Protocol",
+                                "value": ""
+                              },
+                              {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                              },
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "body": {
+                              "mode": "raw",
+                              "raw": "{\n  \"sql_query\": \"<string>\",\n  \"async_query\": \"<boolean>\"\n}",
+                              "options": {
+                                "raw": {
+                                  "headerFamily": "json",
+                                  "language": "json"
+                                }
+                              }
+                            },
+                            "url": {
+                              "raw": "{{baseUrl}}/v1/:organization/admin/sql_query",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v1",
+                                ":organization",
+                                "admin",
+                                "sql_query"
+                              ],
+                              "variable": [
+                                {
+                                  "key": "organization"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "Forbidden",
+                          "code": 403,
+                          "_postman_previewlanguage": "text",
+                          "header": [],
+                          "cookie": [],
+                          "responseTime": null,
+                          "body": null,
+                          "createdAt": "2026-07-28T00:59:43.000Z",
+                          "updatedAt": "2026-07-28T00:59:43.000Z",
+                          "uid": "35240-f2793398-b4f0-4237-a7f6-13263f8f0fce"
+                        },
+                        {
+                          "id": "5a985686-bd58-457c-9c8f-e3dcfc6aa501",
+                          "name": "The specified organization does not exist.",
+                          "originalRequest": {
+                            "method": "POST",
+                            "header": [
+                              {
+                                "description": "The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.",
+                                "key": "x-mongo-cluster-name",
+                                "value": "<string>"
+                              },
+                              {
+                                "key": "Sec-WebSocket-Protocol",
+                                "value": ""
+                              },
+                              {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                              },
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "body": {
+                              "mode": "raw",
+                              "raw": "{\n  \"sql_query\": \"<string>\",\n  \"async_query\": \"<boolean>\"\n}",
+                              "options": {
+                                "raw": {
+                                  "headerFamily": "json",
+                                  "language": "json"
+                                }
+                              }
+                            },
+                            "url": {
+                              "raw": "{{baseUrl}}/v1/:organization/admin/sql_query",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v1",
+                                ":organization",
+                                "admin",
+                                "sql_query"
+                              ],
+                              "variable": [
+                                {
+                                  "key": "organization"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "Not Found",
+                          "code": 404,
+                          "_postman_previewlanguage": "text",
+                          "header": [],
+                          "cookie": [],
+                          "responseTime": null,
+                          "body": null,
+                          "createdAt": "2026-07-28T00:59:43.000Z",
+                          "updatedAt": "2026-07-28T00:59:43.000Z",
+                          "uid": "35240-5a985686-bd58-457c-9c8f-e3dcfc6aa501"
+                        },
+                        {
+                          "id": "6d8fe310-9f44-4667-8d4b-c31553325563",
+                          "name": "The supplied query cannot be executed within the time limit.",
+                          "originalRequest": {
+                            "method": "POST",
+                            "header": [
+                              {
+                                "description": "The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.",
+                                "key": "x-mongo-cluster-name",
+                                "value": "<string>"
+                              },
+                              {
+                                "key": "Sec-WebSocket-Protocol",
+                                "value": ""
+                              },
+                              {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                              },
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "body": {
+                              "mode": "raw",
+                              "raw": "{\n  \"sql_query\": \"<string>\",\n  \"async_query\": \"<boolean>\"\n}",
+                              "options": {
+                                "raw": {
+                                  "headerFamily": "json",
+                                  "language": "json"
+                                }
+                              }
+                            },
+                            "url": {
+                              "raw": "{{baseUrl}}/v1/:organization/admin/sql_query",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v1",
+                                ":organization",
+                                "admin",
+                                "sql_query"
+                              ],
+                              "variable": [
+                                {
+                                  "key": "organization"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "Request Timeout",
+                          "code": 408,
+                          "_postman_previewlanguage": "text",
+                          "header": [],
+                          "cookie": [],
+                          "responseTime": null,
+                          "body": null,
+                          "createdAt": "2026-07-28T00:59:43.000Z",
+                          "updatedAt": "2026-07-28T00:59:43.000Z",
+                          "uid": "35240-6d8fe310-9f44-4667-8d4b-c31553325563"
+                        },
+                        {
+                          "id": "85aeaeab-549a-41b3-bb84-22822a9eb3cd",
+                          "name": "Invalid request path parameter or request body failed validation.",
+                          "originalRequest": {
+                            "method": "POST",
+                            "header": [
+                              {
+                                "description": "The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.",
+                                "key": "x-mongo-cluster-name",
+                                "value": "<string>"
+                              },
+                              {
+                                "key": "Sec-WebSocket-Protocol",
+                                "value": ""
+                              },
+                              {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                              },
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "body": {
+                              "mode": "raw",
+                              "raw": "{\n  \"sql_query\": \"<string>\",\n  \"async_query\": \"<boolean>\"\n}",
+                              "options": {
+                                "raw": {
+                                  "headerFamily": "json",
+                                  "language": "json"
+                                }
+                              }
+                            },
+                            "url": {
+                              "raw": "{{baseUrl}}/v1/:organization/admin/sql_query",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v1",
+                                ":organization",
+                                "admin",
+                                "sql_query"
+                              ],
+                              "variable": [
+                                {
+                                  "key": "organization"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+                          "code": 422,
+                          "_postman_previewlanguage": "text",
+                          "header": [],
+                          "cookie": [],
+                          "responseTime": null,
+                          "body": null,
+                          "createdAt": "2026-07-28T00:59:43.000Z",
+                          "updatedAt": "2026-07-28T00:59:43.000Z",
+                          "uid": "35240-85aeaeab-549a-41b3-bb84-22822a9eb3cd"
+                        },
+                        {
+                          "id": "87ddda12-b8c0-452f-935c-1febe0cdb739",
+                          "name": "The user has exceeded the rate limit of 6 requests per minute for this endpoint.",
+                          "originalRequest": {
+                            "method": "POST",
+                            "header": [
+                              {
+                                "description": "The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.",
+                                "key": "x-mongo-cluster-name",
+                                "value": "<string>"
+                              },
+                              {
+                                "key": "Sec-WebSocket-Protocol",
+                                "value": ""
+                              },
+                              {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                              },
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "body": {
+                              "mode": "raw",
+                              "raw": "{\n  \"sql_query\": \"<string>\",\n  \"async_query\": \"<boolean>\"\n}",
+                              "options": {
+                                "raw": {
+                                  "headerFamily": "json",
+                                  "language": "json"
+                                }
+                              }
+                            },
+                            "url": {
+                              "raw": "{{baseUrl}}/v1/:organization/admin/sql_query",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v1",
+                                ":organization",
+                                "admin",
+                                "sql_query"
+                              ],
+                              "variable": [
+                                {
+                                  "key": "organization"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "Too Many Requests",
+                          "code": 429,
+                          "_postman_previewlanguage": "text",
+                          "header": [],
+                          "cookie": [],
+                          "responseTime": null,
+                          "body": null,
+                          "createdAt": "2026-07-28T00:59:43.000Z",
+                          "updatedAt": "2026-07-28T00:59:43.000Z",
+                          "uid": "35240-87ddda12-b8c0-452f-935c-1febe0cdb739"
+                        },
+                        {
+                          "id": "ca865e99-5d80-4d99-98ae-fe4eeb31c55e",
+                          "name": "The service is going through temporary maintenance.",
+                          "originalRequest": {
+                            "method": "POST",
+                            "header": [
+                              {
+                                "description": "The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.",
+                                "key": "x-mongo-cluster-name",
+                                "value": "<string>"
+                              },
+                              {
+                                "key": "Sec-WebSocket-Protocol",
+                                "value": ""
+                              },
+                              {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                              },
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "body": {
+                              "mode": "raw",
+                              "raw": "{\n  \"sql_query\": \"<string>\",\n  \"async_query\": \"<boolean>\"\n}",
+                              "options": {
+                                "raw": {
+                                  "headerFamily": "json",
+                                  "language": "json"
+                                }
+                              }
+                            },
+                            "url": {
+                              "raw": "{{baseUrl}}/v1/:organization/admin/sql_query",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v1",
+                                ":organization",
+                                "admin",
+                                "sql_query"
+                              ],
+                              "variable": [
+                                {
+                                  "key": "organization"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "Service Unavailable",
+                          "code": 503,
+                          "_postman_previewlanguage": "text",
+                          "header": [],
+                          "cookie": [],
+                          "responseTime": null,
+                          "body": null,
+                          "createdAt": "2026-07-28T00:59:43.000Z",
+                          "updatedAt": "2026-07-28T00:59:43.000Z",
+                          "uid": "35240-ca865e99-5d80-4d99-98ae-fe4eeb31c55e"
+                        }
+                      ],
+                      "createdAt": "2026-07-28T00:59:43.000Z",
+                      "updatedAt": "2026-07-28T00:59:43.000Z",
+                      "uid": "35240-81f1aa71-982d-441b-8b3a-bcb33a54e122"
+                    }
+                  ],
+                  "id": "2c0e68e5-883d-4412-8763-5b1902bfd700",
+                  "createdAt": "2026-07-28T00:59:42.000Z",
+                  "updatedAt": "2026-07-28T00:59:42.000Z",
+                  "uid": "35240-2c0e68e5-883d-4412-8763-5b1902bfd700"
+                },
+                {
+                  "name": "get_models",
+                  "item": [
+                    {
+                      "name": "Get models",
+                      "id": "71e7056f-360d-4e91-aeaa-521d77203ab1",
+                      "protocolProfileBehavior": {
+                        "disableBodyPruning": true
+                      },
+                      "request": {
+                        "method": "GET",
+                        "header": [
+                          {
+                            "description": "The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.",
+                            "key": "x-mongo-cluster-name",
+                            "value": "<string>"
+                          },
+                          {
+                            "key": "Sec-WebSocket-Protocol",
+                            "value": ""
+                          },
+                          {
+                            "key": "Accept",
+                            "value": "application/json"
+                          }
+                        ],
+                        "url": {
+                          "raw": "{{baseUrl}}/v1/:organization/admin/get_models/",
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "v1",
+                            ":organization",
+                            "admin",
+                            "get_models",
+                            ""
+                          ],
+                          "variable": [
+                            {
+                              "id": "085a697e-7733-43f5-9e8a-c03a0403aa8e",
+                              "key": "organization",
+                              "value": "<string>",
+                              "description": "(Required) "
+                            }
+                          ]
+                        },
+                        "description": "Get a list of LLM models supported by the Amigo platform at this moment.\n\n#### Permissions:\nThis endpoint requires the following permissions:\n* `Admin:GetModels`."
+                      },
+                      "response": [
+                        {
+                          "id": "5ccb5c12-a254-4600-a7a5-c68304444537",
+                          "name": "Succeeded.",
+                          "originalRequest": {
+                            "method": "GET",
+                            "header": [
+                              {
+                                "description": "The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.",
+                                "key": "x-mongo-cluster-name",
+                                "value": "<string>"
+                              },
+                              {
+                                "key": "Sec-WebSocket-Protocol",
+                                "value": ""
+                              },
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              },
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "url": {
+                              "raw": "{{baseUrl}}/v1/:organization/admin/get_models/",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v1",
+                                ":organization",
+                                "admin",
+                                "get_models",
+                                ""
+                              ],
+                              "variable": [
+                                {
+                                  "key": "organization"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "OK",
+                          "code": 200,
+                          "_postman_previewlanguage": "json",
+                          "header": [
+                            {
+                              "key": "Content-Type",
+                              "value": "application/json"
+                            }
+                          ],
+                          "cookie": [],
+                          "responseTime": null,
+                          "body": "{\n  \"models\": [\n    {\n      \"name\": \"<string>\",\n      \"params_model_schema\": {\n        \"nisi_b0\": true,\n        \"minim_004\": true,\n        \"nisi__\": false\n      }\n    },\n    {\n      \"name\": \"<string>\",\n      \"params_model_schema\": {\n        \"ina7\": -4097268.5232824236\n      }\n    }\n  ]\n}",
+                          "createdAt": "2026-07-28T00:59:43.000Z",
+                          "updatedAt": "2026-07-28T00:59:43.000Z",
+                          "uid": "35240-5ccb5c12-a254-4600-a7a5-c68304444537"
+                        },
+                        {
+                          "id": "46329798-812f-41e1-951b-859f6b0bdf1c",
+                          "name": "Invalid authorization credentials.",
+                          "originalRequest": {
+                            "method": "GET",
+                            "header": [
+                              {
+                                "description": "The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.",
+                                "key": "x-mongo-cluster-name",
+                                "value": "<string>"
+                              },
+                              {
+                                "key": "Sec-WebSocket-Protocol",
+                                "value": ""
+                              },
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "url": {
+                              "raw": "{{baseUrl}}/v1/:organization/admin/get_models/",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v1",
+                                ":organization",
+                                "admin",
+                                "get_models",
+                                ""
+                              ],
+                              "variable": [
+                                {
+                                  "key": "organization"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "Unauthorized",
+                          "code": 401,
+                          "_postman_previewlanguage": "text",
+                          "header": [],
+                          "cookie": [],
+                          "responseTime": null,
+                          "body": null,
+                          "createdAt": "2026-07-28T00:59:43.000Z",
+                          "updatedAt": "2026-07-28T00:59:43.000Z",
+                          "uid": "35240-46329798-812f-41e1-951b-859f6b0bdf1c"
+                        },
+                        {
+                          "id": "168de28d-2f10-44de-93d1-34f59987c8da",
+                          "name": "Missing required permissions.",
+                          "originalRequest": {
+                            "method": "GET",
+                            "header": [
+                              {
+                                "description": "The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.",
+                                "key": "x-mongo-cluster-name",
+                                "value": "<string>"
+                              },
+                              {
+                                "key": "Sec-WebSocket-Protocol",
+                                "value": ""
+                              },
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "url": {
+                              "raw": "{{baseUrl}}/v1/:organization/admin/get_models/",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v1",
+                                ":organization",
+                                "admin",
+                                "get_models",
+                                ""
+                              ],
+                              "variable": [
+                                {
+                                  "key": "organization"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "Forbidden",
+                          "code": 403,
+                          "_postman_previewlanguage": "text",
+                          "header": [],
+                          "cookie": [],
+                          "responseTime": null,
+                          "body": null,
+                          "createdAt": "2026-07-28T00:59:43.000Z",
+                          "updatedAt": "2026-07-28T00:59:43.000Z",
+                          "uid": "35240-168de28d-2f10-44de-93d1-34f59987c8da"
+                        },
+                        {
+                          "id": "69f767d8-9d6e-4a50-b3bb-034b0f4d0e07",
+                          "name": "Invalid request path parameter failed validation.",
+                          "originalRequest": {
+                            "method": "GET",
+                            "header": [
+                              {
+                                "description": "The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.",
+                                "key": "x-mongo-cluster-name",
+                                "value": "<string>"
+                              },
+                              {
+                                "key": "Sec-WebSocket-Protocol",
+                                "value": ""
+                              },
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "url": {
+                              "raw": "{{baseUrl}}/v1/:organization/admin/get_models/",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v1",
+                                ":organization",
+                                "admin",
+                                "get_models",
+                                ""
+                              ],
+                              "variable": [
+                                {
+                                  "key": "organization"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+                          "code": 422,
+                          "_postman_previewlanguage": "text",
+                          "header": [],
+                          "cookie": [],
+                          "responseTime": null,
+                          "body": null,
+                          "createdAt": "2026-07-28T00:59:43.000Z",
+                          "updatedAt": "2026-07-28T00:59:43.000Z",
+                          "uid": "35240-69f767d8-9d6e-4a50-b3bb-034b0f4d0e07"
+                        },
+                        {
+                          "id": "3b57b19e-f8a6-4431-8d46-d198d082dfb0",
+                          "name": "The user has exceeded the rate limit of 20 requests per minute for this endpoint.",
+                          "originalRequest": {
+                            "method": "GET",
+                            "header": [
+                              {
+                                "description": "The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.",
+                                "key": "x-mongo-cluster-name",
+                                "value": "<string>"
+                              },
+                              {
+                                "key": "Sec-WebSocket-Protocol",
+                                "value": ""
+                              },
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "url": {
+                              "raw": "{{baseUrl}}/v1/:organization/admin/get_models/",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v1",
+                                ":organization",
+                                "admin",
+                                "get_models",
+                                ""
+                              ],
+                              "variable": [
+                                {
+                                  "key": "organization"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "Too Many Requests",
+                          "code": 429,
+                          "_postman_previewlanguage": "text",
+                          "header": [],
+                          "cookie": [],
+                          "responseTime": null,
+                          "body": null,
+                          "createdAt": "2026-07-28T00:59:43.000Z",
+                          "updatedAt": "2026-07-28T00:59:43.000Z",
+                          "uid": "35240-3b57b19e-f8a6-4431-8d46-d198d082dfb0"
+                        },
+                        {
+                          "id": "2a7c29e8-2820-455d-9a98-d832a67eaf1d",
+                          "name": "The service is going through temporary maintenance.",
+                          "originalRequest": {
+                            "method": "GET",
+                            "header": [
+                              {
+                                "description": "The Mongo cluster name to perform this request in. This is usually not needed unless the organization does not exist yet in the Amigo organization infra config database.",
+                                "key": "x-mongo-cluster-name",
+                                "value": "<string>"
+                              },
+                              {
+                                "key": "Sec-WebSocket-Protocol",
+                                "value": ""
+                              },
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "url": {
+                              "raw": "{{baseUrl}}/v1/:organization/admin/get_models/",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v1",
+                                ":organization",
+                                "admin",
+                                "get_models",
+                                ""
+                              ],
+                              "variable": [
+                                {
+                                  "key": "organization"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "Service Unavailable",
+                          "code": 503,
+                          "_postman_previewlanguage": "text",
+                          "header": [],
+                          "cookie": [],
+                          "responseTime": null,
+                          "body": null,
+                          "createdAt": "2026-07-28T00:59:43.000Z",
+                          "updatedAt": "2026-07-28T00:59:43.000Z",
+                          "uid": "35240-2a7c29e8-2820-455d-9a98-d832a67eaf1d"
+                        }
+                      ],
+                      "createdAt": "2026-07-28T00:59:43.000Z",
+                      "updatedAt": "2026-07-28T00:59:43.000Z",
+                      "uid": "35240-71e7056f-360d-4e91-aeaa-521d77203ab1"
+                    }
+                  ],
+                  "id": "f33f4a06-b501-49a7-964b-3bf5b8a5b199",
+                  "createdAt": "2026-07-28T00:59:42.000Z",
+                  "updatedAt": "2026-07-28T00:59:42.000Z",
+                  "uid": "35240-f33f4a06-b501-49a7-964b-3bf5b8a5b199"
+                }
+              ],
+              "id": "34e67f2a-b23e-462b-b733-9e2f7811ea26",
+              "createdAt": "2026-07-28T00:59:42.000Z",
+              "updatedAt": "2026-07-28T00:59:42.000Z",
+              "uid": "35240-34e67f2a-b23e-462b-b733-9e2f7811ea26"
+            }
+          ],
+          "id": "3a50de2b-5313-437c-82b8-648edbb8df62",
+          "createdAt": "2026-07-28T00:59:42.000Z",
+          "updatedAt": "2026-07-28T00:59:42.000Z",
+          "uid": "35240-3a50de2b-5313-437c-82b8-648edbb8df62"
+        }
+      ],
+      "id": "6bf831c8-5b93-4d49-badb-c7188389756d",
+      "createdAt": "2026-07-28T00:59:42.000Z",
+      "updatedAt": "2026-07-28T00:59:42.000Z",
+      "uid": "35240-6bf831c8-5b93-4d49-badb-c7188389756d"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{bearerToken}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://api.amigo.ai"
+    }
+  ]
+}

@@ -1,0 +1,1991 @@
+{
+  "info": {
+    "_postman_id": "7d09c66f-e43b-4925-ab84-e60ac0d1c9c8",
+    "name": "Amigo Account Runs API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "createdAt": "2026-07-28T01:01:48.000Z",
+    "updatedAt": "2026-07-28T01:01:48.000Z",
+    "lastUpdatedBy": "35240",
+    "uid": "35240-7d09c66f-e43b-4925-ab84-e60ac0d1c9c8"
+  },
+  "item": [
+    {
+      "name": "v1",
+      "item": [
+        {
+          "name": "{workspace_id}",
+          "item": [
+            {
+              "name": "runs",
+              "item": [
+                {
+                  "name": "summary",
+                  "item": [
+                    {
+                      "name": "Run counts (framework + conversation)",
+                      "id": "f2f147da-2bbd-49c1-b8ee-6fd730d8e055",
+                      "protocolProfileBehavior": {
+                        "disableBodyPruning": true
+                      },
+                      "request": {
+                        "method": "GET",
+                        "header": [
+                          {
+                            "key": "Accept",
+                            "value": "application/json"
+                          }
+                        ],
+                        "url": {
+                          "raw": "{{baseUrl}}/v1/:workspace_id/runs/summary?kind=framework&kind=conversation&channel=voice&channel=text",
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "v1",
+                            ":workspace_id",
+                            "runs",
+                            "summary"
+                          ],
+                          "query": [
+                            {
+                              "key": "kind",
+                              "value": "framework"
+                            },
+                            {
+                              "key": "kind",
+                              "value": "conversation"
+                            },
+                            {
+                              "key": "channel",
+                              "value": "voice"
+                            },
+                            {
+                              "key": "channel",
+                              "value": "text"
+                            }
+                          ],
+                          "variable": [
+                            {
+                              "id": "1cd2a399-e64b-4046-bd48-ec2c16910cb5",
+                              "key": "workspace_id",
+                              "value": "<uuid>",
+                              "description": "(Required) "
+                            }
+                          ]
+                        },
+                        "description": "Aggregate counts for the workspace's runs behind the unified ``Run`` contract: ``total``, ``live`` (running + paused), each canonical status, a full ``by_status`` map, and ``by_kind`` (conversation vs framework). Federates the Delta ``world.runs`` MV and Lakebase ``world.conversations`` with a cheap GROUP BY. Optional ``kind`` / ``channel`` filters mirror the list; a ``channel`` filter restricts to conversation runs."
+                      },
+                      "response": [
+                        {
+                          "id": "fafdeced-5267-429e-afba-017d463d2d2f",
+                          "name": "Successful Response",
+                          "originalRequest": {
+                            "method": "GET",
+                            "header": [
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              },
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "url": {
+                              "raw": "{{baseUrl}}/v1/:workspace_id/runs/summary?kind=conversation&channel=text",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v1",
+                                ":workspace_id",
+                                "runs",
+                                "summary"
+                              ],
+                              "query": [
+                                {
+                                  "key": "kind",
+                                  "value": "conversation"
+                                },
+                                {
+                                  "key": "channel",
+                                  "value": "text"
+                                }
+                              ],
+                              "variable": [
+                                {
+                                  "key": "workspace_id"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "OK",
+                          "code": 200,
+                          "_postman_previewlanguage": "json",
+                          "header": [
+                            {
+                              "key": "Content-Type",
+                              "value": "application/json"
+                            }
+                          ],
+                          "cookie": [],
+                          "responseTime": null,
+                          "body": "{\n  \"total\": \"<integer>\",\n  \"live\": \"<integer>\",\n  \"running\": \"<integer>\",\n  \"paused\": \"<integer>\",\n  \"completed\": \"<integer>\",\n  \"failed\": \"<integer>\",\n  \"timed_out\": \"<integer>\",\n  \"by_status\": {\n    \"utc\": \"<integer>\",\n    \"laboreb\": \"<integer>\",\n    \"nisi4b\": \"<integer>\"\n  },\n  \"by_kind\": {\n    \"irure_d\": \"<integer>\",\n    \"sintc\": \"<integer>\"\n  }\n}",
+                          "createdAt": "2026-07-28T01:01:48.000Z",
+                          "updatedAt": "2026-07-28T01:01:48.000Z",
+                          "uid": "35240-fafdeced-5267-429e-afba-017d463d2d2f"
+                        },
+                        {
+                          "id": "04b17724-af07-4e89-b3bb-4032d205401b",
+                          "name": "Validation Error",
+                          "originalRequest": {
+                            "method": "GET",
+                            "header": [
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              },
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "url": {
+                              "raw": "{{baseUrl}}/v1/:workspace_id/runs/summary?kind=conversation&channel=text",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v1",
+                                ":workspace_id",
+                                "runs",
+                                "summary"
+                              ],
+                              "query": [
+                                {
+                                  "key": "kind",
+                                  "value": "conversation"
+                                },
+                                {
+                                  "key": "channel",
+                                  "value": "text"
+                                }
+                              ],
+                              "variable": [
+                                {
+                                  "key": "workspace_id"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+                          "code": 422,
+                          "_postman_previewlanguage": "json",
+                          "header": [
+                            {
+                              "key": "Content-Type",
+                              "value": "application/json"
+                            }
+                          ],
+                          "cookie": [],
+                          "responseTime": null,
+                          "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"msg\": \"<string>\",\n      \"type\": \"<string>\",\n      \"input\": {\n        \"title\": \"Input\"\n      },\n      \"ctx\": {}\n    },\n    {\n      \"loc\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"msg\": \"<string>\",\n      \"type\": \"<string>\",\n      \"input\": {\n        \"title\": \"Input\"\n      },\n      \"ctx\": {}\n    }\n  ]\n}",
+                          "createdAt": "2026-07-28T01:01:48.000Z",
+                          "updatedAt": "2026-07-28T01:01:48.000Z",
+                          "uid": "35240-04b17724-af07-4e89-b3bb-4032d205401b"
+                        }
+                      ],
+                      "createdAt": "2026-07-28T01:01:48.000Z",
+                      "updatedAt": "2026-07-28T01:01:48.000Z",
+                      "uid": "35240-f2f147da-2bbd-49c1-b8ee-6fd730d8e055"
+                    }
+                  ],
+                  "id": "1beaf1c9-efa5-4cab-b62d-aa0b720dca50",
+                  "createdAt": "2026-07-28T01:01:48.000Z",
+                  "updatedAt": "2026-07-28T01:01:48.000Z",
+                  "uid": "35240-1beaf1c9-efa5-4cab-b62d-aa0b720dca50"
+                },
+                {
+                  "name": "{run_id}",
+                  "item": [
+                    {
+                      "name": "trajectory",
+                      "item": [
+                        {
+                          "name": "Get a framework run's step-by-step trajectory",
+                          "id": "a1c8a4cb-e306-4916-90af-f1274a83b72e",
+                          "protocolProfileBehavior": {
+                            "disableBodyPruning": true
+                          },
+                          "request": {
+                            "method": "GET",
+                            "header": [
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              }
+                            ],
+                            "url": {
+                              "raw": "{{baseUrl}}/v1/:workspace_id/runs/:run_id/trajectory",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v1",
+                                ":workspace_id",
+                                "runs",
+                                ":run_id",
+                                "trajectory"
+                              ],
+                              "variable": [
+                                {
+                                  "id": "26de297f-ff05-475e-adcc-cb3bd52b5fff",
+                                  "key": "workspace_id",
+                                  "value": "<uuid>",
+                                  "description": "(Required) "
+                                },
+                                {
+                                  "id": "e6f67d8f-8f86-4b68-b7aa-e6153d9ca148",
+                                  "key": "run_id",
+                                  "value": "<uuid>",
+                                  "description": "(Required) "
+                                }
+                              ]
+                            },
+                            "description": "Ordered structural steps (perception / decision / tool / completion) of a FRAMEWORK run, read from the durable Delta trace source by the run's correlation id. 404 if the run does not exist in this workspace; 409 if the run is a conversation run (use ``/conversations/{id}`` for per-turn detail)."
+                          },
+                          "response": [
+                            {
+                              "id": "cf3fe533-8e06-4f7f-9e2b-4181b376bd97",
+                              "name": "Successful Response",
+                              "originalRequest": {
+                                "method": "GET",
+                                "header": [
+                                  {
+                                    "key": "Accept",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "url": {
+                                  "raw": "{{baseUrl}}/v1/:workspace_id/runs/:run_id/trajectory",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "v1",
+                                    ":workspace_id",
+                                    "runs",
+                                    ":run_id",
+                                    "trajectory"
+                                  ],
+                                  "variable": [
+                                    {
+                                      "key": "workspace_id"
+                                    },
+                                    {
+                                      "key": "run_id"
+                                    }
+                                  ]
+                                }
+                              },
+                              "status": "OK",
+                              "code": 200,
+                              "_postman_previewlanguage": "json",
+                              "header": [
+                                {
+                                  "key": "Content-Type",
+                                  "value": "application/json"
+                                }
+                              ],
+                              "cookie": [],
+                              "responseTime": null,
+                              "body": "{\n  \"steps\": [\n    {\n      \"seq\": \"<integer>\",\n      \"kind\": \"<string>\",\n      \"actor\": \"<string>\",\n      \"state\": \"<string>\",\n      \"tool_name\": \"<string>\",\n      \"tool_input_summary\": \"<string>\",\n      \"tool_result_summary\": \"<string>\",\n      \"tool_succeeded\": \"<boolean>\",\n      \"decision_from_state\": \"<string>\",\n      \"decision_to_state\": \"<string>\",\n      \"effective_at\": \"<string>\"\n    },\n    {\n      \"seq\": \"<integer>\",\n      \"kind\": \"<string>\",\n      \"actor\": \"<string>\",\n      \"state\": \"<string>\",\n      \"tool_name\": \"<string>\",\n      \"tool_input_summary\": \"<string>\",\n      \"tool_result_summary\": \"<string>\",\n      \"tool_succeeded\": \"<boolean>\",\n      \"decision_from_state\": \"<string>\",\n      \"decision_to_state\": \"<string>\",\n      \"effective_at\": \"<string>\"\n    }\n  ],\n  \"truncated\": \"<boolean>\"\n}",
+                              "createdAt": "2026-07-28T01:01:48.000Z",
+                              "updatedAt": "2026-07-28T01:01:48.000Z",
+                              "uid": "35240-cf3fe533-8e06-4f7f-9e2b-4181b376bd97"
+                            },
+                            {
+                              "id": "689fce9c-341d-4090-8c37-e0702008f527",
+                              "name": "Validation Error",
+                              "originalRequest": {
+                                "method": "GET",
+                                "header": [
+                                  {
+                                    "key": "Accept",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "url": {
+                                  "raw": "{{baseUrl}}/v1/:workspace_id/runs/:run_id/trajectory",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "v1",
+                                    ":workspace_id",
+                                    "runs",
+                                    ":run_id",
+                                    "trajectory"
+                                  ],
+                                  "variable": [
+                                    {
+                                      "key": "workspace_id"
+                                    },
+                                    {
+                                      "key": "run_id"
+                                    }
+                                  ]
+                                }
+                              },
+                              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+                              "code": 422,
+                              "_postman_previewlanguage": "json",
+                              "header": [
+                                {
+                                  "key": "Content-Type",
+                                  "value": "application/json"
+                                }
+                              ],
+                              "cookie": [],
+                              "responseTime": null,
+                              "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"msg\": \"<string>\",\n      \"type\": \"<string>\",\n      \"input\": {\n        \"title\": \"Input\"\n      },\n      \"ctx\": {}\n    },\n    {\n      \"loc\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"msg\": \"<string>\",\n      \"type\": \"<string>\",\n      \"input\": {\n        \"title\": \"Input\"\n      },\n      \"ctx\": {}\n    }\n  ]\n}",
+                              "createdAt": "2026-07-28T01:01:48.000Z",
+                              "updatedAt": "2026-07-28T01:01:48.000Z",
+                              "uid": "35240-689fce9c-341d-4090-8c37-e0702008f527"
+                            }
+                          ],
+                          "createdAt": "2026-07-28T01:01:48.000Z",
+                          "updatedAt": "2026-07-28T01:01:48.000Z",
+                          "uid": "35240-a1c8a4cb-e306-4916-90af-f1274a83b72e"
+                        }
+                      ],
+                      "id": "aac1e901-77db-46e5-9fbb-afce36647ff1",
+                      "createdAt": "2026-07-28T01:01:48.000Z",
+                      "updatedAt": "2026-07-28T01:01:48.000Z",
+                      "uid": "35240-aac1e901-77db-46e5-9fbb-afce36647ff1"
+                    },
+                    {
+                      "name": "guidance",
+                      "item": [
+                        {
+                          "name": "Send operator guidance to a live run",
+                          "id": "a5f09e28-ba5a-4a40-9261-dbc4a915c74a",
+                          "protocolProfileBehavior": {
+                            "disableBodyPruning": true
+                          },
+                          "request": {
+                            "method": "POST",
+                            "header": [
+                              {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                              },
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              }
+                            ],
+                            "body": {
+                              "mode": "raw",
+                              "raw": "{\n  \"operator_id\": \"<uuid>\",\n  \"message\": \"<string>\"\n}",
+                              "options": {
+                                "raw": {
+                                  "headerFamily": "json",
+                                  "language": "json"
+                                }
+                              }
+                            },
+                            "url": {
+                              "raw": "{{baseUrl}}/v1/:workspace_id/runs/:run_id/guidance",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v1",
+                                ":workspace_id",
+                                "runs",
+                                ":run_id",
+                                "guidance"
+                              ],
+                              "variable": [
+                                {
+                                  "id": "394ea484-da80-4c2e-9df9-5d97428c602c",
+                                  "key": "workspace_id",
+                                  "value": "<uuid>",
+                                  "description": "(Required) "
+                                },
+                                {
+                                  "id": "61f81fe0-2c32-4d2d-8b7c-eec13b7ba7f0",
+                                  "key": "run_id",
+                                  "value": "<uuid>",
+                                  "description": "(Required) "
+                                }
+                              ]
+                            },
+                            "description": "Send text guidance to the agent handling a LIVE run, addressed by the channel-neutral ``run_id``. The agent incorporates it into its next response without the operator taking over. Requires ``admin`` (Operator:Update) and is bound to the caller's own operator identity (no impersonation). 404 if the run is not a live run in this workspace; 409 if its channel has no live guidance transport yet."
+                          },
+                          "response": [
+                            {
+                              "id": "c3e9a26c-2a9c-4388-9b6a-be4e82f2f83c",
+                              "name": "Successful Response",
+                              "originalRequest": {
+                                "method": "POST",
+                                "header": [
+                                  {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "key": "Accept",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "body": {
+                                  "mode": "raw",
+                                  "raw": "{\n  \"operator_id\": \"<uuid>\",\n  \"message\": \"<string>\"\n}",
+                                  "options": {
+                                    "raw": {
+                                      "headerFamily": "json",
+                                      "language": "json"
+                                    }
+                                  }
+                                },
+                                "url": {
+                                  "raw": "{{baseUrl}}/v1/:workspace_id/runs/:run_id/guidance",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "v1",
+                                    ":workspace_id",
+                                    "runs",
+                                    ":run_id",
+                                    "guidance"
+                                  ],
+                                  "variable": [
+                                    {
+                                      "key": "workspace_id"
+                                    },
+                                    {
+                                      "key": "run_id"
+                                    }
+                                  ]
+                                }
+                              },
+                              "status": "OK",
+                              "code": 200,
+                              "_postman_previewlanguage": "json",
+                              "header": [
+                                {
+                                  "key": "Content-Type",
+                                  "value": "application/json"
+                                }
+                              ],
+                              "cookie": [],
+                              "responseTime": null,
+                              "body": "{\n  \"status\": \"queued_no_subscriber\",\n  \"run_id\": \"<uuid>\"\n}",
+                              "createdAt": "2026-07-28T01:01:48.000Z",
+                              "updatedAt": "2026-07-28T01:01:48.000Z",
+                              "uid": "35240-c3e9a26c-2a9c-4388-9b6a-be4e82f2f83c"
+                            },
+                            {
+                              "id": "3dc5d793-0b9d-40be-bd21-5258b34623ac",
+                              "name": "Validation Error",
+                              "originalRequest": {
+                                "method": "POST",
+                                "header": [
+                                  {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "key": "Accept",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "body": {
+                                  "mode": "raw",
+                                  "raw": "{\n  \"operator_id\": \"<uuid>\",\n  \"message\": \"<string>\"\n}",
+                                  "options": {
+                                    "raw": {
+                                      "headerFamily": "json",
+                                      "language": "json"
+                                    }
+                                  }
+                                },
+                                "url": {
+                                  "raw": "{{baseUrl}}/v1/:workspace_id/runs/:run_id/guidance",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "v1",
+                                    ":workspace_id",
+                                    "runs",
+                                    ":run_id",
+                                    "guidance"
+                                  ],
+                                  "variable": [
+                                    {
+                                      "key": "workspace_id"
+                                    },
+                                    {
+                                      "key": "run_id"
+                                    }
+                                  ]
+                                }
+                              },
+                              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+                              "code": 422,
+                              "_postman_previewlanguage": "json",
+                              "header": [
+                                {
+                                  "key": "Content-Type",
+                                  "value": "application/json"
+                                }
+                              ],
+                              "cookie": [],
+                              "responseTime": null,
+                              "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"msg\": \"<string>\",\n      \"type\": \"<string>\",\n      \"input\": {\n        \"title\": \"Input\"\n      },\n      \"ctx\": {}\n    },\n    {\n      \"loc\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"msg\": \"<string>\",\n      \"type\": \"<string>\",\n      \"input\": {\n        \"title\": \"Input\"\n      },\n      \"ctx\": {}\n    }\n  ]\n}",
+                              "createdAt": "2026-07-28T01:01:48.000Z",
+                              "updatedAt": "2026-07-28T01:01:48.000Z",
+                              "uid": "35240-3dc5d793-0b9d-40be-bd21-5258b34623ac"
+                            }
+                          ],
+                          "createdAt": "2026-07-28T01:01:48.000Z",
+                          "updatedAt": "2026-07-28T01:01:48.000Z",
+                          "uid": "35240-a5f09e28-ba5a-4a40-9261-dbc4a915c74a"
+                        }
+                      ],
+                      "id": "74751c3a-70a3-479e-9490-e3dcc7ef52b2",
+                      "createdAt": "2026-07-28T01:01:48.000Z",
+                      "updatedAt": "2026-07-28T01:01:48.000Z",
+                      "uid": "35240-74751c3a-70a3-479e-9490-e3dcc7ef52b2"
+                    },
+                    {
+                      "name": "takeover",
+                      "item": [
+                        {
+                          "name": "Take over a live run as operator",
+                          "id": "aa229af1-3495-4a4e-b901-ccd0cc45d7a0",
+                          "protocolProfileBehavior": {
+                            "disableBodyPruning": true
+                          },
+                          "request": {
+                            "method": "POST",
+                            "header": [
+                              {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                              },
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              }
+                            ],
+                            "body": {
+                              "mode": "raw",
+                              "raw": "{\n  \"operator_id\": \"<uuid>\",\n  \"mode\": \"takeover\"\n}",
+                              "options": {
+                                "raw": {
+                                  "headerFamily": "json",
+                                  "language": "json"
+                                }
+                              }
+                            },
+                            "url": {
+                              "raw": "{{baseUrl}}/v1/:workspace_id/runs/:run_id/takeover",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v1",
+                                ":workspace_id",
+                                "runs",
+                                ":run_id",
+                                "takeover"
+                              ],
+                              "variable": [
+                                {
+                                  "id": "c12944a6-f021-4065-a7a2-a89cb7cce2e8",
+                                  "key": "workspace_id",
+                                  "value": "<uuid>",
+                                  "description": "(Required) "
+                                },
+                                {
+                                  "id": "b034b5ba-1da8-4e80-833e-a4463aff75af",
+                                  "key": "run_id",
+                                  "value": "<uuid>",
+                                  "description": "(Required) "
+                                }
+                              ]
+                            },
+                            "description": "Register the caller's operator identity on a LIVE run and (in ``takeover`` mode) suspend the agent so the human drives; ``listen`` mode monitors without driving. Addressed by the channel-neutral ``run_id``. Requires ``admin`` (Operator:Update), bound to the caller's own operator identity (no impersonation). 404 if the run is not live in this workspace; 409 if its channel does not support live takeover yet. For voice, the response carries the conference/participant SIDs the console needs to attach browser audio."
+                          },
+                          "response": [
+                            {
+                              "id": "f376c082-fd43-4ac7-bc64-70b4a0d39418",
+                              "name": "Successful Response",
+                              "originalRequest": {
+                                "method": "POST",
+                                "header": [
+                                  {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "key": "Accept",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "body": {
+                                  "mode": "raw",
+                                  "raw": "{\n  \"operator_id\": \"<uuid>\",\n  \"mode\": \"takeover\"\n}",
+                                  "options": {
+                                    "raw": {
+                                      "headerFamily": "json",
+                                      "language": "json"
+                                    }
+                                  }
+                                },
+                                "url": {
+                                  "raw": "{{baseUrl}}/v1/:workspace_id/runs/:run_id/takeover",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "v1",
+                                    ":workspace_id",
+                                    "runs",
+                                    ":run_id",
+                                    "takeover"
+                                  ],
+                                  "variable": [
+                                    {
+                                      "key": "workspace_id"
+                                    },
+                                    {
+                                      "key": "run_id"
+                                    }
+                                  ]
+                                }
+                              },
+                              "status": "OK",
+                              "code": 200,
+                              "_postman_previewlanguage": "json",
+                              "header": [
+                                {
+                                  "key": "Content-Type",
+                                  "value": "application/json"
+                                }
+                              ],
+                              "cookie": [],
+                              "responseTime": null,
+                              "body": "{\n  \"run_id\": \"<uuid>\",\n  \"mode\": \"listen\",\n  \"participant_call_sid\": \"<string>\",\n  \"conference_sid\": \"<string>\"\n}",
+                              "createdAt": "2026-07-28T01:01:48.000Z",
+                              "updatedAt": "2026-07-28T01:01:48.000Z",
+                              "uid": "35240-f376c082-fd43-4ac7-bc64-70b4a0d39418"
+                            },
+                            {
+                              "id": "9086219b-e92b-4fd1-a855-11966d1829fe",
+                              "name": "Validation Error",
+                              "originalRequest": {
+                                "method": "POST",
+                                "header": [
+                                  {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "key": "Accept",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "body": {
+                                  "mode": "raw",
+                                  "raw": "{\n  \"operator_id\": \"<uuid>\",\n  \"mode\": \"takeover\"\n}",
+                                  "options": {
+                                    "raw": {
+                                      "headerFamily": "json",
+                                      "language": "json"
+                                    }
+                                  }
+                                },
+                                "url": {
+                                  "raw": "{{baseUrl}}/v1/:workspace_id/runs/:run_id/takeover",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "v1",
+                                    ":workspace_id",
+                                    "runs",
+                                    ":run_id",
+                                    "takeover"
+                                  ],
+                                  "variable": [
+                                    {
+                                      "key": "workspace_id"
+                                    },
+                                    {
+                                      "key": "run_id"
+                                    }
+                                  ]
+                                }
+                              },
+                              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+                              "code": 422,
+                              "_postman_previewlanguage": "json",
+                              "header": [
+                                {
+                                  "key": "Content-Type",
+                                  "value": "application/json"
+                                }
+                              ],
+                              "cookie": [],
+                              "responseTime": null,
+                              "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"msg\": \"<string>\",\n      \"type\": \"<string>\",\n      \"input\": {\n        \"title\": \"Input\"\n      },\n      \"ctx\": {}\n    },\n    {\n      \"loc\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"msg\": \"<string>\",\n      \"type\": \"<string>\",\n      \"input\": {\n        \"title\": \"Input\"\n      },\n      \"ctx\": {}\n    }\n  ]\n}",
+                              "createdAt": "2026-07-28T01:01:48.000Z",
+                              "updatedAt": "2026-07-28T01:01:48.000Z",
+                              "uid": "35240-9086219b-e92b-4fd1-a855-11966d1829fe"
+                            }
+                          ],
+                          "createdAt": "2026-07-28T01:01:48.000Z",
+                          "updatedAt": "2026-07-28T01:01:48.000Z",
+                          "uid": "35240-aa229af1-3495-4a4e-b901-ccd0cc45d7a0"
+                        }
+                      ],
+                      "id": "92dc47a0-7a4c-4f4b-a7a0-752dc9a587a7",
+                      "createdAt": "2026-07-28T01:01:48.000Z",
+                      "updatedAt": "2026-07-28T01:01:48.000Z",
+                      "uid": "35240-92dc47a0-7a4c-4f4b-a7a0-752dc9a587a7"
+                    },
+                    {
+                      "name": "handback",
+                      "item": [
+                        {
+                          "name": "Hand a taken-over run back to the agent",
+                          "id": "492053db-d72e-45ea-afaf-618586ed13ca",
+                          "protocolProfileBehavior": {
+                            "disableBodyPruning": true
+                          },
+                          "request": {
+                            "method": "POST",
+                            "header": [
+                              {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                              },
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              }
+                            ],
+                            "body": {
+                              "mode": "raw",
+                              "raw": "{\n  \"operator_id\": \"<uuid>\"\n}",
+                              "options": {
+                                "raw": {
+                                  "headerFamily": "json",
+                                  "language": "json"
+                                }
+                              }
+                            },
+                            "url": {
+                              "raw": "{{baseUrl}}/v1/:workspace_id/runs/:run_id/handback",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v1",
+                                ":workspace_id",
+                                "runs",
+                                ":run_id",
+                                "handback"
+                              ],
+                              "variable": [
+                                {
+                                  "id": "a5cd0300-cea9-4948-9727-a57dfb5aae76",
+                                  "key": "workspace_id",
+                                  "value": "<uuid>",
+                                  "description": "(Required) "
+                                },
+                                {
+                                  "id": "5d4d8cad-0374-42f3-b8d0-0ac21eaedc9d",
+                                  "key": "run_id",
+                                  "value": "<uuid>",
+                                  "description": "(Required) "
+                                }
+                              ]
+                            },
+                            "description": "Release the caller's operator from a run they took over \u2014 the agent resumes. Addressed by ``run_id``. Requires ``admin`` (Operator:Update), bound to the caller's own operator identity. 404 if the run is not live in this workspace; 409 if its channel does not support live takeover yet."
+                          },
+                          "response": [
+                            {
+                              "id": "9f57b44c-e75a-4852-9694-2ee7dabed827",
+                              "name": "Successful Response",
+                              "originalRequest": {
+                                "method": "POST",
+                                "header": [
+                                  {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "key": "Accept",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "body": {
+                                  "mode": "raw",
+                                  "raw": "{\n  \"operator_id\": \"<uuid>\"\n}",
+                                  "options": {
+                                    "raw": {
+                                      "headerFamily": "json",
+                                      "language": "json"
+                                    }
+                                  }
+                                },
+                                "url": {
+                                  "raw": "{{baseUrl}}/v1/:workspace_id/runs/:run_id/handback",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "v1",
+                                    ":workspace_id",
+                                    "runs",
+                                    ":run_id",
+                                    "handback"
+                                  ],
+                                  "variable": [
+                                    {
+                                      "key": "workspace_id"
+                                    },
+                                    {
+                                      "key": "run_id"
+                                    }
+                                  ]
+                                }
+                              },
+                              "status": "OK",
+                              "code": 200,
+                              "_postman_previewlanguage": "json",
+                              "header": [
+                                {
+                                  "key": "Content-Type",
+                                  "value": "application/json"
+                                }
+                              ],
+                              "cookie": [],
+                              "responseTime": null,
+                              "body": "{\n  \"run_id\": \"<uuid>\",\n  \"success\": \"<boolean>\"\n}",
+                              "createdAt": "2026-07-28T01:01:48.000Z",
+                              "updatedAt": "2026-07-28T01:01:48.000Z",
+                              "uid": "35240-9f57b44c-e75a-4852-9694-2ee7dabed827"
+                            },
+                            {
+                              "id": "21e8d095-875e-4e67-a6ff-e8efe0693df5",
+                              "name": "Validation Error",
+                              "originalRequest": {
+                                "method": "POST",
+                                "header": [
+                                  {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "key": "Accept",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "body": {
+                                  "mode": "raw",
+                                  "raw": "{\n  \"operator_id\": \"<uuid>\"\n}",
+                                  "options": {
+                                    "raw": {
+                                      "headerFamily": "json",
+                                      "language": "json"
+                                    }
+                                  }
+                                },
+                                "url": {
+                                  "raw": "{{baseUrl}}/v1/:workspace_id/runs/:run_id/handback",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "v1",
+                                    ":workspace_id",
+                                    "runs",
+                                    ":run_id",
+                                    "handback"
+                                  ],
+                                  "variable": [
+                                    {
+                                      "key": "workspace_id"
+                                    },
+                                    {
+                                      "key": "run_id"
+                                    }
+                                  ]
+                                }
+                              },
+                              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+                              "code": 422,
+                              "_postman_previewlanguage": "json",
+                              "header": [
+                                {
+                                  "key": "Content-Type",
+                                  "value": "application/json"
+                                }
+                              ],
+                              "cookie": [],
+                              "responseTime": null,
+                              "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"msg\": \"<string>\",\n      \"type\": \"<string>\",\n      \"input\": {\n        \"title\": \"Input\"\n      },\n      \"ctx\": {}\n    },\n    {\n      \"loc\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"msg\": \"<string>\",\n      \"type\": \"<string>\",\n      \"input\": {\n        \"title\": \"Input\"\n      },\n      \"ctx\": {}\n    }\n  ]\n}",
+                              "createdAt": "2026-07-28T01:01:48.000Z",
+                              "updatedAt": "2026-07-28T01:01:48.000Z",
+                              "uid": "35240-21e8d095-875e-4e67-a6ff-e8efe0693df5"
+                            }
+                          ],
+                          "createdAt": "2026-07-28T01:01:48.000Z",
+                          "updatedAt": "2026-07-28T01:01:48.000Z",
+                          "uid": "35240-492053db-d72e-45ea-afaf-618586ed13ca"
+                        }
+                      ],
+                      "id": "32663346-04d0-4119-b8d4-8d8e40565c30",
+                      "createdAt": "2026-07-28T01:01:48.000Z",
+                      "updatedAt": "2026-07-28T01:01:48.000Z",
+                      "uid": "35240-32663346-04d0-4119-b8d4-8d8e40565c30"
+                    },
+                    {
+                      "name": "authored-turn",
+                      "item": [
+                        {
+                          "name": "Author the next turn on a non-voice run under takeover",
+                          "id": "7444dc69-0a44-4978-8c6c-aaf83b70821c",
+                          "protocolProfileBehavior": {
+                            "disableBodyPruning": true
+                          },
+                          "request": {
+                            "method": "POST",
+                            "header": [
+                              {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                              },
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              }
+                            ],
+                            "body": {
+                              "mode": "raw",
+                              "raw": "{\n  \"operator_id\": \"<uuid>\",\n  \"text\": \"<string>\"\n}",
+                              "options": {
+                                "raw": {
+                                  "headerFamily": "json",
+                                  "language": "json"
+                                }
+                              }
+                            },
+                            "url": {
+                              "raw": "{{baseUrl}}/v1/:workspace_id/runs/:run_id/authored-turn",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v1",
+                                ":workspace_id",
+                                "runs",
+                                ":run_id",
+                                "authored-turn"
+                              ],
+                              "variable": [
+                                {
+                                  "id": "290c8380-dc72-48d9-86cb-1e2ad000e849",
+                                  "key": "workspace_id",
+                                  "value": "<uuid>",
+                                  "description": "(Required) "
+                                },
+                                {
+                                  "id": "88e804bf-1578-4ee2-92de-de980b9fc2b9",
+                                  "key": "run_id",
+                                  "value": "<uuid>",
+                                  "description": "(Required) "
+                                }
+                              ]
+                            },
+                            "description": "Stage an operator-authored reply for a NON-voice run (text/sms/email/web) the caller has taken over. The agent-engine send-gate substitutes it for the agent's next outbound (exactly-once), so the caller receives the operator's words while the agent stays suspended. Repeatable \u2014 each call stages the next turn. Addressed by the channel-neutral ``run_id``. Requires ``admin`` (Operator:Update), bound to the caller's own operator identity (no impersonation). 404 if the run is not live in this workspace; 409 for voice (voice takeover drives the live audio leg \u2014 use the conference, not an authored turn)."
+                          },
+                          "response": [
+                            {
+                              "id": "35415104-5275-4e2f-9d2e-9ed8017b2d82",
+                              "name": "Successful Response",
+                              "originalRequest": {
+                                "method": "POST",
+                                "header": [
+                                  {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "key": "Accept",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "body": {
+                                  "mode": "raw",
+                                  "raw": "{\n  \"operator_id\": \"<uuid>\",\n  \"text\": \"<string>\"\n}",
+                                  "options": {
+                                    "raw": {
+                                      "headerFamily": "json",
+                                      "language": "json"
+                                    }
+                                  }
+                                },
+                                "url": {
+                                  "raw": "{{baseUrl}}/v1/:workspace_id/runs/:run_id/authored-turn",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "v1",
+                                    ":workspace_id",
+                                    "runs",
+                                    ":run_id",
+                                    "authored-turn"
+                                  ],
+                                  "variable": [
+                                    {
+                                      "key": "workspace_id"
+                                    },
+                                    {
+                                      "key": "run_id"
+                                    }
+                                  ]
+                                }
+                              },
+                              "status": "OK",
+                              "code": 200,
+                              "_postman_previewlanguage": "json",
+                              "header": [
+                                {
+                                  "key": "Content-Type",
+                                  "value": "application/json"
+                                }
+                              ],
+                              "cookie": [],
+                              "responseTime": null,
+                              "body": "{\n  \"run_id\": \"<uuid>\",\n  \"staged\": \"<boolean>\"\n}",
+                              "createdAt": "2026-07-28T01:01:48.000Z",
+                              "updatedAt": "2026-07-28T01:01:48.000Z",
+                              "uid": "35240-35415104-5275-4e2f-9d2e-9ed8017b2d82"
+                            },
+                            {
+                              "id": "2a0cd8f5-2669-4351-94e8-e4c512500e44",
+                              "name": "Validation Error",
+                              "originalRequest": {
+                                "method": "POST",
+                                "header": [
+                                  {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "key": "Accept",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "body": {
+                                  "mode": "raw",
+                                  "raw": "{\n  \"operator_id\": \"<uuid>\",\n  \"text\": \"<string>\"\n}",
+                                  "options": {
+                                    "raw": {
+                                      "headerFamily": "json",
+                                      "language": "json"
+                                    }
+                                  }
+                                },
+                                "url": {
+                                  "raw": "{{baseUrl}}/v1/:workspace_id/runs/:run_id/authored-turn",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "v1",
+                                    ":workspace_id",
+                                    "runs",
+                                    ":run_id",
+                                    "authored-turn"
+                                  ],
+                                  "variable": [
+                                    {
+                                      "key": "workspace_id"
+                                    },
+                                    {
+                                      "key": "run_id"
+                                    }
+                                  ]
+                                }
+                              },
+                              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+                              "code": 422,
+                              "_postman_previewlanguage": "json",
+                              "header": [
+                                {
+                                  "key": "Content-Type",
+                                  "value": "application/json"
+                                }
+                              ],
+                              "cookie": [],
+                              "responseTime": null,
+                              "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"msg\": \"<string>\",\n      \"type\": \"<string>\",\n      \"input\": {\n        \"title\": \"Input\"\n      },\n      \"ctx\": {}\n    },\n    {\n      \"loc\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"msg\": \"<string>\",\n      \"type\": \"<string>\",\n      \"input\": {\n        \"title\": \"Input\"\n      },\n      \"ctx\": {}\n    }\n  ]\n}",
+                              "createdAt": "2026-07-28T01:01:48.000Z",
+                              "updatedAt": "2026-07-28T01:01:48.000Z",
+                              "uid": "35240-2a0cd8f5-2669-4351-94e8-e4c512500e44"
+                            }
+                          ],
+                          "createdAt": "2026-07-28T01:01:48.000Z",
+                          "updatedAt": "2026-07-28T01:01:48.000Z",
+                          "uid": "35240-7444dc69-0a44-4978-8c6c-aaf83b70821c"
+                        }
+                      ],
+                      "id": "24190ed2-2199-4fc2-9ac4-eafcfdc1680a",
+                      "createdAt": "2026-07-28T01:01:48.000Z",
+                      "updatedAt": "2026-07-28T01:01:48.000Z",
+                      "uid": "35240-24190ed2-2199-4fc2-9ac4-eafcfdc1680a"
+                    },
+                    {
+                      "name": "switch-mode",
+                      "item": [
+                        {
+                          "name": "Switch an operator between listen and takeover on a live run",
+                          "id": "ce97bc16-8c3e-4c20-a9e7-5ffb3e539e8c",
+                          "protocolProfileBehavior": {
+                            "disableBodyPruning": true
+                          },
+                          "request": {
+                            "method": "POST",
+                            "header": [
+                              {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                              },
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              }
+                            ],
+                            "body": {
+                              "mode": "raw",
+                              "raw": "{\n  \"operator_id\": \"<uuid>\",\n  \"participant_call_sid\": \"<string>\",\n  \"mode\": \"takeover\"\n}",
+                              "options": {
+                                "raw": {
+                                  "headerFamily": "json",
+                                  "language": "json"
+                                }
+                              }
+                            },
+                            "url": {
+                              "raw": "{{baseUrl}}/v1/:workspace_id/runs/:run_id/switch-mode",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v1",
+                                ":workspace_id",
+                                "runs",
+                                ":run_id",
+                                "switch-mode"
+                              ],
+                              "variable": [
+                                {
+                                  "id": "fad2f7d7-d20b-4370-9ad5-1fbb09d6e8ab",
+                                  "key": "workspace_id",
+                                  "value": "<uuid>",
+                                  "description": "(Required) "
+                                },
+                                {
+                                  "id": "4c7d1ab9-2ece-4146-9390-692eaee0c34d",
+                                  "key": "run_id",
+                                  "value": "<uuid>",
+                                  "description": "(Required) "
+                                }
+                              ]
+                            },
+                            "description": "Toggle the operator between ``listen`` (monitor) and ``takeover`` (drive) on a run they have already joined, addressed by the channel-neutral ``run_id``. For voice this mutes/unmutes the operator's conference participant. Requires ``admin`` (Operator:Update), bound to the caller's own operator identity (no impersonation). 404 if the run is not live in this workspace; 409 if its channel does not support live takeover yet."
+                          },
+                          "response": [
+                            {
+                              "id": "4f02ae6c-f74a-4f61-94c9-fec8d4a81540",
+                              "name": "Successful Response",
+                              "originalRequest": {
+                                "method": "POST",
+                                "header": [
+                                  {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "key": "Accept",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "body": {
+                                  "mode": "raw",
+                                  "raw": "{\n  \"operator_id\": \"<uuid>\",\n  \"participant_call_sid\": \"<string>\",\n  \"mode\": \"takeover\"\n}",
+                                  "options": {
+                                    "raw": {
+                                      "headerFamily": "json",
+                                      "language": "json"
+                                    }
+                                  }
+                                },
+                                "url": {
+                                  "raw": "{{baseUrl}}/v1/:workspace_id/runs/:run_id/switch-mode",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "v1",
+                                    ":workspace_id",
+                                    "runs",
+                                    ":run_id",
+                                    "switch-mode"
+                                  ],
+                                  "variable": [
+                                    {
+                                      "key": "workspace_id"
+                                    },
+                                    {
+                                      "key": "run_id"
+                                    }
+                                  ]
+                                }
+                              },
+                              "status": "OK",
+                              "code": 200,
+                              "_postman_previewlanguage": "json",
+                              "header": [
+                                {
+                                  "key": "Content-Type",
+                                  "value": "application/json"
+                                }
+                              ],
+                              "cookie": [],
+                              "responseTime": null,
+                              "body": "{\n  \"run_id\": \"<uuid>\",\n  \"mode\": \"listen\"\n}",
+                              "createdAt": "2026-07-28T01:01:48.000Z",
+                              "updatedAt": "2026-07-28T01:01:48.000Z",
+                              "uid": "35240-4f02ae6c-f74a-4f61-94c9-fec8d4a81540"
+                            },
+                            {
+                              "id": "04a92874-fe3d-4608-ae95-4aa921845151",
+                              "name": "Validation Error",
+                              "originalRequest": {
+                                "method": "POST",
+                                "header": [
+                                  {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "key": "Accept",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "body": {
+                                  "mode": "raw",
+                                  "raw": "{\n  \"operator_id\": \"<uuid>\",\n  \"participant_call_sid\": \"<string>\",\n  \"mode\": \"takeover\"\n}",
+                                  "options": {
+                                    "raw": {
+                                      "headerFamily": "json",
+                                      "language": "json"
+                                    }
+                                  }
+                                },
+                                "url": {
+                                  "raw": "{{baseUrl}}/v1/:workspace_id/runs/:run_id/switch-mode",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "v1",
+                                    ":workspace_id",
+                                    "runs",
+                                    ":run_id",
+                                    "switch-mode"
+                                  ],
+                                  "variable": [
+                                    {
+                                      "key": "workspace_id"
+                                    },
+                                    {
+                                      "key": "run_id"
+                                    }
+                                  ]
+                                }
+                              },
+                              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+                              "code": 422,
+                              "_postman_previewlanguage": "json",
+                              "header": [
+                                {
+                                  "key": "Content-Type",
+                                  "value": "application/json"
+                                }
+                              ],
+                              "cookie": [],
+                              "responseTime": null,
+                              "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"msg\": \"<string>\",\n      \"type\": \"<string>\",\n      \"input\": {\n        \"title\": \"Input\"\n      },\n      \"ctx\": {}\n    },\n    {\n      \"loc\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"msg\": \"<string>\",\n      \"type\": \"<string>\",\n      \"input\": {\n        \"title\": \"Input\"\n      },\n      \"ctx\": {}\n    }\n  ]\n}",
+                              "createdAt": "2026-07-28T01:01:48.000Z",
+                              "updatedAt": "2026-07-28T01:01:48.000Z",
+                              "uid": "35240-04a92874-fe3d-4608-ae95-4aa921845151"
+                            }
+                          ],
+                          "createdAt": "2026-07-28T01:01:48.000Z",
+                          "updatedAt": "2026-07-28T01:01:48.000Z",
+                          "uid": "35240-ce97bc16-8c3e-4c20-a9e7-5ffb3e539e8c"
+                        }
+                      ],
+                      "id": "14b77c28-ebad-4cc3-a105-c439eca32d2d",
+                      "createdAt": "2026-07-28T01:01:48.000Z",
+                      "updatedAt": "2026-07-28T01:01:48.000Z",
+                      "uid": "35240-14b77c28-ebad-4cc3-a105-c439eca32d2d"
+                    },
+                    {
+                      "name": "access-token",
+                      "item": [
+                        {
+                          "name": "Mint a browser-audio access token for an operator on a live run",
+                          "id": "c688b62c-0cd4-4dab-87d7-ca8e971db225",
+                          "protocolProfileBehavior": {
+                            "disableBodyPruning": true
+                          },
+                          "request": {
+                            "method": "POST",
+                            "header": [
+                              {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                              },
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              }
+                            ],
+                            "body": {
+                              "mode": "raw",
+                              "raw": "{\n  \"operator_id\": \"<uuid>\"\n}",
+                              "options": {
+                                "raw": {
+                                  "headerFamily": "json",
+                                  "language": "json"
+                                }
+                              }
+                            },
+                            "url": {
+                              "raw": "{{baseUrl}}/v1/:workspace_id/runs/:run_id/access-token",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v1",
+                                ":workspace_id",
+                                "runs",
+                                ":run_id",
+                                "access-token"
+                              ],
+                              "variable": [
+                                {
+                                  "id": "3c008446-3707-42a0-ac38-f2e652c61bd3",
+                                  "key": "workspace_id",
+                                  "value": "<uuid>",
+                                  "description": "(Required) "
+                                },
+                                {
+                                  "id": "b0c95ff5-78f9-4d57-8692-9cc078329a26",
+                                  "key": "run_id",
+                                  "value": "<uuid>",
+                                  "description": "(Required) "
+                                }
+                              ]
+                            },
+                            "description": "Generate the Twilio browser-audio credentials the console needs to attach the operator's WebRTC leg to a live run, addressed by ``run_id``. This is the media plane companion to ``/takeover`` (the control plane). Requires ``admin`` (Operator:Update), bound to the caller's own operator identity. 404 if the run is not live in this workspace; 409 if its channel has no browser-audio leg."
+                          },
+                          "response": [
+                            {
+                              "id": "ad84d161-80e1-4ce5-acf9-efdd82ae9166",
+                              "name": "Successful Response",
+                              "originalRequest": {
+                                "method": "POST",
+                                "header": [
+                                  {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "key": "Accept",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "body": {
+                                  "mode": "raw",
+                                  "raw": "{\n  \"operator_id\": \"<uuid>\"\n}",
+                                  "options": {
+                                    "raw": {
+                                      "headerFamily": "json",
+                                      "language": "json"
+                                    }
+                                  }
+                                },
+                                "url": {
+                                  "raw": "{{baseUrl}}/v1/:workspace_id/runs/:run_id/access-token",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "v1",
+                                    ":workspace_id",
+                                    "runs",
+                                    ":run_id",
+                                    "access-token"
+                                  ],
+                                  "variable": [
+                                    {
+                                      "key": "workspace_id"
+                                    },
+                                    {
+                                      "key": "run_id"
+                                    }
+                                  ]
+                                }
+                              },
+                              "status": "OK",
+                              "code": 200,
+                              "_postman_previewlanguage": "json",
+                              "header": [
+                                {
+                                  "key": "Content-Type",
+                                  "value": "application/json"
+                                }
+                              ],
+                              "cookie": [],
+                              "responseTime": null,
+                              "body": "{\n  \"token\": \"<string>\",\n  \"identity\": \"<string>\",\n  \"conference_sid\": \"<string>\",\n  \"connect_params\": {\n    \"do_bd\": \"<string>\",\n    \"none6\": \"<string>\"\n  }\n}",
+                              "createdAt": "2026-07-28T01:01:48.000Z",
+                              "updatedAt": "2026-07-28T01:01:48.000Z",
+                              "uid": "35240-ad84d161-80e1-4ce5-acf9-efdd82ae9166"
+                            },
+                            {
+                              "id": "49b556c6-81ce-40e9-b628-2a85556a5804",
+                              "name": "Validation Error",
+                              "originalRequest": {
+                                "method": "POST",
+                                "header": [
+                                  {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "key": "Accept",
+                                    "value": "application/json"
+                                  },
+                                  {
+                                    "description": "Added as a part of security scheme: bearer",
+                                    "key": "Authorization",
+                                    "value": "Bearer <token>"
+                                  }
+                                ],
+                                "body": {
+                                  "mode": "raw",
+                                  "raw": "{\n  \"operator_id\": \"<uuid>\"\n}",
+                                  "options": {
+                                    "raw": {
+                                      "headerFamily": "json",
+                                      "language": "json"
+                                    }
+                                  }
+                                },
+                                "url": {
+                                  "raw": "{{baseUrl}}/v1/:workspace_id/runs/:run_id/access-token",
+                                  "host": [
+                                    "{{baseUrl}}"
+                                  ],
+                                  "path": [
+                                    "v1",
+                                    ":workspace_id",
+                                    "runs",
+                                    ":run_id",
+                                    "access-token"
+                                  ],
+                                  "variable": [
+                                    {
+                                      "key": "workspace_id"
+                                    },
+                                    {
+                                      "key": "run_id"
+                                    }
+                                  ]
+                                }
+                              },
+                              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+                              "code": 422,
+                              "_postman_previewlanguage": "json",
+                              "header": [
+                                {
+                                  "key": "Content-Type",
+                                  "value": "application/json"
+                                }
+                              ],
+                              "cookie": [],
+                              "responseTime": null,
+                              "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"msg\": \"<string>\",\n      \"type\": \"<string>\",\n      \"input\": {\n        \"title\": \"Input\"\n      },\n      \"ctx\": {}\n    },\n    {\n      \"loc\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"msg\": \"<string>\",\n      \"type\": \"<string>\",\n      \"input\": {\n        \"title\": \"Input\"\n      },\n      \"ctx\": {}\n    }\n  ]\n}",
+                              "createdAt": "2026-07-28T01:01:48.000Z",
+                              "updatedAt": "2026-07-28T01:01:48.000Z",
+                              "uid": "35240-49b556c6-81ce-40e9-b628-2a85556a5804"
+                            }
+                          ],
+                          "createdAt": "2026-07-28T01:01:48.000Z",
+                          "updatedAt": "2026-07-28T01:01:48.000Z",
+                          "uid": "35240-c688b62c-0cd4-4dab-87d7-ca8e971db225"
+                        }
+                      ],
+                      "id": "a66a006d-704c-40f1-a25b-9056d353dfc9",
+                      "createdAt": "2026-07-28T01:01:48.000Z",
+                      "updatedAt": "2026-07-28T01:01:48.000Z",
+                      "uid": "35240-a66a006d-704c-40f1-a25b-9056d353dfc9"
+                    },
+                    {
+                      "name": "Get one run (framework or conversation) by run_id",
+                      "id": "5757295d-146a-4001-b7b1-257f4efdcf6f",
+                      "protocolProfileBehavior": {
+                        "disableBodyPruning": true
+                      },
+                      "request": {
+                        "method": "GET",
+                        "header": [
+                          {
+                            "key": "Accept",
+                            "value": "application/json"
+                          }
+                        ],
+                        "url": {
+                          "raw": "{{baseUrl}}/v1/:workspace_id/runs/:run_id",
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "v1",
+                            ":workspace_id",
+                            "runs",
+                            ":run_id"
+                          ],
+                          "variable": [
+                            {
+                              "id": "4e6164a8-0d69-408a-a612-e4753834801c",
+                              "key": "workspace_id",
+                              "value": "<uuid>",
+                              "description": "(Required) "
+                            },
+                            {
+                              "id": "b793624b-e60f-4998-9c00-d3b0e1ededc4",
+                              "key": "run_id",
+                              "value": "<uuid>",
+                              "description": "(Required) "
+                            }
+                          ]
+                        },
+                        "description": "Resolve a single run by its channel-neutral ``run_id`` and return the canonical ``Run`` \u2014 at any status (live, completed, failed, timed out). Federates the Delta ``world.runs`` MV (framework runs), Lakebase ``world.conversations`` (conversation runs), and the live-voice registry, matched by ``run_id`` and scoped to the workspace. Use the returned ``kind`` / ``channel`` / ``source_*`` fields to open the channel-appropriate detail (voice call, text conversation, framework trace). 404 if the run does not exist in this workspace."
+                      },
+                      "response": [
+                        {
+                          "id": "e342a1dd-d9c9-4233-b4a6-6490ff9b06a4",
+                          "name": "Successful Response",
+                          "originalRequest": {
+                            "method": "GET",
+                            "header": [
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              },
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "url": {
+                              "raw": "{{baseUrl}}/v1/:workspace_id/runs/:run_id",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v1",
+                                ":workspace_id",
+                                "runs",
+                                ":run_id"
+                              ],
+                              "variable": [
+                                {
+                                  "key": "workspace_id"
+                                },
+                                {
+                                  "key": "run_id"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "OK",
+                          "code": 200,
+                          "_postman_previewlanguage": "json",
+                          "header": [
+                            {
+                              "key": "Content-Type",
+                              "value": "application/json"
+                            }
+                          ],
+                          "cookie": [],
+                          "responseTime": null,
+                          "body": "{\n  \"run_id\": \"<uuid>\",\n  \"workspace_id\": \"<uuid>\",\n  \"kind\": \"framework\",\n  \"status\": \"failed\",\n  \"started_at\": \"<dateTime>\",\n  \"takeover\": {\n    \"eligible\": \"<boolean>\",\n    \"reason\": \"<string>\"\n  },\n  \"channel\": \"text\",\n  \"framework\": \"claude-agent-sdk\",\n  \"entity_id\": \"<uuid>\",\n  \"service_id\": \"<uuid>\",\n  \"ended_at\": \"<dateTime>\",\n  \"entity_name\": \"<string>\",\n  \"service_name\": \"<string>\",\n  \"caller_id\": \"<string>\",\n  \"phone_number\": \"<string>\",\n  \"direction\": \"<string>\",\n  \"turn_count\": \"<integer>\",\n  \"completion_reason\": \"<string>\",\n  \"source_call_sid\": \"<string>\",\n  \"source_conversation_id\": \"<uuid>\",\n  \"source_framework_run_id\": \"<uuid>\"\n}",
+                          "createdAt": "2026-07-28T01:01:48.000Z",
+                          "updatedAt": "2026-07-28T01:01:48.000Z",
+                          "uid": "35240-e342a1dd-d9c9-4233-b4a6-6490ff9b06a4"
+                        },
+                        {
+                          "id": "df20c6d7-cc2a-4433-adf6-ab7716aa2504",
+                          "name": "Validation Error",
+                          "originalRequest": {
+                            "method": "GET",
+                            "header": [
+                              {
+                                "key": "Accept",
+                                "value": "application/json"
+                              },
+                              {
+                                "description": "Added as a part of security scheme: bearer",
+                                "key": "Authorization",
+                                "value": "Bearer <token>"
+                              }
+                            ],
+                            "url": {
+                              "raw": "{{baseUrl}}/v1/:workspace_id/runs/:run_id",
+                              "host": [
+                                "{{baseUrl}}"
+                              ],
+                              "path": [
+                                "v1",
+                                ":workspace_id",
+                                "runs",
+                                ":run_id"
+                              ],
+                              "variable": [
+                                {
+                                  "key": "workspace_id"
+                                },
+                                {
+                                  "key": "run_id"
+                                }
+                              ]
+                            }
+                          },
+                          "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+                          "code": 422,
+                          "_postman_previewlanguage": "json",
+                          "header": [
+                            {
+                              "key": "Content-Type",
+                              "value": "application/json"
+                            }
+                          ],
+                          "cookie": [],
+                          "responseTime": null,
+                          "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"msg\": \"<string>\",\n      \"type\": \"<string>\",\n      \"input\": {\n        \"title\": \"Input\"\n      },\n      \"ctx\": {}\n    },\n    {\n      \"loc\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"msg\": \"<string>\",\n      \"type\": \"<string>\",\n      \"input\": {\n        \"title\": \"Input\"\n      },\n      \"ctx\": {}\n    }\n  ]\n}",
+                          "createdAt": "2026-07-28T01:01:48.000Z",
+                          "updatedAt": "2026-07-28T01:01:48.000Z",
+                          "uid": "35240-df20c6d7-cc2a-4433-adf6-ab7716aa2504"
+                        }
+                      ],
+                      "createdAt": "2026-07-28T01:01:48.000Z",
+                      "updatedAt": "2026-07-28T01:01:48.000Z",
+                      "uid": "35240-5757295d-146a-4001-b7b1-257f4efdcf6f"
+                    }
+                  ],
+                  "id": "08096aba-d819-4134-9228-e330592b0ad7",
+                  "createdAt": "2026-07-28T01:01:48.000Z",
+                  "updatedAt": "2026-07-28T01:01:48.000Z",
+                  "uid": "35240-08096aba-d819-4134-9228-e330592b0ad7"
+                },
+                {
+                  "name": "List runs (framework + conversation)",
+                  "id": "2cf9e6f1-6b89-489d-8cc5-006e991a820c",
+                  "protocolProfileBehavior": {
+                    "disableBodyPruning": true
+                  },
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{baseUrl}}/v1/:workspace_id/runs?limit=50&title=Continuation Token",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "v1",
+                        ":workspace_id",
+                        "runs"
+                      ],
+                      "query": [
+                        {
+                          "key": "limit",
+                          "value": "50"
+                        },
+                        {
+                          "key": "title",
+                          "value": "Continuation Token"
+                        }
+                      ],
+                      "variable": [
+                        {
+                          "id": "5242717d-71c6-4f2e-bb92-f5b1befd1df6",
+                          "key": "workspace_id",
+                          "value": "<uuid>",
+                          "description": "(Required) "
+                        }
+                      ]
+                    },
+                    "description": "Paginated, newest-first list of runs for the workspace behind the unified ``Run`` contract. Federates framework runs (Delta ``world.runs`` MV) and conversation runs (Lakebase ``world.conversations``) at read time. Filter by ``kind`` (conversation / framework), ``channel`` (voice/text/sms/email/web \u2014 conversation runs only), and ``status`` (``live`` expands to running + paused). ``continuation_token`` is an opaque page cursor."
+                  },
+                  "response": [
+                    {
+                      "id": "ea78cd37-51da-4c39-9ee0-b4ac791160b8",
+                      "name": "Successful Response",
+                      "originalRequest": {
+                        "method": "GET",
+                        "header": [
+                          {
+                            "key": "Accept",
+                            "value": "application/json"
+                          },
+                          {
+                            "description": "Added as a part of security scheme: bearer",
+                            "key": "Authorization",
+                            "value": "Bearer <token>"
+                          }
+                        ],
+                        "url": {
+                          "raw": "{{baseUrl}}/v1/:workspace_id/runs?limit=50&title=Continuation Token",
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "v1",
+                            ":workspace_id",
+                            "runs"
+                          ],
+                          "query": [
+                            {
+                              "key": "limit",
+                              "value": "50"
+                            },
+                            {
+                              "key": "title",
+                              "value": "Continuation Token"
+                            }
+                          ],
+                          "variable": [
+                            {
+                              "key": "workspace_id"
+                            }
+                          ]
+                        }
+                      },
+                      "status": "OK",
+                      "code": 200,
+                      "_postman_previewlanguage": "json",
+                      "header": [
+                        {
+                          "key": "Content-Type",
+                          "value": "application/json"
+                        }
+                      ],
+                      "cookie": [],
+                      "responseTime": null,
+                      "body": "{\n  \"items\": [\n    {\n      \"run_id\": \"<uuid>\",\n      \"workspace_id\": \"<uuid>\",\n      \"kind\": \"framework\",\n      \"status\": \"running\",\n      \"started_at\": \"<dateTime>\",\n      \"takeover\": {\n        \"eligible\": \"<boolean>\",\n        \"reason\": \"<string>\"\n      },\n      \"channel\": \"email\",\n      \"framework\": \"claude-agent-sdk\",\n      \"entity_id\": \"<uuid>\",\n      \"service_id\": \"<uuid>\",\n      \"ended_at\": \"<dateTime>\",\n      \"entity_name\": \"<string>\",\n      \"service_name\": \"<string>\",\n      \"caller_id\": \"<string>\",\n      \"phone_number\": \"<string>\",\n      \"direction\": \"<string>\",\n      \"turn_count\": \"<integer>\",\n      \"completion_reason\": \"<string>\",\n      \"source_call_sid\": \"<string>\",\n      \"source_conversation_id\": \"<uuid>\",\n      \"source_framework_run_id\": \"<uuid>\"\n    },\n    {\n      \"run_id\": \"<uuid>\",\n      \"workspace_id\": \"<uuid>\",\n      \"kind\": \"conversation\",\n      \"status\": \"failed\",\n      \"started_at\": \"<dateTime>\",\n      \"takeover\": {\n        \"eligible\": \"<boolean>\",\n        \"reason\": \"<string>\"\n      },\n      \"channel\": \"email\",\n      \"framework\": \"claude-agent-sdk\",\n      \"entity_id\": \"<uuid>\",\n      \"service_id\": \"<uuid>\",\n      \"ended_at\": \"<dateTime>\",\n      \"entity_name\": \"<string>\",\n      \"service_name\": \"<string>\",\n      \"caller_id\": \"<string>\",\n      \"phone_number\": \"<string>\",\n      \"direction\": \"<string>\",\n      \"turn_count\": \"<integer>\",\n      \"completion_reason\": \"<string>\",\n      \"source_call_sid\": \"<string>\",\n      \"source_conversation_id\": \"<uuid>\",\n      \"source_framework_run_id\": \"<uuid>\"\n    }\n  ],\n  \"has_more\": \"<boolean>\",\n  \"continuation_token\": {\n    \"title\": \"Continuation Token\"\n  }\n}",
+                      "createdAt": "2026-07-28T01:01:48.000Z",
+                      "updatedAt": "2026-07-28T01:01:48.000Z",
+                      "uid": "35240-ea78cd37-51da-4c39-9ee0-b4ac791160b8"
+                    },
+                    {
+                      "id": "7ffa9eb7-875d-42f7-8766-6b7356892ef7",
+                      "name": "Validation Error",
+                      "originalRequest": {
+                        "method": "GET",
+                        "header": [
+                          {
+                            "key": "Accept",
+                            "value": "application/json"
+                          },
+                          {
+                            "description": "Added as a part of security scheme: bearer",
+                            "key": "Authorization",
+                            "value": "Bearer <token>"
+                          }
+                        ],
+                        "url": {
+                          "raw": "{{baseUrl}}/v1/:workspace_id/runs?limit=50&title=Continuation Token",
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "v1",
+                            ":workspace_id",
+                            "runs"
+                          ],
+                          "query": [
+                            {
+                              "key": "limit",
+                              "value": "50"
+                            },
+                            {
+                              "key": "title",
+                              "value": "Continuation Token"
+                            }
+                          ],
+                          "variable": [
+                            {
+                              "key": "workspace_id"
+                            }
+                          ]
+                        }
+                      },
+                      "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+                      "code": 422,
+                      "_postman_previewlanguage": "json",
+                      "header": [
+                        {
+                          "key": "Content-Type",
+                          "value": "application/json"
+                        }
+                      ],
+                      "cookie": [],
+                      "responseTime": null,
+                      "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"msg\": \"<string>\",\n      \"type\": \"<string>\",\n      \"input\": {\n        \"title\": \"Input\"\n      },\n      \"ctx\": {}\n    },\n    {\n      \"loc\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"msg\": \"<string>\",\n      \"type\": \"<string>\",\n      \"input\": {\n        \"title\": \"Input\"\n      },\n      \"ctx\": {}\n    }\n  ]\n}",
+                      "createdAt": "2026-07-28T01:01:48.000Z",
+                      "updatedAt": "2026-07-28T01:01:48.000Z",
+                      "uid": "35240-7ffa9eb7-875d-42f7-8766-6b7356892ef7"
+                    }
+                  ],
+                  "createdAt": "2026-07-28T01:01:48.000Z",
+                  "updatedAt": "2026-07-28T01:01:48.000Z",
+                  "uid": "35240-2cf9e6f1-6b89-489d-8cc5-006e991a820c"
+                }
+              ],
+              "id": "6917d3b3-2ed5-4092-9398-05a22782c570",
+              "createdAt": "2026-07-28T01:01:48.000Z",
+              "updatedAt": "2026-07-28T01:01:48.000Z",
+              "uid": "35240-6917d3b3-2ed5-4092-9398-05a22782c570"
+            }
+          ],
+          "id": "5d52b4a2-2ea6-4bc1-be42-02629ee52b15",
+          "createdAt": "2026-07-28T01:01:48.000Z",
+          "updatedAt": "2026-07-28T01:01:48.000Z",
+          "uid": "35240-5d52b4a2-2ea6-4bc1-be42-02629ee52b15"
+        }
+      ],
+      "id": "013f548e-efe1-4268-8b6a-cc30806d2ae2",
+      "createdAt": "2026-07-28T01:01:48.000Z",
+      "updatedAt": "2026-07-28T01:01:48.000Z",
+      "uid": "35240-013f548e-efe1-4268-8b6a-cc30806d2ae2"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{bearerToken}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://api.amigo.ai"
+    }
+  ]
+}

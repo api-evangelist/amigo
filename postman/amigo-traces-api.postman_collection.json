@@ -1,0 +1,237 @@
+{
+  "info": {
+    "_postman_id": "1fc33053-be86-4864-bc09-e1fd2d2847e2",
+    "name": "Amigo Account Traces API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "createdAt": "2026-07-28T01:02:56.000Z",
+    "updatedAt": "2026-07-28T01:02:57.000Z",
+    "lastUpdatedBy": "35240",
+    "uid": "35240-1fc33053-be86-4864-bc09-e1fd2d2847e2"
+  },
+  "item": [
+    {
+      "name": "v1",
+      "item": [
+        {
+          "name": "{workspace_id}",
+          "item": [
+            {
+              "name": "traces:export",
+              "item": [
+                {
+                  "name": "Export gen_ai.* + voice.* traces as OTLP/JSON",
+                  "id": "b21913aa-8e73-4341-a9df-4856afb41860",
+                  "protocolProfileBehavior": {
+                    "disableBodyPruning": true
+                  },
+                  "request": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"start_time\": \"<dateTime>\",\n  \"end_time\": \"<dateTime>\",\n  \"limit\": 500,\n  \"continuation_token\": {\n    \"title\": \"Continuation Token\",\n    \"description\": \"Opaque page cursor \u2014 round-trip the value from the previous response.\"\n  }\n}",
+                      "options": {
+                        "raw": {
+                          "headerFamily": "json",
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/v1/:workspace_id/traces:export",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "v1",
+                        ":workspace_id",
+                        "traces:export"
+                      ],
+                      "variable": [
+                        {
+                          "id": "97aadfa2-12b6-461d-a6fb-73a05e983a04",
+                          "key": "workspace_id",
+                          "value": "<uuid>",
+                          "description": "(Required) "
+                        }
+                      ]
+                    },
+                    "description": "Export the workspace's durable trace spans over a time window as OpenTelemetry Protocol (OTLP/HTTP JSON) spans: ``gen_ai.*`` tool-call spans and the per-call voice-isolation ``voice.*`` infra spans (allocate / media-attach / reap). Read-only; admin/owner role required; dark behind ``OTEL_TRACE_EXPORT_ENABLED`` (404 when off). Paginated PULL API \u2014 extract ``.resourceSpans`` before forwarding to an OTLP collector. Attributes are an allowlist of tool-call + infra metadata; the raw tool-result ``error`` text is NOT exported (PHI-safe by construction)."
+                  },
+                  "response": [
+                    {
+                      "id": "0a6e6797-7223-4d4f-9f84-9fb17b9aea1d",
+                      "name": "Successful Response",
+                      "originalRequest": {
+                        "method": "POST",
+                        "header": [
+                          {
+                            "key": "Content-Type",
+                            "value": "application/json"
+                          },
+                          {
+                            "key": "Accept",
+                            "value": "application/json"
+                          },
+                          {
+                            "description": "Added as a part of security scheme: bearer",
+                            "key": "Authorization",
+                            "value": "Bearer <token>"
+                          }
+                        ],
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\n  \"start_time\": \"<dateTime>\",\n  \"end_time\": \"<dateTime>\",\n  \"limit\": 500,\n  \"continuation_token\": {\n    \"title\": \"Continuation Token\",\n    \"description\": \"Opaque page cursor \u2014 round-trip the value from the previous response.\"\n  }\n}",
+                          "options": {
+                            "raw": {
+                              "headerFamily": "json",
+                              "language": "json"
+                            }
+                          }
+                        },
+                        "url": {
+                          "raw": "{{baseUrl}}/v1/:workspace_id/traces:export",
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "v1",
+                            ":workspace_id",
+                            "traces:export"
+                          ],
+                          "variable": [
+                            {
+                              "key": "workspace_id"
+                            }
+                          ]
+                        }
+                      },
+                      "status": "OK",
+                      "code": 200,
+                      "_postman_previewlanguage": "json",
+                      "header": [
+                        {
+                          "key": "Content-Type",
+                          "value": "application/json"
+                        }
+                      ],
+                      "cookie": [],
+                      "responseTime": null,
+                      "body": "{\n  \"resourceSpans\": [\n    {\n      \"resource\": {\n        \"attributes\": [\n          {\n            \"key\": \"<string>\",\n            \"value\": {\n              \"sint_9\": \"ipsum pariatu\"\n            }\n          },\n          {\n            \"key\": \"<string>\",\n            \"value\": {\n              \"nisi8a\": -89112757\n            }\n          }\n        ]\n      },\n      \"scopeSpans\": [\n        {\n          \"scope\": {\n            \"name\": \"<string>\",\n            \"version\": \"<string>\"\n          },\n          \"spans\": [\n            {\n              \"traceId\": \"<string>\",\n              \"spanId\": \"<string>\",\n              \"name\": \"<string>\",\n              \"kind\": \"<integer>\",\n              \"startTimeUnixNano\": \"<string>\",\n              \"endTimeUnixNano\": \"<string>\",\n              \"attributes\": [\n                {\n                  \"key\": \"<string>\",\n                  \"value\": {\n                    \"exd60\": -35719888.24758274,\n                    \"consectetur09\": -77015892.58007093,\n                    \"tempor2a_\": \"exercitation\"\n                  }\n                },\n                {\n                  \"key\": \"<string>\",\n                  \"value\": {\n                    \"aliqua9a\": true\n                  }\n                }\n              ],\n              \"status\": {\n                \"code\": \"<integer>\"\n              }\n            },\n            {\n              \"traceId\": \"<string>\",\n              \"spanId\": \"<string>\",\n              \"name\": \"<string>\",\n              \"kind\": \"<integer>\",\n              \"startTimeUnixNano\": \"<string>\",\n              \"endTimeUnixNano\": \"<string>\",\n              \"attributes\": [\n                {\n                  \"key\": \"<string>\",\n                  \"value\": {\n                    \"fugiat55\": false,\n                    \"aliquip_21\": \"est proident magna in\"\n                  }\n                },\n                {\n                  \"key\": \"<string>\",\n                  \"value\": {\n                    \"proident48f\": -34615638\n                  }\n                }\n              ],\n              \"status\": {\n                \"code\": \"<integer>\"\n              }\n            }\n          ]\n        },\n        {\n          \"scope\": {\n            \"name\": \"<string>\",\n            \"version\": \"<string>\"\n          },\n          \"spans\": [\n            {\n              \"traceId\": \"<string>\",\n              \"spanId\": \"<string>\",\n              \"name\": \"<string>\",\n              \"kind\": \"<integer>\",\n              \"startTimeUnixNano\": \"<string>\",\n              \"endTimeUnixNano\": \"<string>\",\n              \"attributes\": [\n                {\n                  \"key\": \"<string>\",\n                  \"value\": {\n                    \"officia6ea\": false\n                  }\n                },\n                {\n                  \"key\": \"<string>\",\n                  \"value\": {\n                    \"Lorem_8c\": \"proident aliqua incididunt\",\n                    \"aliqua_b\": true\n                  }\n                }\n              ],\n              \"status\": {\n                \"code\": \"<integer>\"\n              }\n            },\n            {\n              \"traceId\": \"<string>\",\n              \"spanId\": \"<string>\",\n              \"name\": \"<string>\",\n              \"kind\": \"<integer>\",\n              \"startTimeUnixNano\": \"<string>\",\n              \"endTimeUnixNano\": \"<string>\",\n              \"attributes\": [\n                {\n                  \"key\": \"<string>\",\n                  \"value\": {\n                    \"cupidatat_e9\": true\n                  }\n                },\n                {\n                  \"key\": \"<string>\",\n                  \"value\": {\n                    \"officia_ea\": -9636990.898240596,\n                    \"aliquaf4\": \"consequat aliquip\",\n                    \"ea520\": \"exercitatio\"\n                  }\n                }\n              ],\n              \"status\": {\n                \"code\": \"<integer>\"\n              }\n            }\n          ]\n        }\n      ]\n    },\n    {\n      \"resource\": {\n        \"attributes\": [\n          {\n            \"key\": \"<string>\",\n            \"value\": {\n              \"ex_2f\": true,\n              \"qui_cf\": 3669850.4724737406,\n              \"dolor3\": 42659331\n            }\n          },\n          {\n            \"key\": \"<string>\",\n            \"value\": {\n              \"aute_b9\": \"occaecat tempor proident\"\n            }\n          }\n        ]\n      },\n      \"scopeSpans\": [\n        {\n          \"scope\": {\n            \"name\": \"<string>\",\n            \"version\": \"<string>\"\n          },\n          \"spans\": [\n            {\n              \"traceId\": \"<string>\",\n              \"spanId\": \"<string>\",\n              \"name\": \"<string>\",\n              \"kind\": \"<integer>\",\n              \"startTimeUnixNano\": \"<string>\",\n              \"endTimeUnixNano\": \"<string>\",\n              \"attributes\": [\n                {\n                  \"key\": \"<string>\",\n                  \"value\": {\n                    \"ametc\": false,\n                    \"fugiat__7\": -44322463.506028645\n                  }\n                },\n                {\n                  \"key\": \"<string>\",\n                  \"value\": {\n                    \"consectetur_d23\": true\n                  }\n                }\n              ],\n              \"status\": {\n                \"code\": \"<integer>\"\n              }\n            },\n            {\n              \"traceId\": \"<string>\",\n              \"spanId\": \"<string>\",\n              \"name\": \"<string>\",\n              \"kind\": \"<integer>\",\n              \"startTimeUnixNano\": \"<string>\",\n              \"endTimeUnixNano\": \"<string>\",\n              \"attributes\": [\n                {\n                  \"key\": \"<string>\",\n                  \"value\": {\n                    \"commodobe\": 66361512.58792728\n                  }\n                },\n                {\n                  \"key\": \"<string>\",\n                  \"value\": {\n                    \"consequat0f\": \"cillum non dese\",\n                    \"dolore9e\": false\n                  }\n                }\n              ],\n              \"status\": {\n                \"code\": \"<integer>\"\n              }\n            }\n          ]\n        },\n        {\n          \"scope\": {\n            \"name\": \"<string>\",\n            \"version\": \"<string>\"\n          },\n          \"spans\": [\n            {\n              \"traceId\": \"<string>\",\n              \"spanId\": \"<string>\",\n              \"name\": \"<string>\",\n              \"kind\": \"<integer>\",\n              \"startTimeUnixNano\": \"<string>\",\n              \"endTimeUnixNano\": \"<string>\",\n              \"attributes\": [\n                {\n                  \"key\": \"<string>\",\n                  \"value\": {\n                    \"ut_2\": -97746507.49515437\n                  }\n                },\n                {\n                  \"key\": \"<string>\",\n                  \"value\": {\n                    \"qui_1b\": 16223277,\n                    \"eiusmod_f\": 14890790.09924516,\n                    \"occaecat_caf\": -15428129.961063996\n                  }\n                }\n              ],\n              \"status\": {\n                \"code\": \"<integer>\"\n              }\n            },\n            {\n              \"traceId\": \"<string>\",\n              \"spanId\": \"<string>\",\n              \"name\": \"<string>\",\n              \"kind\": \"<integer>\",\n              \"startTimeUnixNano\": \"<string>\",\n              \"endTimeUnixNano\": \"<string>\",\n              \"attributes\": [\n                {\n                  \"key\": \"<string>\",\n                  \"value\": {\n                    \"sed_0c7\": true,\n                    \"amet1\": false\n                  }\n                },\n                {\n                  \"key\": \"<string>\",\n                  \"value\": {\n                    \"aliquip_9\": 90020365.45557958,\n                    \"tempor9_d\": 36456966\n                  }\n                }\n              ],\n              \"status\": {\n                \"code\": \"<integer>\"\n              }\n            }\n          ]\n        }\n      ]\n    }\n  ],\n  \"has_more\": \"<boolean>\",\n  \"continuation_token\": {\n    \"title\": \"Continuation Token\"\n  }\n}",
+                      "createdAt": "2026-07-28T01:02:57.000Z",
+                      "updatedAt": "2026-07-28T01:02:57.000Z",
+                      "uid": "35240-0a6e6797-7223-4d4f-9f84-9fb17b9aea1d"
+                    },
+                    {
+                      "id": "a8683e93-fdbd-478a-85ce-bd9e9218a3eb",
+                      "name": "Validation Error",
+                      "originalRequest": {
+                        "method": "POST",
+                        "header": [
+                          {
+                            "key": "Content-Type",
+                            "value": "application/json"
+                          },
+                          {
+                            "key": "Accept",
+                            "value": "application/json"
+                          },
+                          {
+                            "description": "Added as a part of security scheme: bearer",
+                            "key": "Authorization",
+                            "value": "Bearer <token>"
+                          }
+                        ],
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\n  \"start_time\": \"<dateTime>\",\n  \"end_time\": \"<dateTime>\",\n  \"limit\": 500,\n  \"continuation_token\": {\n    \"title\": \"Continuation Token\",\n    \"description\": \"Opaque page cursor \u2014 round-trip the value from the previous response.\"\n  }\n}",
+                          "options": {
+                            "raw": {
+                              "headerFamily": "json",
+                              "language": "json"
+                            }
+                          }
+                        },
+                        "url": {
+                          "raw": "{{baseUrl}}/v1/:workspace_id/traces:export",
+                          "host": [
+                            "{{baseUrl}}"
+                          ],
+                          "path": [
+                            "v1",
+                            ":workspace_id",
+                            "traces:export"
+                          ],
+                          "variable": [
+                            {
+                              "key": "workspace_id"
+                            }
+                          ]
+                        }
+                      },
+                      "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+                      "code": 422,
+                      "_postman_previewlanguage": "json",
+                      "header": [
+                        {
+                          "key": "Content-Type",
+                          "value": "application/json"
+                        }
+                      ],
+                      "cookie": [],
+                      "responseTime": null,
+                      "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"msg\": \"<string>\",\n      \"type\": \"<string>\",\n      \"input\": {\n        \"title\": \"Input\"\n      },\n      \"ctx\": {}\n    },\n    {\n      \"loc\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"msg\": \"<string>\",\n      \"type\": \"<string>\",\n      \"input\": {\n        \"title\": \"Input\"\n      },\n      \"ctx\": {}\n    }\n  ]\n}",
+                      "createdAt": "2026-07-28T01:02:57.000Z",
+                      "updatedAt": "2026-07-28T01:02:57.000Z",
+                      "uid": "35240-a8683e93-fdbd-478a-85ce-bd9e9218a3eb"
+                    }
+                  ],
+                  "createdAt": "2026-07-28T01:02:57.000Z",
+                  "updatedAt": "2026-07-28T01:02:57.000Z",
+                  "uid": "35240-b21913aa-8e73-4341-a9df-4856afb41860"
+                }
+              ],
+              "id": "12fbded8-ad85-4944-9d8a-7a5cf9421368",
+              "createdAt": "2026-07-28T01:02:57.000Z",
+              "updatedAt": "2026-07-28T01:02:57.000Z",
+              "uid": "35240-12fbded8-ad85-4944-9d8a-7a5cf9421368"
+            }
+          ],
+          "id": "b8535973-904c-48f9-bab6-53faa662486c",
+          "createdAt": "2026-07-28T01:02:57.000Z",
+          "updatedAt": "2026-07-28T01:02:57.000Z",
+          "uid": "35240-b8535973-904c-48f9-bab6-53faa662486c"
+        }
+      ],
+      "id": "c0b325f2-1290-4fbf-8857-155377e6d137",
+      "createdAt": "2026-07-28T01:02:57.000Z",
+      "updatedAt": "2026-07-28T01:02:57.000Z",
+      "uid": "35240-c0b325f2-1290-4fbf-8857-155377e6d137"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{bearerToken}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://api.amigo.ai"
+    }
+  ]
+}
