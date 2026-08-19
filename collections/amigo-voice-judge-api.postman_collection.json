@@ -1,0 +1,321 @@
+{
+  "item": [
+    {
+      "id": "4ca1e521-9f11-44db-869f-ab646b6f8243",
+      "name": "Voice Judge",
+      "description": {
+        "content": "",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "b1969f57-5027-443f-8fce-40e5116de892",
+          "name": "Recent voice-judge results for a service",
+          "request": {
+            "name": "Recent voice-judge results for a service",
+            "description": {
+              "content": "Returns the most recent per-call voice-judge scores for one service, ordered newest first. Produced by the Databricks `voice_judge` job (stereo audio → Gemini 2.5 Flash → 10-dimension rubric). Used by the Agent Readiness page to populate Voice Quality criterion cards.\n\n**Latency**: 500ms-2s (reads from analytics warehouse, not OLTP).\n\n**Default limit**: 20. Max 100.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "v1",
+                ":workspace_id",
+                "services",
+                ":service_id",
+                "voice-judge",
+                "recent"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "limit",
+                  "value": "20",
+                  "description": "Max rows to return (default 20, max 100)"
+                },
+                {
+                  "disabled": false,
+                  "key": "offset",
+                  "value": "0",
+                  "description": "Offset for pagination (default 0)"
+                }
+              ],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<uuid>",
+                  "key": "workspace_id",
+                  "description": "(Required) "
+                },
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<uuid>",
+                  "key": "service_id",
+                  "description": "(Required) Service UUID"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "f468e9e0-5094-4b0a-977b-95554b300426",
+              "name": "Voice judge rows (newest first)",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    ":workspace_id",
+                    "services",
+                    ":service_id",
+                    "voice-judge",
+                    "recent"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "limit",
+                      "value": "20"
+                    },
+                    {
+                      "key": "offset",
+                      "value": "0"
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "workspace_id",
+                      "description": "(Required) "
+                    },
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "service_id",
+                      "description": "(Required) Service UUID"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"service_id\": \"cea97993-7861-1ea7-e46b-dd682481a1b1\",\n  \"count\": 182,\n  \"items\": [\n    {\n      \"call_sid\": \"string\",\n      \"call_entity_id\": \"6720714c-0c30-360b-8ccc-0cb97265ed23\",\n      \"service_id\": \"755ec231-50fd-32a7-7a3a-ebef01dc17ab\",\n      \"latency_dead_air_score\": 4961.372829659606,\n      \"pronunciation_score\": 4973.160440188519,\n      \"clarity_score\": 6652.172836578797,\n      \"filler_silence_score\": 3083.75872597065,\n      \"interruption_handling_score\": 7778.003738213636,\n      \"audio_consistency_score\": 8258.018541159237,\n      \"pacing_score\": 4042.2251596945725,\n      \"warmth_tone_score\": 9325.471423611609,\n      \"accent_quality_score\": 1583.5579041200688,\n      \"voice_identity_score\": 9316.853165803404,\n      \"overall_score\": 5717.8359781426625,\n      \"critical_count\": 4867,\n      \"flag_count\": 3736,\n      \"warning_count\": 7637,\n      \"judge_json\": \"string\",\n      \"computed_at\": \"1997-05-15T06:29:07.879Z\"\n    },\n    {\n      \"call_sid\": \"string\",\n      \"call_entity_id\": \"ddcc5242-6803-dc62-6308-362d0e367432\",\n      \"service_id\": \"57ea5dd8-21ae-adef-b178-b9a7cbca228b\",\n      \"latency_dead_air_score\": 3623.650791965284,\n      \"pronunciation_score\": 3274.592482362446,\n      \"clarity_score\": 9310.472448036082,\n      \"filler_silence_score\": 7502.510534134095,\n      \"interruption_handling_score\": 5678.213010024723,\n      \"audio_consistency_score\": 6227.050189444681,\n      \"pacing_score\": 326.49804851430764,\n      \"warmth_tone_score\": 3844.6017137817466,\n      \"accent_quality_score\": 712.4385545842349,\n      \"voice_identity_score\": 6199.705924119744,\n      \"overall_score\": 1996.612261447538,\n      \"critical_count\": 2095,\n      \"flag_count\": 5838,\n      \"warning_count\": 7981,\n      \"judge_json\": \"string\",\n      \"computed_at\": \"1962-06-04T09:22:48.428Z\"\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "16d42544-1f2c-4411-9b9e-41b349a0802d",
+              "name": "Validation Error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    ":workspace_id",
+                    "services",
+                    ":service_id",
+                    "voice-judge",
+                    "recent"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "limit",
+                      "value": "20"
+                    },
+                    {
+                      "key": "offset",
+                      "value": "0"
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "workspace_id",
+                      "description": "(Required) "
+                    },
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "service_id",
+                      "description": "(Required) Service UUID"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+              "code": 422,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    },\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "420495b1-81ac-4fed-aadf-8e835298ae85",
+              "name": "Analytics warehouse not configured or transiently unavailable",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    ":workspace_id",
+                    "services",
+                    ":service_id",
+                    "voice-judge",
+                    "recent"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "limit",
+                      "value": "20"
+                    },
+                    {
+                      "key": "offset",
+                      "value": "0"
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "workspace_id",
+                      "description": "(Required) "
+                    },
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "service_id",
+                      "description": "(Required) Service UUID"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Service Unavailable",
+              "code": 503,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    }
+  ],
+  "event": [],
+  "variable": [
+    {
+      "type": "string",
+      "value": "https://api.amigo.ai",
+      "key": "baseUrl"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{bearerToken}}"
+      }
+    ]
+  },
+  "info": {
+    "_postman_id": "c6521d26-f9b0-4128-bf1e-efbeb6b276ad",
+    "name": "Amigo Account Voice Judge API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": {
+      "content": "",
+      "type": "text/plain"
+    }
+  }
+}

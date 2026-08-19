@@ -1,0 +1,187 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Amigo Account Entity Intelligence API",
+    "version": "0.1.0"
+  },
+  "request": {
+    "auth": {
+      "type": "bearer",
+      "token": "{{bearerToken}}"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Entity Intelligence",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Get Entity Graph",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:workspace_id/world/entities/:entity_id/graph",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "entity_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Entity relationship graph — one level of edges with neighbor metadata. same_as edges are historical merge edges (written by the pre-SDP resolver; merge detection now lives in the Databricks pipeline — new edges are not produced)."
+        },
+        {
+          "info": {
+            "name": "Get Entity Provenance",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:workspace_id/world/entities/:entity_id/provenance",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "entity_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Data lineage for an entity — sources, confidence history, merge history (historical same_as edges from the pre-SDP resolver — new edges are not produced)."
+        },
+        {
+          "info": {
+            "name": "Get Entity Lineage",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:workspace_id/world/entities/:entity_id/lineage",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "entity_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Full data lineage — provenance + outbound sinks + review history."
+        },
+        {
+          "info": {
+            "name": "Get Entity Duplicates",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:workspace_id/world/entities/duplicates",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "entity_type",
+                "value": "",
+                "type": "query",
+                "description": "Filter by entity type"
+              },
+              {
+                "name": "confidence_max",
+                "value": "",
+                "type": "query",
+                "description": "Max confidence threshold"
+              },
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query",
+                "description": "Max edges to return"
+              },
+              {
+                "name": "offset",
+                "value": "",
+                "type": "query",
+                "description": "Page offset"
+              }
+            ]
+          },
+          "docs": "Suspected duplicate entities — historical same_as merge edges sorted by confidence (written by the pre-SDP resolver; merge detection now lives in the Databricks pipeline — new edges are not produced)."
+        },
+        {
+          "info": {
+            "name": "Search Entities",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:workspace_id/world/search",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "q",
+                "value": "",
+                "type": "query",
+                "description": "Search text (matched against display_name)"
+              },
+              {
+                "name": "entity_type",
+                "value": "",
+                "type": "query",
+                "description": "Filter by entity type"
+              },
+              {
+                "name": "source",
+                "value": "",
+                "type": "query",
+                "description": "Filter by event source"
+              },
+              {
+                "name": "confidence_min",
+                "value": "",
+                "type": "query",
+                "description": "Min confidence"
+              },
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "offset",
+                "value": "",
+                "type": "query"
+              }
+            ]
+          },
+          "docs": "Enhanced entity search with type, source, and confidence filters."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

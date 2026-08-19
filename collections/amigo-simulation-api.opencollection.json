@@ -1,0 +1,1374 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Amigo Account Simulation API",
+    "version": "0.1.0"
+  },
+  "request": {
+    "auth": {
+      "type": "bearer",
+      "token": "{{bearerToken}}"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Simulation",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Get simulation personas",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:organization/simulation/persona/",
+            "headers": [
+              {
+                "name": "x-mongo-cluster-name",
+                "value": ""
+              },
+              {
+                "name": "Sec-WebSocket-Protocol",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "organization",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "id",
+                "value": "",
+                "type": "query",
+                "description": "The IDs of the simulation personas to retrieve."
+              },
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query",
+                "description": "The maximum number of simulation personas to return."
+              },
+              {
+                "name": "continuation_token",
+                "value": "",
+                "type": "query",
+                "description": "The continuation token from the previous request used to retrieve the next page of simulation personas."
+              },
+              {
+                "name": "is_deleted",
+                "value": "",
+                "type": "query",
+                "description": "Whether the simulation persona is deleted."
+              },
+              {
+                "name": "role",
+                "value": "",
+                "type": "query",
+                "description": "The roles of the simulation personas."
+              },
+              {
+                "name": "creator",
+                "value": "",
+                "type": "query",
+                "description": "The creators of the simulation personas to retrieve. Each value must be of the format `org_id,user_id`."
+              },
+              {
+                "name": "tag",
+                "value": "",
+                "type": "query",
+                "description": "The tags of the simulation personas to retrieve. Each value must be of the format `key:value`. If `value` is `*`, it means the `value` does not matter. If `value` is empty, it matches against when the value is `None`."
+              },
+              {
+                "name": "sort_by",
+                "value": "",
+                "type": "query",
+                "description": "The fields to sort the sets by. Supported fields are `updated_at`. Specify a `+` before the field name to indicate ascending sorting and `-` for descending sorting. Multiple fields can be specified to break ties."
+              }
+            ]
+          },
+          "docs": "Retrieve simulation personas that match the given filters.\n\n#### Permissions\nThis endpoint may be impacted by the following permissions:\n* Only simulation personas that the authenticated user has `Simulation:GetSimulationPersona` permission for will be retrieved."
+        },
+        {
+          "info": {
+            "name": "Create a simulation persona",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.amigo.ai/v1/:organization/simulation/persona/",
+            "headers": [
+              {
+                "name": "x-mongo-cluster-name",
+                "value": ""
+              },
+              {
+                "name": "Sec-WebSocket-Protocol",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "organization",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Create a simulation persona.\n\n#### Permissions\n* `Simulation:CreateSimulationPersona` for the persona to create.\n* `Simulation:ModifySimulationPersona` for the persona to create."
+        },
+        {
+          "info": {
+            "name": "Get simulation persona versions",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:organization/simulation/persona/:simulation_persona_id/version/",
+            "headers": [
+              {
+                "name": "x-mongo-cluster-name",
+                "value": ""
+              },
+              {
+                "name": "Sec-WebSocket-Protocol",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "organization",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "simulation_persona_id",
+                "value": "",
+                "type": "path",
+                "description": "The ID of the simulation persona to get versions for."
+              },
+              {
+                "name": "version",
+                "value": "",
+                "type": "query",
+                "description": "The versions of the simulation persona to retrieve. One can specify an exact version to retrieve, which is either the version number or `latest`, which retrieves the latest version. Alternatively, one can specify a range of inclusive lower and upper bound for the version number separated by `-`, and every version within the range would be retrieved."
+              },
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query",
+                "description": "The maximum number of simulation persona versions to return."
+              },
+              {
+                "name": "continuation_token",
+                "value": "",
+                "type": "query",
+                "description": "The continuation token from the previous request used to retrieve the next page of simulation persona versions."
+              },
+              {
+                "name": "sort_by",
+                "value": "",
+                "type": "query",
+                "description": "The fields to sort the versions by. Supported fields are `version`. Specify a `+` before the field name to indicate ascending sorting and `-` for descending sorting. Multiple fields can be specified to break ties."
+              }
+            ]
+          },
+          "docs": "Retrieve versions of a simulation persona.\n\n#### Permissions\nThis endpoint requires the following permissions:\n* `Simulation:GetSimulationPersona` for the simulation persona."
+        },
+        {
+          "info": {
+            "name": "Create a new simulation persona version",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.amigo.ai/v1/:organization/simulation/persona/:simulation_persona_id/version/",
+            "headers": [
+              {
+                "name": "x-mongo-cluster-name",
+                "value": ""
+              },
+              {
+                "name": "Sec-WebSocket-Protocol",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "simulation_persona_id",
+                "value": "",
+                "type": "path",
+                "description": "The ID of the simulation persona to create a version for."
+              },
+              {
+                "name": "organization",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "version",
+                "value": "",
+                "type": "query",
+                "description": "The version number of the new version. If specified, this endpoint throws an error if the next version in the database doesn't equal to the value of this parameter."
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Create a new version of the simulation persona.\n\n#### Permissions\nThis endpoint requires the following permissions:\n* `Simulation:ModifySimulationPersona` for the simulation persona."
+        },
+        {
+          "info": {
+            "name": "Update a simulation persona",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.amigo.ai/v1/:organization/simulation/persona/:simulation_persona_id/",
+            "headers": [
+              {
+                "name": "x-mongo-cluster-name",
+                "value": ""
+              },
+              {
+                "name": "Sec-WebSocket-Protocol",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "organization",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "simulation_persona_id",
+                "value": "",
+                "type": "path",
+                "description": "The ID of the simulation persona to update"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Update a simulation persona.\n\n#### Permissions\nThis endpoint requires the following permissions:\n* `Simulation:ModifySimulationPersona` for the persona to update."
+        },
+        {
+          "info": {
+            "name": "Delete a simulation persona",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "https://api.amigo.ai/v1/:organization/simulation/persona/:simulation_persona_id/",
+            "headers": [
+              {
+                "name": "x-mongo-cluster-name",
+                "value": ""
+              },
+              {
+                "name": "Sec-WebSocket-Protocol",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "organization",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "simulation_persona_id",
+                "value": "",
+                "type": "path",
+                "description": "The ID of the simulation persona to delete."
+              }
+            ]
+          },
+          "docs": "Delete a simulation persona. This endpoint only soft-deletes the simulation persona so any existing references to it would still be valid.\nHowever, they cannot be used in any new simulations.\n\nThis endpoint will error if the simulation persona is used in any simulation unit tests.\n\n#### Permissions\nThis endpoint requires the following permissions:\n* `Simulation:DeleteSimulationPersona` on the simulation persona to delete."
+        },
+        {
+          "info": {
+            "name": "Get simulation scenario versions",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:organization/simulation/scenario/:simulation_scenario_id/version/",
+            "headers": [
+              {
+                "name": "x-mongo-cluster-name",
+                "value": ""
+              },
+              {
+                "name": "Sec-WebSocket-Protocol",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "organization",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "simulation_scenario_id",
+                "value": "",
+                "type": "path",
+                "description": "The ID of the simulation scenario to get versions for."
+              },
+              {
+                "name": "version",
+                "value": "",
+                "type": "query",
+                "description": "The versions of the simulation scenario to retrieve. One can specify an exact version to retrieve, which is either the version number or `latest`, which retrieves the latest version. Alternatively, one can specify a range of inclusive lower and upper bound for the version number separated by `-`, and every version within the range would be retrieved."
+              },
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query",
+                "description": "The maximum number of simulation scenario versions to return."
+              },
+              {
+                "name": "continuation_token",
+                "value": "",
+                "type": "query",
+                "description": "The continuation token from the previous request used to retrieve the next page of simulation scenario version."
+              },
+              {
+                "name": "sort_by",
+                "value": "",
+                "type": "query",
+                "description": "The fields to sort the versions by. Supported fields are `version`. Specify a `+` before the field name to indicate ascending sorting and `-` for descending sorting. Multiple fields can be specified to break ties."
+              }
+            ]
+          },
+          "docs": "Retrieve the versions of a simulation scenario.\n\n#### Permissions\nThis endpoint requires the following permissions:\n- `Simulation:GetSimulationScenario` for the simulation scenario."
+        },
+        {
+          "info": {
+            "name": "Create a new simulation scenario version",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.amigo.ai/v1/:organization/simulation/scenario/:simulation_scenario_id/version/",
+            "headers": [
+              {
+                "name": "x-mongo-cluster-name",
+                "value": ""
+              },
+              {
+                "name": "Sec-WebSocket-Protocol",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "organization",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "simulation_scenario_id",
+                "value": "",
+                "type": "path",
+                "description": "The ID of the simulation scenario to create a version for."
+              },
+              {
+                "name": "version",
+                "value": "",
+                "type": "query",
+                "description": "The version number of the new version. If specified, this endpoint throws an error if the next version in the database doesn't equal to the value of this parameter."
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Create a new version of the simulation scenario.\n\n#### Permissions\nThis endpoint requires the following permissions:\n* `Simulation:ModifySimulationScenario` for the simulation scenario."
+        },
+        {
+          "info": {
+            "name": "Get simulation scenarios",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:organization/simulation/scenario/",
+            "headers": [
+              {
+                "name": "x-mongo-cluster-name",
+                "value": ""
+              },
+              {
+                "name": "Sec-WebSocket-Protocol",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "organization",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "id",
+                "value": "",
+                "type": "query",
+                "description": "The IDs of the simulation scenarios to retrieve."
+              },
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query",
+                "description": "The maximum number of simulation scenarios to return."
+              },
+              {
+                "name": "continuation_token",
+                "value": "",
+                "type": "query",
+                "description": "The continuation token from the previous request used to retrieve the next page of simulation scenarios."
+              },
+              {
+                "name": "is_deleted",
+                "value": "",
+                "type": "query",
+                "description": "Whether the simulation scenario is deleted."
+              },
+              {
+                "name": "creator",
+                "value": "",
+                "type": "query",
+                "description": "The creators of the simulation scenarios. Each value must be of the format `org_id,user_id`."
+              },
+              {
+                "name": "tag",
+                "value": "",
+                "type": "query",
+                "description": "The tags of the simulation scenarios. Must be specified using the syntax `key:value`, which means to match all sets with the given `key` and `value` pair among its tags. If `value` is `*`, it means to match any value. If `value` is empty, it matches against when the value is `None`."
+              },
+              {
+                "name": "sort_by",
+                "value": "",
+                "type": "query",
+                "description": "The fields to sort the sets by. Supported fields are `updated_at`. Specify a `+` before the field name to indicate ascending sorting and `-` for descending sorting. Multiple fields can be specified to break ties."
+              }
+            ]
+          },
+          "docs": "Retrieve simulation scenarios that match the given filters.\n\n#### Permissions\nThis endpoint may be impacted by the following permissions:\n* Only simulation scenarios that the authenticated user has `Simulation:GetSimulationScenario` permission for will be retrieved."
+        },
+        {
+          "info": {
+            "name": "Create a simulation scenario",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.amigo.ai/v1/:organization/simulation/scenario/",
+            "headers": [
+              {
+                "name": "x-mongo-cluster-name",
+                "value": ""
+              },
+              {
+                "name": "Sec-WebSocket-Protocol",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "organization",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Create a simulation scenario.\n\n#### Permissions\nThis endpoint requires the following permissions:\n* `Simulation:CreateSimulationScenario` for the simulation scenario.\n* `Simulation:ModifySimulationScenario` for the simulation scenario."
+        },
+        {
+          "info": {
+            "name": "Update a simulation scenario",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.amigo.ai/v1/:organization/simulation/scenario/:simulation_scenario_id/",
+            "headers": [
+              {
+                "name": "x-mongo-cluster-name",
+                "value": ""
+              },
+              {
+                "name": "Sec-WebSocket-Protocol",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "organization",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "simulation_scenario_id",
+                "value": "",
+                "type": "path",
+                "description": "The ID of the simulation scenario to update."
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Update a simulation scenario.\n\n#### Permissions\nThis endpoint requires the following permissions:\n* `Simulation:ModifySimulationScenario` on the simulation scenario."
+        },
+        {
+          "info": {
+            "name": "Delete a simulation scenario",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "https://api.amigo.ai/v1/:organization/simulation/scenario/:simulation_scenario_id/",
+            "headers": [
+              {
+                "name": "x-mongo-cluster-name",
+                "value": ""
+              },
+              {
+                "name": "Sec-WebSocket-Protocol",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "organization",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "simulation_scenario_id",
+                "value": "",
+                "type": "path",
+                "description": "The ID of the simulation scenario to delete."
+              }
+            ]
+          },
+          "docs": "Delete a simulation scenario. This endpoint only soft-deletes the simulation scenario so any existing references to it would still be valid.\nHowever, they cannot be used in any new simulations.\n\nThis endpoint will error if the simulation scenario is used in any simulation unit tests.\n\n#### Permissions\nThis endpoint requires the following permissions:\n* `Simulation:DeleteSimulationScenario` on the simulation scenario to delete."
+        },
+        {
+          "info": {
+            "name": "Search simulation personas",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:organization/simulation/persona/search",
+            "headers": [
+              {
+                "name": "x-mongo-cluster-name",
+                "value": ""
+              },
+              {
+                "name": "Sec-WebSocket-Protocol",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "organization",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "query",
+                "value": "",
+                "type": "query",
+                "description": "The query to search for. Any simulation personas containing the terms in its name and the background of its latest version would be returned."
+              },
+              {
+                "name": "role",
+                "value": "",
+                "type": "query",
+                "description": "The roles of the simulation personas."
+              },
+              {
+                "name": "creator",
+                "value": "",
+                "type": "query",
+                "description": "The creators of the simulation personas. Each value must be of the format `org_id,user_id`."
+              },
+              {
+                "name": "tag",
+                "value": "",
+                "type": "query",
+                "description": "The tags of the simulation personas. Must be specified using the syntax `key:value`, which means to match all sets with the given `key` and `value` pair among its tags. If `value` is `*`, it means the `value` does not matter. If `value` is empty, it matches against when the value is `None`."
+              }
+            ]
+          },
+          "docs": "Search for simulation personas that match the given filters and contain the given query in its name and the background of its latest version. Only the top 50 results will be returned. The results\nwill be sorted by the relevance of the search query.\n\n#### Permissions\nThis endpoint may be impacted by the following permissions:\n* Only simulation personas that the authenticated user has `Simulation:GetSimulationPersona` permission for will be retrieved."
+        },
+        {
+          "info": {
+            "name": "Search simulation scenarios",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:organization/simulation/scenario/search",
+            "headers": [
+              {
+                "name": "x-mongo-cluster-name",
+                "value": ""
+              },
+              {
+                "name": "Sec-WebSocket-Protocol",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "organization",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "query",
+                "value": "",
+                "type": "query",
+                "description": "The query to search for. Any simulation scenarios containing the terms in its name would be returned."
+              },
+              {
+                "name": "creator",
+                "value": "",
+                "type": "query",
+                "description": "The creators of the simulation scenarios. Each value must be of the format `org_id,user_id`."
+              },
+              {
+                "name": "tag",
+                "value": "",
+                "type": "query",
+                "description": "The tags of the simulation scenarios. Must be specified using the syntax `key:value`, which means to match all sets with the given `key` and `value` pair among its tags. If `value` is `*`, it means the `value` does not matter. If `value` is empty, it matches against when the value is `None`."
+              }
+            ]
+          },
+          "docs": "Search for simulation scenarios that match the given filters and contain the given query in its name. Only the top 50 results will be returned. The results\nwill be sorted by the relevance of the search query.\n\n#### Permissions\nThis endpoint may be impacted by the following permissions:\n* Only simulation scenarios that the authenticated user has `Simulation:GetSimulationScenario` permission for will be retrieved."
+        },
+        {
+          "info": {
+            "name": "Get simulation unit tests",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:organization/simulation/unit_test/",
+            "headers": [
+              {
+                "name": "x-mongo-cluster-name",
+                "value": ""
+              },
+              {
+                "name": "Sec-WebSocket-Protocol",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "organization",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "id",
+                "value": "",
+                "type": "query",
+                "description": "The IDs of the simulation unit tests to retrieve."
+              },
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query",
+                "description": "The maximum number of simulation unit tests to return."
+              },
+              {
+                "name": "continuation_token",
+                "value": "",
+                "type": "query",
+                "description": "The continuation token from the previous request used to retrieve the next page of simulation unit tests."
+              },
+              {
+                "name": "is_deleted",
+                "value": "",
+                "type": "query",
+                "description": "Whether the simulation unit test is deleted."
+              },
+              {
+                "name": "service_id",
+                "value": "",
+                "type": "query",
+                "description": "The IDs of the services that the simulation unit tests run on."
+              },
+              {
+                "name": "persona_id",
+                "value": "",
+                "type": "query",
+                "description": "The IDs of the personas that the simulation unit tests use."
+              },
+              {
+                "name": "scenario_id",
+                "value": "",
+                "type": "query",
+                "description": "The IDs of the scenarios that the simulation unit tests use."
+              },
+              {
+                "name": "metric_id",
+                "value": "",
+                "type": "query",
+                "description": "The IDs of the metrics that the simulation unit tests use."
+              },
+              {
+                "name": "creator",
+                "value": "",
+                "type": "query",
+                "description": "The creators of the simulation unit tests. Each value must be of the format `org_id,user_id`."
+              },
+              {
+                "name": "tag",
+                "value": "",
+                "type": "query",
+                "description": "The tags of the simulation unit tests. Must be specified using the syntax `key:value`, which means to match all sets with the given `key` and `value` pair among its tags. If `value` is `*`, it means the `value` does not matter. If `value` is empty, it matches against when the value is `None`."
+              },
+              {
+                "name": "sort_by",
+                "value": "",
+                "type": "query",
+                "description": "The fields to sort the sets by. Supported fields are `updated_at`. Specify a `+` before the field name to indicate ascending sorting and `-` for descending sorting. Multiple fields can be specified to break ties."
+              }
+            ]
+          },
+          "docs": "Retrieve the simulation unit tests that match the given filters.\n\n#### Permissions\nThis endpoint may be impacted by the following permissions:\n* Only simulation unit tests that the authenticated user has `Simulation:GetSimulationUnitTest` permission for will be retrieved."
+        },
+        {
+          "info": {
+            "name": "Create a simulation unit test",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.amigo.ai/v1/:organization/simulation/unit_test/",
+            "headers": [
+              {
+                "name": "x-mongo-cluster-name",
+                "value": ""
+              },
+              {
+                "name": "Sec-WebSocket-Protocol",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "organization",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Create a new simulation unit test.\n\n#### Permissions\nThis endpoint requires the following permissions:\n* `Simulation:CreateSimulationUnitTest` for the unit test to create."
+        },
+        {
+          "info": {
+            "name": "Update a simulation unit test",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.amigo.ai/v1/:organization/simulation/unit_test/:simulation_unit_test_id/",
+            "headers": [
+              {
+                "name": "x-mongo-cluster-name",
+                "value": ""
+              },
+              {
+                "name": "Sec-WebSocket-Protocol",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "organization",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "simulation_unit_test_id",
+                "value": "",
+                "type": "path",
+                "description": "The ID of the simulation unit test to update."
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Modify the specified simulation unit test.\n\n#### Permissions\n* `Simulation:ModifySimulationUnitTest` for the unit test to update."
+        },
+        {
+          "info": {
+            "name": "Delete a simulation unit test",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "https://api.amigo.ai/v1/:organization/simulation/unit_test/:simulation_unit_test_id/",
+            "headers": [
+              {
+                "name": "x-mongo-cluster-name",
+                "value": ""
+              },
+              {
+                "name": "Sec-WebSocket-Protocol",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "organization",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "simulation_unit_test_id",
+                "value": "",
+                "type": "path",
+                "description": "The ID of the simulation unit test to delete."
+              }
+            ]
+          },
+          "docs": "Delete a simulation unit test. The unit test is soft-deleted and all references to it are still valid. Any scheduled unit test runs\nwould still continue as expected, but no new run can be created.\n\nThis endpoint will error if the simulation unit test is used in any simulation unit test set.\n\n#### Permissions\nThis endpoint requires the following permissions:\n* `Simulation:DeleteSimulationUnitTest` for the simulation unit test to delete."
+        },
+        {
+          "info": {
+            "name": "Search simulation unit tests",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:organization/simulation/unit_test/search/",
+            "headers": [
+              {
+                "name": "x-mongo-cluster-name",
+                "value": ""
+              },
+              {
+                "name": "Sec-WebSocket-Protocol",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "organization",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "query",
+                "value": "",
+                "type": "query",
+                "description": "The query to search for. Any simulation unit tests containing the terms in its name would be returned."
+              },
+              {
+                "name": "creator",
+                "value": "",
+                "type": "query",
+                "description": "The creators of the simulation unit tests. Each value must be of the format `org_id,user_id`."
+              },
+              {
+                "name": "tag",
+                "value": "",
+                "type": "query",
+                "description": "The tags of the simulation unit tests. Must be specified using the syntax `key:value`, which means to match all sets with the given `key` and `value` pair among its tags. If `value` is `*`, it means the `value` does not matter. If `value` is empty, it matches against when the value is `None`."
+              },
+              {
+                "name": "service_id",
+                "value": "",
+                "type": "query",
+                "description": "The IDs of the services that the simulation unit tests run on."
+              },
+              {
+                "name": "persona_id",
+                "value": "",
+                "type": "query",
+                "description": "The IDs of the personas that the simulation unit tests use."
+              },
+              {
+                "name": "scenario_id",
+                "value": "",
+                "type": "query",
+                "description": "The IDs of the scenarios that the simulation unit tests use."
+              },
+              {
+                "name": "metric_id",
+                "value": "",
+                "type": "query",
+                "description": "The IDs of the metrics that the simulation unit tests use."
+              }
+            ]
+          },
+          "docs": "Search for simulation unit tests that match the given filters and whose name or description contains the specified query.\n\n#### Permissions\nThis endpoint may be impacted by the following permissions:\n* Only simulation unit tests that the authenticated user has `Simulation:GetSimulationUnitTest` permission for will be retrieved."
+        },
+        {
+          "info": {
+            "name": "Get simulation unit test sets",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:organization/simulation/unit_test_set/",
+            "headers": [
+              {
+                "name": "x-mongo-cluster-name",
+                "value": ""
+              },
+              {
+                "name": "Sec-WebSocket-Protocol",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "organization",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "id",
+                "value": "",
+                "type": "query",
+                "description": "The IDs of the simulation unit test sets to retrieve."
+              },
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query",
+                "description": "The maximum number of simulation unit test sets to return."
+              },
+              {
+                "name": "continuation_token",
+                "value": "",
+                "type": "query",
+                "description": "The continuation token from the previous request used to retrieve the next page of simulation unit test sets."
+              },
+              {
+                "name": "is_deleted",
+                "value": "",
+                "type": "query",
+                "description": "Whether the simulation unit test set is deleted."
+              },
+              {
+                "name": "unit_test_id",
+                "value": "",
+                "type": "query",
+                "description": "The IDs of the unit tests that are part of the simulation unit test sets."
+              },
+              {
+                "name": "creator",
+                "value": "",
+                "type": "query",
+                "description": "The creators of the simulation unit test sets."
+              },
+              {
+                "name": "tag",
+                "value": "",
+                "type": "query",
+                "description": "The tags of the simulation unit test sets. Must be specified using the syntax `key:value`, which means to match all sets with the given `key` and `value` pair among its tags. If `value` is `*`, it means the `value` does not matter. If `value` is empty, it matches against when the value is `None`."
+              },
+              {
+                "name": "sort_by",
+                "value": "",
+                "type": "query",
+                "description": "The fields to sort the sets by. Supported fields are `updated_at`. Specify a `+` before the field name to indicate ascending sorting and `-` for descending sorting. Multiple fields can be specified to break ties."
+              }
+            ]
+          },
+          "docs": "Retrieve the simulation unit test sets that match the given filters.\n\n#### Permissions\nThis endpoint may be impacted by the following permissions:\n* Only simulation unit test sets that the authenticated user has `Simulation:GetSimulationUnitTestSet` permission for will be retrieved."
+        },
+        {
+          "info": {
+            "name": "Create a simulation unit test set",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.amigo.ai/v1/:organization/simulation/unit_test_set/",
+            "headers": [
+              {
+                "name": "x-mongo-cluster-name",
+                "value": ""
+              },
+              {
+                "name": "Sec-WebSocket-Protocol",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "organization",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Create a new simulation unit test set.\n\n#### Permissions\nThis endpoint requires the following permissions:\n* `Simulation:CreateSimulationUnitTestSet` for the simulation unit test set."
+        },
+        {
+          "info": {
+            "name": "Search simulation unit test sets",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:organization/simulation/unit_test_set/search/",
+            "headers": [
+              {
+                "name": "x-mongo-cluster-name",
+                "value": ""
+              },
+              {
+                "name": "Sec-WebSocket-Protocol",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "organization",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "query",
+                "value": "",
+                "type": "query",
+                "description": "The query to search for. Any simulation unit test sets containing the terms in its name or description would be returned."
+              },
+              {
+                "name": "creator",
+                "value": "",
+                "type": "query",
+                "description": "The creators of the simulation unit test sets. Each value must be of the format `org_id,user_id`."
+              },
+              {
+                "name": "tag",
+                "value": "",
+                "type": "query",
+                "description": "The tags of the simulation unit test sets. Must be specified using the syntax `key:value`, which means to match all sets with the given `key` and `value` pair among its tags. If `value` is `*`, it means the `value` does not matter. If `value` is empty, it matches against when the value is `None`."
+              },
+              {
+                "name": "unit_test_id",
+                "value": "",
+                "type": "query",
+                "description": "The IDs of the unit tests that are part of the simulation unit test sets."
+              }
+            ]
+          },
+          "docs": "Search for simulation unit test sets that match the given filters and whose name or description contains the specified query.\n\n#### Permissions\nThis endpoint may be impacted by the following permissions:\n* Only simulation unit test sets that the authenticated user has `Simulation:GetSimulationUnitTestSet` permission for will be retrieved."
+        },
+        {
+          "info": {
+            "name": "Update a simulation unit test set",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.amigo.ai/v1/:organization/simulation/unit_test_set/:simulation_unit_test_set_id",
+            "headers": [
+              {
+                "name": "x-mongo-cluster-name",
+                "value": ""
+              },
+              {
+                "name": "Sec-WebSocket-Protocol",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "organization",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "simulation_unit_test_set_id",
+                "value": "",
+                "type": "path",
+                "description": "The ID of the simulation unit test set to update."
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Update a simulation unit test set.\n\n#### Permissions\nThis endpoint requires the following permissions:\n* `Simulation:ModifySimulationUnitTestSet` for the simulation unit test set."
+        },
+        {
+          "info": {
+            "name": "Delete a simulation unit test set",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "https://api.amigo.ai/v1/:organization/simulation/unit_test_set/:simulation_unit_test_set_id",
+            "headers": [
+              {
+                "name": "x-mongo-cluster-name",
+                "value": ""
+              },
+              {
+                "name": "Sec-WebSocket-Protocol",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "organization",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "simulation_unit_test_set_id",
+                "value": "",
+                "type": "path",
+                "description": "The ID of the simulation unit test set to delete."
+              }
+            ]
+          },
+          "docs": "Delete a simulation unit test set.\n\n#### Permissions\nThis endpoint requires the following permissions:\n* `Simulation:DeleteSimulationUnitTestSet` for the simulation unit test set."
+        },
+        {
+          "info": {
+            "name": "Get simulation unit test set runs",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:organization/simulation/unit_test_set_run/",
+            "headers": [
+              {
+                "name": "x-mongo-cluster-name",
+                "value": ""
+              },
+              {
+                "name": "Sec-WebSocket-Protocol",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "organization",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "id",
+                "value": "",
+                "type": "query",
+                "description": "The ID of the simulation unit test set run to retrieve."
+              },
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query",
+                "description": "The maximum number of simulation unit test set runs to return."
+              },
+              {
+                "name": "continuation_token",
+                "value": "",
+                "type": "query",
+                "description": "The continuation token from the previous request used to retrieve the next page of simulation unit test set runs."
+              },
+              {
+                "name": "creator",
+                "value": "",
+                "type": "query",
+                "description": "The creators of the simulation unit test set runs to retrieve. Each value must be of the format `org_id,user_id`."
+              },
+              {
+                "name": "sort_by",
+                "value": "",
+                "type": "query",
+                "description": "The fields to sort the sets by. Supported fields are `created_at`."
+              },
+              {
+                "name": "simulation_unit_test_set_id",
+                "value": "",
+                "type": "query",
+                "description": "The IDs of the simulation unit test sets that the simulation unit test set runs belong to."
+              },
+              {
+                "name": "is_completed",
+                "value": "",
+                "type": "query",
+                "description": "Whether the simulation unit test set run is completed."
+              },
+              {
+                "name": "failed_metrics",
+                "value": "",
+                "type": "query",
+                "description": "Whether the simulation unit test set run has failed due to failing metrics. Note that this field could be `True` even if the run is still ongoing -- it simply means some unit test runs have failed."
+              },
+              {
+                "name": "errored",
+                "value": "",
+                "type": "query",
+                "description": "Whether the simulation unit test set run has encountered an error."
+              },
+              {
+                "name": "created_after",
+                "value": "",
+                "type": "query",
+                "description": "Filter for simulation unit test set runs created at or after this time (inclusive)."
+              },
+              {
+                "name": "created_before",
+                "value": "",
+                "type": "query",
+                "description": "Filter for simulation unit test set runs created at or before this time (inclusive)."
+              }
+            ]
+          },
+          "docs": "Retrieves simulation unit test set runs.\n\nThis endpoint may be impacted by the following permissions:\n* Only the runs that the authenticated user has the `Simulation:GetSimulationUnitTestSetRun` permission for will be returned.\n* The `unit_test_run_specs` and `unit_test_run_results` fields are only populated if the authenticated user has the `Simulation:GetSimulationUnitTestSet` permission.\n* The fields `scenario_version_info`, `persona_version_info`, `metrics_to_evaluate` in `unit_test_run_spec"
+        },
+        {
+          "info": {
+            "name": "Create a simulation unit test set run",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.amigo.ai/v1/:organization/simulation/unit_test_set_run/",
+            "headers": [
+              {
+                "name": "x-mongo-cluster-name",
+                "value": ""
+              },
+              {
+                "name": "Sec-WebSocket-Protocol",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "organization",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Create a run for a simulation unit test set. The user must not already have an unfinished run for this simulation unit test set.\n\n#### Permissions\nThis endpoint requires the following permissions:\n* `Simulation:CreateSimulationUnitTestSetRun` for the test set run."
+        },
+        {
+          "info": {
+            "name": "Get simulation unit test set run artifacts",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:organization/simulation/unit_test_set_run/:simulation_unit_test_set_run_id/artifacts/",
+            "headers": [
+              {
+                "name": "x-mongo-cluster-name",
+                "value": ""
+              },
+              {
+                "name": "Sec-WebSocket-Protocol",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "organization",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "simulation_unit_test_set_run_id",
+                "value": "",
+                "type": "path",
+                "description": "The ID of the simulation unit test set run to retrieve the artifacts of."
+              }
+            ]
+          },
+          "docs": "Get the artifacts of a simulation unit test set run. A link to the raw artifacts in S3 is returned.\n\n#### Permissions\nThis endpoint requires the following permissions:\n* `Simulation:GetSimulationUnitTestSetRun` for the simulation unit test set run.\n* `Organization:GetServiceHierarchicalStateMachine` for the state machine that the simulation uses."
+        },
+        {
+          "info": {
+            "name": "Cancel a simulation unit test set run",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "https://api.amigo.ai/v1/:organization/simulation/unit_test_set_run/:simulation_unit_test_set_run_id/",
+            "headers": [
+              {
+                "name": "x-mongo-cluster-name",
+                "value": ""
+              },
+              {
+                "name": "Sec-WebSocket-Protocol",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "organization",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "simulation_unit_test_set_run_id",
+                "value": "",
+                "type": "path",
+                "description": "The ID of the simulation unit test set run to cancel."
+              }
+            ]
+          },
+          "docs": "Cancel a simulation unit test set run. The run must still be in progress. This cancellation is a best-effort operation, and there's no guarantee that it'll take effect\nimmediately.\n\n#### Permissions\nThis endpoint requires the following permissions:\n* `Simulation:CancelSimulationUnitTestSetRun` for the authenticated user."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

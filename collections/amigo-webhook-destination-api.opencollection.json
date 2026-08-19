@@ -1,0 +1,272 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Amigo Account Webhook Destination API",
+    "version": "0.1.0"
+  },
+  "request": {
+    "auth": {
+      "type": "bearer",
+      "token": "{{bearerToken}}"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Webhook Destination",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Get webhook destinations",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:organization/webhook_destination/",
+            "headers": [
+              {
+                "name": "x-mongo-cluster-name",
+                "value": ""
+              },
+              {
+                "name": "Sec-WebSocket-Protocol",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "organization",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "id",
+                "value": "",
+                "type": "query",
+                "description": "The IDs of the webhook destinations to retrieve."
+              }
+            ]
+          },
+          "docs": "Retrieve this organization's webhook destinations.\n\n#### Permissions\nThis endpoint may be impacted by the following permissions:\n* `Webhook:GetWebhookDestination` on the webhook destinations to retrieve."
+        },
+        {
+          "info": {
+            "name": "Create a webhook destination",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.amigo.ai/v1/:organization/webhook_destination/",
+            "headers": [
+              {
+                "name": "x-mongo-cluster-name",
+                "value": ""
+              },
+              {
+                "name": "Sec-WebSocket-Protocol",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "organization",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Create a new webhook destination. At most 10 webhook destinations can be defined per organization.\n\nA secret will immediately be issued for the webhook destination. Every webhook sent to this destination will be signed using this secret.\nThis secret is one-view only and cannot be retrieved later.\n\n#### Permissions\nThis endpoint requires the following permissions:\n* `Webhook:CreateWebhookDestination` for the webhook destination."
+        },
+        {
+          "info": {
+            "name": "Update a webhook destination",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.amigo.ai/v1/:organization/webhook_destination/:webhook_destination_id",
+            "headers": [
+              {
+                "name": "x-mongo-cluster-name",
+                "value": ""
+              },
+              {
+                "name": "Sec-WebSocket-Protocol",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "webhook_destination_id",
+                "value": "",
+                "type": "path",
+                "description": "The identifier of the webhook destination to update."
+              },
+              {
+                "name": "organization",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Update certain configs for a webhook destination. The changes will only take effect a few seconds after this endpoint returns.\n\nThe URL of a webhook destination cannot be changed. Use [`Create a webhook destination`](create-webhook-destination) instead.\n\n#### Permissions\nThis endpoint requires the following permissions:\n* `Webhook:UpdateWebhookDestination` for the webhook destination."
+        },
+        {
+          "info": {
+            "name": "Delete a webhook destination",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "https://api.amigo.ai/v1/:organization/webhook_destination/:webhook_destination_id",
+            "headers": [
+              {
+                "name": "x-mongo-cluster-name",
+                "value": ""
+              },
+              {
+                "name": "Sec-WebSocket-Protocol",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "webhook_destination_id",
+                "value": "",
+                "type": "path",
+                "description": "The identifier of the webhook destination to update."
+              },
+              {
+                "name": "organization",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Remove a webhook destination from the organization. The webhook destination might still be active for a few seconds after this endpoint returns.\n\n#### Permissions\nThis endpoint requires the following permissions:\n* `Webhook:DeleteWebhookDestination` for the webhook destination."
+        },
+        {
+          "info": {
+            "name": "Rotate the secret of a webhook destination",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.amigo.ai/v1/:organization/webhook_destination/:webhook_destination_id/rotate-secret",
+            "headers": [
+              {
+                "name": "x-mongo-cluster-name",
+                "value": ""
+              },
+              {
+                "name": "Sec-WebSocket-Protocol",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "webhook_destination_id",
+                "value": "",
+                "type": "path",
+                "description": "The ID for the webhook destination to rotate the secret for."
+              },
+              {
+                "name": "organization",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Replace the secret for the given webhook destination. The new secret will be returned and cannot be retrieved later.\n\nUntil the `dual_signing_stops_at` timestamp in the response, which is roughly 30 minutes after the generation of the new secret, the webhook\nwill be signed by both the old and the new secret. This allows the webhook consumer to transition to the new secret without downtime.\n\nThe webhook rotation can occur at most once per hour for each webhook destination.\n\n#### Permissions\nThis "
+        },
+        {
+          "info": {
+            "name": "Get webhook deliveries",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:organization/webhook_destination/:webhook_destination_id/delivery",
+            "headers": [
+              {
+                "name": "x-mongo-cluster-name",
+                "value": ""
+              },
+              {
+                "name": "Sec-WebSocket-Protocol",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "webhook_destination_id",
+                "value": "",
+                "type": "path",
+                "description": "The ID of the webhook destination whose deliveries to retrieve."
+              },
+              {
+                "name": "organization",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "status",
+                "value": "",
+                "type": "query",
+                "description": "The status of the webhook delivery."
+              },
+              {
+                "name": "type",
+                "value": "",
+                "type": "query",
+                "description": "The type of the webhook."
+              },
+              {
+                "name": "created_after",
+                "value": "",
+                "type": "query",
+                "description": "An ISO8601 timestamp in UTC of the earliest creation time of the webhook deliveries to retrieve."
+              },
+              {
+                "name": "created_before",
+                "value": "",
+                "type": "query",
+                "description": "An ISO8601 timestamp in UTC of the latest creation time of the webhook deliveries to retrieve."
+              },
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query",
+                "description": "The maximum number of webhook deliveries to retrieve."
+              },
+              {
+                "name": "continuation_token",
+                "value": "",
+                "type": "query",
+                "description": "The token from the previous request to return the next page of webhook deliveries."
+              },
+              {
+                "name": "sort_by",
+                "value": "",
+                "type": "query",
+                "description": "The fields to sort the sets by. Supported fields are `type`, `status`, and `created_at`. Specify a `+` before the field name to indicate ascending sorting and `-` for descending sorting. Multiple fields can be specified to break ties."
+              }
+            ]
+          },
+          "docs": "Retrieve the webhook deliveries to a webhook destination.\n\n#### Permissions\nThis endpoint may be impacted by the following permissions:\n* `Webhook:GetWebhookDeliveries` on the webhook deliveries to retrieve."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

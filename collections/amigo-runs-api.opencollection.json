@@ -1,0 +1,308 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Amigo Account Runs API",
+    "version": "0.1.0"
+  },
+  "request": {
+    "auth": {
+      "type": "bearer",
+      "token": "{{bearerToken}}"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Runs",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "List runs (framework + conversation)",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:workspace_id/runs",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "sort_by",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "continuation_token",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "status",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "kind",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "channel",
+                "value": "",
+                "type": "query"
+              }
+            ]
+          },
+          "docs": "Paginated, newest-first list of runs for the workspace behind the unified ``Run`` contract. Federates framework runs (Delta ``world.runs`` MV) and conversation runs (Lakebase ``world.conversations``) at read time. Filter by ``kind`` (conversation / framework), ``channel`` (voice/text/sms/email/web — conversation runs only), and ``status`` (``live`` expands to running + paused). ``continuation_token`` is an opaque page cursor."
+        },
+        {
+          "info": {
+            "name": "Run counts (framework + conversation)",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:workspace_id/runs/summary",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "kind",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "channel",
+                "value": "",
+                "type": "query"
+              }
+            ]
+          },
+          "docs": "Aggregate counts for the workspace's runs behind the unified ``Run`` contract: ``total``, ``live`` (running + paused), each canonical status, a full ``by_status`` map, and ``by_kind`` (conversation vs framework). Federates the Delta ``world.runs`` MV and Lakebase ``world.conversations`` with a cheap GROUP BY. Optional ``kind`` / ``channel`` filters mirror the list; a ``channel`` filter restricts to conversation runs."
+        },
+        {
+          "info": {
+            "name": "Get one run (framework or conversation) by run_id",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:workspace_id/runs/:run_id",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "run_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Resolve a single run by its channel-neutral ``run_id`` and return the canonical ``Run`` — at any status (live, completed, failed, timed out). Federates the Delta ``world.runs`` MV (framework runs), Lakebase ``world.conversations`` (conversation runs), and the live-voice registry, matched by ``run_id`` and scoped to the workspace. Use the returned ``kind`` / ``channel`` / ``source_*`` fields to open the channel-appropriate detail (voice call, text conversation, framework trace). 404 if the run do"
+        },
+        {
+          "info": {
+            "name": "Get a framework run's step-by-step trajectory",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:workspace_id/runs/:run_id/trajectory",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "run_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Ordered structural steps (perception / decision / tool / completion) of a FRAMEWORK run, read from the durable Delta trace source by the run's correlation id. 404 if the run does not exist in this workspace; 409 if the run is a conversation run (use ``/conversations/{id}`` for per-turn detail)."
+        },
+        {
+          "info": {
+            "name": "Send operator guidance to a live run",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.amigo.ai/v1/:workspace_id/runs/:run_id/guidance",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "run_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Send text guidance to the agent handling a LIVE run, addressed by the channel-neutral ``run_id``. The agent incorporates it into its next response without the operator taking over. Requires ``admin`` (Operator:Update) and is bound to the caller's own operator identity (no impersonation). 404 if the run is not a live run in this workspace; 409 if its channel has no live guidance transport yet."
+        },
+        {
+          "info": {
+            "name": "Take over a live run as operator",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.amigo.ai/v1/:workspace_id/runs/:run_id/takeover",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "run_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Register the caller's operator identity on a LIVE run and (in ``takeover`` mode) suspend the agent so the human drives; ``listen`` mode monitors without driving. Addressed by the channel-neutral ``run_id``. Requires ``admin`` (Operator:Update), bound to the caller's own operator identity (no impersonation). 404 if the run is not live in this workspace; 409 if its channel does not support live takeover yet. For voice, the response carries the conference/participant SIDs the console needs to attac"
+        },
+        {
+          "info": {
+            "name": "Hand a taken-over run back to the agent",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.amigo.ai/v1/:workspace_id/runs/:run_id/handback",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "run_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Release the caller's operator from a run they took over — the agent resumes. Addressed by ``run_id``. Requires ``admin`` (Operator:Update), bound to the caller's own operator identity. 404 if the run is not live in this workspace; 409 if its channel does not support live takeover yet."
+        },
+        {
+          "info": {
+            "name": "Author the next turn on a non-voice run under takeover",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.amigo.ai/v1/:workspace_id/runs/:run_id/authored-turn",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "run_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Stage an operator-authored reply for a NON-voice run (text/sms/email/web) the caller has taken over. The agent-engine send-gate substitutes it for the agent's next outbound (exactly-once), so the caller receives the operator's words while the agent stays suspended. Repeatable — each call stages the next turn. Addressed by the channel-neutral ``run_id``. Requires ``admin`` (Operator:Update), bound to the caller's own operator identity (no impersonation). 404 if the run is not live in this workspa"
+        },
+        {
+          "info": {
+            "name": "Switch an operator between listen and takeover on a live run",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.amigo.ai/v1/:workspace_id/runs/:run_id/switch-mode",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "run_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Toggle the operator between ``listen`` (monitor) and ``takeover`` (drive) on a run they have already joined, addressed by the channel-neutral ``run_id``. For voice this mutes/unmutes the operator's conference participant. Requires ``admin`` (Operator:Update), bound to the caller's own operator identity (no impersonation). 404 if the run is not live in this workspace; 409 if its channel does not support live takeover yet."
+        },
+        {
+          "info": {
+            "name": "Mint a browser-audio access token for an operator on a live run",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.amigo.ai/v1/:workspace_id/runs/:run_id/access-token",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "run_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Generate the Twilio browser-audio credentials the console needs to attach the operator's WebRTC leg to a live run, addressed by ``run_id``. This is the media plane companion to ``/takeover`` (the control plane). Requires ``admin`` (Operator:Update), bound to the caller's own operator identity. 404 if the run is not live in this workspace; 409 if its channel has no browser-audio leg."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

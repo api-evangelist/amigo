@@ -1,0 +1,352 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Amigo Account Pipeline API",
+    "version": "0.1.0"
+  },
+  "request": {
+    "auth": {
+      "type": "bearer",
+      "token": "{{bearerToken}}"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Pipeline",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Pipeline status",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:workspace_id/pipeline/status",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Composite pipeline dashboard: connector-runner state + Lakebase counts."
+        },
+        {
+          "info": {
+            "name": "List pipeline sources",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:workspace_id/pipeline/sources",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "search",
+                "value": "",
+                "type": "query",
+                "description": "Search by name, ID, type, or health status"
+              },
+              {
+                "name": "source_type",
+                "value": "",
+                "type": "query",
+                "description": "Filter by source type"
+              },
+              {
+                "name": "health_status",
+                "value": "",
+                "type": "query",
+                "description": "Filter by health status"
+              },
+              {
+                "name": "is_active",
+                "value": "",
+                "type": "query",
+                "description": "Filter by active state"
+              }
+            ]
+          },
+          "docs": "Data sources with live health from Valkey cr:last_poll keys."
+        },
+        {
+          "info": {
+            "name": "Source overview",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:workspace_id/pipeline/sources/:source_id/overview",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "source_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Consolidated source detail: metadata, health, recent failures, last poll, outbound summary."
+        },
+        {
+          "info": {
+            "name": "Source sync history",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:workspace_id/pipeline/sources/:source_id/history",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "source_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "date_from",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "date_to",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "interval",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "hours",
+                "value": "",
+                "type": "query"
+              }
+            ]
+          },
+          "docs": "Event counts bucketed by time window for a specific source."
+        },
+        {
+          "info": {
+            "name": "Source events",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:workspace_id/pipeline/sources/:source_id/events",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "source_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "sort_by",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "event_type",
+                "value": "",
+                "type": "query",
+                "description": "Filter by event type"
+              },
+              {
+                "name": "entity_type",
+                "value": "",
+                "type": "query",
+                "description": "Filter by entity type"
+              },
+              {
+                "name": "date_from",
+                "value": "",
+                "type": "query",
+                "description": "Filter events ingested on or after this time"
+              },
+              {
+                "name": "date_to",
+                "value": "",
+                "type": "query",
+                "description": "Filter events ingested on or before this time"
+              },
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "continuation_token",
+                "value": "",
+                "type": "query"
+              }
+            ]
+          },
+          "docs": "Paginated events for a specific data source."
+        },
+        {
+          "info": {
+            "name": "Outbound sync summary",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:workspace_id/pipeline/outbound",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Per-sink outbound sync aggregation: synced/failed/pending counts."
+        },
+        {
+          "info": {
+            "name": "Outbound sync log",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:workspace_id/pipeline/outbound/:data_source_id/log",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "data_source_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "sort_by",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "status",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "continuation_token",
+                "value": "",
+                "type": "query"
+              }
+            ]
+          },
+          "docs": "Paginated outbound sync log for a specific sink."
+        },
+        {
+          "info": {
+            "name": "Entity resolution metrics",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:workspace_id/pipeline/entity-resolution",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Historical same_as merge-edge counts (written by the pre-SDP resolver; merge detection now lives in the Databricks pipeline — new edges are not produced) and entity resolution loop status."
+        },
+        {
+          "info": {
+            "name": "Review pipeline metrics",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:workspace_id/pipeline/review",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Review queue depth, approval rate, and average review time."
+        },
+        {
+          "info": {
+            "name": "Event throughput",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:workspace_id/pipeline/throughput",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "date_from",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "date_to",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "interval",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "hours",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "bucket_minutes",
+                "value": "",
+                "type": "query"
+              }
+            ]
+          },
+          "docs": "Event throughput time series across all sources."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

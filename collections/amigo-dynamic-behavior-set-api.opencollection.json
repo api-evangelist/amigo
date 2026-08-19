@@ -1,0 +1,416 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Amigo Account Dynamic Behavior Set API",
+    "version": "0.1.0"
+  },
+  "request": {
+    "auth": {
+      "type": "bearer",
+      "token": "{{bearerToken}}"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Dynamic Behavior Set",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Get dynamic behavior sets",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:organization/dynamic_behavior_set/",
+            "headers": [
+              {
+                "name": "x-mongo-cluster-name",
+                "value": ""
+              },
+              {
+                "name": "Sec-WebSocket-Protocol",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "organization",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "id",
+                "value": "",
+                "type": "query",
+                "description": "The IDs of the dynamic behavior sets to retrieve."
+              },
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query",
+                "description": "The maximum number of dynamic behavior sets to return."
+              },
+              {
+                "name": "continuation_token",
+                "value": "",
+                "type": "query",
+                "description": "The continuation token to use to retrieve the next set of dynamic behavior sets."
+              },
+              {
+                "name": "is_active",
+                "value": "",
+                "type": "query",
+                "description": "Whether the dynamic behavior set is active."
+              },
+              {
+                "name": "applied_to_service",
+                "value": "",
+                "type": "query",
+                "description": "The IDs of the services that the dynamic behavior set is applied to."
+              },
+              {
+                "name": "creator",
+                "value": "",
+                "type": "query",
+                "description": "The creators of the dynamic behavior sets."
+              },
+              {
+                "name": "tag",
+                "value": "",
+                "type": "query",
+                "description": "The tags of the dynamic behavior sets. Must be specified using the syntax `key:value`, which means to match all sets with the given `key` and `value` pair among its tags. If `value` is `*`, it means the `value` does not matter. If `value` is empty, it matches against when the value is `None`."
+              },
+              {
+                "name": "sort_by",
+                "value": "",
+                "type": "query",
+                "description": "The fields to sort the sets by. Supported fields are `updated_at`. Specify a `+` before the field name to indicate ascending sorting and `-` for descending sorting. Multiple fields can be specified to break ties."
+              }
+            ]
+          },
+          "docs": "Retrieve dynamic behavior sets that match the given filters.\n\n#### Permissions\nThis endpoint may be impacted by the following permissions:\n* Only dynamic behavior sets that the authenticated user has `DynamicBehaviorInstruction:GetDynamicBehaviorInstruction` permission for will be retrieved."
+        },
+        {
+          "info": {
+            "name": "Create a dynamic behavior set",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.amigo.ai/v1/:organization/dynamic_behavior_set/",
+            "headers": [
+              {
+                "name": "x-mongo-cluster-name",
+                "value": ""
+              },
+              {
+                "name": "Sec-WebSocket-Protocol",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "organization",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Create a new dynamic behavior set as well as its initial version.\n\n#### Permissions\nThis endpoint requires the following permissions:\n* `DynamicBehaviorInstruction:CreateDynamicBehaviorInstruction` on the set to create.\n* `DynamicBehaviorInstruction:UpdateDynamicBehaviorInstruction` on the set to create."
+        },
+        {
+          "info": {
+            "name": "Update a dynamic behavior set",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.amigo.ai/v1/:organization/dynamic_behavior_set/:dynamic_behavior_set_id/",
+            "headers": [
+              {
+                "name": "x-mongo-cluster-name",
+                "value": ""
+              },
+              {
+                "name": "Sec-WebSocket-Protocol",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "organization",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "dynamic_behavior_set_id",
+                "value": "",
+                "type": "path",
+                "description": "The ID of the dynamic behavior set to delete."
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Update a dynamic behavior set.\n\n#### Permissions\nThis endpoint requires the following permissions:\n* `DynamicBehaviorInstruction:UpdateDynamicBehaviorInstruction` on the dynamic behavior set to update."
+        },
+        {
+          "info": {
+            "name": "Delete a dynamic behavior instruction",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "https://api.amigo.ai/v1/:organization/dynamic_behavior_set/:dynamic_behavior_set_id/",
+            "headers": [
+              {
+                "name": "x-mongo-cluster-name",
+                "value": ""
+              },
+              {
+                "name": "Sec-WebSocket-Protocol",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "organization",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "dynamic_behavior_set_id",
+                "value": "",
+                "type": "path",
+                "description": "The ID of the dynamic behavior set to delete."
+              }
+            ]
+          },
+          "docs": "Delete a dynamic behavior set.\n\n#### Permissions\nThis endpoint requires the following permissions:\n* `DynamicBehaviorInstruction:DeleteDynamicBehaviorInstruction` on the dynamic behavior set to delete."
+        },
+        {
+          "info": {
+            "name": "Get dynamic behavior set versions",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:organization/dynamic_behavior_set/:dynamic_behavior_set_id/version/",
+            "headers": [
+              {
+                "name": "x-mongo-cluster-name",
+                "value": ""
+              },
+              {
+                "name": "Sec-WebSocket-Protocol",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "organization",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "dynamic_behavior_set_id",
+                "value": "",
+                "type": "path",
+                "description": "The ID of the dynamic behavior set."
+              },
+              {
+                "name": "version",
+                "value": "",
+                "type": "query",
+                "description": "The versions of the dynamic behavior set to retrieve. One can specify an exact version to retrieve, which is either the version number or `latest`,\nwhich retrieves the latest version. Alternatively, one can specify a range of inclusive lower and upper bound for the version number separated by `-`,\nand every version within the range would be retrieved."
+              },
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query",
+                "description": "The maximum number of dynamic behavior set versions to return."
+              },
+              {
+                "name": "continuation_token",
+                "value": "",
+                "type": "query",
+                "description": "The continuation token from the previous request used to retrieve the next page of dynamic behavior set versions."
+              },
+              {
+                "name": "sort_by",
+                "value": "",
+                "type": "query",
+                "description": "The fields to sort the versions by. Supported fields are `version`. Specify a `+` before the field name to indicate ascending sorting and `-`\nfor descending sorting. Multiple fields can be specified to break ties."
+              }
+            ]
+          },
+          "docs": "Get the versions of a dynamic behavior set.\n\n#### Permissions\nThis endpoint requires the following permissions:\n* `DynamicBehaviorInstruction:GetDynamicBehaviorInstruction` for the dynamic behavior set to retrieve."
+        },
+        {
+          "info": {
+            "name": "Create a new version of a dynamic behavior set.",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.amigo.ai/v1/:organization/dynamic_behavior_set/:dynamic_behavior_set_id/version/",
+            "headers": [
+              {
+                "name": "x-mongo-cluster-name",
+                "value": ""
+              },
+              {
+                "name": "Sec-WebSocket-Protocol",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "organization",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "dynamic_behavior_set_id",
+                "value": "",
+                "type": "path",
+                "description": "The ID of the dynamic behavior set to delete."
+              },
+              {
+                "name": "version",
+                "value": "",
+                "type": "query",
+                "description": "The version number of the new version. If specified, this endpoint throws an error if the next version in the database doesn't equal to the value of this parameter."
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Create a new version of the given dynamic behavior set.\n\n#### Permissions\nThis endpoint requires the following permissions:\n* `DynamicBehaviorInstruction:UpdateDynamicBehaviorInstruction` on the dynamic behavior set to create a new version for."
+        },
+        {
+          "info": {
+            "name": "Search dynamic behavior sets",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:organization/dynamic_behavior_set/search",
+            "headers": [
+              {
+                "name": "x-mongo-cluster-name",
+                "value": ""
+              },
+              {
+                "name": "Sec-WebSocket-Protocol",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "organization",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "query",
+                "value": "",
+                "type": "query",
+                "description": "The query to search for. Any sets containing the terms in its name and the triggers of its latest version would be returned."
+              },
+              {
+                "name": "is_active",
+                "value": "",
+                "type": "query",
+                "description": "Whether the dynamic behavior set is active."
+              },
+              {
+                "name": "applied_to_service",
+                "value": "",
+                "type": "query",
+                "description": "The IDs of the services that the dynamic behavior set is applied to."
+              },
+              {
+                "name": "creator",
+                "value": "",
+                "type": "query",
+                "description": "The creators of the dynamic behavior sets. Each value must be of the format `org_id,user_id`."
+              },
+              {
+                "name": "tag",
+                "value": "",
+                "type": "query",
+                "description": "The tags of the dynamic behavior sets. Must be specified using the syntax `key:value`, which means to match all sets with the given `key` and `value` pair among its tags.\nIf `value` is `*`, it means the `value` does not matter. If `value` is empty, it matches against when the value is `None`."
+              }
+            ]
+          },
+          "docs": "Search for dynamic behavior sets that match the given filters and contain the given query in its name and the triggers of its latest version. Only the top 50 results will be returned. The results\nwill be sorted by the relevance of the search query.\n\n#### Permissions\nThis endpoint may be impacted by the following permissions:\n* Only dynamic behavior sets that the authenticated user has `DynamicBehaviorInstruction:GetDynamicBehaviorInstruction` permission for will be retrieved."
+        },
+        {
+          "info": {
+            "name": "Get dynamic behavior invocations",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:organization/dynamic_behavior_set/:dynamic_behavior_set_id/invocation/",
+            "headers": [
+              {
+                "name": "x-mongo-cluster-name",
+                "value": ""
+              },
+              {
+                "name": "Sec-WebSocket-Protocol",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "organization",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "dynamic_behavior_set_id",
+                "value": "",
+                "type": "path",
+                "description": "The ID of the dynamic behavior set."
+              },
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query",
+                "description": "The maximum number of dynamic behavior invocations to return."
+              },
+              {
+                "name": "continuation_token",
+                "value": "",
+                "type": "query",
+                "description": "The continuation token from the previous request used to retrieve the next page of dynamic behavior invocations."
+              },
+              {
+                "name": "sort_by",
+                "value": "",
+                "type": "query",
+                "description": "The fields to sort the versions by. Supported fields are `invoked_at`. Specify a `+` before the field name to indicate ascending sorting and `-` for descending sorting. Multiple fields can be specified to break ties."
+              }
+            ]
+          },
+          "docs": "Retrieve the dynamic behavior invocations for a dynamic behavior set.\n\n#### Permissions\nThis endpoint requires the following permissions:\n* `DynamicBehaviorInstruction:GetDynamicBehaviorInstruction` for the dynamic behavior set.\n\nThis endpoint is impacted by the following permissions:\n* Only invocations from messages that the authenticated user has the `Conversation:GetMessage` permission for are returned."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

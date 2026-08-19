@@ -1,0 +1,635 @@
+{
+  "item": [
+    {
+      "id": "43cc1a2b-e766-443d-940c-f880c8dfd8ed",
+      "name": "Prompt Logs",
+      "description": {
+        "content": "",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "e1a6fd0d-317e-4550-b774-c7e5afaddb12",
+          "name": "List prompt logs for a workspace",
+          "request": {
+            "name": "List prompt logs for a workspace",
+            "description": {
+              "content": "Lists ``prompt_log`` events emitted by agent-engine — full system prompt, conversation history, tool catalog, LLM model, and response — for auditing and debugging. Reads the Delta ``world_events`` ledger via Databricks SQL; typical latency is 1-5s with a 15s ceiling on cold-start.\n\n**Conversation filter**: pass ``conversation_id`` for the canonical mental model. Text conversations resolve from ``world.conversations``; voice/call IDs resolve through the projected conversation entity. ``call_sid`` is the legacy direct-SID filter (Twilio CA-SID for voice, session_id UUID otherwise) and is mutually exclusive with ``conversation_id``.\n\n**Other filters**: ``prompt_type``, ``state_name``, ``from_ts``, ``to_ts``. When no selectivity-bearing filter (conversation_id / call_sid / time range) is supplied, the query is auto-capped to the last 7 days; the applied window is reported in ``applied_time_window_days``.\n\n**Pagination**: peek-ahead — ``has_more`` is true when more rows exist; use ``next_offset`` to fetch the next page.\n\n**Auth**: admin or owner role required. Reads are audit-logged (``prompt_logs.queried``); responses can include PHI from prompt history.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "v1",
+                ":workspace_id",
+                "prompt-logs"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "conversation_id",
+                  "value": "<uuid>",
+                  "description": "Conversation entity UUID (canonical identifier across all modalities — voice, text/web, sms, sim). Resolves text conversations through the durable ``world.conversations`` row, then falls back to the voice/call entity projection. Mutually exclusive with the ``call_sid`` query parameter."
+                },
+                {
+                  "disabled": false,
+                  "key": "call_sid",
+                  "value": "<string>",
+                  "description": "Direct conversation identifier as stored on the prompt-log event: Twilio CA-SID for voice calls, session_id UUID for text/sim sessions. Most callers should use ``conversation_id`` instead — this is kept for legacy callers and external systems that hold the SID directly. Mutually exclusive with ``conversation_id``."
+                },
+                {
+                  "disabled": false,
+                  "key": "prompt_type",
+                  "value": "<string>",
+                  "description": "Filter by prompt_type (e.g. engage_user, navigation, tool)"
+                },
+                {
+                  "disabled": false,
+                  "key": "state_name",
+                  "value": "<string>",
+                  "description": "Filter by HSM state_name at render time"
+                },
+                {
+                  "disabled": false,
+                  "key": "from_ts",
+                  "value": "<dateTime>",
+                  "description": "Inclusive lower bound on effective_at"
+                },
+                {
+                  "disabled": false,
+                  "key": "to_ts",
+                  "value": "<dateTime>",
+                  "description": "Exclusive upper bound on effective_at"
+                },
+                {
+                  "disabled": false,
+                  "key": "limit",
+                  "value": "20",
+                  "description": "Max rows to return (default 20, max 200)"
+                },
+                {
+                  "disabled": false,
+                  "key": "offset",
+                  "value": "0",
+                  "description": "Offset for pagination (max 10000)"
+                }
+              ],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<uuid>",
+                  "key": "workspace_id",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "e280d174-6f64-48f8-98e6-431baeb25480",
+              "name": "Prompt log entries (newest first)",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    ":workspace_id",
+                    "prompt-logs"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "conversation_id",
+                      "value": "<uuid>"
+                    },
+                    {
+                      "key": "call_sid",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "prompt_type",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "state_name",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "from_ts",
+                      "value": "<dateTime>"
+                    },
+                    {
+                      "key": "to_ts",
+                      "value": "<dateTime>"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "20"
+                    },
+                    {
+                      "key": "offset",
+                      "value": "0"
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "workspace_id",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"items\": [\n    {\n      \"event_id\": \"d98cf1a3-43e3-2175-5dd9-c3376bf21794\",\n      \"workspace_id\": \"a9ab6f73-a9bd-a4ff-8a9c-d2994495de03\",\n      \"call_sid\": \"string\",\n      \"effective_at\": \"1990-07-27T03:52:20.077Z\",\n      \"ingested_at\": \"1969-05-16T06:11:59.286Z\",\n      \"source\": \"string\",\n      \"source_system\": \"string\",\n      \"prompt_type\": \"string\",\n      \"turn_index\": 3985,\n      \"system_prompt\": \"string\",\n      \"history\": [\n        {\n          \"key_0\": 6753.95362342417\n        },\n        {\n          \"key_0\": 9925,\n          \"key_1\": 2300\n        }\n      ],\n      \"full_prompt\": \"string\",\n      \"llm_model\": \"string\",\n      \"llm_response\": \"string\",\n      \"state_name\": \"string\",\n      \"action\": \"string\",\n      \"tool_names\": [\n        \"string\",\n        \"string\"\n      ],\n      \"has_tools\": true,\n      \"service_id\": \"4daf78a4-4a33-f537-a9c7-eda4ebea3858\",\n      \"session_id\": \"string\",\n      \"data_parse_error\": false\n    },\n    {\n      \"event_id\": \"db81d365-8ce0-45eb-e069-71ec3c9295ba\",\n      \"workspace_id\": \"1171f868-51f5-0d2e-538b-e208d52cb1f9\",\n      \"call_sid\": \"string\",\n      \"effective_at\": \"2014-10-20T04:55:58.762Z\",\n      \"ingested_at\": \"1997-06-11T19:52:58.218Z\",\n      \"source\": \"string\",\n      \"source_system\": \"string\",\n      \"prompt_type\": \"string\",\n      \"turn_index\": 4155,\n      \"system_prompt\": \"string\",\n      \"history\": [\n        {\n          \"key_0\": \"string\",\n          \"key_1\": \"string\"\n        },\n        {\n          \"key_0\": \"string\",\n          \"key_1\": \"string\",\n          \"key_2\": 8663.593615262183\n        }\n      ],\n      \"full_prompt\": \"string\",\n      \"llm_model\": \"string\",\n      \"llm_response\": \"string\",\n      \"state_name\": \"string\",\n      \"action\": \"string\",\n      \"tool_names\": [\n        \"string\",\n        \"string\"\n      ],\n      \"has_tools\": false,\n      \"service_id\": \"382e32a8-c319-10a6-869f-27128834b3b6\",\n      \"session_id\": \"string\",\n      \"data_parse_error\": false\n    }\n  ],\n  \"count\": 8831,\n  \"has_more\": true,\n  \"next_offset\": 6557,\n  \"applied_time_window_days\": 871,\n  \"resolved_call_sid\": \"string\",\n  \"resolved_conversation_kind\": \"call\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "760aa0d3-b0b5-4f63-a900-b90910f8f52f",
+              "name": "Mutually exclusive filters supplied",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    ":workspace_id",
+                    "prompt-logs"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "conversation_id",
+                      "value": "<uuid>"
+                    },
+                    {
+                      "key": "call_sid",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "prompt_type",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "state_name",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "from_ts",
+                      "value": "<dateTime>"
+                    },
+                    {
+                      "key": "to_ts",
+                      "value": "<dateTime>"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "20"
+                    },
+                    {
+                      "key": "offset",
+                      "value": "0"
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "workspace_id",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "54a694a3-c1ca-48b9-834f-5d797a56fc36",
+              "name": "Caller is not admin/owner",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    ":workspace_id",
+                    "prompt-logs"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "conversation_id",
+                      "value": "<uuid>"
+                    },
+                    {
+                      "key": "call_sid",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "prompt_type",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "state_name",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "from_ts",
+                      "value": "<dateTime>"
+                    },
+                    {
+                      "key": "to_ts",
+                      "value": "<dateTime>"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "20"
+                    },
+                    {
+                      "key": "offset",
+                      "value": "0"
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "workspace_id",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "35bba073-2374-4ed9-80d6-b5f5e15c8913",
+              "name": "conversation_id does not match any conversation in this workspace",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    ":workspace_id",
+                    "prompt-logs"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "conversation_id",
+                      "value": "<uuid>"
+                    },
+                    {
+                      "key": "call_sid",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "prompt_type",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "state_name",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "from_ts",
+                      "value": "<dateTime>"
+                    },
+                    {
+                      "key": "to_ts",
+                      "value": "<dateTime>"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "20"
+                    },
+                    {
+                      "key": "offset",
+                      "value": "0"
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "workspace_id",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Not Found",
+              "code": 404,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "df2d2672-7755-4ed7-8d55-a0490d806de1",
+              "name": "Validation Error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    ":workspace_id",
+                    "prompt-logs"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "conversation_id",
+                      "value": "<uuid>"
+                    },
+                    {
+                      "key": "call_sid",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "prompt_type",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "state_name",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "from_ts",
+                      "value": "<dateTime>"
+                    },
+                    {
+                      "key": "to_ts",
+                      "value": "<dateTime>"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "20"
+                    },
+                    {
+                      "key": "offset",
+                      "value": "0"
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "workspace_id",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+              "code": 422,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    },\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\",\n      \"input\": {},\n      \"ctx\": {}\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "5b5fece4-1f75-42d1-813c-e98119e5f417",
+              "name": "Raw world event reads disabled or warehouse unavailable",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    ":workspace_id",
+                    "prompt-logs"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "conversation_id",
+                      "value": "<uuid>"
+                    },
+                    {
+                      "key": "call_sid",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "prompt_type",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "state_name",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "from_ts",
+                      "value": "<dateTime>"
+                    },
+                    {
+                      "key": "to_ts",
+                      "value": "<dateTime>"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "20"
+                    },
+                    {
+                      "key": "offset",
+                      "value": "0"
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "workspace_id",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Service Unavailable",
+              "code": 503,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    }
+  ],
+  "event": [],
+  "variable": [
+    {
+      "type": "string",
+      "value": "https://api.amigo.ai",
+      "key": "baseUrl"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{bearerToken}}"
+      }
+    ]
+  },
+  "info": {
+    "_postman_id": "10e5b2f2-a109-426b-8c5f-9cc6f1383898",
+    "name": "Amigo Account Prompt Logs API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": {
+      "content": "",
+      "type": "text/plain"
+    }
+  }
+}

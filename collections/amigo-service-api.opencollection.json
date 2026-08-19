@@ -1,0 +1,242 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Amigo Account Service API",
+    "version": "0.1.0"
+  },
+  "request": {
+    "auth": {
+      "type": "bearer",
+      "token": "{{bearerToken}}"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Service",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Get services",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:organization/service/",
+            "headers": [
+              {
+                "name": "x-mongo-cluster-name",
+                "value": ""
+              },
+              {
+                "name": "Sec-WebSocket-Protocol",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "organization",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "id",
+                "value": "",
+                "type": "query",
+                "description": "The IDs of the services to retrieve."
+              },
+              {
+                "name": "is_active",
+                "value": "",
+                "type": "query",
+                "description": "Whether the service is active."
+              },
+              {
+                "name": "sort_by",
+                "value": "",
+                "type": "query",
+                "description": "The fields to sort the services by. Supported fields are `name` and `is_active`. Specify a `+` before the field name to indicate ascending sorting and `-` for descending sorting. Multiple fields can be specified to break ties."
+              },
+              {
+                "name": "tags",
+                "value": "",
+                "type": "query",
+                "description": "The tags to filter the services by. Must be specified using the syntax `key:value`, which means to match all services with the given `key` and `value` pair among its tags. If `value` is `*`, it means the `value` does not matter. If `value` is empty, it matches against when the value is `None`."
+              },
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query",
+                "description": "The maximum number of services to return."
+              },
+              {
+                "name": "continuation_token",
+                "value": "",
+                "type": "query",
+                "description": "The continuation token from the previous request used to retrieve the next page of services."
+              }
+            ]
+          },
+          "docs": "Retrieve a list of services in this organization.\n\n#### Permissions\nThis endpoint is impacted by the following permissions:\n* Only services that the authenticated user has the `Service:GetService` permission for are returned."
+        },
+        {
+          "info": {
+            "name": "Create a service",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.amigo.ai/v1/:organization/service/",
+            "headers": [
+              {
+                "name": "x-mongo-cluster-name",
+                "value": ""
+              },
+              {
+                "name": "Sec-WebSocket-Protocol",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "organization",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Create a new service. Depending on whether an active service with the same name already exists, the endpoint behaves differently:\n* If `is_active` is `False`, creates an inactive new service.\n* If `is_active` is `True` and no active service with the given name exists, creates a new active service.\n* If `is_active` is `True` and an active service with the given name exists, this endpoint throws an error.\n\nThe new service will automatically contain an `edge` version set that uses the latest `Agent"
+        },
+        {
+          "info": {
+            "name": "Upsert a service version set",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "https://api.amigo.ai/v1/:organization/service/:service_id/version_sets/:version_set_name/",
+            "headers": [
+              {
+                "name": "x-mongo-cluster-name",
+                "value": ""
+              },
+              {
+                "name": "Sec-WebSocket-Protocol",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "service_id",
+                "value": "",
+                "type": "path",
+                "description": "Identifier of the service."
+              },
+              {
+                "name": "version_set_name",
+                "value": "",
+                "type": "path",
+                "description": "Name of the version set to upsert."
+              },
+              {
+                "name": "organization",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Upsert a version set for the specified service. Replace the existing version set with the same name if any, or create a new one.\n\nNote that the `edge` version set cannot be updated.\n\n#### Permissions\nThis endpoint may require the following permissions:\n* `Service:CreateVersionSet` if the version set does not exist.\n* `Service:UpdateVersionSet` if the version set already exists."
+        },
+        {
+          "info": {
+            "name": "Delete a service version set",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "https://api.amigo.ai/v1/:organization/service/:service_id/version_sets/:version_set_name/",
+            "headers": [
+              {
+                "name": "x-mongo-cluster-name",
+                "value": ""
+              },
+              {
+                "name": "Sec-WebSocket-Protocol",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "organization",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "service_id",
+                "value": "",
+                "type": "path",
+                "description": "Identifier of the service."
+              },
+              {
+                "name": "version_set_name",
+                "value": "",
+                "type": "path",
+                "description": "Name of the version set."
+              }
+            ]
+          },
+          "docs": "Delete the given verion set from the given service.\n\nThis endpoint will error if the version set is used in any simulation unit tests.\n\n#### Permissions\nThis endpoint requires the following permissions:\n* `Service:DeleteVersionSet` for the version set."
+        },
+        {
+          "info": {
+            "name": "Update a service",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.amigo.ai/v1/:organization/service/:service_id/",
+            "headers": [
+              {
+                "name": "x-mongo-cluster-name",
+                "value": ""
+              },
+              {
+                "name": "Sec-WebSocket-Protocol",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "service_id",
+                "value": "",
+                "type": "path",
+                "description": "The identifier of the service to update."
+              },
+              {
+                "name": "organization",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Update fields about a service.\n\n#### Permissions\nThis endpoint requires the following permissions:\n* `Service:UpdateService` for the service."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

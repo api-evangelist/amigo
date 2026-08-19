@@ -1,0 +1,84 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Amigo Account Compliance API",
+    "version": "0.1.0"
+  },
+  "request": {
+    "auth": {
+      "type": "bearer",
+      "token": "{{bearerToken}}"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Compliance",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Compliance dashboard composite",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:workspace_id/compliance/dashboard",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Composite compliance dashboard — HIPAA status, retention, credentials summary.\n\nAggregates compliance signals into a single dashboard view.\n\nPermissions: admin, owner."
+        },
+        {
+          "info": {
+            "name": "HIPAA compliance evidence report",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:workspace_id/compliance/hipaa",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "report_period_days",
+                "value": "",
+                "type": "query",
+                "description": "Report period in days"
+              }
+            ]
+          },
+          "docs": "HIPAA compliance evidence report.\n\nAggregates audit statistics, retention policy, encryption status,\nand API key summary for the specified period. Identity-specific\nfields (MFA, SSO, lockout) return null pending integration.\n\nPermissions: admin, owner."
+        },
+        {
+          "info": {
+            "name": "Access review export",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:workspace_id/compliance/access-review",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Access review export for SOC2 attestation.\n\nLists all API key credentials with role, status, and activity dates.\nDownload, review, and upload signed attestation for SOC2 compliance.\n\nPermissions: admin, owner."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

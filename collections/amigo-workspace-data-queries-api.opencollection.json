@@ -1,0 +1,182 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Amigo Account Workspace Data Queries API",
+    "version": "0.1.0"
+  },
+  "request": {
+    "auth": {
+      "type": "bearer",
+      "token": "{{bearerToken}}"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Workspace Data Queries",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "List workspace data queries",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:workspace_id/data_queries",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "sort_by",
+                "value": "",
+                "type": "query",
+                "description": "Sort axes, applied left-to-right. ``+field`` ascending, ``-field``\ndescending. Defaults to ``[(\"deployed_at\", -1)]`` (newest first)."
+              },
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query",
+                "description": "Maximum number of queries to return per page."
+              },
+              {
+                "name": "continuation_token",
+                "value": "",
+                "type": "query",
+                "description": "Opaque continuation token from a prior response. Treat as a\nblack box — the server decodes it."
+              }
+            ]
+          },
+          "docs": "List every registered query for a workspace. Sort via repeated `sort_by` query params; each entry is `+field` or `-field` (allowed field: deployed_at). Default: `-deployed_at`. Cursor opaque — round-trip `continuation_token` unchanged with the same `sort_by`. Requires `Workspace.view` permission."
+        },
+        {
+          "info": {
+            "name": "Create Workspace Data Query",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.amigo.ai/v1/:workspace_id/data_queries",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Create Workspace Data Query"
+        },
+        {
+          "info": {
+            "name": "Get Workspace Data Query",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:workspace_id/data_queries/:query_id",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "query_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Get Workspace Data Query"
+        },
+        {
+          "info": {
+            "name": "Update Workspace Data Query",
+            "type": "http"
+          },
+          "http": {
+            "method": "PATCH",
+            "url": "https://api.amigo.ai/v1/:workspace_id/data_queries/:query_id",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "query_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Update Workspace Data Query"
+        },
+        {
+          "info": {
+            "name": "Delete Workspace Data Query",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "https://api.amigo.ai/v1/:workspace_id/data_queries/:query_id",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "query_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Delete Workspace Data Query"
+        },
+        {
+          "info": {
+            "name": "Invoke Workspace Data Query",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.amigo.ai/v1/:workspace_id/data_queries/:query_id/invoke",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "query_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Invoke Workspace Data Query"
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

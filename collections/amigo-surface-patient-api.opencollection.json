@@ -1,0 +1,247 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Amigo Account Surface Patient API",
+    "version": "0.1.0"
+  },
+  "request": {
+    "auth": {
+      "type": "bearer",
+      "token": "{{bearerToken}}"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Surface Patient",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Redirect To Surface",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/s/f/:surface_id",
+            "params": [
+              {
+                "name": "surface_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Short-URL redirect: ``/s/f/{surface_id}`` → ``/s/{token}``.\n\nGenerates a fresh HMAC token and issues a 302 redirect so that SMS\nmessages can contain a short, clickable link instead of the long\nbase64-encoded token URL."
+        },
+        {
+          "info": {
+            "name": "Lookup Field",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/s/:token/lookup/:lookup_type",
+            "params": [
+              {
+                "name": "token",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "lookup_type",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "q",
+                "value": "",
+                "type": "query"
+              }
+            ]
+          },
+          "docs": "Search healthcare reference data for form field autocompletion.\n\nSupports: medication (RxNorm), allergy (RxNorm), pharmacy (NPPES NPI),\ninsurance (static carrier list). Token-authenticated, no Bearer auth."
+        },
+        {
+          "info": {
+            "name": "Ocr Extract",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.amigo.ai/s/:token/ocr",
+            "params": [
+              {
+                "name": "token",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Extract structured data from an image (e.g. insurance card) using Gemini Vision.\n\nReturns extracted field key-value pairs and a confidence score.\nToken-authenticated, no Bearer auth."
+        },
+        {
+          "info": {
+            "name": "Render Surface",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/s/:token",
+            "params": [
+              {
+                "name": "token",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Render a patient-facing surface as HTML.\n\nToken-authenticated — no Bearer auth required.\nRecords a surface.opened lifecycle event on first view."
+        },
+        {
+          "info": {
+            "name": "Get Surface Spec",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/s/:token/spec",
+            "params": [
+              {
+                "name": "token",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Return surface spec as JSON for the forms app.\n\nThe forms app (Next.js) calls this on SSR to fetch the spec,\nsaved field values, and merged branding. Records surface.opened\nevent on first access."
+        },
+        {
+          "info": {
+            "name": "Get Availability",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/s/:token/availability",
+            "params": [
+              {
+                "name": "token",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "date",
+                "value": "",
+                "type": "query",
+                "description": "ISO date (YYYY-MM-DD) to start search"
+              },
+              {
+                "name": "days",
+                "value": "",
+                "type": "query",
+                "description": "Number of days to search forward"
+              }
+            ]
+          },
+          "docs": "Return available appointment slots for the surface's workspace.\n\nQueries FHIR Slot resources from world.entities_synced that are free\nand within the requested date range. Token-authenticated, no Bearer auth."
+        },
+        {
+          "info": {
+            "name": "Book Appointment",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.amigo.ai/s/:token/book",
+            "params": [
+              {
+                "name": "token",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Submit a booking request for a specific slot.\n\nWrites a booking.requested world event tied to the surface's entity.\nToken-authenticated, no Bearer auth."
+        },
+        {
+          "info": {
+            "name": "Heal Field",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.amigo.ai/s/:token/heal",
+            "params": [
+              {
+                "name": "token",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Auto-heal a form field value using Claude Haiku.\n\nBest-effort LLM correction — returns original value with confidence 0\nif the service is unavailable or inference fails.\nToken-authenticated, no Bearer auth."
+        },
+        {
+          "info": {
+            "name": "Submit Surface",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.amigo.ai/s/:token/submit",
+            "params": [
+              {
+                "name": "token",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Submit a patient-facing surface form.\n\nAccepts standard HTML form POST. Writes surface.submitted event\nwith confidence 0.5 (self-reported data)."
+        },
+        {
+          "info": {
+            "name": "Save Field",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "https://api.amigo.ai/s/:token/fields/:key",
+            "params": [
+              {
+                "name": "token",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "key",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Auto-save a single field value.\n\nCalled by client-side JavaScript on field blur.\nWrites surface.field_saved event with confidence 0.5."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

@@ -1,0 +1,114 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Amigo Account Sessions API",
+    "version": "0.1.0"
+  },
+  "request": {
+    "auth": {
+      "type": "bearer",
+      "token": "{{bearerToken}}"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Sessions",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "List active voice sessions",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:workspace_id/sessions/active",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Real-time list of active voice sessions from Valkey (cross-pod)."
+        },
+        {
+          "info": {
+            "name": "Agones fleet capacity status",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:workspace_id/sessions/fleet-status",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "fleet",
+                "value": "",
+                "type": "query"
+              }
+            ]
+          },
+          "docs": "Live Agones fleet capacity: Ready/Allocated/total GameServers plus headroom against the maxReplicas ceiling. `fleet=voice` (default) reads the per-call voice fleet; `fleet=tool-runner` reads the isolated background-tool fleet. Workspace-GLOBAL — one fleet serves every workspace, so the path workspace_id is only the auth anchor, never a data filter. Operator-only."
+        },
+        {
+          "info": {
+            "name": "Inject event into active session",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.amigo.ai/v1/:workspace_id/sessions/:call_sid/inject",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "call_sid",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Inject an external event or guidance message into an active voice session. The agent incorporates it into its next response. Use event_type='guidance' for operator coaching, 'external_event' for system notifications."
+        },
+        {
+          "info": {
+            "name": "Start a web text conversation session with an entity",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.amigo.ai/v1/:workspace_id/sessions/start",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Start a web text session with a world model entity. Materializes the conversation and returns conversation_id for subsequent turns via POST /v1/{ws}/conversations/{id}/turns."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

@@ -1,0 +1,344 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Amigo Account Settings API",
+    "version": "0.1.0"
+  },
+  "request": {
+    "auth": {
+      "type": "bearer",
+      "token": "{{bearerToken}}"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Settings",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Get retention policy",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:workspace_id/settings/retention",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Get the workspace retention policy.\n\nReturns HIPAA-compliant defaults (2190 days / 6 years) for any field\nnot explicitly configured. Advisory in v1 — no automated deletion.\n\nPermissions: authenticated (any role)."
+        },
+        {
+          "info": {
+            "name": "Update retention policy",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "https://api.amigo.ai/v1/:workspace_id/settings/retention",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Update the workspace retention policy.\n\nPartial updates supported — only provided fields are changed.\nAdvisory in v1: policy is stored and displayed but no automated\ndeletion is performed. Legal hold overrides all retention.\n\nPermissions: admin, owner (``Workspace.update``)."
+        },
+        {
+          "info": {
+            "name": "Get gap scanner settings",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:workspace_id/settings/gap-scanner",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Get the workspace gap scanner settings.\n\nReturns defaults when not configured. Gap scanner is disabled by default.\n\nPermissions: authenticated (any role)."
+        },
+        {
+          "info": {
+            "name": "Update gap scanner settings",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "https://api.amigo.ai/v1/:workspace_id/settings/gap-scanner",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Update the workspace gap scanner settings.\n\nPartial updates supported — only provided fields are changed.\nRequirements list is replaced entirely when provided (not merged).\n\nPermissions: admin, owner (enforced via ``Workspace.update``, matching\nthe outreach-settings sibling)."
+        },
+        {
+          "info": {
+            "name": "Preview gap detection (dry run)",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.amigo.ai/v1/:workspace_id/settings/gap-scanner/preview",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Dry-run gap detection — returns entities with missing fields without creating surfaces.\n\nProxies to connector-runner /internal/gap-scanner/preview.\n\nPermissions: admin, owner (enforced via ``Workspace.update``)."
+        },
+        {
+          "info": {
+            "name": "Trigger one scan tick",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.amigo.ai/v1/:workspace_id/settings/gap-scanner/scan",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Trigger one scan tick immediately — creates surfaces for detected gaps.\n\nProxies to connector-runner /internal/gap-scanner/scan.\n\nPermissions: admin, owner (enforced via ``Workspace.update`` — this\ncreates patient-facing surfaces, so it must not be reachable below\nadmin tier)."
+        },
+        {
+          "info": {
+            "name": "Get metric definitions",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:workspace_id/settings/metrics",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Get the workspace metric definitions.\n\nReturns built-in defaults when not configured.\n\nPermissions: authenticated (any role)."
+        },
+        {
+          "info": {
+            "name": "Update metric definitions",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "https://api.amigo.ai/v1/:workspace_id/settings/metrics",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Update the workspace metric definitions.\n\nPartial updates supported — only provided fields are changed.\nThe definitions list is replaced entirely when provided.\n\nPermissions: admin, owner."
+        },
+        {
+          "info": {
+            "name": "Get outreach settings",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:workspace_id/settings/outreach",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Get the workspace outreach settings.\n\nReturns empty rules and templates when not configured.\n\nPermissions: authenticated (any role)."
+        },
+        {
+          "info": {
+            "name": "Update outreach settings",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "https://api.amigo.ai/v1/:workspace_id/settings/outreach",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Update the workspace outreach settings.\n\nPartial updates supported — only provided fields are changed.\nRules and data_templates lists are replaced entirely when provided.\n\nValidates that data_template_id references in rules point to\ntemplates that exist in the same payload or current settings.\n\nPermissions: admin, owner."
+        },
+        {
+          "info": {
+            "name": "Get workspace branding",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:workspace_id/settings/branding",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Get the workspace default branding for surfaces.\n\nReturns empty branding when not configured.\n\nPermissions: authenticated (any role)."
+        },
+        {
+          "info": {
+            "name": "Update workspace branding",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "https://api.amigo.ai/v1/:workspace_id/settings/branding",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Update the workspace default branding for surfaces.\n\nSurface-level branding takes precedence over workspace-level branding.\n\nPermissions: admin, owner."
+        },
+        {
+          "info": {
+            "name": "Get environment overrides",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:workspace_id/settings/environments",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Get per-environment config overrides.\n\nReturns empty environments when not configured.\n\nPermissions: authenticated (any role)."
+        },
+        {
+          "info": {
+            "name": "Update environment overrides",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "https://api.amigo.ai/v1/:workspace_id/settings/environments",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Update per-environment config overrides.\n\nPermissions: admin, owner."
+        },
+        {
+          "info": {
+            "name": "Get voice settings",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:workspace_id/settings/voice",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Get the voice experience settings for a workspace.\n\nReturns voice identity, domain vocabulary, and post-call intelligence\nconfiguration. These settings shape how the AI agent sounds and what\ndomain-specific terms it recognizes accurately.\n\n#### Permissions\n* Requires authenticated API key (any role)."
+        },
+        {
+          "info": {
+            "name": "Update voice settings",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "https://api.amigo.ai/v1/:workspace_id/settings/voice",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Update the voice experience settings for a workspace.\n\nOnly provided fields are updated; omitted fields retain their current\nvalues. Set a field to ``null`` to reset it to default.\n\n**Voice Identity & Style**\n- **voice_id**: Voice identity UUID — determines the agent's voice persona\n- **tone**: Emotional baseline (``calm``, ``sympathetic``,\n  ``enthusiastic``, ``content``, ``curious``, ``cheerful``,\n  ``serious``, ``friendly``). The system also adapts tone dynamically\n  based on real-time caller"
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

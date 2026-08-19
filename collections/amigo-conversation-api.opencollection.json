@@ -1,0 +1,513 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Amigo Account Conversation API",
+    "version": "0.1.0"
+  },
+  "request": {
+    "auth": {
+      "type": "bearer",
+      "token": "{{bearerToken}}"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Conversation",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Get conversations",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:organization/conversation/",
+            "headers": [
+              {
+                "name": "x-mongo-cluster-name",
+                "value": ""
+              },
+              {
+                "name": "Sec-WebSocket-Protocol",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "organization",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "user_id",
+                "value": "",
+                "type": "query",
+                "description": "The identifier of the user whose conversations to retrieve."
+              },
+              {
+                "name": "service_id",
+                "value": "",
+                "type": "query",
+                "description": "The identifier of the service whose conversation to retrieve."
+              },
+              {
+                "name": "is_finished",
+                "value": "",
+                "type": "query",
+                "description": "Whether the conversation is finished."
+              },
+              {
+                "name": "id",
+                "value": "",
+                "type": "query",
+                "description": "The ID of the conversation to retrieve."
+              },
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query",
+                "description": "The maximum number of conversations to retrieve."
+              },
+              {
+                "name": "continuation_token",
+                "value": "",
+                "type": "query",
+                "description": "The continuation token returned from the previous response to retrieve the next set of conversations."
+              },
+              {
+                "name": "sort_by",
+                "value": "",
+                "type": "query",
+                "description": "The field to sort the conversations by. Supported fields are `created_at`. Specify a `+` before the field name to indicate ascending sorting and `-` for descending sorting. Multiple fields can be specified to break ties."
+              },
+              {
+                "name": "tag",
+                "value": "",
+                "type": "query",
+                "description": "The tags of the dynamic behavior sets. Must be specified using the syntax `key:value`, which means to match all sets with the given `key` and `value` pair among its tags. If `value` is `*`, it means the `value` does not matter. If `value` is empty, it matches against when the value is `None`."
+              }
+            ]
+          },
+          "docs": "Retrieve conversations in an organization based on supplied filters.\n\n#### Permissions\nThis endpoint may be impacted by the following permissions:\n* The `final_message` field in the response is only non-empty if the authenticated user has the `Conversation.GetMessage` permission on the final message.\n* The `version_set_info` field in the response is only non-empty if the authenticated user has the `Service.GetVersionSet` permission on the version set.\n* Only conversations for which the user has "
+        },
+        {
+          "info": {
+            "name": "Create a conversation",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.amigo.ai/v1/:organization/conversation/",
+            "headers": [
+              {
+                "name": "x-mongo-cluster-name",
+                "value": ""
+              },
+              {
+                "name": "Sec-WebSocket-Protocol",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "organization",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "response_format",
+                "value": "",
+                "type": "query",
+                "description": "The format of the response that will be sent to the user."
+              },
+              {
+                "name": "current_agent_action_type",
+                "value": "",
+                "type": "query",
+                "description": "A regex for filtering the type of the current agent action to return. By default, all are returned. If you don't want to receive any events, set this to a regex that matches nothing, for instance `^$`."
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Create a new conversation and start it. The user must not have any unfinished conversations that belong to the same service.\n\n#### Permissions\nThis endpoint requires the following permissions:\n* `Conversation:CreateConversation` for the new conversation.\n\nThis endpoint may be impacted by the following permissions:\n* `CurrentAgentActionEvent`s are only emitted if the authenticated user has the `Conversation:GetInteractionInsights` permission."
+        },
+        {
+          "info": {
+            "name": "Get conversation messages",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:organization/conversation/:conversation_id/messages/",
+            "headers": [
+              {
+                "name": "x-mongo-cluster-name",
+                "value": ""
+              },
+              {
+                "name": "Sec-WebSocket-Protocol",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "organization",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "conversation_id",
+                "value": "",
+                "type": "path",
+                "description": "The identifier of the conversation."
+              },
+              {
+                "name": "id",
+                "value": "",
+                "type": "query",
+                "description": "The IDs of the messages to retrieve."
+              },
+              {
+                "name": "message_type",
+                "value": "",
+                "type": "query",
+                "description": "The type of messages to retrieve."
+              },
+              {
+                "name": "interaction_id",
+                "value": "",
+                "type": "query",
+                "description": "The IDs of the interactions to retrieve messages for."
+              },
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query",
+                "description": "The maximum number of messages to return. At most 500 messages can be returned in one request."
+              },
+              {
+                "name": "continuation_token",
+                "value": "",
+                "type": "query",
+                "description": "The continuation token to use to retrieve the next set of messages."
+              },
+              {
+                "name": "sort_by",
+                "value": "",
+                "type": "query",
+                "description": "The field to sort the messages by. Supported fields are `interaction_id` and `created_at`. Specify a `+` before the field name to indicate ascending sorting and `-` for descending sorting. Multiple fields can be specified to break ties."
+              }
+            ]
+          },
+          "docs": "Retrieve messages in a conversation, sorted in the specified order, up to the specified limit.\n\n#### Permissions\nThis endpoint is impacted by the following permissions:\n* Only messages that the authenticated user has `Conversation.GetMessage` permission on will be returned."
+        },
+        {
+          "info": {
+            "name": "Finish a conversation",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.amigo.ai/v1/:organization/conversation/:conversation_id/finish/",
+            "headers": [
+              {
+                "name": "x-mongo-cluster-name",
+                "value": ""
+              },
+              {
+                "name": "Sec-WebSocket-Protocol",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "conversation_id",
+                "value": "",
+                "type": "path",
+                "description": "The identifier of the conversation to finish."
+              },
+              {
+                "name": "organization",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Conclude a conversation and asynchronously initiate post-conversation analysis.\n\nThis endpoint should only be called on a started, non-finished conversation. It can only be called when the previous [`Start a conversation`](start-conversation) and\n[`Interact with a conversation`](interact-with-conversation) calls have finished.\n\nIf the conversation has no messages, the conversation is deleted.\n\nIt's possible for some conversations to automatically finish during an [`Interact with a conversation`]"
+        },
+        {
+          "info": {
+            "name": "Recommend responses for interaction",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.amigo.ai/v1/:organization/conversation/:conversation_id/interaction/:interaction_id/recommend_responses",
+            "headers": [
+              {
+                "name": "x-mongo-cluster-name",
+                "value": ""
+              },
+              {
+                "name": "Sec-WebSocket-Protocol",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "conversation_id",
+                "value": "",
+                "type": "path",
+                "description": "The identifier of the conversation."
+              },
+              {
+                "name": "interaction_id",
+                "value": "",
+                "type": "path",
+                "description": "The identifier of the most recent interaction."
+              },
+              {
+                "name": "organization",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Generate a recommended response for the user to send based on the existing chat history. This should be called when the most recent interaction\nhad concluded for a while but the user still hasn't responded.\n\n#### Permissions:\nThis endpoint requires the following permissions:\n* `Conversation:GetRecommendedResponses` on this conversation."
+        },
+        {
+          "info": {
+            "name": "Get interaction insights",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:organization/conversation/:conversation_id/interaction/:interaction_id/insights",
+            "headers": [
+              {
+                "name": "x-mongo-cluster-name",
+                "value": ""
+              },
+              {
+                "name": "Sec-WebSocket-Protocol",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "conversation_id",
+                "value": "",
+                "type": "path",
+                "description": "The identifier of the conversation."
+              },
+              {
+                "name": "interaction_id",
+                "value": "",
+                "type": "path",
+                "description": "The identifier of the interaction."
+              },
+              {
+                "name": "organization",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Retrieve insights about the agent's message for a given interaction.\n\n#### Permissions:\nThis endpoint requires the following permissions:\n* `Conversation:GetInteractionInsights` on the conversation.\n* `Organization:GetServiceHierarchicalStateMachine` on the state machine that the current interaction is in.\n\nThis endpoint may be impacted by the following permissions:\n* Only reflection messages for which the authenticated user has the `Conversation:GetMessage` permission are included in the respon"
+        },
+        {
+          "info": {
+            "name": "Interact with a conversation",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.amigo.ai/v1/:organization/conversation/:conversation_id/interact",
+            "headers": [
+              {
+                "name": "content-type",
+                "value": ""
+              },
+              {
+                "name": "x-mongo-cluster-name",
+                "value": ""
+              },
+              {
+                "name": "Sec-WebSocket-Protocol",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "conversation_id",
+                "value": "",
+                "type": "path",
+                "description": "The identifier of the conversation to send a message to."
+              },
+              {
+                "name": "organization",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "request_format",
+                "value": "",
+                "type": "query",
+                "description": "The format in which the user message is delivered to the server."
+              },
+              {
+                "name": "response_format",
+                "value": "",
+                "type": "query",
+                "description": "The format of the response that will be sent to the user."
+              },
+              {
+                "name": "current_agent_action_type",
+                "value": "",
+                "type": "query",
+                "description": "A regex for filtering the type of the current agent action to return. By default, all are returned. If you don't want to receive any events, set this to a regex that matches nothing, for instance `^$`."
+              },
+              {
+                "name": "request_audio_config",
+                "value": "",
+                "type": "query",
+                "description": "Configuration for the user message audio. This is only required if `request_format` is set to `voice`."
+              }
+            ],
+            "body": {
+              "type": "multipart-form",
+              "data": []
+            }
+          },
+          "docs": "Send a new user message to the conversation. The endpoint will perform analysis and generate an agent message in response.\n\nA `UserMessageAvailableEvent` will be the first event in the response, which includes the user message if it's sent as text, or the transcribed message if it's sent as voice.\nA series of `CurrentAgentActionEvent`s will follow, which indicates steps in the agent's thinking process. Then the agent message is generated sequentially in pieces, with each piece\nbeing sent as a `N"
+        },
+        {
+          "info": {
+            "name": "Retrieve message source",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:organization/conversation/:conversation_id/messages/:message_id/source",
+            "headers": [
+              {
+                "name": "x-mongo-cluster-name",
+                "value": ""
+              },
+              {
+                "name": "Sec-WebSocket-Protocol",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "organization",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "conversation_id",
+                "value": "",
+                "type": "path",
+                "description": "The identifier of the conversation."
+              },
+              {
+                "name": "message_id",
+                "value": "",
+                "type": "path",
+                "description": "The identifier of the message."
+              },
+              {
+                "name": "long_lived",
+                "value": "",
+                "type": "query",
+                "description": "Whether to generate a long-lived URL which lasts 12 hours. For security purposes, it's recommended to set this to false as much as possible."
+              }
+            ]
+          },
+          "docs": "Retrieve the raw source of the given message. It's only applicable to messages that did not originate as texts.\n\n#### Permissions\nThis endpoint requires the following permissions:\n* `Conversation:GetMessage` on the the message."
+        },
+        {
+          "info": {
+            "name": "Generate conversation starters for a service",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.amigo.ai/v1/:organization/conversation/conversation_starter",
+            "headers": [
+              {
+                "name": "x-mongo-cluster-name",
+                "value": ""
+              },
+              {
+                "name": "Sec-WebSocket-Protocol",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "organization",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Generate conversation starters for a service.\n\n#### Permissions\nThis endpoint requires the following permissions:\n* `Conversation:CreateConversation` for a hypothetical new conversation created using the same setting."
+        },
+        {
+          "info": {
+            "name": "Modify tags of a conversation",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.amigo.ai/v1/:organization/conversation/:conversation_id/tags/",
+            "headers": [
+              {
+                "name": "x-mongo-cluster-name",
+                "value": ""
+              },
+              {
+                "name": "Sec-WebSocket-Protocol",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "organization",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "conversation_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Modify the tags of a conversation.\n\n#### Permissions\nThis endpoint requires the following permissions:\n* `Conversation:ModifyConversation` for the conversation to modify tags for."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

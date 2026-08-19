@@ -1,0 +1,634 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Amigo Account Tool API",
+    "version": "0.1.0"
+  },
+  "request": {
+    "auth": {
+      "type": "bearer",
+      "token": "{{bearerToken}}"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Tool",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Get the latest tool scaffold release",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:organization/tool/amigo_tool_scaffold.tar.gz",
+            "headers": [
+              {
+                "name": "x-mongo-cluster-name",
+                "value": ""
+              },
+              {
+                "name": "Sec-WebSocket-Protocol",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "organization",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Get the latest tool scaffold release"
+        },
+        {
+          "info": {
+            "name": "Get tools",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:organization/tool/",
+            "headers": [
+              {
+                "name": "x-mongo-cluster-name",
+                "value": ""
+              },
+              {
+                "name": "Sec-WebSocket-Protocol",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "organization",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "id",
+                "value": "",
+                "type": "query",
+                "description": "The IDs of the tools to retrieve."
+              },
+              {
+                "name": "deprecated",
+                "value": "",
+                "type": "query",
+                "description": "Whether the tools are deprecated."
+              },
+              {
+                "name": "sort_by",
+                "value": "",
+                "type": "query",
+                "description": "The fields to sort the versions by. Supported fields are `name` and `deprecated`. Specify a `+` before the field name to indicate ascending sorting and `-` for descending sorting. Multiple fields can be specified to break ties."
+              },
+              {
+                "name": "tag",
+                "value": "",
+                "type": "query",
+                "description": "The tags of the simulation personas. Must be specified using the syntax `key:value`, which means to match all sets with the given `key` and `value` pair among its tags. If `value` is `*`, it means the `value` does not matter. If `value` is empty, it matches against when the value is `None`."
+              },
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query",
+                "description": "The maximum number of tools to return."
+              },
+              {
+                "name": "continuation_token",
+                "value": "",
+                "type": "query",
+                "description": "The continuation token from the previous request used to retrieve the next page of tools."
+              }
+            ]
+          },
+          "docs": "Get tools"
+        },
+        {
+          "info": {
+            "name": "Create a new tool",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.amigo.ai/v1/:organization/tool/",
+            "headers": [
+              {
+                "name": "x-mongo-cluster-name",
+                "value": ""
+              },
+              {
+                "name": "Sec-WebSocket-Protocol",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "organization",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Create a new tool. The tool will not contain any versions initially so is not usable until at least one version is published.\n\n#### Permissions\nThis endpoint requires the following permissions:\n* `Tool:CreateTool` for the tool to create."
+        },
+        {
+          "info": {
+            "name": "Deprecate tool versions",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "https://api.amigo.ai/v1/:organization/tool/:tool_id/version/:versions",
+            "headers": [
+              {
+                "name": "x-mongo-cluster-name",
+                "value": ""
+              },
+              {
+                "name": "Sec-WebSocket-Protocol",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "organization",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "tool_id",
+                "value": "",
+                "type": "path",
+                "description": "The ID of the tool to deprecate."
+              },
+              {
+                "name": "versions",
+                "value": "",
+                "type": "path",
+                "description": "A semver constraint that specifies the version to deprecate in the [Python packaging specification](https://packaging.python.org/en/latest/specifications/version-specifiers/#id5). All versions that match this constraint will be deprecated."
+              }
+            ]
+          },
+          "docs": "Deprecate tool versions that match the specified semver constraint.\n\n#### Permissions\nThis endpoint requires the following permissions:\n* `Tool:ModifyTool` on the tool whose versions to deprecate."
+        },
+        {
+          "info": {
+            "name": "Modify a tool",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.amigo.ai/v1/:organization/tool/:tool_id",
+            "headers": [
+              {
+                "name": "x-mongo-cluster-name",
+                "value": ""
+              },
+              {
+                "name": "Sec-WebSocket-Protocol",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "organization",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "tool_id",
+                "value": "",
+                "type": "path",
+                "description": "The ID of the tool to modify"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Modify basic properties of a tool, such as its description and tags.\n\n#### Permissions\nThis endpoint requires the following permissions:\n* `Tool:ModifyTool` for the tool to modify."
+        },
+        {
+          "info": {
+            "name": "Deprecate a tool",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "https://api.amigo.ai/v1/:organization/tool/:tool_id",
+            "headers": [
+              {
+                "name": "x-mongo-cluster-name",
+                "value": ""
+              },
+              {
+                "name": "Sec-WebSocket-Protocol",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "organization",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "tool_id",
+                "value": "",
+                "type": "path",
+                "description": "The ID of the tool to deprecate."
+              }
+            ]
+          },
+          "docs": "Deprecate the specified tool. All versions of the tool will be deprecated and the tool will no longer be used.\n\nAfter the endpoint concludes, the deprecation will take around 1 minute to propagate across the system.\n\n#### Permissions\nThis endpoint requires the following permissions:\n* `Tool:DeleteTool` on the tool to deprecate."
+        },
+        {
+          "info": {
+            "name": "Test a tool",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.amigo.ai/v1/:organization/tool/test",
+            "headers": [
+              {
+                "name": "x-mongo-cluster-name",
+                "value": ""
+              },
+              {
+                "name": "Sec-WebSocket-Protocol",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "organization",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Test a tool"
+        },
+        {
+          "info": {
+            "name": "Modify the environment variables of a tool",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.amigo.ai/v1/:organization/tool/:tool_id/envvar",
+            "headers": [
+              {
+                "name": "x-mongo-cluster-name",
+                "value": ""
+              },
+              {
+                "name": "Sec-WebSocket-Protocol",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "organization",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "tool_id",
+                "value": "",
+                "type": "path",
+                "description": "The ID of the tool to modify"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Add, update, or delete the environment variables of a tool. Environment variables must be present in the tool before any versions requiring them can be published.\n\nYou cannot delete variables that are required by non-deprecated tool versions.\n\n#### Permissions\nThis endpoint requires the following permissions:\n* `Tool:ModifyTool` for the tool whose environment variables to modify."
+        },
+        {
+          "info": {
+            "name": "Get tool versions",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:organization/tool/:tool_id/version",
+            "headers": [
+              {
+                "name": "x-mongo-cluster-name",
+                "value": ""
+              },
+              {
+                "name": "Sec-WebSocket-Protocol",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "organization",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "tool_id",
+                "value": "",
+                "type": "path",
+                "description": "The ID of the tool to retrieve versions for."
+              },
+              {
+                "name": "deprecated",
+                "value": "",
+                "type": "query",
+                "description": "Whether to filter by deprecated tool versions."
+              },
+              {
+                "name": "versions",
+                "value": "",
+                "type": "query",
+                "description": "A semver constraint that specifies the versions to retrieve."
+              },
+              {
+                "name": "sort_by",
+                "value": "",
+                "type": "query",
+                "description": "The fields to sort the versions by. Supported fields are `created_at`, `version.major`, `version.minor`, `version.patch`, and `deprecated`. Specify a `+` before the field name to indicate ascending sorting and `-` for descending sorting. Multiple fields can be specified to break ties.    "
+              },
+              {
+                "name": "creator",
+                "value": "",
+                "type": "query",
+                "description": "The creators of the tool versions. Each value must be of the format `org_id,user_id`."
+              },
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query",
+                "description": "The maximum number of tool versions to return."
+              },
+              {
+                "name": "continuation_token",
+                "value": "",
+                "type": "query",
+                "description": "The continuation token from the previous request used to retrieve the next page of tool versions."
+              }
+            ]
+          },
+          "docs": "Get tool versions"
+        },
+        {
+          "info": {
+            "name": "Publish a new version of a tool",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.amigo.ai/v1/:organization/tool/:tool_id/version",
+            "headers": [
+              {
+                "name": "x-mongo-cluster-name",
+                "value": ""
+              },
+              {
+                "name": "Sec-WebSocket-Protocol",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "organization",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "tool_id",
+                "value": "",
+                "type": "path",
+                "description": "The ID of the tool to publish"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Publish a new version of the specified tool. After this endpoint finishes, the new version will be immediately available for use.\n\nThis endpoint will take roughly 1-5 minutes to complete, so please adjust the timeout settings of your HTTP client accordingly.\n\n#### Permissions\nThis endpoint requires the following permissions:\n* `Tool:ModifyTool` for the tool."
+        },
+        {
+          "info": {
+            "name": "Get tool invocations",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:organization/tool/invocation",
+            "headers": [
+              {
+                "name": "x-mongo-cluster-name",
+                "value": ""
+              },
+              {
+                "name": "Sec-WebSocket-Protocol",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "organization",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "tool_id",
+                "value": "",
+                "type": "query",
+                "description": "The IDs of the tools to get invocations for."
+              },
+              {
+                "name": "version",
+                "value": "",
+                "type": "query",
+                "description": "A list of semver constraints that specifies the versions to retrieve in the [Python packaging specification](https://packaging.python.org/en/latest/specifications/version-specifiers/#id5). This must be the exact same length as `tool_id`, and each entry corresponds to the tool ID at the same index."
+              },
+              {
+                "name": "invocation_source_type",
+                "value": "",
+                "type": "query",
+                "description": "The source types of the invocations."
+              },
+              {
+                "name": "conversation_id",
+                "value": "",
+                "type": "query",
+                "description": "The conversation IDs associated with the invocations if they are of invocation source `regular-conversation`."
+              },
+              {
+                "name": "simulation_unit_test_set_run_id",
+                "value": "",
+                "type": "query",
+                "description": "The simulation unit test set run IDs associated with the invocations if they are of invocation source `simulation-conversation`."
+              },
+              {
+                "name": "succeeded",
+                "value": "",
+                "type": "query",
+                "description": "Whether the invocation succeeded."
+              },
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query",
+                "description": "The maximum number of tool invocations to retrieve."
+              },
+              {
+                "name": "continuation_token",
+                "value": "",
+                "type": "query",
+                "description": "The token from the previous request to return the next page of tool invocations."
+              },
+              {
+                "name": "sort_by",
+                "value": "",
+                "type": "query",
+                "description": "The fields to sort the sets by. Supported fields are `created_at`, `version.major`, `version.minor`, `version.patch`, `tool_id`, `invocation_source.type`, and `invocation_status.succeeded`. Specify a `+` before the field name to indicate ascending sorting and `-` for descending sorting. Multiple fields can be specified to break ties."
+              }
+            ]
+          },
+          "docs": "Retrieve tool invocations under the specified filters.\n\n#### Permissions\nThis endpoint may require the following permission:\n* `Conversation:GetInteractionInsights` for `ToolInvocation`s from a regular conversation.\n* `Simulation:GetSimulationUnitTestSetRun` for `ToolInvocation`s from a simulation conversation."
+        },
+        {
+          "info": {
+            "name": "Invoke a tool version",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.amigo.ai/v1/:organization/tool/:tool_id/version/:version/invoke",
+            "headers": [
+              {
+                "name": "x-mongo-cluster-name",
+                "value": ""
+              },
+              {
+                "name": "Sec-WebSocket-Protocol",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "organization",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "tool_id",
+                "value": "",
+                "type": "path",
+                "description": "The ID of the tool to invoke"
+              },
+              {
+                "name": "version",
+                "value": "",
+                "type": "path",
+                "description": "The version of the tool to invoke"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Invoke a specified tool version with the given input parameters.\n\n#### Permissions\nThis endpoint requires the following permissions:\n* `Tool:InvokeTool` for the tool to invoke."
+        },
+        {
+          "info": {
+            "name": "Search tool invocations",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:organization/tool/invocation/search",
+            "headers": [
+              {
+                "name": "x-mongo-cluster-name",
+                "value": ""
+              },
+              {
+                "name": "Sec-WebSocket-Protocol",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "organization",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "query",
+                "value": "",
+                "type": "query",
+                "description": "The search query."
+              },
+              {
+                "name": "query_against",
+                "value": "",
+                "type": "query",
+                "description": "The fields to query against. By default, all supported fields are queried against."
+              },
+              {
+                "name": "tool_id",
+                "value": "",
+                "type": "query",
+                "description": "The IDs of the tools to get invocations for."
+              },
+              {
+                "name": "invocation_source_type",
+                "value": "",
+                "type": "query",
+                "description": "The source of the invocation."
+              },
+              {
+                "name": "conversation_id",
+                "value": "",
+                "type": "query",
+                "description": "The conversation ID associated with the invocation if it's of invocation source `regular-conversation`."
+              },
+              {
+                "name": "simulation_unit_test_set_run_id",
+                "value": "",
+                "type": "query",
+                "description": "The simulation unit test set run ID associated with the invocation if it's of invocation source `simulation-conversation`."
+              },
+              {
+                "name": "succeeded",
+                "value": "",
+                "type": "query",
+                "description": "Whether the invocation succeeded."
+              }
+            ]
+          },
+          "docs": "Search tool invocations"
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

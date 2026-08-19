@@ -1,0 +1,434 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Amigo Account User API",
+    "version": "0.1.0"
+  },
+  "request": {
+    "auth": {
+      "type": "bearer",
+      "token": "{{bearerToken}}"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "User",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Get users",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:organization/user/",
+            "headers": [
+              {
+                "name": "x-mongo-cluster-name",
+                "value": ""
+              },
+              {
+                "name": "Sec-WebSocket-Protocol",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "organization",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "user_id",
+                "value": "",
+                "type": "query",
+                "description": "The ID of the user."
+              },
+              {
+                "name": "email",
+                "value": "",
+                "type": "query",
+                "description": "The email of the user."
+              },
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query",
+                "description": "The maximum number of users to retrieve."
+              },
+              {
+                "name": "continuation_token",
+                "value": "",
+                "type": "query",
+                "description": "The token from the previous request to return the next page of users."
+              },
+              {
+                "name": "sort_by",
+                "value": "",
+                "type": "query",
+                "description": "The fields to sort the sets by. Supported fields are `first_name`, `last_name`, `email`, `user_stats.num_conversations`, `user_stats.num_messages`, and `user_stats.last_message_time`. Specify a `+` before the field name to indicate ascending sorting and `-` for descending sorting. Multiple fields can be specified to break ties."
+              }
+            ]
+          },
+          "docs": "Retrieve all users in an organization.\n\n#### Permissions\nThis endpoint is impacted by the following permissions:\n* Only users that the authenticated user has the `User:GetUserInfo` permission for are returned."
+        },
+        {
+          "info": {
+            "name": "Create a new user",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.amigo.ai/v1/:organization/user/",
+            "headers": [
+              {
+                "name": "x-mongo-cluster-name",
+                "value": ""
+              },
+              {
+                "name": "Sec-WebSocket-Protocol",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "organization",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Invite a user to the Amigo platform. The endpoint will create a new user in the organization, linked to the\nsupplied email address. The created user will remain in the unverified status and will not have access to most of Amigo's services.\n\nIf `login_link` is not-`None`, an email containing it will be sent to the user's email with descriptions indicating that this would allow the user to login\nand start their Amigo experience. Otherwise, no email will be sent.\n\n#### Permissions\nThis endpoint req"
+        },
+        {
+          "info": {
+            "name": "Sign in with API key",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.amigo.ai/v1/:organization/user/signin_with_api_key",
+            "headers": [
+              {
+                "name": "x-api-key",
+                "value": ""
+              },
+              {
+                "name": "x-api-key-id",
+                "value": ""
+              },
+              {
+                "name": "x-user-id",
+                "value": ""
+              },
+              {
+                "name": "x-mongo-cluster-name",
+                "value": ""
+              },
+              {
+                "name": "Sec-WebSocket-Protocol",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "organization",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Given an organization API key, issue an authorization token for the specified user. The token should then be attached to the `Authorization` header in subsequent Amigo API calls.\n\nThis is an alternative authorization method for users who cannot use the Amigo frontend to login and authenticate."
+        },
+        {
+          "info": {
+            "name": "Sign in with email",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.amigo.ai/v1/:organization/user/signin",
+            "headers": [
+              {
+                "name": "x-mongo-cluster-name",
+                "value": ""
+              },
+              {
+                "name": "Sec-WebSocket-Protocol",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "organization",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Send a magic link to the user's email to sign in. If the specified email doesn't correspond to an user, the endpoint succeeds silently."
+        },
+        {
+          "info": {
+            "name": "Update user info",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.amigo.ai/v1/:organization/user/:requested_user_id",
+            "headers": [
+              {
+                "name": "x-mongo-cluster-name",
+                "value": ""
+              },
+              {
+                "name": "Sec-WebSocket-Protocol",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "requested_user_id",
+                "value": "",
+                "type": "path",
+                "description": "The identifier of the user to update information for."
+              },
+              {
+                "name": "organization",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Update information about an user. Only fields that are specified in the request are updated.\n\n#### Permissions\nThis endpoint requires the following permissions:\n* `User:UpdateUserInfo` for the user to update."
+        },
+        {
+          "info": {
+            "name": "Delete an user",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "https://api.amigo.ai/v1/:organization/user/:requested_user_id",
+            "headers": [
+              {
+                "name": "x-mongo-cluster-name",
+                "value": ""
+              },
+              {
+                "name": "Sec-WebSocket-Protocol",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "requested_user_id",
+                "value": "",
+                "type": "path",
+                "description": "The identifier of the user to delete."
+              },
+              {
+                "name": "organization",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Delete an user. This endpoint deletes the user from the Amigo system.\n\n#### Permissions\nThis endpoint requires the following permissions:\n* `User.DeleteUser` on the user to delete."
+        },
+        {
+          "info": {
+            "name": "Get user model",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:organization/user/:user_id/user_model",
+            "headers": [
+              {
+                "name": "x-mongo-cluster-name",
+                "value": ""
+              },
+              {
+                "name": "Sec-WebSocket-Protocol",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "organization",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "user_id",
+                "value": "",
+                "type": "path",
+                "description": "The ID of the user whose user models to retrieve."
+              }
+            ]
+          },
+          "docs": "Retrieve the user models for an user.\n\n#### Permissions\nThis endpoint requires the following permissions:\n* `User:GetUserModel` for the user to retrieve the user models for."
+        },
+        {
+          "info": {
+            "name": "Get memories",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:organization/user/:user_id/memory",
+            "headers": [
+              {
+                "name": "x-mongo-cluster-name",
+                "value": ""
+              },
+              {
+                "name": "Sec-WebSocket-Protocol",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "organization",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "user_id",
+                "value": "",
+                "type": "path",
+                "description": "The ID of the user to retrieve memories for."
+              },
+              {
+                "name": "id",
+                "value": "",
+                "type": "query",
+                "description": "The IDs of the memories to retrieve."
+              },
+              {
+                "name": "conversation_id",
+                "value": "",
+                "type": "query",
+                "description": "The IDs of the conversations to retrieve memories from."
+              },
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query",
+                "description": "The maximum number of memories to retrieve."
+              },
+              {
+                "name": "continuation_token",
+                "value": "",
+                "type": "query",
+                "description": "The token from the previous request to return the next page of memories."
+              },
+              {
+                "name": "sort_by",
+                "value": "",
+                "type": "query",
+                "description": "The fields to sort the sets by. Supported fields are `conversation_id` and `created_at`. Specify a `+` before the field name to indicate ascending sorting and `-` for descending sorting. Multiple fields can be specified to break ties."
+              }
+            ]
+          },
+          "docs": "Retrieve memories for the specified users.\n\n#### Permissions\nThis endpoint may be impacted by the following permissions:\n* Only memories with references that the authenticated user has the `Conversation:GetMessage` permission on will be returned."
+        },
+        {
+          "info": {
+            "name": "Search users",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:organization/user/search/",
+            "headers": [
+              {
+                "name": "x-mongo-cluster-name",
+                "value": ""
+              },
+              {
+                "name": "Sec-WebSocket-Protocol",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "organization",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "query",
+                "value": "",
+                "type": "query",
+                "description": "The search query. Any users whose name or email contains the query are returned."
+              },
+              {
+                "name": "user_id",
+                "value": "",
+                "type": "query",
+                "description": "The IDs of the users."
+              }
+            ]
+          },
+          "docs": "Search users in the organization using their names or emails.\n\n#### Permissions\nThis endpoint may be impacted by the following permissions:\n* Only users that the authenticated user has the `User:GetUserInfo` permission for will be returned."
+        },
+        {
+          "info": {
+            "name": "Modify the variables of an user",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.amigo.ai/v1/:organization/user/:requested_user_id/variable",
+            "headers": [
+              {
+                "name": "x-mongo-cluster-name",
+                "value": ""
+              },
+              {
+                "name": "Sec-WebSocket-Protocol",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "organization",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "requested_user_id",
+                "value": "",
+                "type": "path",
+                "description": "The identifier of the user to update information for."
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Upsert or delete the user's variables. These changes are only reflected in tool invocations that are not yet made.\n\n#### Permissions\nThis endpoint requires the following permissions:\n* `User:UpdateUserInfo` for the user to modify variables for."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

@@ -1,0 +1,224 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Amigo Account conversations API",
+    "version": "0.1.0"
+  },
+  "request": {
+    "auth": {
+      "type": "bearer",
+      "token": "{{bearerToken}}"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "conversations",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Create or start a conversation (web inbound, or outbound on a channel)",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.amigo.ai/v1/:workspace_id/conversations",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Create or start a conversation (web inbound, or outbound on a channel)"
+        },
+        {
+          "info": {
+            "name": "Switch a conversation to another channel",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.amigo.ai/v1/:workspace_id/conversations/:conversation_id/channel",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "conversation_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Move an active conversation onto a different channel (sms/imessage today). The durable conversation id is preserved — the same conversation continues; only its routing changes. Optionally dispatch a first agent turn on the new channel."
+        },
+        {
+          "info": {
+            "name": "Get conversation detail (voice or text)",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:workspace_id/conversations/:conversation_id",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "conversation_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "include_tool_calls",
+                "value": "",
+                "type": "query",
+                "description": "Include per-turn tool_calls[] in the returned turns. Off by default so the payload stays small and (potentially PHI-bearing) tool output is opt-in, matching POST /turns?include_tool_calls=true."
+              }
+            ]
+          },
+          "docs": "Get conversation detail (voice or text)"
+        },
+        {
+          "info": {
+            "name": "Close a conversation",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "https://api.amigo.ai/v1/:workspace_id/conversations/:conversation_id",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "conversation_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Close a conversation"
+        },
+        {
+          "info": {
+            "name": "Send a message and get the agent's response",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.amigo.ai/v1/:workspace_id/conversations/:conversation_id/turns",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "conversation_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "include_tool_calls",
+                "value": "",
+                "type": "query",
+                "description": "Include tool call details in response"
+              },
+              {
+                "name": "poll",
+                "value": "",
+                "type": "query",
+                "description": "Poll for background results without sending a user message. Drains any background tool calls that completed since the last turn and reports them; returns empty output when nothing is pending. Must NOT be combined with a request-body ``message`` (422) or SSE streaming (422). Poll no more than once every ~5s per conversation — each poll loads session state."
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Send a user message and receive the agent's response. Set `Accept: text/event-stream` to receive an SSE stream of typed `TurnStreamEvent` frames (token, tool_call_started, tool_call_completed, thinking, message, done, error) instead of the synchronous JSON response. For new integrations prefer `POST /turns/stream`, which is always SSE."
+        },
+        {
+          "info": {
+            "name": "Send a message and receive a streamed agent response",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.amigo.ai/v1/:workspace_id/conversations/:conversation_id/turns/stream",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "conversation_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "include_tool_calls",
+                "value": "",
+                "type": "query",
+                "description": "Include tool_call_started / tool_call_completed frames in the stream"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Streaming variant of `POST /turns`. Always returns `text/event-stream` regardless of the `Accept` header — no JSON fallback. Each frame is a `TurnStreamEvent` discriminated by the `event` field (token, tool_call_started, tool_call_completed, thinking, message, done, error). Use this endpoint for new integrations; the `Accept`-sniffing variant remains for backward compatibility."
+        },
+        {
+          "info": {
+            "name": "Approve or reject a parked write in your own conversation (external-user self-approval)",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.amigo.ai/v1/:workspace_id/conversations/:conversation_id/approval",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "conversation_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Lets the external user who owns a conversation approve or reject a write that the agent paused for their confirmation. Only the conversation's own external user may call this; it requires the `conversations:approve_own` scope."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

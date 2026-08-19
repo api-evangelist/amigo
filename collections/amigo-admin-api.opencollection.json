@@ -1,0 +1,118 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Amigo Account Admin API",
+    "version": "0.1.0"
+  },
+  "request": {
+    "auth": {
+      "type": "bearer",
+      "token": "{{bearerToken}}"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Admin",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Get prompt logs",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:organization/admin/get_prompt_logs/",
+            "headers": [
+              {
+                "name": "x-mongo-cluster-name",
+                "value": ""
+              },
+              {
+                "name": "Sec-WebSocket-Protocol",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "organization",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "prompt_log_prefix",
+                "value": "",
+                "type": "query",
+                "description": "The prefix of the prompt log to retrieve."
+              }
+            ]
+          },
+          "docs": "Download all rendered prompt logs whose log keys match the supplied prefix that are produced in the past 30 days. Only prefixes corresponding to less than or equal to 1000 prompt logs are allowed.\nThe prompt logs will be returned in a zip file format, with each prompt log corresponding to at most 2 files -- `{log_key}-system` for the rendered system prompt, and `{log_key}-history` for the\nrendered history prompts, where each history prompt is separated by `---`.\n\nIf an error is encountered durin"
+        },
+        {
+          "info": {
+            "name": "Submit a SQL query",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.amigo.ai/v1/:organization/admin/sql_query",
+            "headers": [
+              {
+                "name": "x-mongo-cluster-name",
+                "value": ""
+              },
+              {
+                "name": "Sec-WebSocket-Protocol",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "organization",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Execute a read-only SQL query on Amigo's databases for the specified organization.\n\n#### Permissions\nThis endpoint requires the authenticated user to have greater privileges than the `DefaultAdministratorRole`."
+        },
+        {
+          "info": {
+            "name": "Get models",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:organization/admin/get_models/",
+            "headers": [
+              {
+                "name": "x-mongo-cluster-name",
+                "value": ""
+              },
+              {
+                "name": "Sec-WebSocket-Protocol",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "organization",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Get a list of LLM models supported by the Amigo platform at this moment.\n\n#### Permissions:\nThis endpoint requires the following permissions:\n* `Admin:GetModels`."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

@@ -1,0 +1,1086 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Amigo Account Simulations API",
+    "version": "0.1.0"
+  },
+  "request": {
+    "auth": {
+      "type": "bearer",
+      "token": "{{bearerToken}}"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Simulations",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "List Simulation Runs",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:workspace_id/simulations/runs",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "service_id",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query"
+              }
+            ]
+          },
+          "docs": "List Simulation Runs"
+        },
+        {
+          "info": {
+            "name": "Create Simulation Run",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.amigo.ai/v1/:workspace_id/simulations/runs",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Create a simulation coverage run with an optional Lakebase branch."
+        },
+        {
+          "info": {
+            "name": "Get Simulation Runs Summary",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:workspace_id/simulations/runs/summary",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "service_id",
+                "value": "",
+                "type": "query"
+              }
+            ]
+          },
+          "docs": "Aggregate run counts (total + by status) for the Runs summary strip.\n\nRegistered *before* ``/runs/{run_id}`` so the static ``summary`` path\nsegment is matched here rather than parsed as a run UUID (which would 422)."
+        },
+        {
+          "info": {
+            "name": "List Simulation Suites",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:workspace_id/simulations/suites",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "List first-class simulation suites."
+        },
+        {
+          "info": {
+            "name": "Create Simulation Suite",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.amigo.ai/v1/:workspace_id/simulations/suites",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Create a reusable suite definition for saved simulation cases."
+        },
+        {
+          "info": {
+            "name": "Get Simulation Suite",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:workspace_id/simulations/suites/:suite_id",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "suite_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Get Simulation Suite"
+        },
+        {
+          "info": {
+            "name": "Update Simulation Suite",
+            "type": "http"
+          },
+          "http": {
+            "method": "PATCH",
+            "url": "https://api.amigo.ai/v1/:workspace_id/simulations/suites/:suite_id",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "suite_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Update Simulation Suite"
+        },
+        {
+          "info": {
+            "name": "Delete Simulation Suite",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "https://api.amigo.ai/v1/:workspace_id/simulations/suites/:suite_id",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "suite_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Delete Simulation Suite"
+        },
+        {
+          "info": {
+            "name": "List Simulation Suite Runs",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:workspace_id/simulations/suites/:suite_id/runs",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "suite_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query"
+              }
+            ]
+          },
+          "docs": "List durable suite-run groups for a first-class suite."
+        },
+        {
+          "info": {
+            "name": "List Simulation Cases",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:workspace_id/simulations/cases",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "service_id",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "tags",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "continuation_token",
+                "value": "",
+                "type": "query"
+              }
+            ]
+          },
+          "docs": "List durable simulation cases for case-library inspection."
+        },
+        {
+          "info": {
+            "name": "Create Simulation Cases",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.amigo.ai/v1/:workspace_id/simulations/cases",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Create durable simulation cases for an internal benchmark suite."
+        },
+        {
+          "info": {
+            "name": "Get Simulation Case",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:workspace_id/simulations/cases/:case_id",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "case_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Fetch one durable simulation case for case-library inspection."
+        },
+        {
+          "info": {
+            "name": "Update Simulation Case",
+            "type": "http"
+          },
+          "http": {
+            "method": "PATCH",
+            "url": "https://api.amigo.ai/v1/:workspace_id/simulations/cases/:case_id",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "case_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Update editable fields on one durable simulation case."
+        },
+        {
+          "info": {
+            "name": "Delete Simulation Case",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "https://api.amigo.ai/v1/:workspace_id/simulations/cases/:case_id",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "case_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Delete one durable simulation case."
+        },
+        {
+          "info": {
+            "name": "Get Simulation Run",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:workspace_id/simulations/runs/:run_id",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "run_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Fetch a single run including objective / bridge_request / scenarios.\n\nUse the bridge_request payload to re-POST /bridge and replay the run."
+        },
+        {
+          "info": {
+            "name": "Get Simulation Performance",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:workspace_id/simulations/performance",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "service_id",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query"
+              }
+            ]
+          },
+          "docs": "Aggregate recent graded (case/suite) runs into the Simulations overview:\noverall pass rate, per-metric trend series, and per-case / per-suite rollups\n(each with its per-conversation verdicts).\n\n``limit`` bounds how many recent runs are read (capped at 50). One request\nreplaces the console's former one-fetch-per-run fan-out."
+        },
+        {
+          "info": {
+            "name": "Complete Simulation Run",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.amigo.ai/v1/:workspace_id/simulations/runs/:run_id/complete",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "run_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "error",
+                "value": "",
+                "type": "query"
+              }
+            ]
+          },
+          "docs": "Complete Simulation Run"
+        },
+        {
+          "info": {
+            "name": "Promote Simulation Session",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.amigo.ai/v1/:workspace_id/simulations/sessions/:session_id/promote",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "session_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Promote a run-less (interactive playground) session into a coverage run.\n\nInteractive text sessions are created run-less, so ``fork`` — which requires\na ``run_id`` — 404s on them. This creates a coverage run, binds the existing\nagent-engine session to it (``adopt-run``, a Valkey meta update — the session\nitself is not recreated), and writes the platform-api ``SimulationCoverageSession``\nrecord that ``get_session_metadata`` returns, unblocking fork/score.\n\nIdempotent: a session that already has a"
+        },
+        {
+          "info": {
+            "name": "Create Simulation Session",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.amigo.ai/v1/:workspace_id/simulations/runs/:run_id/sessions",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "run_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Create a simulation session within a run. Proxies to agent-engine.\n\nentity_id ownership: agent-engine's _resolve_caller queries the entity\nwith workspace_id scoping — a workspace-A entity_id resolves to None in\nworkspace-B, so no cross-tenant data is exposed."
+        },
+        {
+          "info": {
+            "name": "Simulation Step",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.amigo.ai/v1/:workspace_id/simulations/sessions/:session_id/step",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "session_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Step a simulation session and auto-store the turn observation."
+        },
+        {
+          "info": {
+            "name": "Simulation Fork",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.amigo.ai/v1/:workspace_id/simulations/sessions/:session_id/fork",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "session_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Fork a session into N branches — clone + step each alternative atomically."
+        },
+        {
+          "info": {
+            "name": "Score Simulation Session",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.amigo.ai/v1/:workspace_id/simulations/sessions/:session_id/score",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "session_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "ASI assigns a score to a completed simulation session."
+        },
+        {
+          "info": {
+            "name": "Create Test Conversation",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.amigo.ai/v1/:workspace_id/simulations/sessions",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Create a test conversation session (no coverage run required)."
+        },
+        {
+          "info": {
+            "name": "Test Conversation Step",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.amigo.ai/v1/:workspace_id/simulations/sessions/step",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Step a test conversation (no coverage auto-store)."
+        },
+        {
+          "info": {
+            "name": "Simulation Recommend",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.amigo.ai/v1/:workspace_id/simulations/sessions/recommend",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Simulation Recommend"
+        },
+        {
+          "info": {
+            "name": "Simulation Observe",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:workspace_id/simulations/sessions/:session_id",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "session_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Simulation Observe"
+        },
+        {
+          "info": {
+            "name": "Simulation Destroy",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "https://api.amigo.ai/v1/:workspace_id/simulations/sessions/:session_id",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "session_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Simulation Destroy"
+        },
+        {
+          "info": {
+            "name": "Simulation Intelligence",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:workspace_id/simulations/sessions/:session_id/intelligence",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "session_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Simulation Intelligence"
+        },
+        {
+          "info": {
+            "name": "Get Simulation Coverage Graph",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:workspace_id/simulations/services/:service_id/graph",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "service_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "run_id",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "include_turns",
+                "value": "",
+                "type": "query"
+              }
+            ]
+          },
+          "docs": "Get the B&B knowledge graph for a service — topology + observations merged."
+        },
+        {
+          "info": {
+            "name": "Delete Simulation Coverage Graph",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "https://api.amigo.ai/v1/:workspace_id/simulations/services/:service_id/graph",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "service_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Delete Simulation Coverage Graph"
+        },
+        {
+          "info": {
+            "name": "Get Simulation Coverage Paths",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:workspace_id/simulations/services/:service_id/graph/paths",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "service_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "run_id",
+                "value": "",
+                "type": "query"
+              }
+            ]
+          },
+          "docs": "Get distinct trajectories from simulation sessions."
+        },
+        {
+          "info": {
+            "name": "List Simulation Sessions",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:workspace_id/simulations/services/:service_id/sessions",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "service_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "run_id",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query"
+              }
+            ]
+          },
+          "docs": "List Simulation Sessions"
+        },
+        {
+          "info": {
+            "name": "Get Simulation Session Turns",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:workspace_id/simulations/sessions/:session_id/turns",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "session_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Get Simulation Session Turns"
+        },
+        {
+          "info": {
+            "name": "Query Simulation Turns",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:workspace_id/simulations/services/:service_id/turns",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "service_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "state",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "from_state",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "to_state",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query"
+              }
+            ]
+          },
+          "docs": "Query Simulation Turns"
+        },
+        {
+          "info": {
+            "name": "Config To Turn Policy",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.amigo.ai/v1/:workspace_id/simulations/config-to-policy",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Config To Turn Policy"
+        },
+        {
+          "info": {
+            "name": "Simulation Bridge",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.amigo.ai/v1/:workspace_id/simulations/bridge",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "NL objective to N autonomous scenarios against the tracked simulation primitives.\n\nReturns immediately with run_id + generated scenarios. Scenarios run in\nthe background via BridgeExecutor (lifecycle-managed, shutdown-drained).\nCompletion events are emitted to Delta via world_emitter for SDP\nobservability."
+        },
+        {
+          "info": {
+            "name": "Run Simulation Benchmark",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.amigo.ai/v1/:workspace_id/simulations/benchmarks/run",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Run a suite or tag-selected benchmark batch as one saved-case run per case."
+        },
+        {
+          "info": {
+            "name": "Run Simulation Suite",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.amigo.ai/v1/:workspace_id/simulations/suites/:suite_id/run",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "suite_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Run a first-class suite definition."
+        },
+        {
+          "info": {
+            "name": "Get Simulation Benchmark Results",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.amigo.ai/v1/:workspace_id/simulations/benchmarks/results",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Aggregate benchmark results over the run ids returned by benchmark start."
+        },
+        {
+          "info": {
+            "name": "Get Simulation Suite Run Results",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:workspace_id/simulations/suite-runs/:suite_run_id",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "suite_run_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Fetch aggregate results for a durable suite run."
+        },
+        {
+          "info": {
+            "name": "Run Simulation Case",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.amigo.ai/v1/:workspace_id/simulations/cases/:case_id/run",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "case_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Run the current saved simulation case through the bridge executor."
+        },
+        {
+          "info": {
+            "name": "Simulation Bridge Plan",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.amigo.ai/v1/:workspace_id/simulations/bridge/plan",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Infer a TargetSpec from an NL objective — preview before running /bridge.\n\nUX: user types \"test scheduling failures in 20 different ways\", we return\na structured target_spec + rationale. The frontend shows both, lets the\nuser edit (add/remove states, tighten pathways), then POSTs the final\nspec to /bridge. Same LLM, same Vertex cost structure as /bridge, but\nno run is created — pure inference."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

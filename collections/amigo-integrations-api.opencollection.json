@@ -1,0 +1,411 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Amigo Account Integrations API",
+    "version": "0.1.0"
+  },
+  "request": {
+    "auth": {
+      "type": "bearer",
+      "token": "{{bearerToken}}"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Integrations",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "List integrations",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:workspace_id/integrations",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "enabled",
+                "value": "",
+                "type": "query",
+                "description": "Filter to integrations with this enabled flag. None matches both."
+              },
+              {
+                "name": "search",
+                "value": "",
+                "type": "query",
+                "description": "Substring match against name, display_name, or id (case-insensitive)."
+              },
+              {
+                "name": "sort_by",
+                "value": "",
+                "type": "query",
+                "description": "Sort axes. Repeated query param stacks left-to-right. Each entry is `+field` or `-field`\n(direction prefix REQUIRED). Allowed fields: ``name``, ``created_at``, ``updated_at``.\nDefault: ``-created_at``. ``id`` is always appended as the final tiebreaker."
+              },
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query",
+                "description": "The maximum number of integrations to return."
+              },
+              {
+                "name": "continuation_token",
+                "value": "",
+                "type": "query",
+                "description": "Opaque token from a prior response. Pass back unchanged with the same `sort_by` to advance."
+              }
+            ]
+          },
+          "docs": "List every integration for a workspace. Optionally filter by `enabled` or `search` (name/display_name/id ilike). Sort via repeated `sort_by` query params; each entry is `+field` or `-field` (allowed fields: name, created_at, updated_at). Default: `-created_at`. Cursor opaque — round-trip `continuation_token` unchanged with the same `sort_by`. Requires `Integration.view` permission."
+        },
+        {
+          "info": {
+            "name": "Create a REST integration",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.amigo.ai/v1/:workspace_id/integrations",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Create a new REST integration in a workspace. Endpoints are added separately via `POST /integrations/{integration_id}/endpoints`. Requires `Integration.create` permission."
+        },
+        {
+          "info": {
+            "name": "Approve a pending integration-write approval",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.amigo.ai/v1/:workspace_id/integrations/approvals/:conversation_id/approve",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "conversation_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Approve a pending human-in-the-loop integration-write approval for a conversation. Publishes `integration.approval_granted` to the workspace event channel; the subscribed text session fires the gated write. Requires `ReviewQueue.review` permission."
+        },
+        {
+          "info": {
+            "name": "Reject a pending integration-write approval",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.amigo.ai/v1/:workspace_id/integrations/approvals/:conversation_id/reject",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "conversation_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Reject a pending human-in-the-loop integration-write approval for a conversation. Publishes `integration.approval_rejected` to the workspace event channel; the subscribed text session declines the gated write. Requires `ReviewQueue.review` permission."
+        },
+        {
+          "info": {
+            "name": "Get an integration",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:workspace_id/integrations/:integration_id",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "integration_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Retrieve an integration by ID. Requires `Integration.view` permission."
+        },
+        {
+          "info": {
+            "name": "Update a REST integration",
+            "type": "http"
+          },
+          "http": {
+            "method": "PATCH",
+            "url": "https://api.amigo.ai/v1/:workspace_id/integrations/:integration_id",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "integration_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Patch a REST integration. NOT NULL fields reject `null` at validation time; pass `auth: null` to clear the auth config. `auth` and `secret_value` are independent — update either alone to swap auth shape (reusing the existing secret) or rotate the secret (keeping the existing auth shape). Requires `Integration.update` permission."
+        },
+        {
+          "info": {
+            "name": "Delete a REST integration",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "https://api.amigo.ai/v1/:workspace_id/integrations/:integration_id",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "integration_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Delete a REST integration. Requires `Integration.delete` permission."
+        },
+        {
+          "info": {
+            "name": "List endpoints",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:workspace_id/integrations/:integration_id/endpoints",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "integration_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "search",
+                "value": "",
+                "type": "query",
+                "description": "Substring match against name or description (case-insensitive)."
+              },
+              {
+                "name": "sort_by",
+                "value": "",
+                "type": "query",
+                "description": "Sort axes. Repeated query param stacks left-to-right. Each entry is `+field` or `-field`\n(direction prefix REQUIRED). Allowed fields: ``name``, ``created_at``, ``updated_at``.\nDefault: ``-created_at``. ``id`` is always appended as the final tiebreaker."
+              },
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query",
+                "description": "The maximum number of endpoints to return."
+              },
+              {
+                "name": "continuation_token",
+                "value": "",
+                "type": "query",
+                "description": "Opaque token from a prior response. Pass back unchanged with the same `sort_by` to advance."
+              }
+            ]
+          },
+          "docs": "List endpoints on a REST integration. Optionally search by name/description. Sort via repeated `sort_by` query params; each entry is `+field` or `-field` (allowed fields: name, created_at, updated_at). Default: `-created_at`. Cursor opaque — round-trip `continuation_token` unchanged with the same `sort_by`. Requires `Integration.view` permission."
+        },
+        {
+          "info": {
+            "name": "Add an endpoint",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.amigo.ai/v1/:workspace_id/integrations/:integration_id/endpoints",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "integration_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Add a new endpoint to a REST integration. Requires `Integration.update` permission."
+        },
+        {
+          "info": {
+            "name": "Get an endpoint",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:workspace_id/integrations/:integration_id/endpoints/:endpoint_id",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "integration_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "endpoint_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Get a single endpoint on a REST integration. Requires `Integration.view` permission."
+        },
+        {
+          "info": {
+            "name": "Update an endpoint",
+            "type": "http"
+          },
+          "http": {
+            "method": "PATCH",
+            "url": "https://api.amigo.ai/v1/:workspace_id/integrations/:integration_id/endpoints/:endpoint_id",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "integration_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "endpoint_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Patch an endpoint on a REST integration. The endpoint `name` is immutable. Pass `response_template: null` to clear the Jinja template (the only DB-nullable column). Every other field rejects explicit null at validation time. Requires `Integration.update` permission."
+        },
+        {
+          "info": {
+            "name": "Delete an endpoint",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "https://api.amigo.ai/v1/:workspace_id/integrations/:integration_id/endpoints/:endpoint_id",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "integration_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "endpoint_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Delete an endpoint from a REST integration. Requires `Integration.update` permission."
+        },
+        {
+          "info": {
+            "name": "Test an integration endpoint",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.amigo.ai/v1/:workspace_id/integrations/:integration_id/endpoints/:endpoint_id/test",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "integration_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "endpoint_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Execute an integration endpoint with test parameters and return the full response pipeline breakdown. Requires `Integration.view` permission."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

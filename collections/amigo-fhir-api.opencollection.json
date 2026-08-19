@@ -1,0 +1,698 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Amigo Account FHIR API",
+    "version": "0.1.0"
+  },
+  "request": {
+    "auth": {
+      "type": "bearer",
+      "token": "{{bearerToken}}"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "FHIR",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Get clinical data status",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:workspace_id/fhir/status",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Get event and entity counts for the workspace's clinical data."
+        },
+        {
+          "info": {
+            "name": "Import FHIR Bundle",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.amigo.ai/v1/:workspace_id/fhir/import",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Import a FHIR Bundle. Decomposes supported resources into upserted world events and creates patient entities. Unsupported resource types are skipped and reported; omitted resources are not deleted."
+        },
+        {
+          "info": {
+            "name": "Import FHIR resources via NDJSON streaming",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.amigo.ai/v1/:workspace_id/fhir/import-stream",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "source",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "source_system",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "data_source_id",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "dedup",
+                "value": "",
+                "type": "query",
+                "description": "Skip identical re-uploads via content-hash dedup"
+              },
+              {
+                "name": "unsupported_resource_policy",
+                "value": "",
+                "type": "query",
+                "description": "Use 'error' to report unsupported resources, or 'skip' to skip them without errors."
+              }
+            ]
+          },
+          "docs": "Stream FHIR resources as NDJSON (one resource per line). Bypasses the buffered-body size cap on /fhir/import. Callers MUST pre-resolve any bundle-internal urn:uuid: references. Unsupported resource types are skipped and reported; omitted resources are not deleted."
+        },
+        {
+          "info": {
+            "name": "List patients (clinical view)",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:workspace_id/fhir/views/patients",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "q",
+                "value": "",
+                "type": "query",
+                "description": "Search by name"
+              },
+              {
+                "name": "data_source_id",
+                "value": "",
+                "type": "query",
+                "description": "Scope to data source"
+              },
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "offset",
+                "value": "",
+                "type": "query"
+              }
+            ]
+          },
+          "docs": "Frontend-ready patient list with flattened demographics, conditions, medications, allergies, and insurance. Optionally scoped to a specific data source via data_source_id."
+        },
+        {
+          "info": {
+            "name": "List practitioners",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:workspace_id/fhir/views/practitioners",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "q",
+                "value": "",
+                "type": "query",
+                "description": "Search by name"
+              },
+              {
+                "name": "data_source_id",
+                "value": "",
+                "type": "query",
+                "description": "Scope to data source"
+              },
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "offset",
+                "value": "",
+                "type": "query"
+              }
+            ]
+          },
+          "docs": "Frontend-ready practitioner list with name, NPI, specialty, phone. Optionally scoped to a data source."
+        },
+        {
+          "info": {
+            "name": "List locations",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:workspace_id/fhir/views/locations",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "q",
+                "value": "",
+                "type": "query",
+                "description": "Search by name"
+              },
+              {
+                "name": "data_source_id",
+                "value": "",
+                "type": "query",
+                "description": "Scope to data source"
+              },
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "offset",
+                "value": "",
+                "type": "query"
+              }
+            ]
+          },
+          "docs": "Frontend-ready location list with name, address, phone, hours. Optionally scoped to a data source."
+        },
+        {
+          "info": {
+            "name": "List appointments",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:workspace_id/fhir/views/appointments",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "q",
+                "value": "",
+                "type": "query",
+                "description": "Search"
+              },
+              {
+                "name": "data_source_id",
+                "value": "",
+                "type": "query",
+                "description": "Scope to data source"
+              },
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "offset",
+                "value": "",
+                "type": "query"
+              }
+            ]
+          },
+          "docs": "Frontend-ready appointment list with date, status, patient, practitioner, location, reason. Optionally scoped to a data source."
+        },
+        {
+          "info": {
+            "name": "List availability slots",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:workspace_id/fhir/views/slots",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "q",
+                "value": "",
+                "type": "query",
+                "description": "Search"
+              },
+              {
+                "name": "data_source_id",
+                "value": "",
+                "type": "query",
+                "description": "Scope to data source"
+              },
+              {
+                "name": "status",
+                "value": "",
+                "type": "query",
+                "description": "Slot status (e.g. 'free', 'busy')"
+              },
+              {
+                "name": "date",
+                "value": "",
+                "type": "query",
+                "description": "Start date YYYY-MM-DD (filters slots on or after this date)"
+              },
+              {
+                "name": "days",
+                "value": "",
+                "type": "query",
+                "description": "Number of days forward from date (default 7)"
+              },
+              {
+                "name": "provider",
+                "value": "",
+                "type": "query",
+                "description": "Provider name (partial match, e.g. 'Woloski')"
+              },
+              {
+                "name": "specialty",
+                "value": "",
+                "type": "query",
+                "description": "Specialty (partial match, e.g. 'Psychiatry')"
+              },
+              {
+                "name": "service_type",
+                "value": "",
+                "type": "query",
+                "description": "Visit/service type name (partial match, e.g. 'Follow-up')"
+              },
+              {
+                "name": "facility_id",
+                "value": "",
+                "type": "query",
+                "description": "Facility ID"
+              },
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "offset",
+                "value": "",
+                "type": "query"
+              }
+            ]
+          },
+          "docs": "Frontend-ready provider availability slot list with start, end, status, schedule reference, and provider display name. Optionally scoped to a data source."
+        },
+        {
+          "info": {
+            "name": "List organizations",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:workspace_id/fhir/views/organizations",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "q",
+                "value": "",
+                "type": "query",
+                "description": "Search by name"
+              },
+              {
+                "name": "data_source_id",
+                "value": "",
+                "type": "query",
+                "description": "Scope to data source"
+              },
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "offset",
+                "value": "",
+                "type": "query"
+              }
+            ]
+          },
+          "docs": "Frontend-ready organization list with name, phone, domain, industry, address. Optionally scoped to a data source."
+        },
+        {
+          "info": {
+            "name": "Search patients",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:workspace_id/fhir/patients",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "q",
+                "value": "",
+                "type": "query",
+                "description": "Search by name, MRN, phone, or entity ID"
+              },
+              {
+                "name": "mrn",
+                "value": "",
+                "type": "query",
+                "description": "Search by MRN"
+              },
+              {
+                "name": "phone",
+                "value": "",
+                "type": "query",
+                "description": "Search by phone"
+              },
+              {
+                "name": "sort_by",
+                "value": "",
+                "type": "query",
+                "description": "Sort field with +/- prefix (e.g. -last_event_at)"
+              },
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "offset",
+                "value": "",
+                "type": "query"
+              }
+            ]
+          },
+          "docs": "Search patient entities by name, MRN, or phone."
+        },
+        {
+          "info": {
+            "name": "Patient timeline",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:workspace_id/fhir/patients/:patient_id/timeline",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "patient_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "domain",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "offset",
+                "value": "",
+                "type": "query"
+              }
+            ]
+          },
+          "docs": "Get the full event timeline for a patient entity."
+        },
+        {
+          "info": {
+            "name": "Patient summary",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:workspace_id/fhir/patients/:patient_id/summary",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "patient_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Get the agent-maintained world model state for a patient."
+        },
+        {
+          "info": {
+            "name": "Search FHIR resources",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:workspace_id/fhir/resources/:resource_type",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "resource_type",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "_count",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "_offset",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "name",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "identifier",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "birthdate",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "date",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "patient",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "status",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "q",
+                "value": "",
+                "type": "query",
+                "description": "General search text"
+              }
+            ]
+          },
+          "docs": "Search FHIR resources by type with standard search parameters."
+        },
+        {
+          "info": {
+            "name": "Create a FHIR resource",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.amigo.ai/v1/:workspace_id/fhir/resources/:resource_type",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "resource_type",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Create a new FHIR resource. Automatically creates patient entities."
+        },
+        {
+          "info": {
+            "name": "Get FHIR resource history",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:workspace_id/fhir/resources/:resource_type/:resource_id/history",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "resource_type",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "resource_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "offset",
+                "value": "",
+                "type": "query"
+              }
+            ]
+          },
+          "docs": "Fetch the version history and changed-field provenance for a FHIR resource."
+        },
+        {
+          "info": {
+            "name": "Get a FHIR resource",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:workspace_id/fhir/resources/:resource_type/:resource_id",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "resource_type",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "resource_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Fetch a single FHIR resource by type and ID."
+        },
+        {
+          "info": {
+            "name": "Update a FHIR resource",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "https://api.amigo.ai/v1/:workspace_id/fhir/resources/:resource_type/:resource_id",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "resource_type",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "resource_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Update a FHIR resource. Creates a new event that supersedes the old one."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

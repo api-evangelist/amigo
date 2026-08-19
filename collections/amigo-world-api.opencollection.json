@@ -1,0 +1,688 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Amigo Account World API",
+    "version": "0.1.0"
+  },
+  "request": {
+    "auth": {
+      "type": "bearer",
+      "token": "{{bearerToken}}"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "World",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "World model dashboard composite",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:workspace_id/world/dashboard",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Composite world health dashboard — entity counts by type, event velocity (24h/7d), average confidence, and source breakdown. All computation server-side."
+        },
+        {
+          "info": {
+            "name": "List entity types",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:workspace_id/world/entity-types",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Returns distinct entity types in the workspace with counts and projection availability. Powers the World Explorer's auto-discovery of new entity types created by agents (L4 self-extending schema)."
+        },
+        {
+          "info": {
+            "name": "List event types",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:workspace_id/world/event-types",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Returns distinct event types in the workspace with counts, domains, and source breakdown. Enables the World Explorer to show what kinds of events flow through the world model."
+        },
+        {
+          "info": {
+            "name": "Entity stats with sync breakdown",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:workspace_id/world/entity-stats",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "entity_type",
+                "value": "",
+                "type": "query",
+                "description": "Filter by entity type"
+              }
+            ]
+          },
+          "docs": "Aggregate stats for entities including sync status breakdown (pending, synced, failed). Filter by entity_type to get stats for a specific type (e.g. appointment, patient). Generic — works for any entity type in the Liquid World Model."
+        },
+        {
+          "info": {
+            "name": "Connected data sources overview",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:workspace_id/world/connectors",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "All active data sources with entity counts by type, sync status, and health. Powers the EHR/FHIR connector cards in the frontend. Each item includes connector_type (charmhealth, fhir_store) and a breakdown of entities by type (patient, practitioner, etc.)."
+        },
+        {
+          "info": {
+            "name": "List entities from a data source",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:workspace_id/world/connectors/:data_source_id/entities",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "data_source_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "entity_type",
+                "value": "",
+                "type": "query",
+                "description": "Filter by entity type"
+              },
+              {
+                "name": "q",
+                "value": "",
+                "type": "query",
+                "description": "Search by display name"
+              },
+              {
+                "name": "sort_by",
+                "value": "",
+                "type": "query",
+                "description": "Sort order: `+display_name` (default) or `-display_name` for alphabetical, `+last_event_at` for oldest activity first, `-last_event_at` for most recent first. All sort orders use entity id as a final tiebreaker for stable pagination."
+              },
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "offset",
+                "value": "",
+                "type": "query"
+              }
+            ]
+          },
+          "docs": "Paginated entity list from a specific connected data source. Filter by entity_type and search by display name. Uses EXISTS subquery on events.data_source_id for accurate scoping."
+        },
+        {
+          "info": {
+            "name": "Search FHIR resources from a data source",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:workspace_id/world/connectors/:data_source_id/resources",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "data_source_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "resource_type",
+                "value": "",
+                "type": "query",
+                "description": "FHIR resource type (e.g. Patient, Condition, MedicationRequest)"
+              },
+              {
+                "name": "_count",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "_offset",
+                "value": "",
+                "type": "query"
+              }
+            ]
+          },
+          "docs": "FHIR resource search scoped to a specific data source. Returns raw FHIR resource data (Condition, MedicationRequest, Coverage, etc.) from the specified connector. Powers the per-connector clinical resource tables (FHIR Store tab, EHR tab)."
+        },
+        {
+          "info": {
+            "name": "Entity counts by source system",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:workspace_id/world/source-breakdown",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "entity_type",
+                "value": "",
+                "type": "query",
+                "description": "Filter by entity type"
+              }
+            ]
+          },
+          "docs": "Breakdown of entity counts by source system (e.g. charmhealth, gcp_fhir, voice_agent). Powers the EHR/FHIR view in the frontend. Filter by entity_type (e.g. person, place) for focused views."
+        },
+        {
+          "info": {
+            "name": "Outbound sync status per data source",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:workspace_id/world/sync/by-sink",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Multi-sink outbound sync progress. Shows total/synced/failed/pending counts per data source for workspaces with multiple outbound sinks."
+        },
+        {
+          "info": {
+            "name": "Set an enrichment value on an entity",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "https://api.amigo.ai/v1/:workspace_id/world/entities/:entity_id/enrichment/:key",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "entity_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "key",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Writes a single per-key entity.enriched event for the given entity. Validates against the workspace's enrichment_keys registry — unknown key, wrong value type, enum violation, or confidence below the key's floor all return 400. SDP picks winners by confidence class."
+        },
+        {
+          "info": {
+            "name": "List current enrichment values for an entity",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:workspace_id/world/entities/:entity_id/enrichment",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "entity_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query",
+                "description": "Max enrichment rows"
+              },
+              {
+                "name": "offset",
+                "value": "",
+                "type": "query",
+                "description": "Page offset"
+              }
+            ]
+          },
+          "docs": "Current winners per (entity, key) from world.entity_enrichment_out_synced (Synced-Table-populated view of SDP's entity_enrichment_out). Each row carries value, value_type, confidence, source, effective_at."
+        },
+        {
+          "info": {
+            "name": "Enrichment supersedes chain for audit",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:workspace_id/world/entities/:entity_id/enrichment/:key/history",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "entity_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "key",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query"
+              }
+            ]
+          },
+          "docs": "Returns every entity.enriched event for (entity, key), newest first, including superseded entries. Each entry carries the full provenance: source, confidence, effective_at, supersedes pointer, is_current flag."
+        },
+        {
+          "info": {
+            "name": "Bulk-import v1 conversation envelopes for migrated patients",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.amigo.ai/v1/:workspace_id/world/migration/conversations",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Writes one terminal world.conversations row per v1 conversation (real dates, provider='v1-migration'), giving the returning-user greeting and the real conversation list. Admin-only, idempotent + correctable per (workspace, v1 conversation id), memory-safe (no world events emitted → the memory extractor never re-derives from these). Transcript content (turns) is a separate follow-up. Batch size <= 500."
+        },
+        {
+          "info": {
+            "name": "List enrichment keys registered for this workspace",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:workspace_id/world/enrichment-keys",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "entity_type",
+                "value": "",
+                "type": "query",
+                "description": "Filter by entity type."
+              },
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query",
+                "description": "Max keys to return"
+              },
+              {
+                "name": "offset",
+                "value": "",
+                "type": "query",
+                "description": "Page offset"
+              }
+            ]
+          },
+          "docs": "Optionally filter by entity_type."
+        },
+        {
+          "info": {
+            "name": "Register an enrichment key",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.amigo.ai/v1/:workspace_id/world/enrichment-keys",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Registers a new (entity_type, key) in this workspace's enrichment key registry. Future writes against this key will pass validation. value_type governs what values are accepted; enum types require allowed_values. Tag a person key with 'memory_extract' (description required) to make it a workspace-custom memory dimension the conversation extractor infers from transcripts."
+        },
+        {
+          "info": {
+            "name": "Update a registered enrichment key",
+            "type": "http"
+          },
+          "http": {
+            "method": "PATCH",
+            "url": "https://api.amigo.ai/v1/:workspace_id/world/enrichment-keys/:key_id",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "key_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Update allowed_values, source_hint, description, min_confidence, is_pii, or tags. key and value_type are immutable."
+        },
+        {
+          "info": {
+            "name": "Delete a registered enrichment key",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "https://api.amigo.ai/v1/:workspace_id/world/enrichment-keys/:key_id",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "key_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Existing entity.enriched events are not deleted (append-only); only future writes against this key will be rejected."
+        },
+        {
+          "info": {
+            "name": "List entities",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:workspace_id/world/entities",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "entity_type",
+                "value": "",
+                "type": "query",
+                "description": "Filter by entity type (repeatable)"
+              },
+              {
+                "name": "q",
+                "value": "",
+                "type": "query",
+                "description": "Search by name, type, canonical ID, phone, or entity ID"
+              },
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "offset",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "order",
+                "value": "",
+                "type": "query",
+                "description": "Sort order (PostgREST-style, e.g. last_event_at.desc, display_name.asc)"
+              },
+              {
+                "name": "has_projection",
+                "value": "",
+                "type": "query",
+                "description": "Filter by has_projection flag"
+              },
+              {
+                "name": "source",
+                "value": "",
+                "type": "query",
+                "description": "Filter by event source (e.g. voice_agent, connector_runner)"
+              },
+              {
+                "name": "source_system",
+                "value": "",
+                "type": "query",
+                "description": "Filter by source system name (e.g. charmhealth, gcp_fhir)"
+              },
+              {
+                "name": "fhir_resource_type",
+                "value": "",
+                "type": "query",
+                "description": "Filter by FHIR resource type (e.g. Patient, Practitioner)"
+              }
+            ]
+          },
+          "docs": "List entities filtered by type with optional name search. Works for any entity type — patients, operators, calls, or any type created by T3 agents. Returns full projected state."
+        },
+        {
+          "info": {
+            "name": "Resolve entity by identifier",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.amigo.ai/v1/:workspace_id/world/entities/resolve",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Polymorphic identifier → ranked entity candidates. Accepts any subset of {phone, email, canonical_id, external_id, entity_id} plus a required ``entity_type``. Served from the SDP serving surfaces: entity rows from ``world.entities_synced``; canonical_id and external_id resolve through ``world.canonical_entity_map_synced`` point reads. Returns matches ranked by confidence + number of identifiers matched. Summary narrowing: ``external_ids`` is always ``{}``, ``tags`` is always ``[]``, and ``canoni"
+        },
+        {
+          "info": {
+            "name": "Get entity",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:workspace_id/world/entities/:entity_id",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "entity_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Fetch a single entity with its full projected state. The state is a computed projection from all events — never mutated directly. Enhanced entity types (patient, operator, call) have richer projections."
+        },
+        {
+          "info": {
+            "name": "Entity timeline",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:workspace_id/world/entities/:entity_id/timeline",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "entity_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "domain",
+                "value": "",
+                "type": "query",
+                "description": "Filter by domain"
+              },
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "offset",
+                "value": "",
+                "type": "query"
+              }
+            ]
+          },
+          "docs": "Get the event timeline for an entity — all current events ordered by effective date. The entity's state is always a projection of these events. Filter by domain (clinical, operational, audit, etc.)."
+        },
+        {
+          "info": {
+            "name": "Entity relationships",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:workspace_id/world/entities/:entity_id/relationships",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "entity_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "relationship",
+                "value": "",
+                "type": "query",
+                "description": "Filter by relationship type"
+              }
+            ]
+          },
+          "docs": "Get relationships for an entity — links to other entities in the knowledge graph. Filter by relationship type."
+        },
+        {
+          "info": {
+            "name": "Get merged entities (same_as links)",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:workspace_id/world/entities/:entity_id/merged",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "entity_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Returns entities linked via same_as edges — historical merge edges where different data sources refer to the same real-world entity (written by the pre-SDP resolver; merge detection now lives in the Databricks pipeline — new edges are not produced)."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

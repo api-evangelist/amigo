@@ -1,0 +1,316 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Amigo Account Surfaces API",
+    "version": "0.1.0"
+  },
+  "request": {
+    "auth": {
+      "type": "bearer",
+      "token": "{{bearerToken}}"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Surfaces",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "List Surfaces",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:workspace_id/surfaces",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "entity_id",
+                "value": "",
+                "type": "query",
+                "description": "Filter by entity ID"
+              },
+              {
+                "name": "status",
+                "value": "",
+                "type": "query",
+                "description": "Filter by status"
+              },
+              {
+                "name": "channel",
+                "value": "",
+                "type": "query",
+                "description": "Filter by channel"
+              },
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "continuation_token",
+                "value": "",
+                "type": "query"
+              }
+            ]
+          },
+          "docs": "List surfaces with pagination and optional filters.\n\nPermissions: viewer, member, admin, owner (surfaces:read)"
+        },
+        {
+          "info": {
+            "name": "Create Surface",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.amigo.ai/v1/:workspace_id/surfaces",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Create a new data collection surface.\n\nStores the surface spec as a world.event with domain=\"surface\".\nThe entity_id is stored inside event data (not on the event row)\nto avoid entity state recomputation.\n\nReturns a signed patient-facing token and URL if SURFACE_TOKEN_SECRET is configured.\n\nPermissions: member, admin, owner (surfaces:write)"
+        },
+        {
+          "info": {
+            "name": "List surfaces pending review",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:workspace_id/surfaces/review",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "continuation_token",
+                "value": "",
+                "type": "query"
+              }
+            ]
+          },
+          "docs": "List surfaces pending review.\n\nField engineers use this to approve or reject surfaces before delivery.\n\nPermissions: operator, member, admin, owner (ReviewQueue:View)"
+        },
+        {
+          "info": {
+            "name": "Get Surface",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:workspace_id/surfaces/:surface_id",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "surface_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Get a surface by ID.\n\nReturns the surface spec and current lifecycle status. Also mints the\npatient-facing ``url`` so operators can copy/share the link from the read\nview (the token isn't stored, so it's re-minted on each read).\n\nPermissions: viewer, member, admin, owner (surfaces:read)"
+        },
+        {
+          "info": {
+            "name": "Update a surface spec",
+            "type": "http"
+          },
+          "http": {
+            "method": "PATCH",
+            "url": "https://api.amigo.ai/v1/:workspace_id/surfaces/:surface_id",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "surface_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Update an existing surface spec.\n\nOnly allowed while status is CREATED or DELIVERED. Writes a\nsurface.updated event preserving the full audit trail.\n\nPermissions: member, admin, owner (Surface:Create)"
+        },
+        {
+          "info": {
+            "name": "Archive (soft-delete) a surface",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "https://api.amigo.ai/v1/:workspace_id/surfaces/:surface_id",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "surface_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Archive (soft-delete) a surface.\n\nWorks for any non-terminal surface. Terminal surfaces (completed,\nexpired, already archived) cannot be archived.\n\nPermissions: member, admin, owner (Surface:Create)"
+        },
+        {
+          "info": {
+            "name": "Approve a surface pending review",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.amigo.ai/v1/:workspace_id/surfaces/:surface_id/approve",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "surface_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Approve a surface pending review.\n\nThe surface returns to CREATED status and can then be delivered.\n\nPermissions: operator, member, admin, owner (ReviewQueue:Review)"
+        },
+        {
+          "info": {
+            "name": "Reject a surface pending review",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.amigo.ai/v1/:workspace_id/surfaces/:surface_id/reject",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "surface_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Reject a surface pending review.\n\nThe surface is marked as expired and will not be delivered.\n\nPermissions: operator, member, admin, owner (ReviewQueue:Review)"
+        },
+        {
+          "info": {
+            "name": "Get field-level completion status",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:workspace_id/surfaces/:surface_id/progress",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "surface_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Get field-level completion status for a surface.\n\nReturns which fields are filled vs empty, useful for abandonment\nintelligence and targeted re-engagement.\n\nPermissions: viewer, member, admin, owner (surfaces:read)"
+        },
+        {
+          "info": {
+            "name": "Create new surface with only unfilled fields",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.amigo.ai/v1/:workspace_id/surfaces/:surface_id/reshape",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "surface_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Create a new surface with only the unfilled fields from the original.\n\nUsed for re-engaging patients who abandoned a form. The new surface\ncontains only the fields they haven't completed yet, reducing friction.\n\nPermissions: member, admin, owner (surfaces:write)"
+        },
+        {
+          "info": {
+            "name": "Deliver Surface",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.amigo.ai/v1/:workspace_id/surfaces/:surface_id/deliver",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "surface_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Record a real delivery handoff for a surface.\n\nEmail targets are delivered through channel-manager's\n``POST /v1/email/`` (CM owns SES sender identity, IP pool, DKIM,\nsuppression — keyed on the surface row's ``use_case_id``). Phone-shaped\naddresses return 422 — SMS surface delivery was removed in PR #2783.\nOther targets record an external handoff that was completed outside\nplatform-api.\n\nPermissions: member, admin, owner (surfaces:write)"
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

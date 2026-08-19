@@ -1,0 +1,98 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Amigo Account Recordings API",
+    "version": "0.1.0"
+  },
+  "request": {
+    "auth": {
+      "type": "bearer",
+      "token": "{{bearerToken}}"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Recordings",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Get recording download paths",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:workspace_id/recordings/:call_sid/urls",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "call_sid",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Generate download paths for call recording playback. Returns separate paths for inbound (caller) and outbound (agent) audio channels, plus the recording metadata file."
+        },
+        {
+          "info": {
+            "name": "Get recording metadata",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:workspace_id/recordings/:call_sid/metadata",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "call_sid",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Fetch metadata for a call recording including duration, audio formats, sample rates, and file sizes."
+        },
+        {
+          "info": {
+            "name": "Download recording file",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:workspace_id/recordings/:call_sid/download/:filename",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "call_sid",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "filename",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Proxy download a recording file (inbound audio, outbound audio, or metadata) from UC Volume."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

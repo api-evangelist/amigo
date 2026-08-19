@@ -1,0 +1,344 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Amigo Account Calls API",
+    "version": "0.1.0"
+  },
+  "request": {
+    "auth": {
+      "type": "bearer",
+      "token": "{{bearerToken}}"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Calls",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "List calls with filters",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:workspace_id/calls",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "date_from",
+                "value": "",
+                "type": "query",
+                "description": "Start date (inclusive)"
+              },
+              {
+                "name": "date_to",
+                "value": "",
+                "type": "query",
+                "description": "End date (inclusive)"
+              },
+              {
+                "name": "status",
+                "value": "",
+                "type": "query",
+                "description": "Filter by call status"
+              },
+              {
+                "name": "direction",
+                "value": "",
+                "type": "query",
+                "description": "Filter by direction (inbound, outbound, playground, simulated)"
+              },
+              {
+                "name": "min_duration",
+                "value": "",
+                "type": "query",
+                "description": "Minimum duration in seconds"
+              },
+              {
+                "name": "max_duration",
+                "value": "",
+                "type": "query",
+                "description": "Maximum duration in seconds"
+              },
+              {
+                "name": "service_id",
+                "value": "",
+                "type": "query",
+                "description": "Filter by service ID"
+              },
+              {
+                "name": "include_simulated",
+                "value": "",
+                "type": "query",
+                "description": "Include simulated sessions"
+              },
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "offset",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "continuation_token",
+                "value": "",
+                "type": "query",
+                "description": "Alias for offset (pagination cursor)"
+              }
+            ]
+          },
+          "docs": "Query call entities with date range, status, and duration filters. Enriched with quality_score and final_state from call_intelligence."
+        },
+        {
+          "info": {
+            "name": "Call volume per phone number",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:workspace_id/calls/phone-volume",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "days",
+                "value": "",
+                "type": "query"
+              }
+            ]
+          },
+          "docs": "Aggregated call counts and durations grouped by phone number."
+        },
+        {
+          "info": {
+            "name": "Workspace call quality benchmarks",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:workspace_id/calls/benchmarks",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "days",
+                "value": "",
+                "type": "query",
+                "description": "Lookback period in days"
+              }
+            ]
+          },
+          "docs": "Aggregate quality benchmarks for the workspace. Used by call detail to show 'vs workspace average' and by call list for quality context."
+        },
+        {
+          "info": {
+            "name": "Call intelligence profile (Layer 4 narrative)",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:workspace_id/calls/:call_id/intelligence",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "call_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Aggregated intelligence for a completed call: quality breakdown, key moments, and summaries. Per-turn visualization lives on the unified timeline (call detail endpoint → timeline.segments)."
+        },
+        {
+          "info": {
+            "name": "List trace analyses",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:workspace_id/calls/traces",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "outcome",
+                "value": "",
+                "type": "query",
+                "description": "Filter by overall outcome"
+              },
+              {
+                "name": "min_computed_at",
+                "value": "",
+                "type": "query",
+                "description": "Only include analyses computed at or after this time"
+              },
+              {
+                "name": "max_computed_at",
+                "value": "",
+                "type": "query",
+                "description": "Only include analyses computed strictly before this time"
+              },
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query",
+                "description": "Max rows per page (1-100)"
+              },
+              {
+                "name": "continuation_token",
+                "value": "",
+                "type": "query",
+                "description": "Offset from the previous page (0 for the first page)"
+              }
+            ]
+          },
+          "docs": "Paginated list of trace analyses for the workspace. Use this instead of paginating `/calls` and fetching traces one-by-one (N+1)."
+        },
+        {
+          "info": {
+            "name": "Create an outbound call",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.amigo.ai/v1/:workspace_id/calls/outbound",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Initiate an outbound voice call from a workspace phone number. channel-manager selects the optimal number for the given use_case_id. Supports idempotency via the idempotency_key field."
+        },
+        {
+          "info": {
+            "name": "Deep call understanding",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:workspace_id/calls/:call_id/trace-analysis",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "call_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Audio-native intelligence for a completed call: emotional arc, key decision moments with causal attribution, counterfactual reasoning, and actionable coaching. Produced by the Amigo intelligence pipeline from the raw call recording.\n\n**Latency**: 500ms-2s (reads from analytics warehouse, not transactional store).\n\n**Status values**: `ready` = analysis complete, `pending` = analysis started on first request (typically ready in 2-5 minutes; poll again), `unavailable` = no recording or analysis tra"
+        },
+        {
+          "info": {
+            "name": "Call metric values",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:workspace_id/calls/:call_id/metrics",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "call_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query",
+                "description": "Max metric values to return"
+              }
+            ]
+          },
+          "docs": "Latest per-call realtime metric values for the call detail sidebar."
+        },
+        {
+          "info": {
+            "name": "Call playback timeline",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:workspace_id/calls/:call_id/timeline",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "call_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Canonical playback timeline for the call detail visualization. This is the same strongly typed timeline model embedded in the call detail response, exposed directly for timeline-only consumers."
+        },
+        {
+          "info": {
+            "name": "Call detail",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:workspace_id/calls/:call_id",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "call_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Full call detail including turns, escalation state, safety state, and recording info. Proxied from voice-agent, with simulation session fallback."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

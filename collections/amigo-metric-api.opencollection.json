@@ -1,0 +1,490 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Amigo Account Metric API",
+    "version": "0.1.0"
+  },
+  "request": {
+    "auth": {
+      "type": "bearer",
+      "token": "{{bearerToken}}"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Metric",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Create a new version for a metric",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.amigo.ai/v1/:organization/metric/:metric_id/version/",
+            "headers": [
+              {
+                "name": "x-mongo-cluster-name",
+                "value": ""
+              },
+              {
+                "name": "Sec-WebSocket-Protocol",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "organization",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "metric_id",
+                "value": "",
+                "type": "path",
+                "description": "The ID of the metric to create a new version for."
+              },
+              {
+                "name": "version",
+                "value": "",
+                "type": "query",
+                "description": "The version number of the new metric version. If specified, this endpoint throws an error if the next version of the metric in the database doesn't equal to the value of this parameter."
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Create a new version for the given metric.\n\n#### Permissions:\nThis endpoint requires the following permissions:\n* `Metric:ModifyMetric` for the metric to create a new version for."
+        },
+        {
+          "info": {
+            "name": "Get metric versions",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:organization/metric/:metric_id/version",
+            "headers": [
+              {
+                "name": "x-mongo-cluster-name",
+                "value": ""
+              },
+              {
+                "name": "Sec-WebSocket-Protocol",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "organization",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "metric_id",
+                "value": "",
+                "type": "path",
+                "description": "The ID of the metric to retrieve versions for."
+              },
+              {
+                "name": "version",
+                "value": "",
+                "type": "query",
+                "description": "The versions of the metric to retrieve. One can specify an exact version to retrieve, which is either the version number or `latest`, which retrieves the latest version. Alternatively, one can specify a range of inclusive lower and upper bound for the version number separated by `-`, and every version within the range would be retrieved."
+              },
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query",
+                "description": "The maximum number of metric versions to return."
+              },
+              {
+                "name": "continuation_token",
+                "value": "",
+                "type": "query",
+                "description": "The continuation token from the previous request used to retrieve the next page of metric versions."
+              },
+              {
+                "name": "sort_by",
+                "value": "",
+                "type": "query",
+                "description": "The fields to sort the versions by. Supported fields are `version`. Specify a `+` before the field name to indicate ascending sorting and `-` for descending sorting. Multiple fields can be specified to break ties."
+              }
+            ]
+          },
+          "docs": "Retrieve the versions of a metric.\n\n#### Permissions\nThis endpoint requires the following permissions:\n* `Metric:GetMetric` for the metric whose versions to retrieve."
+        },
+        {
+          "info": {
+            "name": "Get metrics",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:organization/metric/",
+            "headers": [
+              {
+                "name": "x-mongo-cluster-name",
+                "value": ""
+              },
+              {
+                "name": "Sec-WebSocket-Protocol",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "organization",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "id",
+                "value": "",
+                "type": "query",
+                "description": "The IDs of the metrics to retrieve."
+              },
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query",
+                "description": "The maximum number of metrics to return."
+              },
+              {
+                "name": "continuation_token",
+                "value": "",
+                "type": "query",
+                "description": "The continuation token from the previous request used to retrieve the next page of metrics."
+              },
+              {
+                "name": "applied_to_service",
+                "value": "",
+                "type": "query",
+                "description": "The IDs of the services that the metric is applied to."
+              },
+              {
+                "name": "type",
+                "value": "",
+                "type": "query",
+                "description": "The types of the metrics."
+              },
+              {
+                "name": "is_deleted",
+                "value": "",
+                "type": "query",
+                "description": "Whether the metric is deleted."
+              },
+              {
+                "name": "creator",
+                "value": "",
+                "type": "query",
+                "description": "The creators of the dynamic behavior sets."
+              },
+              {
+                "name": "tag",
+                "value": "",
+                "type": "query",
+                "description": "The tags of the dynamic behavior sets. Must be specified using the syntax `key:value`, which means to match all sets with the given `key` and `value` pair among its tags. If `value` is `*`, it means the `value` does not matter. If `value` is empty, it matches against when the value is `None`."
+              },
+              {
+                "name": "sort_by",
+                "value": "",
+                "type": "query",
+                "description": "The fields to sort the sets by. Supported fields are `updated_at`. Specify a `+` before the field name to indicate ascending sorting and `-` for descending sorting. Multiple fields can be specified to break ties."
+              }
+            ]
+          },
+          "docs": "Retrieve metrics that match the given filters.\n\n#### Permissions\nThis endpoint may be impacted by the following permissions:\n* Only metrics that the authenticated user has `Metric:GetMetric` permission for will be retrieved."
+        },
+        {
+          "info": {
+            "name": "Create a metric",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.amigo.ai/v1/:organization/metric/",
+            "headers": [
+              {
+                "name": "x-mongo-cluster-name",
+                "value": ""
+              },
+              {
+                "name": "Sec-WebSocket-Protocol",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "organization",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Create a metric.\n\n#### Permissions\n* `Metric:CreateMetric` for the metric to create."
+        },
+        {
+          "info": {
+            "name": "Update a metric",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.amigo.ai/v1/:organization/metric/:metric_id/",
+            "headers": [
+              {
+                "name": "x-mongo-cluster-name",
+                "value": ""
+              },
+              {
+                "name": "Sec-WebSocket-Protocol",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "organization",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "metric_id",
+                "value": "",
+                "type": "path",
+                "description": "The ID of the metric to update."
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Update properties of a metric. The metric's name and metric values cannot be updated.\n\n#### Permissions\nThis endpoint requires the following permissions:\n* `Metric:ModifyMetric` for the metric to modify."
+        },
+        {
+          "info": {
+            "name": "Delete a metric",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "https://api.amigo.ai/v1/:organization/metric/:metric_id/",
+            "headers": [
+              {
+                "name": "x-mongo-cluster-name",
+                "value": ""
+              },
+              {
+                "name": "Sec-WebSocket-Protocol",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "organization",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "metric_id",
+                "value": "",
+                "type": "path",
+                "description": "The ID of the metric to update."
+              }
+            ]
+          },
+          "docs": "Delete a metric. The metric is no longer modifiable or manually evaluable, but remains stored, and existing services or simulations that evaluate this metric\nwill continue to do so. One can still retrieve it using its ID to view its specifics.\n\n#### Permissions\nThis endpoint requires the following permissions:\n* `Metric:DeleteMetric` for the metric to delete."
+        },
+        {
+          "info": {
+            "name": "Search metrics",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:organization/metric/search/",
+            "headers": [
+              {
+                "name": "x-mongo-cluster-name",
+                "value": ""
+              },
+              {
+                "name": "Sec-WebSocket-Protocol",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "organization",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "query",
+                "value": "",
+                "type": "query",
+                "description": "The query to search for. Any metrics containing the terms in its name would be returned."
+              },
+              {
+                "name": "applied_to_service",
+                "value": "",
+                "type": "query",
+                "description": "The IDs of the services that the metric is applied to."
+              },
+              {
+                "name": "type",
+                "value": "",
+                "type": "query",
+                "description": "The types of the metrics."
+              },
+              {
+                "name": "creator",
+                "value": "",
+                "type": "query",
+                "description": "The creators of the metrics. Each value must be of the format `org_id,user_id`."
+              },
+              {
+                "name": "tag",
+                "value": "",
+                "type": "query",
+                "description": "The tags of the metrics. Must be specified using the syntax `key:value`, which means to match all metrics with the given `key` and `value` pair among its tags.\nIf `value` is `*`, it means the `value` does not matter. If `value` is empty, it matches against when the value is `None`."
+              }
+            ]
+          },
+          "docs": "Search for metrics that match the given filters and contain the given query in its name. Only the top 50 results will be returned. The results\nwill be sorted by the relevance of the search query.\n\n#### Permissions\nThis endpoint may be impacted by the following permissions:\n* Only metrics that the authenticated user has `Metric:GetMetric` permission for will be retrieved."
+        },
+        {
+          "info": {
+            "name": "Evaluate metrics",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.amigo.ai/v1/:organization/metric/evaluate",
+            "headers": [
+              {
+                "name": "x-mongo-cluster-name",
+                "value": ""
+              },
+              {
+                "name": "Sec-WebSocket-Protocol",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "organization",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Evaluate the latest versions of specified metrics for a completed conversation. The results will be stored and retrievable through the [`GetMetricEvaluationResults`](get-metric-evaluation-results)\nendpoint with a special source type of `manual`.\n\nIf the same conversation has been manually evaluated for the same metric, the previous evaluation result will be overwritten.\n\n#### Permissions\nThis endpoint requires the following permissions:\n* `Metric:GetMetric` for the metrics.\n* `Metric:EvaluateMet"
+        },
+        {
+          "info": {
+            "name": "Get metric evaluation results",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:organization/metric/metric_evaluation_result",
+            "headers": [
+              {
+                "name": "x-mongo-cluster-name",
+                "value": ""
+              },
+              {
+                "name": "Sec-WebSocket-Protocol",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "organization",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query",
+                "description": "The maximum number of metrics to return."
+              },
+              {
+                "name": "continuation_token",
+                "value": "",
+                "type": "query",
+                "description": "The continuation token from the previous request used to retrieve the next page of metrics."
+              },
+              {
+                "name": "timestamp_after",
+                "value": "",
+                "type": "query",
+                "description": "An ISO8601 timestamp. Only results evaluated on or after this moment is returned."
+              },
+              {
+                "name": "timestamp_before",
+                "value": "",
+                "type": "query",
+                "description": "An ISO8601 timestamp. Only results evaluated on or before this moment is returned."
+              },
+              {
+                "name": "metric_id",
+                "value": "",
+                "type": "query",
+                "description": "The ID of the metric to retrieve."
+              },
+              {
+                "name": "metric_id_and_version",
+                "value": "",
+                "type": "query",
+                "description": "The metric IDs and their versions to retrieve. Each value must be in the format of `<metric_id>-<version>`. If `version` is left empty, any versions of the metric would be retrieved."
+              },
+              {
+                "name": "source_type",
+                "value": "",
+                "type": "query",
+                "description": "The type of the source of the metric evaluation results."
+              },
+              {
+                "name": "conversation_id",
+                "value": "",
+                "type": "query",
+                "description": "For metric evaluation sources with type `post-session` or `manual`, this field filters the metric evaluation results to only include those that were computed from the given conversation IDs."
+              },
+              {
+                "name": "simulation_unit_test_set_run_id",
+                "value": "",
+                "type": "query",
+                "description": "For metric evaluation sources with type `simulation`, this field filters the metric evaluation results to only include those that were computed from the given simulation unit test set run IDs."
+              },
+              {
+                "name": "sort_by",
+                "value": "",
+                "type": "query",
+                "description": "The fields to sort the metrics by. Supported fields are `created_at`. Specify a `+` before the field name to indicate ascending sorting and `-` for descending sorting. \nMultiple fields can be specified to break ties."
+              }
+            ]
+          },
+          "docs": "Retrieve metric evaluation results that match the given filters.\n\n#### Permissions\nThis endpoint may be impacted by the following permissions:\n* Only metric evaluation results that the authenticated user has `Metric:GetMetricEvaluationResult` permission for will be retrieved."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

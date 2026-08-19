@@ -1,0 +1,97 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Amigo Account Agent Runs API",
+    "version": "0.1.0"
+  },
+  "request": {
+    "auth": {
+      "type": "bearer",
+      "token": "{{bearerToken}}"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Agent Runs",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Dispatch a framework agent run",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.amigo.ai/v1/:workspace_id/agent-runs",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Proxies to agent-runner, which executes the chosen framework UNMODIFIED (natural setup) against the platform MCP world-tools edge under the caller's own bearer. Non-blocking — poll GET /agent-runs/{run_id} for the result."
+        },
+        {
+          "info": {
+            "name": "Fetch the neutral session-bootstrap context for a service",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:workspace_id/agent-runs/harness-context",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "service_id",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "version_set",
+                "value": "",
+                "type": "query"
+              }
+            ]
+          },
+          "docs": "The retrievable CONTEXT edge of the world-model harness: identity + reference instructions, world scope, tool descriptors, guardrails, and the REAL server-enforced write-floor — the byte-identical projection the hosted runner renders from, so a customer's own framework can bootstrap a session against the same world model. PHI-free (the API-run projection carries no scoped entities or rendered caller prose)."
+        },
+        {
+          "info": {
+            "name": "Get a framework agent run",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:workspace_id/agent-runs/:run_id",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "run_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Run status, final text, token usage, and the adapter-normalized trajectory of the framework's native output."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

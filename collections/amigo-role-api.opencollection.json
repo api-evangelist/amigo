@@ -1,0 +1,292 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Amigo Account Role API",
+    "version": "0.1.0"
+  },
+  "request": {
+    "auth": {
+      "type": "bearer",
+      "token": "{{bearerToken}}"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Role",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Create a temporary permission grant",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.amigo.ai/v1/:organization/role/temporary_permission_grant/",
+            "headers": [
+              {
+                "name": "x-mongo-cluster-name",
+                "value": ""
+              },
+              {
+                "name": "Sec-WebSocket-Protocol",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "organization",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Create a new temporary permission grant.\n\nThe user that is given the grant will be able to perform actions permitted by the grant for a limited amount of time. Note that any actions that\nrequire comparing the permissions of the user and the permissions of another entity would still use the user and the other entity's role, without\nfactoring into the temporary permission grants.\n\n#### Permissions\nThis endpoint requires the following permissions:\n* `Role:CreateTemporaryPermissionGrant` for the gra"
+        },
+        {
+          "info": {
+            "name": "Get temporary permission grants",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:organization/role/temporary_permission_grants/",
+            "headers": [
+              {
+                "name": "x-mongo-cluster-name",
+                "value": ""
+              },
+              {
+                "name": "Sec-WebSocket-Protocol",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "organization",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "id",
+                "value": "",
+                "type": "query",
+                "description": "The IDs of the temporary permission grants to retrieve."
+              },
+              {
+                "name": "user_id",
+                "value": "",
+                "type": "query",
+                "description": "The user IDs of the temporary permission grants to retrieve."
+              },
+              {
+                "name": "permission_grant_name",
+                "value": "",
+                "type": "query",
+                "description": "The permission name of the grants."
+              },
+              {
+                "name": "is_expired",
+                "value": "",
+                "type": "query",
+                "description": "Whether to only return expired or unexpired temporary permission grants."
+              },
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query",
+                "description": "The maximum number of temporary permission grants to return."
+              },
+              {
+                "name": "continuation_token",
+                "value": "",
+                "type": "query",
+                "description": "The continuation token to use to retrieve the next set of temporary permission grants."
+              },
+              {
+                "name": "creator",
+                "value": "",
+                "type": "query",
+                "description": "The creators of the temporary permission grants."
+              },
+              {
+                "name": "tag",
+                "value": "",
+                "type": "query",
+                "description": "The tags of the temporary permission grants. Must be specified using the syntax `key:value`, which means to match all sets with the given `key` and `value` pair among its tags. If `value` is `*`, it means the `value` does not matter. If `value` is empty, it matches against when the value is `None`."
+              },
+              {
+                "name": "sort_by",
+                "value": "",
+                "type": "query",
+                "description": "The fields to sort the sets by. Supported fields are `user_id`, `expires_at`, and `permission_grant.permission_name`. Specify a `+` before the field name to indicate ascending sorting and `-` for descending sorting. Multiple fields can be specified to break ties."
+              }
+            ]
+          },
+          "docs": "Retrieve the temporary permission grants that match the given filters.\n\n#### Permissions\nThis endpoint may be impacted by the following permissions:\n* Only temporary permission grants that the authenticated user has `Role:GetTemporaryPermissionGrant` permission for will be returned."
+        },
+        {
+          "info": {
+            "name": "Get roles",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:organization/role/",
+            "headers": [
+              {
+                "name": "x-mongo-cluster-name",
+                "value": ""
+              },
+              {
+                "name": "Sec-WebSocket-Protocol",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "organization",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "return_permission_grants",
+                "value": "",
+                "type": "query",
+                "description": "Whether to return permission grants."
+              },
+              {
+                "name": "id",
+                "value": "",
+                "type": "query",
+                "description": "The IDs of the roles to retrieve."
+              },
+              {
+                "name": "name",
+                "value": "",
+                "type": "query",
+                "description": "The names of the roles to retrieve."
+              }
+            ]
+          },
+          "docs": "Return a list of roles in this organization.\n\n#### Permissions\nThis endpoint may be impacted by the following permissions:\n* Only roles that the authenticated user has the `Role:GetRole` permission on will be returned."
+        },
+        {
+          "info": {
+            "name": "Create a role",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.amigo.ai/v1/:organization/role/",
+            "headers": [
+              {
+                "name": "x-mongo-cluster-name",
+                "value": ""
+              },
+              {
+                "name": "Sec-WebSocket-Protocol",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "organization",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Create a new role.\n\n#### Permissions\nThis endpoint requires the following permissions:\n* `Role:CreateRole` for the role."
+        },
+        {
+          "info": {
+            "name": "Modify a role",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.amigo.ai/v1/:organization/role/:role_name",
+            "headers": [
+              {
+                "name": "x-mongo-cluster-name",
+                "value": ""
+              },
+              {
+                "name": "Sec-WebSocket-Protocol",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "role_name",
+                "value": "",
+                "type": "path",
+                "description": "The name of the role."
+              },
+              {
+                "name": "organization",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Modify an existing role. The roles are modified in-place unless immutable fields are modified, in which case a new role with the same name\nis created, and all users/API keys assigned to the previous role are switched to the new role. The old role document will expire after 1 day.\n\n#### Permissions\nThis endpoint requires the following permissions:\n* `Role:ModifyRole` for the role.\n\nThis endpoint may require the authenticated user to have great privileges than the new role if a new role document i"
+        },
+        {
+          "info": {
+            "name": "Assign a role to user",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.amigo.ai/v1/:organization/role/:role_name/assign",
+            "headers": [
+              {
+                "name": "x-mongo-cluster-name",
+                "value": ""
+              },
+              {
+                "name": "Sec-WebSocket-Protocol",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "organization",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "role_name",
+                "value": "",
+                "type": "path",
+                "description": "The name of the role to assign."
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Assign a role to a user.\n\n#### Permissions\nThis endpoint requires the following permissions:\n* The authenticated user to have greater privileges than the role being assigned."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

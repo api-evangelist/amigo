@@ -1,0 +1,296 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Amigo Account Audit API",
+    "version": "0.1.0"
+  },
+  "request": {
+    "auth": {
+      "type": "bearer",
+      "token": "{{bearerToken}}"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Audit",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "List Audit Events",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:workspace_id/audit",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "service",
+                "value": "",
+                "type": "query",
+                "description": "Filter by service name"
+              },
+              {
+                "name": "action",
+                "value": "",
+                "type": "query",
+                "description": "Filter by action type"
+              },
+              {
+                "name": "actor_entity_id",
+                "value": "",
+                "type": "query",
+                "description": "Filter by actor entity"
+              },
+              {
+                "name": "resource_type",
+                "value": "",
+                "type": "query",
+                "description": "Filter by resource type"
+              },
+              {
+                "name": "resource_id",
+                "value": "",
+                "type": "query",
+                "description": "Filter by specific resource"
+              },
+              {
+                "name": "phi_only",
+                "value": "",
+                "type": "query",
+                "description": "Only PHI access events"
+              },
+              {
+                "name": "date_from",
+                "value": "",
+                "type": "query",
+                "description": "Start of date range"
+              },
+              {
+                "name": "date_to",
+                "value": "",
+                "type": "query",
+                "description": "End of date range"
+              },
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query",
+                "description": "Page size"
+              },
+              {
+                "name": "offset",
+                "value": "",
+                "type": "query",
+                "description": "Page offset"
+              }
+            ]
+          },
+          "docs": "List audit events with filters and pagination.\n\nPermissions: admin, owner (``Audit.view``)"
+        },
+        {
+          "info": {
+            "name": "Get Phi Access Report",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:workspace_id/audit/phi-access",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "entity_id",
+                "value": "",
+                "type": "query",
+                "description": "Filter by patient entity"
+              },
+              {
+                "name": "date_from",
+                "value": "",
+                "type": "query",
+                "description": "Start of date range"
+              },
+              {
+                "name": "date_to",
+                "value": "",
+                "type": "query",
+                "description": "End of date range"
+              },
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query",
+                "description": "Page size"
+              },
+              {
+                "name": "offset",
+                "value": "",
+                "type": "query",
+                "description": "Page offset"
+              }
+            ]
+          },
+          "docs": "PHI access report — who accessed what patient data, when, from where.\n\nRequired for HIPAA breach investigation (§164.312(b)).\n\nPermissions: admin, owner (``Audit.view``)"
+        },
+        {
+          "info": {
+            "name": "Get Entity Access Log",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:workspace_id/audit/entity/:entity_id/access-log",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "entity_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "date_from",
+                "value": "",
+                "type": "query",
+                "description": "Start of date range"
+              },
+              {
+                "name": "date_to",
+                "value": "",
+                "type": "query",
+                "description": "End of date range"
+              },
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query",
+                "description": "Page size"
+              },
+              {
+                "name": "offset",
+                "value": "",
+                "type": "query",
+                "description": "Page offset"
+              }
+            ]
+          },
+          "docs": "Per-entity access history — all audit events for a specific resource.\n\nPermissions: admin, owner (``Audit.view``)"
+        },
+        {
+          "info": {
+            "name": "Get Audit Summary",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:workspace_id/audit/summary",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "date_from",
+                "value": "",
+                "type": "query",
+                "description": "Start of date range"
+              },
+              {
+                "name": "date_to",
+                "value": "",
+                "type": "query",
+                "description": "End of date range"
+              }
+            ]
+          },
+          "docs": "Audit summary statistics for compliance dashboard.\n\nPermissions: admin, owner (``Audit.view``)"
+        },
+        {
+          "info": {
+            "name": "Create Audit Export",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.amigo.ai/v1/:workspace_id/audit/export",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Export audit events to the UC Volume as NDJSON.\n\nReturns a platform-api proxy download path (UC Volumes have no presigned\nURLs — ``download_audit_export`` streams the bytes).\n\nPermissions: admin, owner"
+        },
+        {
+          "info": {
+            "name": "List Audit Exports",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:workspace_id/audit/exports",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query",
+                "description": "Max exports to return"
+              }
+            ]
+          },
+          "docs": "List past audit exports with platform-api proxy download paths.\n\nPermissions: admin, owner"
+        },
+        {
+          "info": {
+            "name": "Download Audit Export",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:workspace_id/audit/exports/download/:filename",
+            "params": [
+              {
+                "name": "workspace_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "filename",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Proxy-download an audit export artifact (NDJSON) from the UC Volume.\n\n``filename`` must be a bare export filename (``{export_id}.ndjson``);\npath separators and traversal sequences are rejected with 422. The volume\nkey is reconstructed server-side as ``exports/{workspace_id}/{filename}``,\nso a caller can never reach outside its own workspace prefix. The bytes\nare streamed volume→client without buffering the artifact in memory.\n\nPermissions: admin, owner (``Audit.export`` — same gate as create/lis"
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

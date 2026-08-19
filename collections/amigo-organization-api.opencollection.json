@@ -1,0 +1,716 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Amigo Account Organization API",
+    "version": "0.1.0"
+  },
+  "request": {
+    "auth": {
+      "type": "bearer",
+      "token": "{{bearerToken}}"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Organization",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Get an organization",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:organization/organization/",
+            "headers": [
+              {
+                "name": "x-mongo-cluster-name",
+                "value": ""
+              },
+              {
+                "name": "Sec-WebSocket-Protocol",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "organization",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Get the details of an organization.\n\n#### Permissions\nThis endpoint may be impacted by the following permissions:\n* The `default_user_preferences` field is only populated if the endpoint is called with user authentication credentials, and the authenticated user has the\n`Organization:GetOrganizationDetails` permission."
+        },
+        {
+          "info": {
+            "name": "Modify an organization",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.amigo.ai/v1/:organization/organization/",
+            "headers": [
+              {
+                "name": "x-mongo-cluster-name",
+                "value": ""
+              },
+              {
+                "name": "Sec-WebSocket-Protocol",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "organization",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Modify elements of an organization.\n\n#### Permissions\nThis endpoint requries the following permissions:\n* `Organization:ModifyOrganization` to modify the organization."
+        },
+        {
+          "info": {
+            "name": "Create an organization",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "https://api.amigo.ai/v1/:organization/organization/",
+            "headers": [
+              {
+                "name": "x-mongo-cluster-name",
+                "value": ""
+              },
+              {
+                "name": "Sec-WebSocket-Protocol",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "organization",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Set up a new organization in the Amigo system. Specifically, it\n* creates a new organization within the Amigo Mongo database with the given details.\n    * Along with the new organization, 4 default roles are created:\n        * `DefaultUserRole`.\n        * `DefaultAdministratorRole`.\n        * `DefaultAmigoAdministratorRole`.\n        * `DefaultSuperAdministratorRole`.\n    * A super user, `admin@amigo.ai`, is created and granted the `DefaultSuperAdministratorRole`.\n* creates a new tenant in Google"
+        },
+        {
+          "info": {
+            "name": "Delete an organization",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "https://api.amigo.ai/v1/:organization/organization/",
+            "headers": [
+              {
+                "name": "x-mongo-cluster-name",
+                "value": ""
+              },
+              {
+                "name": "Sec-WebSocket-Protocol",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "organization",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Delete an organization. All of the organization's data are erased. Some analytical data will be asynchronously removed at\na future date.\n\nUnlike other endpoints, this endpoint is not transactional. If any operation fails during the execution, the endpoint does not\nrevert the performed actions. The caller should re-call this endpoint until it succeeds.\n\nRegardless of whether this endpoint succeeds or not, the first time this endpoint is called, the organization is considered\ndeleted. Even if the "
+        },
+        {
+          "info": {
+            "name": "Get agents for an organization",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:organization/organization/agent",
+            "headers": [
+              {
+                "name": "x-mongo-cluster-name",
+                "value": ""
+              },
+              {
+                "name": "Sec-WebSocket-Protocol",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "organization",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "deprecated",
+                "value": "",
+                "type": "query",
+                "description": "Whether the agent is deprecated."
+              },
+              {
+                "name": "id",
+                "value": "",
+                "type": "query",
+                "description": "The IDs of the agents to filter for."
+              },
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query",
+                "description": "The maximum number of agents to return."
+              },
+              {
+                "name": "continuation_token",
+                "value": "",
+                "type": "query",
+                "description": "The continuation token from the previous request used to retrieve the next page of agents."
+              }
+            ]
+          },
+          "docs": "Return a list of agents for the organization.\n\n#### Permissions\nThis endpoint may be impacted by the following permissions:\n* Only agents that the authenticated user has the `Organization:GetAgent` permission on will be returned."
+        },
+        {
+          "info": {
+            "name": "Create an agent",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.amigo.ai/v1/:organization/organization/agent",
+            "headers": [
+              {
+                "name": "x-mongo-cluster-name",
+                "value": ""
+              },
+              {
+                "name": "Sec-WebSocket-Protocol",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "organization",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Create a new agent for the given organization. No default version for the agent will be created, so one must\nlater to create a version for this agent so it can be used in a service.\n\n#### Permissions\nThis endpoint requires the following permissions:\n* `Organization:CreateAgent` for the new agent."
+        },
+        {
+          "info": {
+            "name": "Create an agent version",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.amigo.ai/v1/:organization/organization/agent/:agent_id/",
+            "headers": [
+              {
+                "name": "x-mongo-cluster-name",
+                "value": ""
+              },
+              {
+                "name": "Sec-WebSocket-Protocol",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "agent_id",
+                "value": "",
+                "type": "path",
+                "description": "The ID of the agent to create a new version for."
+              },
+              {
+                "name": "organization",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "version",
+                "value": "",
+                "type": "query",
+                "description": "The version number of the new agent version. If specified, this endpoint throws an error if the next version of the agent in the database doesn't equal to the value of this parameter."
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Create a new version of the given agent. If there's no existing versions, all fields in the request must be filled and they will be used to\ncreate the initial version of the agent. Otherwise, only fill the fields that need to be updated, and the new version will retain other fields\nfrom the previous latest version.\n\n#### Permissions\nThis endpoint requires the following permissions:\n* `Organization:CreateAgentVersion` for the new version of the agent."
+        },
+        {
+          "info": {
+            "name": "Delete an agent",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "https://api.amigo.ai/v1/:organization/organization/agent/:agent_id/",
+            "headers": [
+              {
+                "name": "x-mongo-cluster-name",
+                "value": ""
+              },
+              {
+                "name": "Sec-WebSocket-Protocol",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "agent_id",
+                "value": "",
+                "type": "path",
+                "description": "The ID of the agent to delete"
+              },
+              {
+                "name": "organization",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Delete the specified agent from the organization. In practice, this endpoint marks the agent as deprecated, but will not delete\nthis agent nor any of its versions. It does prevent new services (or inactive services to be activated) from using this agent.\n\nAn error will be raised if this endpoint is called when an active service still utilizes this agent. However, any ongoing conversation using this agent\nwill continue to work.\n\n#### Permissions:\n* `Organization:DeleteAgent` for the agent to dele"
+        },
+        {
+          "info": {
+            "name": "Get service hierarchical state machines for an organization",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:organization/organization/service_hierarchical_state_machine",
+            "headers": [
+              {
+                "name": "x-mongo-cluster-name",
+                "value": ""
+              },
+              {
+                "name": "Sec-WebSocket-Protocol",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "organization",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "deprecated",
+                "value": "",
+                "type": "query",
+                "description": "Whether the state machine is deprecated."
+              },
+              {
+                "name": "id",
+                "value": "",
+                "type": "query",
+                "description": "The IDs of the state machines to filter for."
+              },
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query",
+                "description": "The maximum number of service hierarchical state machines to return."
+              },
+              {
+                "name": "continuation_token",
+                "value": "",
+                "type": "query",
+                "description": "The continuation token from the previous request used to retrieve the next page of state machines."
+              }
+            ]
+          },
+          "docs": "Return a list of service hierarchical state machines for the organization.\n\n#### Permissions\nThis endpoint may be impacted by the following permissions:\n* Only state machines that the authenticated user has the `Organization:GetServiceHierarchicalStateMachine` permission on will be returned."
+        },
+        {
+          "info": {
+            "name": "Create a service hierarchical state machine",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.amigo.ai/v1/:organization/organization/service_hierarchical_state_machine",
+            "headers": [
+              {
+                "name": "x-mongo-cluster-name",
+                "value": ""
+              },
+              {
+                "name": "Sec-WebSocket-Protocol",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "organization",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Create a new state machine for the given organization. No default version for the state machine will be created, so one must later create a version for this state machine so it can be used\nin a service.\n\n#### Permissions\nThis endpoint requires the following permissions:\n* `Organization:CreateServiceHierarchicalStateMachine` for the new service hierarchical state machine."
+        },
+        {
+          "info": {
+            "name": "Create a service hierarchical state machine version",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.amigo.ai/v1/:organization/organization/service_hierarchical_state_machine/:service_hierarchical_state_machine_id/",
+            "headers": [
+              {
+                "name": "x-mongo-cluster-name",
+                "value": ""
+              },
+              {
+                "name": "Sec-WebSocket-Protocol",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "service_hierarchical_state_machine_id",
+                "value": "",
+                "type": "path",
+                "description": "The ID of the service hierarchical state machine to create a new version for."
+              },
+              {
+                "name": "organization",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "version",
+                "value": "",
+                "type": "query",
+                "description": "The version number of the new state machine version. If specified, this endpoint throws an error if the next version of the state machine in the database doesn't equal to the value of this parameter."
+              },
+              {
+                "name": "dry_run",
+                "value": "",
+                "type": "query",
+                "description": "Whether to perform a dry run of the operation."
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Create a new version for the given service hierarchical state machine. The new version will be created with the supplied data. It needs to satisfy the following\nconstraints:\n* Each action state must have at least one action.\n* For action and decision states, each exit condition's `next_state` must either be a string that exists in the states and cannot be the same as the current state, or a 2-tuple of strings,\n  with the first string of the form `{external_service_hierarchical_state_machine_refe"
+        },
+        {
+          "info": {
+            "name": "Delete a service hierarchical state machine",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "https://api.amigo.ai/v1/:organization/organization/service_hierarchical_state_machine/:state_machine_id/",
+            "headers": [
+              {
+                "name": "x-mongo-cluster-name",
+                "value": ""
+              },
+              {
+                "name": "Sec-WebSocket-Protocol",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "state_machine_id",
+                "value": "",
+                "type": "path",
+                "description": "The ID of the state machine to delete"
+              },
+              {
+                "name": "organization",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Delete the specified state machine from the organization. In practice, this endpoint marks the state machine as deprecated, but will not delete\nthis state machine nor any of its versions. It does prevent new services (or inactive services to be activated) from using this state machine.\n\nAn error will be raised if this endpoint is called when an active service still utilizes this state machine. However, any ongoing conversation using this state machine,\nas well as any state machine version that d"
+        },
+        {
+          "info": {
+            "name": "Get API keys for the organization",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:organization/organization/api_key/",
+            "headers": [
+              {
+                "name": "x-mongo-cluster-name",
+                "value": ""
+              },
+              {
+                "name": "Sec-WebSocket-Protocol",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "organization",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Get all API keys for the organization.\n\n#### Permissions\nThis endpoint is impacted by the following permissions:\n* Only API keys that the authenticated user has the `Organization:GetAPIKey` permission for are returned."
+        },
+        {
+          "info": {
+            "name": "Create an API key",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.amigo.ai/v1/:organization/organization/api_key/",
+            "headers": [
+              {
+                "name": "x-mongo-cluster-name",
+                "value": ""
+              },
+              {
+                "name": "Sec-WebSocket-Protocol",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "organization",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Create a new API key for the given organization. This API key authorizes the organization to retrieve a per-user access token for users in this organization which allows the users to access most of Amigo's API endpoints.\nThis API key is valid for the duration specified in the request. There's no way to extend the duration of an API key. The API key is not retrievable after issuance, so please keep it in a secure location.\n\nEach organization has a maximum limit of 20 API keys.\n\n#### Permissions\nT"
+        },
+        {
+          "info": {
+            "name": "Delete an API key",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "https://api.amigo.ai/v1/:organization/organization/api_key/:api_key_id/",
+            "headers": [
+              {
+                "name": "x-mongo-cluster-name",
+                "value": ""
+              },
+              {
+                "name": "Sec-WebSocket-Protocol",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "organization",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "api_key_id",
+                "value": "",
+                "type": "path",
+                "description": "ID of the API key to delete."
+              }
+            ]
+          },
+          "docs": "Delete the given API key from this organization.\n\n#### Permissions\nThis endpoint requires the following permissions:\n* `Organization:DeleteAPIKey`."
+        },
+        {
+          "info": {
+            "name": "Get agent versions",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:organization/organization/agent/:agent_id/version",
+            "headers": [
+              {
+                "name": "x-mongo-cluster-name",
+                "value": ""
+              },
+              {
+                "name": "Sec-WebSocket-Protocol",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "agent_id",
+                "value": "",
+                "type": "path",
+                "description": "The ID of the agent."
+              },
+              {
+                "name": "organization",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "version",
+                "value": "",
+                "type": "query",
+                "description": "The versions of the agent to retrieve. One can specify an exact version to retrieve, which is either the version number or `latest`, which retrieves the latest version. Alternatively, one can specify a range of inclusive lower and upper bound for the version number separated by `-`, and every version within the range would be retrieved."
+              },
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query",
+                "description": "The maximum number of agent versions to return."
+              },
+              {
+                "name": "continuation_token",
+                "value": "",
+                "type": "query",
+                "description": "The continuation token from the previous request used to retrieve the next page of agent version."
+              },
+              {
+                "name": "sort_by",
+                "value": "",
+                "type": "query",
+                "description": "The fields to sort the versions by. Supported fields are `version`. Specify a `+` before the field name to indicate ascending sorting and `-` for descending sorting. Multiple fields can be specified to break ties."
+              }
+            ]
+          },
+          "docs": "Retrieve the versions of an agent.\n\n#### Permissions\nThis endpoint requires the following permissions:\n* `Organization:GetAgent` for the agent to retrieve."
+        },
+        {
+          "info": {
+            "name": "Get service hierarchical state machine versions",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:organization/organization/service_hierarchical_state_machine/:service_hierarchical_state_machine_id/version",
+            "headers": [
+              {
+                "name": "x-mongo-cluster-name",
+                "value": ""
+              },
+              {
+                "name": "Sec-WebSocket-Protocol",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "service_hierarchical_state_machine_id",
+                "value": "",
+                "type": "path",
+                "description": "The ID of the state machine."
+              },
+              {
+                "name": "organization",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "version",
+                "value": "",
+                "type": "query",
+                "description": "The versions of the state machine to retrieve. One can specify an exact version to retrieve, which is either the version number or `latest`, which retrieves the latest version. Alternatively, one can specify a range of inclusive lower and upper bound for the version number separated by `-`, and every version within the range would be retrieved."
+              },
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query",
+                "description": "The maximum number of state machine versions to return."
+              },
+              {
+                "name": "continuation_token",
+                "value": "",
+                "type": "query",
+                "description": "The continuation token from the previous request used to retrieve the next page of state machine versions."
+              },
+              {
+                "name": "sort_by",
+                "value": "",
+                "type": "query",
+                "description": "The fields to sort the versions by. Supported fields are `version`. Specify a `+` before the field name to indicate ascending sorting and `-` for descending sorting. Multiple fields can be specified to break ties."
+              }
+            ]
+          },
+          "docs": "Retrieve the versions of a state machine.\n\n#### Permissions\nThis endpoint requires the following permissions:\n* `Organization:GetServiceHierarchicalStateMachine` for the state machine to retrieve."
+        },
+        {
+          "info": {
+            "name": "Get user dimensions for the organization",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.amigo.ai/v1/:organization/organization/user_dimensions/",
+            "headers": [
+              {
+                "name": "x-mongo-cluster-name",
+                "value": ""
+              },
+              {
+                "name": "Sec-WebSocket-Protocol",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "organization",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Get the list of user dimensions for the organization.\n\n#### Permissions\nThis endpoint requires the following permissions:\n* `Organization:GetOrganizationDetails` for the current organization."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}
