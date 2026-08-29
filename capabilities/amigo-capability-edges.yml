@@ -3,7 +3,7 @@ provider: Amigo
 generated_by: planning/capability-mapping/scripts/classify_capabilities.py
 model: claude-opus-5
 frame:
-- Healthcare Providers
+- Telecommunications
 min_confidence: 0.7
 capability_model:
   source: https://github.com/vincentmakes/turbo-ea-capabilities
@@ -11,102 +11,85 @@ capability_model:
   attribution: Turbo EA Capabilities by Vincent Verdet — Turbo EA, https://github.com/vincentmakes/turbo-ea-capabilities,
     CC BY 4.0
   notice: NOTICE
-edge_count: 9
+edge_count: 8
 edges:
-- tag: FHIR
-  spec_file: amigo-fhir-api-openapi.yml
-  capability_id: BC-2900.60
-  capability_id_l1: BC-2900
-  capability_name: Healthcare Interoperability Operations
-  confidence: 0.85
-  evidence: POST /v1/{workspace_id}/fhir/import  Import FHIR Bundle; GET .../fhir/patients/{patient_id}/timeline  Patient
-    timeline
-  reason: Operations ingest FHIR bundles/NDJSON and expose patient, practitioner, appointment and location
-    views — operation of FHIR endpoints and clinical data exchange, i.e. healthcare interoperability operations.
 - tag: Role
   spec_file: amigo-role-api-openapi.yml
   capability_id: BC-620.20
   capability_id_l1: BC-620
   capability_name: Identity & Access Management
-  confidence: 0.85
-  evidence: POST /v1/{organization}/role/{role_name}/assign  assign-role  'Assign a role to user'; 'Create
-    a temporary permission grant'
-  reason: Role definition, modification, assignment to users and temporary permission grants are squarely
-    identity and access management (RBAC/PAM-style elevation).
+  confidence: 0.9
+  evidence: POST /v1/{organization}/role/{role_name}/assign  assign-role  Assign a role to user; 'Create
+    a temporary permission grant'; schemas PermissionGrantInstance, RoleInstance
+  reason: Role creation, modification, assignment to users and temporary permission grants are role-based
+    access control — Identity & Access Management.
 - tag: Role Grants
   spec_file: amigo-role-grants-api-openapi.yml
   capability_id: BC-620.20
   capability_id_l1: BC-620
   capability_name: Identity & Access Management
-  confidence: 0.85
-  evidence: POST /v1/{workspace_id}/role-grants  create-role-grant  'Create Role Grant'; schemas _ResourceType,
+  confidence: 0.88
+  evidence: POST /v1/{workspace_id}/role-grants  create-role-grant  Create Role Grant; schemas _ResourceType,
     _Access, RoleGrantItem
-  reason: Lifecycle of role grants over resources with access levels — authorisation management, i.e.
-    Identity & Access Management. No plausible business-domain reading.
-- tag: Webhook Destination
-  spec_file: amigo-webhook-destination-api-openapi.yml
-  capability_id: BC-4270.80
-  capability_id_l1: BC-4270
-  capability_name: Webhook & Event Subscription Management
-  confidence: 0.85
-  evidence: '"Create a webhook destination", "Rotate the secret of a webhook destination", "Get webhook
-    deliveries" with WebhookDeliveryStatus, DeliveryAttempt'
-  reason: Explicitly the lifecycle of outbound webhook subscriptions plus delivery reliability tracking,
-    which is exactly Webhook & Event Subscription Management.
+  reason: Grants binding roles/access to resources per workspace — authorisation management, i.e. Identity
+    & Access Management.
+- tag: Billing
+  spec_file: amigo-billing-api-openapi.yml
+  capability_id: BC-4250
+  capability_id_l1: BC-4250
+  capability_name: Subscription Billing & Revenue Management
+  confidence: 0.8
+  evidence: List Workspace Invoices; Get Invoice Pdf; Get Workspace Usage Trends; schemas MeterValueItem,
+    InvoiceLineItem, PaginatedResponse_CustomerItem_
+  reason: Operations cover usage metering, invoice listing/presentment and billing-customer records for
+    a SaaS workspace model — subscription billing and revenue management. Spans metering and invoicing
+    so no single L2 named.
 - tag: Operators
   spec_file: amigo-operators-api-openapi.yml
   capability_id: BC-430.30
   capability_id_l1: BC-430
   capability_name: Contact Centre Operations Management
   confidence: 0.8
-  evidence: GET .../operators/escalations/active 'List active escalations'; GET .../operators/queue 'Priority-ranked
-    operator queue'; POST .../operators/{operator_id}/join-call 'Join active call as operator'; 'Get call
-    transcript'
-  reason: Human operator queueing, escalation handling, live call join/leave, transcripts and operator
-    performance summaries are contact-centre operations (workforce/queue/telephony management), not clinical
-    care. Some residue of AI supervision, hence 0.8 rather than higher.
-- tag: Scheduling Rules
-  spec_file: amigo-scheduling-rules-api-openapi.yml
-  capability_id: BC-2800.10
-  capability_id_l1: BC-2800
-  capability_name: Scheduling & Appointment Management
-  confidence: 0.8
-  evidence: POST /v1/{workspace_id}/scheduling-rule-sets  create-scheduling-rule-set; schemas ClinicOpenHoursParams,
-    TMSSessionGridParams, KetamineBlockOverlapParams, _DayHours
-  reason: 'The rule sets encode clinic open hours, treatment block overlap and session grid constraints
-    — i.e. governance of provider/resource appointment scheduling in a clinical setting, which is Scheduling
-    & Appointment Management. Not pure config: the parameters are explicitly clinical scheduling constructs
-    (TMS session grid, ketamine block).'
-- tag: Billing
-  spec_file: amigo-billing-api-openapi.yml
-  capability_id: BC-4250
-  capability_id_l1: BC-4250
-  capability_name: Subscription Billing & Revenue Management
-  confidence: 0.75
-  evidence: list-billing-invoices List Workspace Invoices; get-billing-usage Get Workspace Usage; schemas
-    MeterValueItem, MeterSummary, InvoiceLineItem
-  reason: Usage metering, invoice generation/retrieval and billing customer records for a workspace-based
-    SaaS — subscription billing and revenue management. Spans metering and invoicing so no single L2 is
-    named.
-- tag: Surface Patient
-  spec_file: amigo-surface-patient-api-openapi.yml
-  capability_id: BC-2800
-  capability_id_l1: BC-2800
-  capability_name: Patient Access Management
-  confidence: 0.75
-  evidence: POST /s/{token}/book  book-surface-appointment  Book Appointment; GET /s/{token}/availability  Get
-    Availability; PUT /s/{token}/fields/{key}  Save Field; schema PatientSurfaceSpec
-  reason: The patient-facing token surface renders a form, OCR-extracts and saves field values, shows
-    availability slots and books an appointment — pre-encounter patient intake and booking. Left at L1
-    because the surface spans both appointment scheduling and registration data capture.
+  evidence: get-operator-queue  Priority-ranked operator queue; operator-join-call  Join active call as
+    operator; operator-performance-summary  Operator performance summary
+  reason: Human operator queueing, escalation handling, live call join/leave, transcripts and performance
+    stats — contact-centre operations for the agent/human handoff.
 - tag: Traces
   spec_file: amigo-traces-api-openapi.yml
   capability_id: BC-4220.20
   capability_id_l1: BC-4220
   capability_name: Observability Management
+  confidence: 0.75
+  evidence: POST /v1/{workspace_id}/traces:export 'Export gen_ai.* + voice.* traces as OTLP/JSON'; schemas
+    'ResourceSpans', 'ScopeSpans', 'Span', 'InstrumentationScope'
+  reason: OTLP span export is plainly distributed-tracing telemetry that makes the running service observable;
+    maps to Observability Management. Single operation, so not maximal confidence, but the OTLP schema
+    set leaves little ambiguity.
+- tag: Compliance
+  spec_file: amigo-compliance-api-openapi.yml
+  capability_id: BC-130.10
+  capability_id_l1: BC-130
+  capability_name: Regulatory Compliance Management
   confidence: 0.7
-  evidence: '"Export gen_ai.* + voice.* traces as OTLP/JSON" with schemas ResourceSpans, ScopeSpans, Span,
-    InstrumentationScope'
-  reason: OTLP trace export is telemetry/observability of the running service (logs, metrics, traces),
-    matching Observability Management. Single operation and it could also be read as product telemetry
-    instrumentation, hence moderate confidence.
+  evidence: HIPAA compliance evidence report; Access review export; Compliance dashboard composite
+  reason: Produces sector-regulation (HIPAA) evidence reports and periodic access reviews, i.e. regulatory
+    compliance management support. Alternative reading is vendor-side service attestation, so not fully
+    certain.
+- tag: Dashboards
+  spec_file: amigo-dashboards-api-openapi.yml
+  capability_id: BC-610.50
+  capability_id_l1: BC-610
+  capability_name: Analytics & BI Management
+  confidence: 0.7
+  evidence: Create Dashboard; Execute Dashboard; schemas PanelResultResponse, DashboardDefinitionResponse
+  reason: Definition and execution of dashboards with panels is reporting/BI delivery. Could be viewed
+    as generic UI configuration, hence moderate confidence.
+- tag: Insights
+  spec_file: amigo-insights-api-openapi.yml
+  capability_id: BC-610.50
+  capability_id_l1: BC-610
+  capability_name: Analytics & BI Management
+  confidence: 0.7
+  evidence: '"Execute Sql", "Describe Schema", "Get Digest", schemas "SqlQueryRequest", "SuggestionsResponse"'
+  reason: Ad-hoc SQL querying, schema discovery, digests and conversational analytics sessions over workspace
+    data — delivery of reporting and business intelligence.
