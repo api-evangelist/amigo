@@ -11,8 +11,19 @@ capability_model:
   attribution: Turbo EA Capabilities by Vincent Verdet — Turbo EA, https://github.com/vincentmakes/turbo-ea-capabilities,
     CC BY 4.0
   notice: NOTICE
-edge_count: 8
+edge_count: 14
 edges:
+- tag: Webhook Destination
+  spec_file: amigo-webhook-destination-api-openapi.yml
+  capability_id: BC-4270.80
+  capability_id_l1: BC-4270
+  capability_name: Webhook & Event Subscription Management
+  confidence: 0.92
+  evidence: '"Create a webhook destination", "Rotate the secret of a webhook destination", "Get webhook
+    deliveries"; schemas WebhookDeliveryStatus, DeliveryAttempt'
+  reason: Full CRUD over outbound webhook destinations plus secret rotation and delivery-attempt inspection
+    is precisely webhook/event subscription lifecycle and delivery reliability management.
+  recovered_from: sweep-20260828T235257Z-edges.json
 - tag: Role
   spec_file: amigo-role-api-openapi.yml
   capability_id: BC-620.20
@@ -33,6 +44,17 @@ edges:
     _Access, RoleGrantItem
   reason: Grants binding roles/access to resources per workspace — authorisation management, i.e. Identity
     & Access Management.
+- tag: FHIR
+  spec_file: amigo-fhir-api-openapi.yml
+  capability_id: BC-2900.60
+  capability_id_l1: BC-2900
+  capability_name: Healthcare Interoperability Operations
+  confidence: 0.85
+  evidence: POST /v1/{workspace_id}/fhir/import  Import FHIR Bundle; GET .../fhir/patients/{patient_id}/timeline  Patient
+    timeline
+  reason: Operations ingest FHIR bundles/NDJSON and expose patient, practitioner, appointment and location
+    views — operation of FHIR endpoints and clinical data exchange, i.e. healthcare interoperability operations.
+  recovered_from: healthcare-vertical-edges.json
 - tag: Billing
   spec_file: amigo-billing-api-openapi.yml
   capability_id: BC-4250
@@ -54,6 +76,31 @@ edges:
     operator; operator-performance-summary  Operator performance summary
   reason: Human operator queueing, escalation handling, live call join/leave, transcripts and performance
     stats — contact-centre operations for the agent/human handoff.
+- tag: Scheduling Rules
+  spec_file: amigo-scheduling-rules-api-openapi.yml
+  capability_id: BC-2800.10
+  capability_id_l1: BC-2800
+  capability_name: Scheduling & Appointment Management
+  confidence: 0.8
+  evidence: POST /v1/{workspace_id}/scheduling-rule-sets  create-scheduling-rule-set; schemas ClinicOpenHoursParams,
+    TMSSessionGridParams, KetamineBlockOverlapParams, _DayHours
+  reason: 'The rule sets encode clinic open hours, treatment block overlap and session grid constraints
+    — i.e. governance of provider/resource appointment scheduling in a clinical setting, which is Scheduling
+    & Appointment Management. Not pure config: the parameters are explicitly clinical scheduling constructs
+    (TMS session grid, ketamine block).'
+  recovered_from: healthcare-vertical-edges.json
+- tag: Surface Patient
+  spec_file: amigo-surface-patient-api-openapi.yml
+  capability_id: BC-2800
+  capability_id_l1: BC-2800
+  capability_name: Patient Access Management
+  confidence: 0.75
+  evidence: POST /s/{token}/book  book-surface-appointment  Book Appointment; GET /s/{token}/availability  Get
+    Availability; PUT /s/{token}/fields/{key}  Save Field; schema PatientSurfaceSpec
+  reason: The patient-facing token surface renders a form, OCR-extracts and saves field values, shows
+    availability slots and books an appointment — pre-encounter patient intake and booking. Left at L1
+    because the surface spans both appointment scheduling and registration data capture.
+  recovered_from: healthcare-vertical-edges.json
 - tag: Traces
   spec_file: amigo-traces-api-openapi.yml
   capability_id: BC-4220.20
@@ -65,6 +112,30 @@ edges:
   reason: OTLP span export is plainly distributed-tracing telemetry that makes the running service observable;
     maps to Observability Management. Single operation, so not maximal confidence, but the OTLP schema
     set leaves little ambiguity.
+- tag: Workspaces
+  spec_file: amigo-workspaces-api-openapi.yml
+  capability_id: BC-4230.10
+  capability_id_l1: BC-4230
+  capability_name: Tenant Provisioning & Lifecycle
+  confidence: 0.75
+  evidence: '"Provision workspace resources", "Archive a workspace", "Convert workspace environment";
+    schemas ProvisionResponse, ArchiveWorkspaceRequest'
+  reason: Workspaces are the vendor's tenant construct; the operations create, provision, archive and
+    migrate them between environments, matching tenant provisioning and lifecycle. Some spill into tenant
+    configuration (test caller numbers, credential ids).
+  recovered_from: sweep-20260828T235257Z-edges.json
+- tag: API Keys
+  spec_file: amigo-api-keys-api-openapi.yml
+  capability_id: BC-4270.40
+  capability_id_l1: BC-4270
+  capability_name: Developer Identity & Credential Management
+  confidence: 0.72
+  evidence: POST /v1/{workspace_id}/api-keys  create-api-key  Create an API key ; POST .../rotate  rotate-api-key  Rotate
+    an API key ; get-api-key-permission-catalog  Get the API-key role/permission catalog
+  reason: Issuance, listing, rotation and revocation of API credentials scoped to a workspace, with a
+    role/permission catalog — this is developer credential management for the vendor's public API. Some
+    overlap with generic Identity & Access Management keeps confidence moderate.
+  recovered_from: sweep-20260828T235257Z-edges.json
 - tag: Compliance
   spec_file: amigo-compliance-api-openapi.yml
   capability_id: BC-130.10
