@@ -1,17 +1,13 @@
-openapi: 3.1.0
+openapi: 3.2.0
 info:
-  title: Amigo Account Skills API
-  version: 0.1.0
+  title: Platform Skills API
+  description: Management API for the Amigo platform. Provides CRUD operations for workspaces, API keys, and resources.
+  version: 1.0.0
 servers:
-- url: https://api.amigo.ai
-- url: https://internal-api.amigo.ai
-- url: https://api-eu-central-1.amigo.ai
-- url: https://api-ap-southeast-2.amigo.ai
-- url: https://api-ca-central-1.amigo.ai
+- url: https://api.platform.amigo.ai
+  description: Production
 security:
-- Bearer-Authorization: []
-  Bearer-Authorization-Organization: []
-  Basic: []
+- BearerAuth: []
 tags:
 - name: Skills
 paths:
@@ -356,197 +352,6 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
-    ValidationError:
-      properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-        input:
-          title: Input
-        ctx:
-          type: object
-          title: Context
-      type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
-    src__models__IntegrationToolRef:
-      properties:
-        integration:
-          type: string
-          title: Integration
-        endpoint:
-          type: string
-          title: Endpoint
-      type: object
-      required:
-      - integration
-      - endpoint
-      title: IntegrationToolRef
-      description: Reference to an integration endpoint by integration + endpoint name.
-    _ToolMockKey:
-      type: string
-      maxLength: 128
-      minLength: 1
-    TestSkillResponse:
-      properties:
-        result:
-          type: string
-          title: Result
-          description: Final result text produced by the skill
-        duration_ms:
-          type: number
-          title: Duration Ms
-          description: Total execution time in milliseconds
-        input_tokens:
-          type: integer
-          title: Input Tokens
-          description: Number of input tokens consumed
-        output_tokens:
-          type: integer
-          title: Output Tokens
-          description: Number of output tokens generated
-        cached_tokens:
-          type: integer
-          title: Cached Tokens
-          description: Number of tokens served from cache
-        rounds:
-          type: integer
-          title: Rounds
-          description: Number of agent reasoning rounds executed
-        sub_tool_logs:
-          items:
-            $ref: '#/components/schemas/SubToolLog'
-          type: array
-          title: Sub Tool Logs
-          description: Chronological log of tool invocations
-        error:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Error
-          description: Error message if the skill execution failed
-      type: object
-      required:
-      - result
-      - duration_ms
-      - input_tokens
-      - output_tokens
-      - cached_tokens
-      - rounds
-      - sub_tool_logs
-      title: TestSkillResponse
-    SkillContextGraphReference:
-      properties:
-        context_graph_id:
-          type: string
-          format: uuid
-          title: Context Graph Id
-        context_graph_name:
-          type: string
-          title: Context Graph Name
-        version:
-          type: integer
-          title: Version
-        states:
-          items:
-            $ref: '#/components/schemas/SkillStateReference'
-          type: array
-          title: States
-      type: object
-      required:
-      - context_graph_id
-      - context_graph_name
-      - version
-      - states
-      title: SkillContextGraphReference
-    _ToolMockValue:
-      type: string
-      maxLength: 16384
-    SkillStateReference:
-      properties:
-        state_name:
-          type: string
-          title: State Name
-        tool_spec_category:
-          type: string
-          title: Tool Spec Category
-      type: object
-      required:
-      - state_name
-      - tool_spec_category
-      title: SkillStateReference
-    SkillReferencesResponse:
-      properties:
-        skill_id:
-          type: string
-          format: uuid
-          title: Skill Id
-        skill_slug:
-          type: string
-          title: Skill Slug
-        context_graph_references:
-          items:
-            $ref: '#/components/schemas/SkillContextGraphReference'
-          type: array
-          title: Context Graph References
-        service_references:
-          items:
-            type: string
-            format: uuid
-          type: array
-          title: Service References
-      type: object
-      required:
-      - skill_id
-      - skill_slug
-      - context_graph_references
-      - service_references
-      title: SkillReferencesResponse
-    SearchString:
-      type: string
-      maxLength: 200
-      minLength: 1
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
-    src__models__StaticToolDef:
-      properties:
-        name:
-          type: string
-          title: Name
-        description:
-          type: string
-          title: Description
-        input_schema:
-          additionalProperties: true
-          type: object
-          title: Input Schema
-      type: object
-      required:
-      - name
-      - description
-      - input_schema
-      title: StaticToolDef
-      description: A built-in tool available to companion agents.
     SkillResponse:
       properties:
         id:
@@ -684,9 +489,9 @@ components:
       - created_at
       - updated_at
       title: SkillResponse
-    DescriptionString:
+    BackgroundString:
       type: string
-      maxLength: 2000
+      maxLength: 10000
     PaginatedResponse_SkillResponse_:
       properties:
         items:
@@ -712,69 +517,7 @@ components:
       - items
       - has_more
       title: PaginatedResponse[SkillResponse]
-    BackgroundString:
-      type: string
-      maxLength: 10000
-    NameString:
-      type: string
-      maxLength: 256
-      minLength: 1
-    StaticToolDef-Input:
-      properties:
-        name:
-          type: string
-          title: Name
-        description:
-          type: string
-          title: Description
-        input_schema:
-          additionalProperties: true
-          type: object
-          title: Input Schema
-      type: object
-      required:
-      - name
-      - description
-      - input_schema
-      title: StaticToolDef
-      description: A built-in tool available to companion agents.
-    SubToolLog:
-      properties:
-        tool_name:
-          type: string
-          title: Tool Name
-          description: Name of the tool that was invoked
-        input:
-          additionalProperties: true
-          type: object
-          title: Input
-          description: Input parameters passed to the tool
-        output:
-          type: string
-          title: Output
-          description: Raw output returned by the tool
-        duration_ms:
-          type: number
-          title: Duration Ms
-          description: Execution time in milliseconds
-        succeeded:
-          type: boolean
-          title: Succeeded
-          description: Whether the tool invocation succeeded
-        round:
-          type: integer
-          title: Round
-          description: Agent reasoning round in which the tool was called
-      type: object
-      required:
-      - tool_name
-      - input
-      - output
-      - duration_ms
-      - succeeded
-      - round
-      title: SubToolLog
-    IntegrationToolRef-Input:
+    src__models__IntegrationToolRef:
       properties:
         integration:
           type: string
@@ -788,157 +531,19 @@ components:
       - endpoint
       title: IntegrationToolRef
       description: Reference to an integration endpoint by integration + endpoint name.
-    TestSkillRequest:
+    SkillStateReference:
       properties:
-        input:
-          additionalProperties: true
-          type: object
-          title: Input
-          description: Input parameters to pass to the skill executor.
-        static_tool_mocks:
-          additionalProperties:
-            $ref: '#/components/schemas/_ToolMockValue'
-          propertyNames:
-            $ref: '#/components/schemas/_ToolMockKey'
-          type: object
-          maxProperties: 64
-          title: Static Tool Mocks
-          description: Map of static tool name (max 128 chars) to mocked output string (max 16 KB). Up to 64 entries.
+        state_name:
+          type: string
+          title: State Name
+        tool_spec_category:
+          type: string
+          title: Tool Spec Category
       type: object
       required:
-      - input
-      title: TestSkillRequest
-    CreateSkillRequest:
-      properties:
-        slug:
-          type: string
-          maxLength: 63
-          minLength: 2
-          pattern: ^[a-z0-9][a-z0-9_-]*[a-z0-9]$
-          title: Slug
-        name:
-          $ref: '#/components/schemas/NameString'
-        description:
-          $ref: '#/components/schemas/DescriptionString'
-        system_prompt:
-          anyOf:
-          - $ref: '#/components/schemas/BackgroundString'
-          - type: 'null'
-        input_schema:
-          additionalProperties: true
-          type: object
-          title: Input Schema
-        result_schema:
-          anyOf:
-          - additionalProperties: true
-            type: object
-          - type: 'null'
-          title: Result Schema
-        model:
-          type: string
-          maxLength: 128
-          minLength: 1
-          title: Model
-          default: claude-sonnet-4-6
-        max_tokens:
-          type: integer
-          maximum: 200000.0
-          minimum: 1.0
-          title: Max Tokens
-          default: 4096
-        max_result_chars:
-          type: integer
-          maximum: 200000.0
-          minimum: 1.0
-          title: Max Result Chars
-          default: 2000
-        max_input_tokens:
-          anyOf:
-          - type: integer
-            maximum: 2000000.0
-            minimum: 1.0
-          - type: 'null'
-          title: Max Input Tokens
-        timeout_s:
-          type: number
-          maximum: 900.0
-          minimum: 0.1
-          title: Timeout S
-          default: 60.0
-        thinking_effort:
-          anyOf:
-          - type: string
-            enum:
-            - low
-            - medium
-            - high
-          - type: 'null'
-          title: Thinking Effort
-        temperature:
-          anyOf:
-          - type: number
-            maximum: 1.0
-            minimum: 0.0
-          - type: 'null'
-          title: Temperature
-          description: Anthropic sampling temperature (0-1). Ignored on models that reject sampling params (Opus 4.7+/Fable, which 400 otherwise). Set at most one of temperature/top_p -- Claude 4+ rejects both; the runtime keeps temperature and drops top_p.
-        top_p:
-          anyOf:
-          - type: number
-            maximum: 1.0
-            minimum: 0.0
-          - type: 'null'
-          title: Top P
-          description: Anthropic nucleus sampling (0-1). Ignored on sampling-param-rejecting models; see temperature.
-        enable_caching:
-          type: boolean
-          title: Enable Caching
-          default: true
-        enable_citations:
-          type: boolean
-          title: Enable Citations
-          default: false
-        use_structured_output:
-          type: boolean
-          title: Use Structured Output
-          default: false
-        integration_tools:
-          items:
-            $ref: '#/components/schemas/IntegrationToolRef-Input'
-          type: array
-          maxItems: 50
-          title: Integration Tools
-        static_tools:
-          items:
-            $ref: '#/components/schemas/StaticToolDef-Input'
-          type: array
-          maxItems: 50
-          title: Static Tools
-        enabled:
-          type: boolean
-          title: Enabled
-          default: true
-        max_agent_turns:
-          type: integer
-          maximum: 200.0
-          minimum: 1.0
-          title: Max Agent Turns
-          default: 20
-        checkpoint_enabled:
-          type: boolean
-          title: Checkpoint Enabled
-          default: true
-        approval_required:
-          type: boolean
-          title: Approval Required
-          default: false
-      type: object
-      required:
-      - slug
-      - name
-      - description
-      - input_schema
-      title: CreateSkillRequest
+      - state_name
+      - tool_spec_category
+      title: SkillStateReference
     UpdateSkillRequest:
       properties:
         name:
@@ -1080,18 +685,399 @@ components:
           title: Approval Required
       type: object
       title: UpdateSkillRequest
+    IntegrationToolRef-Input:
+      properties:
+        integration:
+          type: string
+          title: Integration
+        endpoint:
+          type: string
+          title: Endpoint
+      type: object
+      required:
+      - integration
+      - endpoint
+      title: IntegrationToolRef
+      description: Reference to an integration endpoint by integration + endpoint name.
+    SubToolLog:
+      properties:
+        tool_name:
+          type: string
+          title: Tool Name
+          description: Name of the tool that was invoked
+        input:
+          additionalProperties: true
+          type: object
+          title: Input
+          description: Input parameters passed to the tool
+        output:
+          type: string
+          title: Output
+          description: Raw output returned by the tool
+        duration_ms:
+          type: number
+          title: Duration Ms
+          description: Execution time in milliseconds
+        succeeded:
+          type: boolean
+          title: Succeeded
+          description: Whether the tool invocation succeeded
+        round:
+          type: integer
+          title: Round
+          description: Agent reasoning round in which the tool was called
+      type: object
+      required:
+      - tool_name
+      - input
+      - output
+      - duration_ms
+      - succeeded
+      - round
+      title: SubToolLog
+    src__models__StaticToolDef:
+      properties:
+        name:
+          type: string
+          title: Name
+        description:
+          type: string
+          title: Description
+        input_schema:
+          additionalProperties: true
+          type: object
+          title: Input Schema
+      type: object
+      required:
+      - name
+      - description
+      - input_schema
+      title: StaticToolDef
+      description: A built-in tool available to companion agents.
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    SkillReferencesResponse:
+      properties:
+        skill_id:
+          type: string
+          format: uuid
+          title: Skill Id
+        skill_slug:
+          type: string
+          title: Skill Slug
+        context_graph_references:
+          items:
+            $ref: '#/components/schemas/SkillContextGraphReference'
+          type: array
+          title: Context Graph References
+        service_references:
+          items:
+            type: string
+            format: uuid
+          type: array
+          title: Service References
+      type: object
+      required:
+      - skill_id
+      - skill_slug
+      - context_graph_references
+      - service_references
+      title: SkillReferencesResponse
+    NameString:
+      type: string
+      maxLength: 256
+      minLength: 1
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    _ToolMockKey:
+      type: string
+      maxLength: 128
+      minLength: 1
+    StaticToolDef-Input:
+      properties:
+        name:
+          type: string
+          title: Name
+        description:
+          type: string
+          title: Description
+        input_schema:
+          additionalProperties: true
+          type: object
+          title: Input Schema
+      type: object
+      required:
+      - name
+      - description
+      - input_schema
+      title: StaticToolDef
+      description: A built-in tool available to companion agents.
+    SkillContextGraphReference:
+      properties:
+        context_graph_id:
+          type: string
+          format: uuid
+          title: Context Graph Id
+        context_graph_name:
+          type: string
+          title: Context Graph Name
+        version:
+          type: integer
+          title: Version
+        states:
+          items:
+            $ref: '#/components/schemas/SkillStateReference'
+          type: array
+          title: States
+      type: object
+      required:
+      - context_graph_id
+      - context_graph_name
+      - version
+      - states
+      title: SkillContextGraphReference
+    _ToolMockValue:
+      type: string
+      maxLength: 16384
+    TestSkillResponse:
+      properties:
+        result:
+          type: string
+          title: Result
+          description: Final result text produced by the skill
+        duration_ms:
+          type: number
+          title: Duration Ms
+          description: Total execution time in milliseconds
+        input_tokens:
+          type: integer
+          title: Input Tokens
+          description: Number of input tokens consumed
+        output_tokens:
+          type: integer
+          title: Output Tokens
+          description: Number of output tokens generated
+        cached_tokens:
+          type: integer
+          title: Cached Tokens
+          description: Number of tokens served from cache
+        rounds:
+          type: integer
+          title: Rounds
+          description: Number of agent reasoning rounds executed
+        sub_tool_logs:
+          items:
+            $ref: '#/components/schemas/SubToolLog'
+          type: array
+          title: Sub Tool Logs
+          description: Chronological log of tool invocations
+        error:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Error
+          description: Error message if the skill execution failed
+      type: object
+      required:
+      - result
+      - duration_ms
+      - input_tokens
+      - output_tokens
+      - cached_tokens
+      - rounds
+      - sub_tool_logs
+      title: TestSkillResponse
+    CreateSkillRequest:
+      properties:
+        slug:
+          type: string
+          maxLength: 63
+          minLength: 2
+          pattern: ^[a-z0-9][a-z0-9_-]*[a-z0-9]$
+          title: Slug
+        name:
+          $ref: '#/components/schemas/NameString'
+        description:
+          $ref: '#/components/schemas/DescriptionString'
+        system_prompt:
+          anyOf:
+          - $ref: '#/components/schemas/BackgroundString'
+          - type: 'null'
+        input_schema:
+          additionalProperties: true
+          type: object
+          title: Input Schema
+        result_schema:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Result Schema
+        model:
+          type: string
+          maxLength: 128
+          minLength: 1
+          title: Model
+          default: claude-sonnet-4-6
+        max_tokens:
+          type: integer
+          maximum: 200000.0
+          minimum: 1.0
+          title: Max Tokens
+          default: 4096
+        max_result_chars:
+          type: integer
+          maximum: 200000.0
+          minimum: 1.0
+          title: Max Result Chars
+          default: 2000
+        max_input_tokens:
+          anyOf:
+          - type: integer
+            maximum: 2000000.0
+            minimum: 1.0
+          - type: 'null'
+          title: Max Input Tokens
+        timeout_s:
+          type: number
+          maximum: 900.0
+          minimum: 0.1
+          title: Timeout S
+          default: 60.0
+        thinking_effort:
+          anyOf:
+          - type: string
+            enum:
+            - low
+            - medium
+            - high
+          - type: 'null'
+          title: Thinking Effort
+        temperature:
+          anyOf:
+          - type: number
+            maximum: 1.0
+            minimum: 0.0
+          - type: 'null'
+          title: Temperature
+          description: Anthropic sampling temperature (0-1). Ignored on models that reject sampling params (Opus 4.7+/Fable, which 400 otherwise). Set at most one of temperature/top_p -- Claude 4+ rejects both; the runtime keeps temperature and drops top_p.
+        top_p:
+          anyOf:
+          - type: number
+            maximum: 1.0
+            minimum: 0.0
+          - type: 'null'
+          title: Top P
+          description: Anthropic nucleus sampling (0-1). Ignored on sampling-param-rejecting models; see temperature.
+        enable_caching:
+          type: boolean
+          title: Enable Caching
+          default: true
+        enable_citations:
+          type: boolean
+          title: Enable Citations
+          default: false
+        use_structured_output:
+          type: boolean
+          title: Use Structured Output
+          default: false
+        integration_tools:
+          items:
+            $ref: '#/components/schemas/IntegrationToolRef-Input'
+          type: array
+          maxItems: 50
+          title: Integration Tools
+        static_tools:
+          items:
+            $ref: '#/components/schemas/StaticToolDef-Input'
+          type: array
+          maxItems: 50
+          title: Static Tools
+        enabled:
+          type: boolean
+          title: Enabled
+          default: true
+        max_agent_turns:
+          type: integer
+          maximum: 200.0
+          minimum: 1.0
+          title: Max Agent Turns
+          default: 20
+        checkpoint_enabled:
+          type: boolean
+          title: Checkpoint Enabled
+          default: true
+        approval_required:
+          type: boolean
+          title: Approval Required
+          default: false
+      type: object
+      required:
+      - slug
+      - name
+      - description
+      - input_schema
+      title: CreateSkillRequest
+    TestSkillRequest:
+      properties:
+        input:
+          additionalProperties: true
+          type: object
+          title: Input
+          description: Input parameters to pass to the skill executor.
+        static_tool_mocks:
+          additionalProperties:
+            $ref: '#/components/schemas/_ToolMockValue'
+          propertyNames:
+            $ref: '#/components/schemas/_ToolMockKey'
+          type: object
+          maxProperties: 64
+          title: Static Tool Mocks
+          description: Map of static tool name (max 128 chars) to mocked output string (max 16 KB). Up to 64 entries.
+      type: object
+      required:
+      - input
+      title: TestSkillRequest
+    SearchString:
+      type: string
+      maxLength: 200
+      minLength: 1
+    DescriptionString:
+      type: string
+      maxLength: 2000
   securitySchemes:
-    Bearer-Authorization:
+    BearerAuth:
       type: http
       scheme: bearer
-      bearerFormat: JWT
-      description: Amigo issued JWT token that identifies an user. It's issued either after logging in through the frontend, or manually through the [`SignInWithAPIKey`](sign-in-with-api-key) endpoint.
-    Bearer-Authorization-Organization:
-      type: apiKey
-      in: header
-      name: X-ORG-ID
-      description: An optional organization identifier that indicates from which organization the token is issued. This is used in rare cases where the user to authenticate is making a request for resources in another organization.
-    Basic:
-      type: http
-      scheme: basic
-      description: The username should be set to {org_id}_{user_id}, and the password should be the Amigo issued JWT token that identifies the user.
+      description: API key issued via `POST /v1/{workspace_id}/api-keys`. Pass the returned `api_key` value as a Bearer token.

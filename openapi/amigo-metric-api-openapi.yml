@@ -1,6 +1,6 @@
-openapi: 3.1.0
+openapi: 3.2.0
 info:
-  title: Amigo Account Metric API
+  title: Amigo Metric API
   version: 0.1.0
 servers:
 - url: https://api.amigo.ai
@@ -710,7 +710,7 @@ paths:
       tags:
       - Metric
       summary: Evaluate metrics
-      description: 'Evaluate the latest versions of specified metrics for a completed conversation. The results will be stored and retrievable through the [`GetMetricEvaluationResults`](get-metric-evaluation-results)
+      description: 'Evaluate the latest versions of specified metrics for a completed conversation. The results will be stored and retrievable through the `GetMetricEvaluationResults`
 
         endpoint with a special source type of `manual`.
 
@@ -960,11 +960,20 @@ paths:
           description: The user has exceeded the rate limit of 10 requests per minute for this endpoint.
 components:
   schemas:
-    _NotSet:
-      properties: {}
-      type: object
-      title: _NotSet
-      description: A specific type to indicate that a field is not set in the request.
+    amigo_lib__pydantic__base_model__StrippedNonemptyString__1:
+      type: string
+      minLength: 1
+    EvaluationSource:
+      oneOf:
+      - $ref: '#/components/schemas/PostSessionEvaluationSource'
+      - $ref: '#/components/schemas/ManualEvaluationSource'
+      - $ref: '#/components/schemas/SimulationEvaluationSource'
+      discriminator:
+        propertyName: type
+        mapping:
+          manual: '#/components/schemas/ManualEvaluationSource'
+          post-session: '#/components/schemas/PostSessionEvaluationSource'
+          simulation: '#/components/schemas/SimulationEvaluationSource'
     CategoricalMetricValue-Output:
       properties:
         type:
@@ -981,69 +990,58 @@ components:
       - type
       - categories
       title: CategoricalMetricValue
-    PostSessionEvaluationSource:
+    MetricVersionInstance:
       properties:
-        type:
+        metric_id:
           type: string
-          const: post-session
-          title: Type
-          default: post-session
-        conversation_id:
-          type: string
-          title: Conversation Id
-        references:
-          items:
-            type: string
-          type: array
-          title: References
-          description: A list of references to the messages that were used to compute this metric.
-      type: object
-      required:
-      - conversation_id
-      - references
-      title: PostSessionEvaluationSource
-    amigo_lib__pydantic__base_model__StrippedNonemptyString__1:
-      type: string
-      minLength: 1
-    src__app__endpoints__metric__create_metric__Response:
-      properties:
-        id:
-          type: string
-          title: Id
-          description: The ID of the created metric.
-      type: object
-      required:
-      - id
-      title: Response
-    SimulationEvaluationSource:
-      properties:
-        type:
-          type: string
-          const: simulation
-          title: Type
-          default: simulation
-        simulation_unit_test_set_run_id:
-          type: string
-          title: Simulation Unit Test Set Run Id
-        unit_test_id:
-          type: string
-          title: Unit Test Id
-        run_index:
+          title: Metric Id
+          description: The ID of the metric.
+        version:
           type: integer
-          title: Run Index
-        references:
-          items:
-            type: string
-          type: array
-          title: References
-          description: A list of messages that were used to compute this metric.
+          title: Version
+          description: The version number of the metric.
+        description:
+          type: string
+          title: Description
+          description: The description of the metric. This tells the LLM what the metric is and how the metric result should be generated.
+        metric_value:
+          $ref: '#/components/schemas/MetricValue-Output'
+          description: The type of value that this metric is measuring. The value type cannot be adjusted between versions, but specifiers of the type can.
+        creator:
+          $ref: '#/components/schemas/amigo_lib__mongo__collections__metric_version__MetricVersion__UserInfo'
+          description: The user who created the metric.
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+          description: The timestamp of when the metric version was created.
       type: object
       required:
-      - simulation_unit_test_set_run_id
-      - unit_test_id
-      - run_index
-      - references
-      title: SimulationEvaluationSource
+      - metric_id
+      - version
+      - description
+      - metric_value
+      - creator
+      - created_at
+      title: MetricVersionInstance
+    CategoricalMetricValue-Input:
+      properties:
+        type:
+          type: string
+          const: categorical
+          title: Type
+        categories:
+          items:
+            $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
+          type: array
+          maxItems: 50
+          minItems: 1
+          title: Categories
+      type: object
+      required:
+      - type
+      - categories
+      title: CategoricalMetricValue
     InitialMetricVersion:
       properties:
         description:
@@ -1058,6 +1056,21 @@ components:
       - description
       - metric_value
       title: InitialMetricVersion
+    Tag:
+      properties:
+        key:
+          type: string
+          title: Key
+        value:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Value
+      type: object
+      required:
+      - key
+      - value
+      title: Tag
     amigo_lib__mongo__collections__metric__Metric__UserInfo:
       properties:
         org_id:
@@ -1071,6 +1084,45 @@ components:
       - org_id
       - user_id
       title: UserInfo
+    src__app__endpoints__metric__create_metric__Request:
+      properties:
+        name:
+          $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
+          description: The name of the metric. Must be unique within the organization.
+        applied_to_services:
+          items:
+            type: string
+            pattern: ^[a-f0-9]{24}$
+          type: array
+          title: Applied To Services
+          description: The services that the metric is applied to.
+        additional_notes:
+          anyOf:
+          - $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
+          - type: 'null'
+          description: Additional notes about the metric.
+        tags:
+          additionalProperties:
+            anyOf:
+            - $ref: '#/components/schemas/StrippedNonemptyString___w__s_____'
+            - type: 'null'
+          propertyNames:
+            $ref: '#/components/schemas/StrippedNonemptyString___w__s_____'
+          type: object
+          maxProperties: 20
+          title: Tags
+          description: The tags of the metric.
+        initial_version_metric_value:
+          $ref: '#/components/schemas/InitialMetricVersion'
+          description: The initial version of the metric.
+      type: object
+      required:
+      - name
+      - applied_to_services
+      - additional_notes
+      - tags
+      - initial_version_metric_value
+      title: Request
     MetricEvaluationResultInstance:
       properties:
         id:
@@ -1121,98 +1173,6 @@ components:
       - justification
       - source
       title: MetricEvaluationResultInstance
-    amigo_lib__mongo__collections__metric_evaluation_result__MetricEvaluationResult__ManualEvaluationSource__UserInfo:
-      properties:
-        org_id:
-          type: string
-          title: Org Id
-        user_id:
-          type: string
-          title: User Id
-      type: object
-      required:
-      - org_id
-      - user_id
-      title: UserInfo
-    src__app__endpoints__metric__create_metric_version__Request:
-      properties:
-        description:
-          $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
-          description: The description of the metric. This tells the LLM what the metric is and how the metric result should be generated.
-        metric_value:
-          $ref: '#/components/schemas/MetricValue-Input'
-      type: object
-      required:
-      - description
-      - metric_value
-      title: Request
-    EvaluationSourceType:
-      type: string
-      enum:
-      - post-session
-      - manual
-      - simulation
-    MetricVersionInstance:
-      properties:
-        metric_id:
-          type: string
-          title: Metric Id
-          description: The ID of the metric.
-        version:
-          type: integer
-          title: Version
-          description: The version number of the metric.
-        description:
-          type: string
-          title: Description
-          description: The description of the metric. This tells the LLM what the metric is and how the metric result should be generated.
-        metric_value:
-          $ref: '#/components/schemas/MetricValue-Output'
-          description: The type of value that this metric is measuring. The value type cannot be adjusted between versions, but specifiers of the type can.
-        creator:
-          $ref: '#/components/schemas/amigo_lib__mongo__collections__metric_version__MetricVersion__UserInfo'
-          description: The user who created the metric.
-        created_at:
-          type: string
-          format: date-time
-          title: Created At
-          description: The timestamp of when the metric version was created.
-      type: object
-      required:
-      - metric_id
-      - version
-      - description
-      - metric_value
-      - creator
-      - created_at
-      title: MetricVersionInstance
-    Tag:
-      properties:
-        key:
-          type: string
-          title: Key
-        value:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Value
-      type: object
-      required:
-      - key
-      - value
-      title: Tag
-    src__app__endpoints__metric__evaluate_metrics__Response:
-      properties:
-        metrics:
-          items:
-            $ref: '#/components/schemas/amigo_lib__agent__metric__MetricAgent__MetricEvaluationResult'
-          type: array
-          title: Metrics
-          description: A list of the evaluated metrics, in the same order that the `metrics` field in the request is presented.
-      type: object
-      required:
-      - metrics
-      title: Response
     src__app__endpoints__metric__get_metric_versions__Response:
       properties:
         metric_versions:
@@ -1237,111 +1197,6 @@ components:
       - has_more
       - continuation_token
       title: Response
-    src__app__endpoints__metric__get_metrics__Response:
-      properties:
-        metrics:
-          items:
-            $ref: '#/components/schemas/MetricInstance'
-          type: array
-          title: Metrics
-          description: The list of retrieved metrics.
-        has_more:
-          type: boolean
-          title: Has More
-          description: Whether there are more metrics to retrieve.
-        continuation_token:
-          anyOf:
-          - {}
-          - type: 'null'
-          title: Continuation Token
-          description: The continuation token to use to retrieve the next set of metrics.
-        filter_values:
-          anyOf:
-          - $ref: '#/components/schemas/src__app__endpoints__metric__get_metrics__Response__FilterValues'
-          - type: 'null'
-          description: 'For each filter that this endpoint supports that can take on dynamic values, this field includes what these values are. This is only provided for the first page in the pagination results.
-
-
-            Note that the values are counted assuming the authenticated user has access to all the metrics, so they might differ from how many are actually
-
-            retrieved.'
-      type: object
-      required:
-      - metrics
-      - has_more
-      - continuation_token
-      - filter_values
-      title: Response
-    EvaluationSource:
-      oneOf:
-      - $ref: '#/components/schemas/PostSessionEvaluationSource'
-      - $ref: '#/components/schemas/ManualEvaluationSource'
-      - $ref: '#/components/schemas/SimulationEvaluationSource'
-      discriminator:
-        propertyName: type
-        mapping:
-          manual: '#/components/schemas/ManualEvaluationSource'
-          post-session: '#/components/schemas/PostSessionEvaluationSource'
-          simulation: '#/components/schemas/SimulationEvaluationSource'
-    src__app__endpoints__metric__update_metric__Request:
-      properties:
-        applied_to_services:
-          anyOf:
-          - items:
-              type: string
-              pattern: ^[a-f0-9]{24}$
-            type: array
-          - type: 'null'
-          title: Applied To Services
-          description: The services that the metric is applied to. Only updated if set.
-        additional_notes:
-          anyOf:
-          - $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
-          - $ref: '#/components/schemas/_NotSet'
-          - type: 'null'
-          title: Additional Notes
-          description: Additional notes about the metric. Only updated if set.
-          default: {}
-        tags:
-          anyOf:
-          - additionalProperties:
-              anyOf:
-              - $ref: '#/components/schemas/StrippedNonemptyString___w__s_____'
-              - type: 'null'
-            propertyNames:
-              $ref: '#/components/schemas/StrippedNonemptyString___w__s_____'
-            type: object
-            maxProperties: 20
-          - type: 'null'
-          title: Tags
-          description: The tags of the metric. Only updated if set.
-      type: object
-      title: Request
-    src__app__endpoints__metric__get_metric_evaluation_results__Response__FilterValues:
-      properties:
-        metric_ids:
-          items:
-            type: string
-          type: array
-          title: Metric Ids
-          description: The IDs of the metrics that the metric evaluation results are for.
-      type: object
-      required:
-      - metric_ids
-      title: FilterValues
-    amigo_lib__mongo__collections__metric_version__MetricVersion__UserInfo:
-      properties:
-        org_id:
-          type: string
-          title: Org Id
-        user_id:
-          type: string
-          title: User Id
-      type: object
-      required:
-      - org_id
-      - user_id
-      title: UserInfo
     MetricValue-Input:
       oneOf:
       - $ref: '#/components/schemas/NumericalMetricValue'
@@ -1353,184 +1208,6 @@ components:
           boolean: '#/components/schemas/BooleanMetricValue'
           categorical: '#/components/schemas/CategoricalMetricValue-Input'
           numerical: '#/components/schemas/NumericalMetricValue'
-    src__app__endpoints__metric__search_metrics__Response:
-      properties:
-        metrics:
-          items:
-            $ref: '#/components/schemas/Metric'
-          type: array
-          title: Metrics
-          description: The list of retrieved metrics.
-      type: object
-      required:
-      - metrics
-      title: Response
-    src__app__endpoints__metric__create_metric_version__Response:
-      properties:
-        version:
-          type: integer
-          title: Version
-          description: Numerical version ID for the version just created. For the first version of a metric, this field will be 1.
-      type: object
-      required:
-      - version
-      title: Response
-    NumericalMetricValue:
-      properties:
-        type:
-          type: string
-          const: numerical
-          title: Type
-        lower_bound:
-          type: number
-          title: Lower Bound
-        upper_bound:
-          type: number
-          title: Upper Bound
-      type: object
-      required:
-      - type
-      - lower_bound
-      - upper_bound
-      title: NumericalMetricValue
-    src__app__endpoints__metric__create_metric__Request:
-      properties:
-        name:
-          $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
-          description: The name of the metric. Must be unique within the organization.
-        applied_to_services:
-          items:
-            type: string
-            pattern: ^[a-f0-9]{24}$
-          type: array
-          title: Applied To Services
-          description: The services that the metric is applied to.
-        additional_notes:
-          anyOf:
-          - $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
-          - type: 'null'
-          description: Additional notes about the metric.
-        tags:
-          additionalProperties:
-            anyOf:
-            - $ref: '#/components/schemas/StrippedNonemptyString___w__s_____'
-            - type: 'null'
-          propertyNames:
-            $ref: '#/components/schemas/StrippedNonemptyString___w__s_____'
-          type: object
-          maxProperties: 20
-          title: Tags
-          description: The tags of the metric.
-        initial_version_metric_value:
-          $ref: '#/components/schemas/InitialMetricVersion'
-          description: The initial version of the metric.
-      type: object
-      required:
-      - name
-      - applied_to_services
-      - additional_notes
-      - tags
-      - initial_version_metric_value
-      title: Request
-    MetricValue-Output:
-      oneOf:
-      - $ref: '#/components/schemas/BooleanMetricValue'
-      - $ref: '#/components/schemas/NumericalMetricValue'
-      - $ref: '#/components/schemas/CategoricalMetricValue-Output'
-      discriminator:
-        propertyName: type
-        mapping:
-          boolean: '#/components/schemas/BooleanMetricValue'
-          categorical: '#/components/schemas/CategoricalMetricValue-Output'
-          numerical: '#/components/schemas/NumericalMetricValue'
-    BooleanMetricValue:
-      properties:
-        type:
-          type: string
-          const: boolean
-          title: Type
-      type: object
-      required:
-      - type
-      title: BooleanMetricValue
-    amigo_lib__agent__metric__MetricAgent__MetricEvaluationResult:
-      properties:
-        metric_id:
-          type: string
-          title: Metric Id
-          description: The ID of the metric for which this value was computed.
-        value:
-          anyOf:
-          - type: number
-          - type: boolean
-          - type: string
-          - type: 'null'
-          title: Value
-          description: The value of the metric.
-        references:
-          items:
-            type: string
-          type: array
-          title: References
-          description: A list of references to the messages that were used to compute this metric.
-        justification:
-          type: string
-          title: Justification
-          description: A justification for the metric value.
-      type: object
-      required:
-      - metric_id
-      - value
-      - references
-      - justification
-      title: MetricEvaluationResult
-    src__app__endpoints__metric__evaluate_metrics__Request:
-      properties:
-        metric_ids:
-          items:
-            type: string
-            pattern: ^[a-f0-9]{24}$
-          type: array
-          maxItems: 10
-          minItems: 1
-          uniqueItems: true
-          title: Metric Ids
-          description: The IDs of the metrics to evaluate.
-        conversation_id:
-          type: string
-          pattern: ^[a-f0-9]{24}$
-          title: Conversation Id
-          description: The ID of the conversation to evaluate the metrics for.
-        evaluate_to_interaction_id:
-          anyOf:
-          - type: string
-            pattern: ^[a-f0-9]{24}$
-          - type: 'null'
-          title: Evaluate To Interaction Id
-          description: If specified, only messages up to (and including) this interaction will be evaluated.
-      type: object
-      required:
-      - metric_ids
-      - conversation_id
-      title: Request
-    CategoricalMetricValue-Input:
-      properties:
-        type:
-          type: string
-          const: categorical
-          title: Type
-        categories:
-          items:
-            $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
-          type: array
-          maxItems: 50
-          minItems: 1
-          title: Categories
-      type: object
-      required:
-      - type
-      - categories
-      title: CategoricalMetricValue
     Metric:
       properties:
         _id:
@@ -1597,6 +1274,39 @@ components:
       - metric_value_type
       - is_deleted
       title: Metric
+    src__app__endpoints__metric__get_metrics__Response__FilterValues:
+      properties:
+        applied_to_services_ids:
+          items:
+            type: string
+          type: array
+          title: Applied To Services Ids
+          description: A set of service IDs that have metrics applied to the service.
+        creators:
+          items:
+            $ref: '#/components/schemas/amigo_lib__mongo__collections__metric__Metric__UserInfo'
+          type: array
+          title: Creators
+          description: A set of creator infos that created the metrics under the current filters.
+        tags:
+          items:
+            type: string
+          type: array
+          title: Tags
+          description: A set of tag keys that exist in the metrics under the current filters.
+        types:
+          items:
+            type: string
+          type: array
+          title: Types
+          description: A set of metric types that exist in the metrics under the current filters.
+      type: object
+      required:
+      - applied_to_services_ids
+      - creators
+      - tags
+      - types
+      title: FilterValues
     src__app__endpoints__metric__get_metric_evaluation_results__Response:
       properties:
         metric_evaluation_results:
@@ -1632,49 +1342,260 @@ components:
       - continuation_token
       - filter_values
       title: Response
-    src__app__endpoints__metric__get_metrics__Response__FilterValues:
+    amigo_lib__agent__metric__MetricAgent__MetricEvaluationResult:
       properties:
-        applied_to_services_ids:
+        metric_id:
+          type: string
+          title: Metric Id
+          description: The ID of the metric for which this value was computed.
+        value:
+          anyOf:
+          - type: number
+          - type: boolean
+          - type: string
+          - type: 'null'
+          title: Value
+          description: The value of the metric.
+        references:
           items:
             type: string
           type: array
-          title: Applied To Services Ids
-          description: A set of service IDs that have metrics applied to the service.
-        creators:
-          items:
-            $ref: '#/components/schemas/amigo_lib__mongo__collections__metric__Metric__UserInfo'
-          type: array
-          title: Creators
-          description: A set of creator infos that created the metrics under the current filters.
-        tags:
-          items:
-            type: string
-          type: array
-          title: Tags
-          description: A set of tag keys that exist in the metrics under the current filters.
-        types:
-          items:
-            type: string
-          type: array
-          title: Types
-          description: A set of metric types that exist in the metrics under the current filters.
+          title: References
+          description: A list of references to the messages that were used to compute this metric.
+        justification:
+          type: string
+          title: Justification
+          description: A justification for the metric value.
       type: object
       required:
-      - applied_to_services_ids
-      - creators
-      - tags
-      - types
+      - metric_id
+      - value
+      - references
+      - justification
+      title: MetricEvaluationResult
+    src__app__endpoints__metric__evaluate_metrics__Request:
+      properties:
+        metric_ids:
+          items:
+            type: string
+            pattern: ^[a-f0-9]{24}$
+          type: array
+          maxItems: 10
+          minItems: 1
+          uniqueItems: true
+          title: Metric Ids
+          description: The IDs of the metrics to evaluate.
+        conversation_id:
+          type: string
+          pattern: ^[a-f0-9]{24}$
+          title: Conversation Id
+          description: The ID of the conversation to evaluate the metrics for.
+        evaluate_to_interaction_id:
+          anyOf:
+          - type: string
+            pattern: ^[a-f0-9]{24}$
+          - type: 'null'
+          title: Evaluate To Interaction Id
+          description: If specified, only messages up to (and including) this interaction will be evaluated.
+      type: object
+      required:
+      - metric_ids
+      - conversation_id
+      title: Request
+    src__app__endpoints__metric__get_metric_evaluation_results__Response__FilterValues:
+      properties:
+        metric_ids:
+          items:
+            type: string
+          type: array
+          title: Metric Ids
+          description: The IDs of the metrics that the metric evaluation results are for.
+      type: object
+      required:
+      - metric_ids
       title: FilterValues
+    src__app__endpoints__metric__update_metric__Request:
+      properties:
+        applied_to_services:
+          anyOf:
+          - items:
+              type: string
+              pattern: ^[a-f0-9]{24}$
+            type: array
+          - type: 'null'
+          title: Applied To Services
+          description: The services that the metric is applied to. Only updated if set.
+        additional_notes:
+          anyOf:
+          - $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
+          - $ref: '#/components/schemas/_NotSet'
+          - type: 'null'
+          title: Additional Notes
+          description: Additional notes about the metric. Only updated if set.
+          default: {}
+        tags:
+          anyOf:
+          - additionalProperties:
+              anyOf:
+              - $ref: '#/components/schemas/StrippedNonemptyString___w__s_____'
+              - type: 'null'
+            propertyNames:
+              $ref: '#/components/schemas/StrippedNonemptyString___w__s_____'
+            type: object
+            maxProperties: 20
+          - type: 'null'
+          title: Tags
+          description: The tags of the metric. Only updated if set.
+      type: object
+      title: Request
+    amigo_lib__mongo__collections__metric_evaluation_result__MetricEvaluationResult__ManualEvaluationSource__UserInfo:
+      properties:
+        org_id:
+          type: string
+          title: Org Id
+        user_id:
+          type: string
+          title: User Id
+      type: object
+      required:
+      - org_id
+      - user_id
+      title: UserInfo
+    src__app__endpoints__metric__create_metric_version__Request:
+      properties:
+        description:
+          $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
+          description: The description of the metric. This tells the LLM what the metric is and how the metric result should be generated.
+        metric_value:
+          $ref: '#/components/schemas/MetricValue-Input'
+      type: object
+      required:
+      - description
+      - metric_value
+      title: Request
+    EvaluationSourceType:
+      type: string
+      enum:
+      - post-session
+      - manual
+      - simulation
     MetricValueType:
       type: string
       enum:
       - boolean
       - numerical
       - categorical
+    PostSessionEvaluationSource:
+      properties:
+        type:
+          type: string
+          const: post-session
+          title: Type
+          default: post-session
+        conversation_id:
+          type: string
+          title: Conversation Id
+        references:
+          items:
+            type: string
+          type: array
+          title: References
+          description: A list of references to the messages that were used to compute this metric.
+      type: object
+      required:
+      - conversation_id
+      - references
+      title: PostSessionEvaluationSource
+    src__app__endpoints__metric__create_metric__Response:
+      properties:
+        id:
+          type: string
+          title: Id
+          description: The ID of the created metric.
+      type: object
+      required:
+      - id
+      title: Response
+    ManualEvaluationSource:
+      properties:
+        type:
+          type: string
+          const: manual
+          title: Type
+          default: manual
+        conversation_id:
+          type: string
+          title: Conversation Id
+        evaluate_to_interaction_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Evaluate To Interaction Id
+        invoked_by:
+          $ref: '#/components/schemas/amigo_lib__mongo__collections__metric_evaluation_result__MetricEvaluationResult__ManualEvaluationSource__UserInfo'
+          description: The user who invoked the manual evaluation.
+        references:
+          items:
+            type: string
+          type: array
+          title: References
+          description: A list of references to the messages that were used to compute this metric.
+      type: object
+      required:
+      - conversation_id
+      - evaluate_to_interaction_id
+      - invoked_by
+      - references
+      title: ManualEvaluationSource
+    src__app__endpoints__metric__create_metric_version__Response:
+      properties:
+        version:
+          type: integer
+          title: Version
+          description: Numerical version ID for the version just created. For the first version of a metric, this field will be 1.
+      type: object
+      required:
+      - version
+      title: Response
+    src__app__endpoints__metric__search_metrics__Response:
+      properties:
+        metrics:
+          items:
+            $ref: '#/components/schemas/Metric'
+          type: array
+          title: Metrics
+          description: The list of retrieved metrics.
+      type: object
+      required:
+      - metrics
+      title: Response
     StrippedNonemptyString___w__s_____:
       type: string
       minLength: 1
       pattern: ^[\w\s]+$
+    _NotSet:
+      properties: {}
+      type: object
+      title: _NotSet
+      description: A specific type to indicate that a field is not set in the request.
+    NumericalMetricValue:
+      properties:
+        type:
+          type: string
+          const: numerical
+          title: Type
+        lower_bound:
+          type: number
+          title: Lower Bound
+        upper_bound:
+          type: number
+          title: Upper Bound
+      type: object
+      required:
+      - type
+      - lower_bound
+      - upper_bound
+      title: NumericalMetricValue
     MetricInstance:
       properties:
         id:
@@ -1745,37 +1666,116 @@ components:
       - created_at
       - updated_at
       title: MetricInstance
-    ManualEvaluationSource:
+    amigo_lib__mongo__collections__metric_version__MetricVersion__UserInfo:
+      properties:
+        org_id:
+          type: string
+          title: Org Id
+        user_id:
+          type: string
+          title: User Id
+      type: object
+      required:
+      - org_id
+      - user_id
+      title: UserInfo
+    SimulationEvaluationSource:
       properties:
         type:
           type: string
-          const: manual
+          const: simulation
           title: Type
-          default: manual
-        conversation_id:
+          default: simulation
+        simulation_unit_test_set_run_id:
           type: string
-          title: Conversation Id
-        evaluate_to_interaction_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Evaluate To Interaction Id
-        invoked_by:
-          $ref: '#/components/schemas/amigo_lib__mongo__collections__metric_evaluation_result__MetricEvaluationResult__ManualEvaluationSource__UserInfo'
-          description: The user who invoked the manual evaluation.
+          title: Simulation Unit Test Set Run Id
+        unit_test_id:
+          type: string
+          title: Unit Test Id
+        run_index:
+          type: integer
+          title: Run Index
         references:
           items:
             type: string
           type: array
           title: References
-          description: A list of references to the messages that were used to compute this metric.
+          description: A list of messages that were used to compute this metric.
       type: object
       required:
-      - conversation_id
-      - evaluate_to_interaction_id
-      - invoked_by
+      - simulation_unit_test_set_run_id
+      - unit_test_id
+      - run_index
       - references
-      title: ManualEvaluationSource
+      title: SimulationEvaluationSource
+    MetricValue-Output:
+      oneOf:
+      - $ref: '#/components/schemas/BooleanMetricValue'
+      - $ref: '#/components/schemas/NumericalMetricValue'
+      - $ref: '#/components/schemas/CategoricalMetricValue-Output'
+      discriminator:
+        propertyName: type
+        mapping:
+          boolean: '#/components/schemas/BooleanMetricValue'
+          categorical: '#/components/schemas/CategoricalMetricValue-Output'
+          numerical: '#/components/schemas/NumericalMetricValue'
+    BooleanMetricValue:
+      properties:
+        type:
+          type: string
+          const: boolean
+          title: Type
+      type: object
+      required:
+      - type
+      title: BooleanMetricValue
+    src__app__endpoints__metric__get_metrics__Response:
+      properties:
+        metrics:
+          items:
+            $ref: '#/components/schemas/MetricInstance'
+          type: array
+          title: Metrics
+          description: The list of retrieved metrics.
+        has_more:
+          type: boolean
+          title: Has More
+          description: Whether there are more metrics to retrieve.
+        continuation_token:
+          anyOf:
+          - {}
+          - type: 'null'
+          title: Continuation Token
+          description: The continuation token to use to retrieve the next set of metrics.
+        filter_values:
+          anyOf:
+          - $ref: '#/components/schemas/src__app__endpoints__metric__get_metrics__Response__FilterValues'
+          - type: 'null'
+          description: 'For each filter that this endpoint supports that can take on dynamic values, this field includes what these values are. This is only provided for the first page in the pagination results.
+
+
+            Note that the values are counted assuming the authenticated user has access to all the metrics, so they might differ from how many are actually
+
+            retrieved.'
+      type: object
+      required:
+      - metrics
+      - has_more
+      - continuation_token
+      - filter_values
+      title: Response
+    src__app__endpoints__metric__evaluate_metrics__Response:
+      properties:
+        metrics:
+          items:
+            $ref: '#/components/schemas/amigo_lib__agent__metric__MetricAgent__MetricEvaluationResult'
+          type: array
+          title: Metrics
+          description: A list of the evaluated metrics, in the same order that the `metrics` field in the request is presented.
+      type: object
+      required:
+      - metrics
+      title: Response
   securitySchemes:
     Bearer-Authorization:
       type: http

@@ -1,17 +1,13 @@
-openapi: 3.1.0
+openapi: 3.2.0
 info:
-  title: Amigo Account Surface Patient API
-  version: 0.1.0
+  title: Platform Surface Patient API
+  description: Management API for the Amigo platform. Provides CRUD operations for workspaces, API keys, and resources.
+  version: 1.0.0
 servers:
-- url: https://api.amigo.ai
-- url: https://internal-api.amigo.ai
-- url: https://api-eu-central-1.amigo.ai
-- url: https://api-ap-southeast-2.amigo.ai
-- url: https://api-ca-central-1.amigo.ai
+- url: https://api.platform.amigo.ai
+  description: Production
 security:
-- Bearer-Authorization: []
-  Bearer-Authorization-Organization: []
-  Basic: []
+- BearerAuth: []
 tags:
 - name: Surface Patient
 paths:
@@ -536,277 +532,6 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
-    BookingResponse:
-      properties:
-        status:
-          type: string
-          const: pending
-          title: Status
-          description: Booking lifecycle status.
-        message:
-          type: string
-          maxLength: 512
-          title: Message
-        slot_id:
-          type: string
-          maxLength: 256
-          title: Slot Id
-      type: object
-      required:
-      - status
-      - message
-      - slot_id
-      title: BookingResponse
-      description: Acknowledgement returned when a booking request is accepted.
-    OcrResponse:
-      properties:
-        extracted_fields:
-          additionalProperties: true
-          type: object
-          title: Extracted Fields
-        confidence:
-          type: number
-          maximum: 1.0
-          minimum: 0.0
-          title: Confidence
-      type: object
-      required:
-      - confidence
-      title: OcrResponse
-      description: Structured field extraction result for an uploaded image.
-    BookingRequest:
-      properties:
-        slot_id:
-          type: string
-          maxLength: 256
-          minLength: 1
-          title: Slot Id
-          description: The FHIR Slot ID to book
-      type: object
-      required:
-      - slot_id
-      title: BookingRequest
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
-    SurfaceErrorResponse:
-      properties:
-        error_code:
-          type: string
-          maxLength: 64
-          title: Error Code
-          description: Machine-readable error code.
-        message:
-          anyOf:
-          - type: string
-            maxLength: 1024
-          - type: 'null'
-          title: Message
-          description: Human-readable error message. Omitted for token-validator errors that only carry ``reason``.
-        reason:
-          anyOf:
-          - type: string
-            maxLength: 128
-          - type: 'null'
-          title: Reason
-          description: Debug detail from the token validator (e.g. ``token expired``).
-        details:
-          anyOf:
-          - additionalProperties: true
-            type: object
-          - type: 'null'
-          title: Details
-          description: Optional structured validation details for 422 responses.
-      type: object
-      required:
-      - error_code
-      title: SurfaceErrorResponse
-      description: 'Error envelope returned by patient-facing surface JSON endpoints.
-
-
-        Frontend (forms-app) reads ``error_code`` for branching and ``message``
-
-        for user-visible copy. ``reason`` is a debug-only field set by the token
-
-        validator. ``details`` is set when a request body fails server-side
-
-        validation.'
-    HealFieldRequest:
-      properties:
-        key:
-          type: string
-          maxLength: 128
-          minLength: 1
-          title: Key
-        value:
-          type: string
-          maxLength: 2000
-          minLength: 1
-          title: Value
-        field_type:
-          type: string
-          maxLength: 32
-          title: Field Type
-        label:
-          type: string
-          maxLength: 256
-          title: Label
-        sensitive:
-          type: boolean
-          title: Sensitive
-          default: false
-        context:
-          additionalProperties: true
-          type: object
-          title: Context
-      type: object
-      required:
-      - key
-      - value
-      - field_type
-      - label
-      title: HealFieldRequest
-    SurfaceSpecResponse:
-      properties:
-        surface_id:
-          anyOf:
-          - type: string
-            maxLength: 64
-          - type: 'null'
-          title: Surface Id
-        entity_id:
-          anyOf:
-          - type: string
-            maxLength: 64
-          - type: 'null'
-          title: Entity Id
-        status:
-          anyOf:
-          - type: string
-            maxLength: 64
-          - type: 'null'
-          title: Status
-        spec:
-          $ref: '#/components/schemas/PatientSurfaceSpec'
-        saved_values:
-          additionalProperties: true
-          type: object
-          title: Saved Values
-      type: object
-      required:
-      - spec
-      title: SurfaceSpecResponse
-      description: Surface render bundle returned to forms-app SSR.
-    FieldSaveRequest:
-      properties:
-        value:
-          title: Value
-          description: The field value to save
-      type: object
-      required:
-      - value
-      title: FieldSaveRequest
-    ValidationError:
-      properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-        input:
-          title: Input
-        ctx:
-          type: object
-          title: Context
-      type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
-    SaveFieldResponse:
-      properties:
-        status:
-          type: string
-          const: saved
-          title: Status
-          default: saved
-      type: object
-      title: SaveFieldResponse
-      description: Acknowledgement returned when a field is auto-saved.
-    AvailabilityDate:
-      properties:
-        date:
-          type: string
-          maxLength: 16
-          title: Date
-        slots:
-          items:
-            $ref: '#/components/schemas/AvailabilitySlot'
-          type: array
-          maxItems: 200
-          title: Slots
-      type: object
-      required:
-      - date
-      title: AvailabilityDate
-    HealFieldResponse:
-      properties:
-        corrected_value:
-          type: string
-          maxLength: 4000
-          title: Corrected Value
-        explanation:
-          anyOf:
-          - type: string
-            maxLength: 2000
-          - type: 'null'
-          title: Explanation
-        confidence:
-          type: number
-          maximum: 1.0
-          minimum: 0.0
-          title: Confidence
-      type: object
-      required:
-      - corrected_value
-      - confidence
-      title: HealFieldResponse
-    OcrRequest:
-      properties:
-        image:
-          type: string
-          maxLength: 10000000
-          minLength: 1
-          title: Image
-          description: Base64-encoded image data
-        target_fields:
-          anyOf:
-          - items:
-              type: string
-            type: array
-            maxItems: 50
-          - type: 'null'
-          title: Target Fields
-          description: Optional list of field keys to extract
-      type: object
-      required:
-      - image
-      title: OcrRequest
     PatientSurfaceSpec:
       properties:
         title:
@@ -887,6 +612,62 @@ components:
         force FastAPI to namespace both classes and rename the existing
 
         ``SurfaceSpec`` schema in the committed openapi.json).'
+    HealFieldRequest:
+      properties:
+        key:
+          type: string
+          maxLength: 128
+          minLength: 1
+          title: Key
+        value:
+          type: string
+          maxLength: 2000
+          minLength: 1
+          title: Value
+        field_type:
+          type: string
+          maxLength: 32
+          title: Field Type
+        label:
+          type: string
+          maxLength: 256
+          title: Label
+        sensitive:
+          type: boolean
+          title: Sensitive
+          default: false
+        context:
+          additionalProperties: true
+          type: object
+          title: Context
+      type: object
+      required:
+      - key
+      - value
+      - field_type
+      - label
+      title: HealFieldRequest
+    OcrRequest:
+      properties:
+        image:
+          type: string
+          maxLength: 10000000
+          minLength: 1
+          title: Image
+          description: Base64-encoded image data
+        target_fields:
+          anyOf:
+          - items:
+              type: string
+            type: array
+            maxItems: 50
+          - type: 'null'
+          title: Target Fields
+          description: Optional list of field keys to extract
+      type: object
+      required:
+      - image
+      title: OcrRequest
     AvailabilityResponse:
       properties:
         dates:
@@ -898,6 +679,189 @@ components:
       type: object
       title: AvailabilityResponse
       description: Available appointment slots grouped by date.
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    OcrResponse:
+      properties:
+        extracted_fields:
+          additionalProperties: true
+          type: object
+          title: Extracted Fields
+        confidence:
+          type: number
+          maximum: 1.0
+          minimum: 0.0
+          title: Confidence
+      type: object
+      required:
+      - confidence
+      title: OcrResponse
+      description: Structured field extraction result for an uploaded image.
+    SurfaceErrorResponse:
+      properties:
+        error_code:
+          type: string
+          maxLength: 64
+          title: Error Code
+          description: Machine-readable error code.
+        message:
+          anyOf:
+          - type: string
+            maxLength: 1024
+          - type: 'null'
+          title: Message
+          description: Human-readable error message. Omitted for token-validator errors that only carry ``reason``.
+        reason:
+          anyOf:
+          - type: string
+            maxLength: 128
+          - type: 'null'
+          title: Reason
+          description: Debug detail from the token validator (e.g. ``token expired``).
+        details:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Details
+          description: Optional structured validation details for 422 responses.
+      type: object
+      required:
+      - error_code
+      title: SurfaceErrorResponse
+      description: 'Error envelope returned by patient-facing surface JSON endpoints.
+
+
+        Frontend (forms-app) reads ``error_code`` for branching and ``message``
+
+        for user-visible copy. ``reason`` is a debug-only field set by the token
+
+        validator. ``details`` is set when a request body fails server-side
+
+        validation.'
+    BookingResponse:
+      properties:
+        status:
+          type: string
+          const: pending
+          title: Status
+          description: Booking lifecycle status.
+        message:
+          type: string
+          maxLength: 512
+          title: Message
+        slot_id:
+          type: string
+          maxLength: 256
+          title: Slot Id
+      type: object
+      required:
+      - status
+      - message
+      - slot_id
+      title: BookingResponse
+      description: Acknowledgement returned when a booking request is accepted.
+    FieldSaveRequest:
+      properties:
+        value:
+          title: Value
+          description: The field value to save
+      type: object
+      required:
+      - value
+      title: FieldSaveRequest
+    SurfaceSpecResponse:
+      properties:
+        surface_id:
+          anyOf:
+          - type: string
+            maxLength: 64
+          - type: 'null'
+          title: Surface Id
+        entity_id:
+          anyOf:
+          - type: string
+            maxLength: 64
+          - type: 'null'
+          title: Entity Id
+        status:
+          anyOf:
+          - type: string
+            maxLength: 64
+          - type: 'null'
+          title: Status
+        spec:
+          $ref: '#/components/schemas/PatientSurfaceSpec'
+        saved_values:
+          additionalProperties: true
+          type: object
+          title: Saved Values
+      type: object
+      required:
+      - spec
+      title: SurfaceSpecResponse
+      description: Surface render bundle returned to forms-app SSR.
+    AvailabilityDate:
+      properties:
+        date:
+          type: string
+          maxLength: 16
+          title: Date
+        slots:
+          items:
+            $ref: '#/components/schemas/AvailabilitySlot'
+          type: array
+          maxItems: 200
+          title: Slots
+      type: object
+      required:
+      - date
+      title: AvailabilityDate
+    BookingRequest:
+      properties:
+        slot_id:
+          type: string
+          maxLength: 256
+          minLength: 1
+          title: Slot Id
+          description: The FHIR Slot ID to book
+      type: object
+      required:
+      - slot_id
+      title: BookingRequest
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
     LookupResponse:
       properties:
         results:
@@ -936,18 +900,40 @@ components:
       - start
       - end
       title: AvailabilitySlot
+    HealFieldResponse:
+      properties:
+        corrected_value:
+          type: string
+          maxLength: 4000
+          title: Corrected Value
+        explanation:
+          anyOf:
+          - type: string
+            maxLength: 2000
+          - type: 'null'
+          title: Explanation
+        confidence:
+          type: number
+          maximum: 1.0
+          minimum: 0.0
+          title: Confidence
+      type: object
+      required:
+      - corrected_value
+      - confidence
+      title: HealFieldResponse
+    SaveFieldResponse:
+      properties:
+        status:
+          type: string
+          const: saved
+          title: Status
+          default: saved
+      type: object
+      title: SaveFieldResponse
+      description: Acknowledgement returned when a field is auto-saved.
   securitySchemes:
-    Bearer-Authorization:
+    BearerAuth:
       type: http
       scheme: bearer
-      bearerFormat: JWT
-      description: Amigo issued JWT token that identifies an user. It's issued either after logging in through the frontend, or manually through the [`SignInWithAPIKey`](sign-in-with-api-key) endpoint.
-    Bearer-Authorization-Organization:
-      type: apiKey
-      in: header
-      name: X-ORG-ID
-      description: An optional organization identifier that indicates from which organization the token is issued. This is used in rare cases where the user to authenticate is making a request for resources in another organization.
-    Basic:
-      type: http
-      scheme: basic
-      description: The username should be set to {org_id}_{user_id}, and the password should be the Amigo issued JWT token that identifies the user.
+      description: API key issued via `POST /v1/{workspace_id}/api-keys`. Pass the returned `api_key` value as a Bearer token.

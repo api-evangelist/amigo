@@ -1,17 +1,13 @@
-openapi: 3.1.0
+openapi: 3.2.0
 info:
-  title: Amigo Account Calls API
-  version: 0.1.0
+  title: Platform Calls API
+  description: Management API for the Amigo platform. Provides CRUD operations for workspaces, API keys, and resources.
+  version: 1.0.0
 servers:
-- url: https://api.amigo.ai
-- url: https://internal-api.amigo.ai
-- url: https://api-eu-central-1.amigo.ai
-- url: https://api-ap-southeast-2.amigo.ai
-- url: https://api-ca-central-1.amigo.ai
+- url: https://api.platform.amigo.ai
+  description: Production
 security:
-- Bearer-Authorization: []
-  Bearer-Authorization-Organization: []
-  Basic: []
+- BearerAuth: []
 tags:
 - name: Calls
 paths:
@@ -570,419 +566,91 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
-    TraceAnalysisListResponse:
+    LatencySummary:
       properties:
-        items:
-          items:
-            $ref: '#/components/schemas/TraceAnalysisListItem'
-          type: array
-          title: Items
-          description: Trace analysis summaries
-        has_more:
-          type: boolean
-          title: Has More
-          description: Whether more rows are available beyond this page
-          default: false
-        continuation_token:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Continuation Token
-          description: Token to pass as ``continuation_token`` for the next page (None when exhausted)
-      type: object
-      title: TraceAnalysisListResponse
-      description: Paginated list response for trace analyses.
-    CanonicalIdString:
-      type: string
-      maxLength: 256
-      minLength: 3
-      pattern: ^[A-Za-z0-9._-]+:[A-Za-z0-9._-]+:[A-Za-z0-9._-]+$
-    CallListResponse:
-      properties:
-        items:
-          items:
-            $ref: '#/components/schemas/CallSummary'
-          type: array
-          title: Items
-        total:
-          type: integer
-          title: Total
-        has_more:
-          type: boolean
-          title: Has More
-        continuation_token:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Continuation Token
-      type: object
-      required:
-      - items
-      - total
-      - has_more
-      title: CallListResponse
-    ConceptMatch:
-      properties:
-        concept:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Concept
-        similarity:
+        avg_engine_ms:
           anyOf:
           - type: number
           - type: 'null'
-          title: Similarity
-        agent_action:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Agent Action
-        agent_confidence:
+          title: Avg Engine Ms
+          description: Average reasoning-engine latency (ms)
+        p50_engine_ms:
           anyOf:
           - type: number
           - type: 'null'
-          title: Agent Confidence
-        agent_reasoning:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Agent Reasoning
-        at:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: string
-          - type: 'null'
-          title: At
-      type: object
-      title: ConceptMatch
-    EscalationState:
-      properties:
-        status:
-          type: string
-          title: Status
-          default: none
-        escalation_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Escalation Id
-        requested_at:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: string
-          - type: 'null'
-          title: Requested At
-        connected_at:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: string
-          - type: 'null'
-          title: Connected At
-        completed_at:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: string
-          - type: 'null'
-          title: Completed At
-        trigger:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Trigger
-        trigger_source:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Trigger Source
-        concept:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Concept
-        similarity:
+          title: P50 Engine Ms
+          description: Median engine latency (ms)
+        p95_engine_ms:
           anyOf:
           - type: number
           - type: 'null'
-          title: Similarity
-        agent_confidence:
+          title: P95 Engine Ms
+          description: 95th percentile engine latency (ms)
+        avg_audio_ttfb_ms:
           anyOf:
           - type: number
           - type: 'null'
-          title: Agent Confidence
-        operator_type:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Operator Type
-        regulatory_basis:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Regulatory Basis
-        immediate:
-          type: boolean
-          title: Immediate
-          default: false
-        risk_score:
+          title: Avg Audio Ttfb Ms
+          description: Average audio time-to-first-byte (ms)
+        p50_audio_ttfb_ms:
           anyOf:
           - type: number
           - type: 'null'
-          title: Risk Score
-        operator_entity_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Operator Entity Id
-        wait_seconds:
+          title: P50 Audio Ttfb Ms
+          description: Median audio TTFB (ms)
+        p95_audio_ttfb_ms:
           anyOf:
           - type: number
           - type: 'null'
-          title: Wait Seconds
-        handle_time_seconds:
+          title: P95 Audio Ttfb Ms
+          description: 95th percentile audio TTFB (ms)
+        avg_nav_ms:
           anyOf:
           - type: number
           - type: 'null'
-          title: Handle Time Seconds
-        human_segment_turn_count:
+          title: Avg Nav Ms
+          description: Average navigation latency (ms)
+        avg_render_ms:
           anyOf:
-          - type: integer
+          - type: number
           - type: 'null'
-          title: Human Segment Turn Count
-      type: object
-      title: EscalationState
-    ValidationError:
-      properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-        input:
-          title: Input
-        ctx:
-          type: object
-          title: Context
-      type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
-    ConversationSummary:
-      properties:
+          title: Avg Render Ms
+          description: Average render latency (ms)
         turn_count:
-          type: integer
+          anyOf:
+          - type: integer
+          - type: 'null'
           title: Turn Count
-          description: Total turn count for the call
-          default: 0
-        states_visited_count:
-          type: integer
-          title: States Visited Count
-          description: Number of states visited (including repeats)
-          default: 0
-        unique_states:
-          type: integer
-          title: Unique States
-          description: Number of distinct states visited
-          default: 0
-        loop_count:
-          type: integer
-          title: Loop Count
-          description: Number of detected state loops
-          default: 0
-        barge_in_count:
-          type: integer
-          title: Barge In Count
-          description: Number of caller interruptions
-          default: 0
+          description: Number of turns the latency averages were computed over
+        silence_ratio:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Silence Ratio
+          description: Fraction of call spent in silence
       type: object
-      title: ConversationSummary
-      description: 'Conversation flow metrics.
-
-
-        Free-form residual on the raw ``conversation_summary`` JSONB:
-
-        ``text_intelligence: dict`` (text-channel intelligence
-
-        sub-payload), and on the simulation path ``transcript_text:
-
-        str`` (PHI), ``tool_calls: list``, ``score``,
-
-        ``score_rationale``, ``terminal_reached``, ``states_visited``.
-
-        Not exposed via this typed shape.'
-    TraceAnalysisListItem:
+      title: LatencySummary
+      description: Audio + engine latency metrics (one entry per turn averaged).
+    HumanSegment:
       properties:
-        call_sid:
+        speaker_role:
           type: string
-          maxLength: 128
-          minLength: 1
-          title: Call Sid
-          description: Call identifier
-        call_entity_id:
-          anyOf:
-          - type: string
-            format: uuid
-          - type: 'null'
-          title: Call Entity Id
-          description: Associated world.entities_synced call row UUID
-        outcome:
-          anyOf:
-          - type: string
-            enum:
-            - succeeded
-            - partially
-            - failed
-            - abandoned
-          - type: 'null'
-          title: Outcome
-          description: Overall call outcome
-        summary:
-          anyOf:
-          - type: string
-            maxLength: 2000
-            minLength: 1
-          - type: 'null'
-          title: Summary
-          description: Short call summary
-        emotional_arc:
-          anyOf:
-          - type: string
-            maxLength: 2000
-            minLength: 1
-          - type: 'null'
-          title: Emotional Arc
-          description: Caller emotional trajectory string
-        key_moment_count:
-          type: integer
-          minimum: 0.0
-          title: Key Moment Count
-          description: Number of key moments identified
-          default: 0
-        computed_at:
+          title: Speaker Role
+        transcript:
+          type: string
+          title: Transcript
+          x-phi: true
+        timestamp:
           anyOf:
           - type: string
             format: date-time
           - type: 'null'
-          title: Computed At
-          description: When the analysis was produced
+          title: Timestamp
       type: object
       required:
-      - call_sid
-      title: TraceAnalysisListItem
-      description: Compact summary of a trace analysis row for list views.
-    EmotionSummary:
-      properties:
-        dominant_emotion:
-          anyOf:
-          - type: string
-            maxLength: 256
-          - type: 'null'
-          title: Dominant Emotion
-          description: Most frequent emotion (e.g. 'neutral', 'happy', 'angry')
-        average_valence:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Average Valence
-          description: Average emotional valence -1.0 to 1.0
-        average_arousal:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Average Arousal
-          description: Average emotional arousal 0.0 to 1.0
-        peak_negative_valence:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Peak Negative Valence
-          description: Most negative valence observed
-        barge_in_count:
-          type: integer
-          title: Barge In Count
-          description: Number of caller interruptions (emotion-tagged)
-          default: 0
-      type: object
-      title: EmotionSummary
-      description: 'Aggregated emotional analysis across the call.
-
-
-        Free-form residual on the raw ``emotion_summary`` JSONB:
-
-        ``compound_emotions: list[{name, score}]``. Not exposed via this
-
-        typed shape — readers wanting it consume the JSONB endpoint.'
-    CreateOutboundCallResponse:
-      properties:
-        call_sid:
-          type: string
-          title: Call Sid
-          description: Twilio call SID for the outbound call
-        status:
-          type: string
-          title: Status
-          description: Initial call status (typically 'queued')
-        phone_from:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Phone From
-          description: Resolved caller ID when use_case_id was used.
-        setup_id:
-          anyOf:
-          - type: string
-            format: uuid
-          - type: 'null'
-          title: Setup Id
-          description: Channel-manager setup ID when use_case_id was used.
-        event_id:
-          anyOf:
-          - type: string
-            format: uuid
-          - type: 'null'
-          title: Event Id
-          description: World event ID for the outbound.initiated event.
-      type: object
-      required:
-      - call_sid
-      - status
-      title: CreateOutboundCallResponse
-      description: Response from creating an outbound call.
-    DecisionFactor:
-      properties:
-        factor:
-          type: string
-          maxLength: 2000
-          minLength: 1
-          title: Factor
-          description: What specifically drove this decision - exact words heard or tone described
-        source_type:
-          type: string
-          title: Source Type
-          description: Category of the audio input
-      type: object
-      required:
-      - factor
-      - source_type
-      title: DecisionFactor
-      description: A specific audio input that drove an agent decision.
-      examples:
-      - factor: Caller said 'yes, Thursday works' with confident, faster speech
-        source_type: transcript
+      - speaker_role
+      - transcript
+      title: HumanSegment
     CallIntelligenceDetail:
       properties:
         call_id:
@@ -1109,61 +777,567 @@ components:
         interpretive layer. Per-turn visualization data lives on the unified
 
         timeline (call detail → PlaybackTimeline.segments), not here.'
-    MetricListResponse:
+    NumericalMetricValueResponse:
       properties:
-        metrics:
-          items:
-            oneOf:
-            - $ref: '#/components/schemas/NumericalMetricValueResponse'
-            - $ref: '#/components/schemas/CategoricalMetricValueResponse'
-            - $ref: '#/components/schemas/BooleanMetricValueResponse'
-            discriminator:
-              propertyName: metric_type
-              mapping:
-                boolean: '#/components/schemas/BooleanMetricValueResponse'
-                categorical: '#/components/schemas/CategoricalMetricValueResponse'
-                numerical: '#/components/schemas/NumericalMetricValueResponse'
-          type: array
-          title: Metrics
-      type: object
-      required:
-      - metrics
-      title: MetricListResponse
-    TimelineActor:
-      properties:
-        kind:
+        metric_key:
           type: string
-          enum:
-          - agent
-          - human
-          - operator
-          - system
-          - tool
-          title: Kind
-        role:
+          title: Metric Key
+        source:
           type: string
-          enum:
-          - agent
-          - caller
-          - operator
-          - runtime
-          - state
-          - tool
-          title: Role
-        label:
-          type: string
-          title: Label
-        participant_id:
+          title: Source
+          default: production
+        entity_type:
           anyOf:
           - type: string
           - type: 'null'
-          title: Participant Id
+          title: Entity Type
+        entity_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Entity Id
+        service_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Service Id
+        run_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Run Id
+        session_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Session Id
+        period_start:
+          type: string
+          format: date-time
+          title: Period Start
+        period_end:
+          type: string
+          format: date-time
+          title: Period End
+        event_count:
+          type: integer
+          title: Event Count
+        avg_confidence:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Avg Confidence
+        unit:
+          anyOf:
+          - type: string
+            maxLength: 32
+          - type: 'null'
+          title: Unit
+        computed_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Computed At
+        metric_type:
+          type: string
+          const: numerical
+          title: Metric Type
+        value:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Value
       type: object
       required:
-      - kind
-      - role
-      - label
-      title: TimelineActor
+      - metric_key
+      - period_start
+      - period_end
+      - event_count
+      - metric_type
+      - value
+      title: NumericalMetricValueResponse
+    EscalationState:
+      properties:
+        status:
+          type: string
+          title: Status
+          default: none
+        escalation_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Escalation Id
+        requested_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: string
+          - type: 'null'
+          title: Requested At
+        connected_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: string
+          - type: 'null'
+          title: Connected At
+        completed_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: string
+          - type: 'null'
+          title: Completed At
+        trigger:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Trigger
+        trigger_source:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Trigger Source
+        concept:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Concept
+        similarity:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Similarity
+        agent_confidence:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Agent Confidence
+        operator_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Operator Type
+        regulatory_basis:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Regulatory Basis
+        immediate:
+          type: boolean
+          title: Immediate
+          default: false
+        risk_score:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Risk Score
+        operator_entity_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Operator Entity Id
+        wait_seconds:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Wait Seconds
+        handle_time_seconds:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Handle Time Seconds
+        human_segment_turn_count:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Human Segment Turn Count
+      type: object
+      title: EscalationState
+    InteractionDynamics:
+      properties:
+        turn_taking_quality:
+          anyOf:
+          - type: string
+            maxLength: 2000
+            minLength: 1
+          - type: 'null'
+          title: Turn Taking Quality
+          description: How well speakers managed turn-taking - interruptions, overlaps, pacing
+        information_density:
+          anyOf:
+          - type: string
+            maxLength: 2000
+            minLength: 1
+          - type: 'null'
+          title: Information Density
+          description: Whether the agent gave too much or too little information per turn
+        repair_effectiveness:
+          anyOf:
+          - type: string
+            maxLength: 2000
+            minLength: 1
+          - type: 'null'
+          title: Repair Effectiveness
+          description: How misunderstandings were detected and resolved
+        rapport_trajectory:
+          anyOf:
+          - type: string
+            maxLength: 2000
+            minLength: 1
+          - type: 'null'
+          title: Rapport Trajectory
+          description: How the interpersonal dynamic evolved across the call
+      type: object
+      title: InteractionDynamics
+      description: System-level analysis of the conversation as a whole.
+    EmotionalSummary:
+      properties:
+        dominant_emotion:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Dominant Emotion
+        average_valence:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Average Valence
+        average_arousal:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Average Arousal
+        peak_negative_valence:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Peak Negative Valence
+        peak_negative_emotion:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Peak Negative Emotion
+        emotional_shifts:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Emotional Shifts
+        final_trend:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Final Trend
+        segment_count:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Segment Count
+        barge_in_count:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Barge In Count
+        compound_emotions:
+          anyOf:
+          - items:
+              additionalProperties: true
+              type: object
+            type: array
+          - type: 'null'
+          title: Compound Emotions
+      type: object
+      title: EmotionalSummary
+    CallListResponse:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/CallSummary'
+          type: array
+          title: Items
+        total:
+          type: integer
+          title: Total
+        has_more:
+          type: boolean
+          title: Has More
+        continuation_token:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Continuation Token
+      type: object
+      required:
+      - items
+      - total
+      - has_more
+      title: CallListResponse
+    ToolSummary:
+      properties:
+        total_calls:
+          type: integer
+          title: Total Calls
+          description: Total tool invocations
+          default: 0
+        succeeded:
+          type: integer
+          title: Succeeded
+          description: Successful tool invocations
+          default: 0
+        failed:
+          type: integer
+          title: Failed
+          description: Failed tool invocations
+          default: 0
+        failure_rate:
+          type: number
+          title: Failure Rate
+          description: Tool failure rate 0.0 to 1.0
+          default: 0.0
+      type: object
+      title: ToolSummary
+      description: 'Tool usage statistics.
+
+
+        Free-form residual on the raw ``tool_summary`` JSONB:
+
+        ``by_tool: list[{name, calls, succeeded, failed, avg_duration_ms}]``
+
+        — per-tool breakdown. Not exposed via this typed shape.'
+    EmotionalShift:
+      properties:
+        timestamp_seconds:
+          anyOf:
+          - type: number
+            maximum: 86400.0
+            minimum: 0.0
+          - type: 'null'
+          title: Timestamp Seconds
+          description: When the shift occurred (seconds from start)
+        from_state:
+          anyOf:
+          - type: string
+            maxLength: 500
+            minLength: 1
+          - type: 'null'
+          title: From State
+          description: Emotional state before the shift
+        to_state:
+          anyOf:
+          - type: string
+            maxLength: 500
+            minLength: 1
+          - type: 'null'
+          title: To State
+          description: Emotional state after the shift
+        trigger:
+          anyOf:
+          - type: string
+            maxLength: 2000
+            minLength: 1
+          - type: 'null'
+          title: Trigger
+          description: What caused the shift - exact words and tone
+        agent_awareness:
+          anyOf:
+          - type: string
+            maxLength: 2000
+            minLength: 1
+          - type: 'null'
+          title: Agent Awareness
+          description: Whether the agent noticed and responded to this shift
+      type: object
+      title: EmotionalShift
+      description: A critical emotional state change detected in the caller's voice.
+      examples:
+      - agent_awareness: Agent did not acknowledge the frustration - continued with the standard verification flow
+        from_state: neutral
+        timestamp_seconds: 15.2
+        to_state: frustrated
+        trigger: Caller's pitch rose and speech rate doubled when saying 'I already told you my date of birth'
+    TraceKeyMoment:
+      properties:
+        timestamp_seconds:
+          anyOf:
+          - type: number
+            maximum: 86400.0
+            minimum: 0.0
+          - type: 'null'
+          title: Timestamp Seconds
+          description: Approximate position in the recording (seconds from start)
+        what_happened:
+          type: string
+          maxLength: 2000
+          minLength: 1
+          title: What Happened
+          description: Plain-English description of the agent's decision
+        quality:
+          anyOf:
+          - type: string
+            enum:
+            - optimal
+            - adequate
+            - suboptimal
+          - type: 'null'
+          title: Quality
+          description: Assessment of the decision quality
+        reasoning:
+          anyOf:
+          - type: string
+            maxLength: 2000
+            minLength: 1
+          - type: 'null'
+          title: Reasoning
+          description: Why this was the right or wrong choice given the audio context
+        decision_factors:
+          items:
+            $ref: '#/components/schemas/DecisionFactor'
+          type: array
+          maxItems: 20
+          title: Decision Factors
+          description: Specific audio inputs that drove this decision
+        alternative:
+          anyOf:
+          - type: string
+            maxLength: 2000
+            minLength: 1
+          - type: 'null'
+          title: Alternative
+          description: What else the agent could have done and the likely outcome
+      type: object
+      required:
+      - what_happened
+      title: TraceKeyMoment
+      description: A key decision point identified from the call audio.
+      examples:
+      - alternative: Could have confirmed insurance first, but would have slowed the positive momentum
+        decision_factors:
+        - factor: Caller said 'yes, Thursday works'
+          source_type: transcript
+        - factor: Speech rate increased - eagerness to proceed
+          source_type: speech_rate
+        quality: optimal
+        reasoning: Caller's confident tone and direct 'Thursday works' indicated readiness to schedule
+        timestamp_seconds: 23.4
+        what_happened: Agent transitioned to scheduling after caller confirmed availability
+    CreateOutboundCallResponse:
+      properties:
+        call_sid:
+          type: string
+          title: Call Sid
+          description: Twilio call SID for the outbound call
+        status:
+          type: string
+          title: Status
+          description: Initial call status (typically 'queued')
+        phone_from:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Phone From
+          description: Resolved caller ID when use_case_id was used.
+        setup_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Setup Id
+          description: Channel-manager setup ID when use_case_id was used.
+        event_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Event Id
+          description: World event ID for the outbound.initiated event.
+      type: object
+      required:
+      - call_sid
+      - status
+      title: CreateOutboundCallResponse
+      description: Response from creating an outbound call.
+    QualityComponent:
+      properties:
+        name:
+          type: string
+          enum:
+          - latency
+          - silence
+          - barge_ins
+          - loops
+          - escalation
+          - tool_failures
+          title: Name
+          description: Quality dimension
+        penalty:
+          type: number
+          title: Penalty
+          description: Penalty subtracted from the score
+        value:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Value
+          description: Raw measured value
+        threshold:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Threshold
+          description: Threshold that was exceeded
+        severity:
+          type: string
+          enum:
+          - none
+          - minor
+          - major
+          - critical
+          title: Severity
+          description: Severity of the penalty
+          default: none
+      type: object
+      required:
+      - name
+      - penalty
+      title: QualityComponent
+      description: Single quality score component with penalty and context.
+    CoachingItem:
+      properties:
+        moment_timestamp:
+          anyOf:
+          - type: number
+            maximum: 86400.0
+            minimum: 0.0
+          - type: 'null'
+          title: Moment Timestamp
+          description: Position in the recording this coaching applies to (seconds)
+        observation:
+          type: string
+          maxLength: 2000
+          minLength: 1
+          title: Observation
+          description: What was observed in the audio at this moment
+        recommendation:
+          type: string
+          maxLength: 2000
+          minLength: 1
+          title: Recommendation
+          description: Specific improvement the agent should make
+        expected_impact:
+          anyOf:
+          - type: string
+            maxLength: 2000
+            minLength: 1
+          - type: 'null'
+          title: Expected Impact
+          description: How this improvement would change the interaction
+      type: object
+      required:
+      - observation
+      - recommendation
+      title: CoachingItem
+      description: A specific, actionable improvement tied to an exact moment in the call.
     Turn:
       properties:
         id:
@@ -1376,288 +1550,200 @@ components:
           title: Decision Bearing
       type: object
       title: Turn
-    ConversationConfig:
+    KeyMoment:
       properties:
-        agent_id:
-          anyOf:
-          - type: string
-            format: uuid
-          - type: 'null'
-          title: Agent Id
-        agent_version:
+        turn:
           anyOf:
           - type: integer
           - type: 'null'
-          title: Agent Version
-        agent_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Agent Name
-        context_graph_id:
-          anyOf:
-          - type: string
-            format: uuid
-          - type: 'null'
-          title: Context Graph Id
-        context_graph_version:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Context Graph Version
-        initial_state:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Initial State
-        gpt_audio_model:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Gpt Audio Model
-        navigation_model:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Navigation Model
-      type: object
-      title: ConversationConfig
-    SafetySummary:
-      properties:
-        match_count:
-          type: integer
-          title: Match Count
-          description: Number of safety filter matches
-          default: 0
-      type: object
-      title: SafetySummary
-      description: 'Safety filter results.
-
-
-        Free-form residual on the raw ``safety_summary`` JSONB:
-
-        ``actions: dict | list`` — escalation handler actions taken
-
-        when ``match_count > 0``. Not exposed via this typed shape.'
-    QualityComponent:
-      properties:
-        name:
+          title: Turn
+          description: Turn index where the moment occurred
+        type:
           type: string
           enum:
-          - latency
+          - latency_spike
           - silence
-          - barge_ins
-          - loops
+          - barge_in
+          - loop
+          - tool_failure
           - escalation
-          - tool_failures
-          title: Name
-          description: Quality dimension
-        penalty:
-          type: number
-          title: Penalty
-          description: Penalty subtracted from the score
-        value:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Value
-          description: Raw measured value
-        threshold:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Threshold
-          description: Threshold that was exceeded
+          - safety_flag
+          - high_risk
+          - elevated_risk
+          title: Type
+          description: Category of the moment
         severity:
           type: string
           enum:
-          - none
-          - minor
-          - major
-          - critical
+          - info
+          - warning
+          - error
           title: Severity
-          description: Severity of the penalty
-          default: none
+          description: Severity level
+          default: warning
+        description:
+          type: string
+          title: Description
+          description: Human-readable description
       type: object
       required:
-      - name
-      - penalty
-      title: QualityComponent
-      description: Single quality score component with penalty and context.
-    PhoneE164:
-      type: string
-      maxLength: 16
-      minLength: 2
-    DailyCallVolume:
+      - type
+      - description
+      title: KeyMoment
+      description: Notable event during the call worth highlighting.
+    TraceAnalysisListResponse:
       properties:
-        date:
-          type: string
-          title: Date
-          description: ISO-8601 date (YYYY-MM-DD)
-        count:
-          type: integer
-          title: Count
-          description: Number of calls on this date
-      type: object
-      required:
-      - date
-      - count
-      title: DailyCallVolume
-      description: Call volume for a single date.
-    BargeInEvent:
-      properties:
-        type:
-          const: barge_in
-          default: barge_in
-          title: Type
-          type: string
-        interrupted_text:
-          anyOf:
-          - type: string
-          - type: 'null'
-          default: null
-          title: Interrupted Text
-          x-phi: true
-        discarded_texts:
-          anyOf:
-          - items:
-              type: string
-            type: array
-          - type: 'null'
-          default: null
-          title: Discarded Texts
-          x-phi: true
-        interrupted_speaker_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          default: null
-          title: Interrupted Speaker Id
-        interrupting_speaker_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          default: null
-          title: Interrupting Speaker Id
-        total_barge_ins:
+        items:
+          items:
+            $ref: '#/components/schemas/TraceAnalysisListItem'
+          type: array
+          title: Items
+          description: Trace analysis summaries
+        has_more:
+          type: boolean
+          title: Has More
+          description: Whether more rows are available beyond this page
+          default: false
+        continuation_token:
           anyOf:
           - type: integer
           - type: 'null'
-          default: null
-          title: Total Barge Ins
-      title: BargeInEvent
+          title: Continuation Token
+          description: Token to pass as ``continuation_token`` for the next page (None when exhausted)
       type: object
-    QualityBreakdown:
+      title: TraceAnalysisListResponse
+      description: Paginated list response for trace analyses.
+    TimelineSegment:
       properties:
-        score:
-          type: number
-          title: Score
-        components:
-          items:
-            $ref: '#/components/schemas/QualityComponent'
-          type: array
-          title: Components
-        workspace_avg:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Workspace Avg
-        workspace_percentile:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Workspace Percentile
-      type: object
-      required:
-      - score
-      - components
-      title: QualityBreakdown
-      description: Structured breakdown of how quality score was computed.
-    CoachingItem:
-      properties:
-        moment_timestamp:
-          anyOf:
-          - type: number
-            maximum: 86400.0
-            minimum: 0.0
-          - type: 'null'
-          title: Moment Timestamp
-          description: Position in the recording this coaching applies to (seconds)
-        observation:
+        type:
           type: string
-          maxLength: 2000
-          minLength: 1
-          title: Observation
-          description: What was observed in the audio at this moment
-        recommendation:
+          enum:
+          - agent_speech
+          - barge_in
+          - caller_speech
+          - filler_hesitation
+          - filler_nav
+          - greeting
+          - interrupted_speech
+          - processing_gap
+          - silence
+          - silence_check
+          - state_transition
+          - tool_call
+          title: Type
+        lane:
           type: string
-          maxLength: 2000
-          minLength: 1
-          title: Recommendation
-          description: Specific improvement the agent should make
-        expected_impact:
+          enum:
+          - agent
+          - caller
+          - events
+          - operator
+          - system
+          - tool
+          title: Lane
+        track:
           anyOf:
           - type: string
-            maxLength: 2000
+            enum:
+            - agent
+            - caller
+            - operator
+            - system
+            - tool
+          - type: 'null'
+          title: Track
+          description: Actor-semantic display track for the segment. Inferred for legacy producers.
+        lane_id:
+          anyOf:
+          - type: string
+            maxLength: 160
             minLength: 1
           - type: 'null'
-          title: Expected Impact
-          description: How this improvement would change the interaction
-      type: object
-      required:
-      - observation
-      - recommendation
-      title: CoachingItem
-      description: A specific, actionable improvement tied to an exact moment in the call.
-    ToolCall:
-      properties:
-        tool_name:
+          title: Lane Id
+          description: Canonical lane id. Must match PlaybackTimeline.lanes[].id after platform normalization.
+        order:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Order
+          description: Canonical event order after platform time/lane normalization.
+        actor:
+          anyOf:
+          - $ref: '#/components/schemas/TimelineActor'
+          - type: 'null'
+          description: Actor responsible for the segment. Inferred for legacy producers.
+        start:
+          type: number
+          title: Start
+        end:
+          type: number
+          title: End
+        label:
           type: string
+          title: Label
+        turn_index:
+          type: integer
+          title: Turn Index
+        stt_confidence:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Stt Confidence
+        eot_confidence:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Eot Confidence
+        audio_window_start:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Audio Window Start
+        audio_window_end:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Audio Window End
+        engine_ms:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Engine Ms
+        nav_ms:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Nav Ms
+        render_ms:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Render Ms
+        audio_ttfb_ms:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Audio Ttfb Ms
+        e2e_ttfb_ms:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: E2E Ttfb Ms
+        tool_name:
+          anyOf:
+          - type: string
+          - type: 'null'
           title: Tool Name
         call_id:
           anyOf:
           - type: string
           - type: 'null'
           title: Call Id
-        input:
-          anyOf:
-          - additionalProperties: true
-            type: object
-          - type: 'null'
-          title: Input
-        output:
+        parent_call_id:
           anyOf:
           - type: string
           - type: 'null'
-          title: Output
-        output_truncated:
-          type: boolean
-          title: Output Truncated
-          default: false
-        output_original_length:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Output Original Length
-        output_truncated_to:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Output Truncated To
-        duration_ms:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Duration Ms
-        succeeded:
-          type: boolean
-          title: Succeeded
-          default: true
-        error_message:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Error Message
+          title: Parent Call Id
         integration_name:
           anyOf:
           - type: string
@@ -1673,90 +1759,50 @@ components:
           - type: string
           - type: 'null'
           title: Protocol
-      type: object
-      required:
-      - tool_name
-      title: ToolCall
-    BooleanMetricValueResponse:
-      properties:
-        metric_key:
-          type: string
-          title: Metric Key
-        source:
-          type: string
-          title: Source
-          default: production
-        entity_type:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Entity Type
-        entity_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Entity Id
-        service_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Service Id
-        run_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Run Id
-        session_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Session Id
-        period_start:
-          type: string
-          format: date-time
-          title: Period Start
-        period_end:
-          type: string
-          format: date-time
-          title: Period End
-        event_count:
-          type: integer
-          title: Event Count
-        avg_confidence:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Avg Confidence
-        unit:
-          anyOf:
-          - type: string
-            maxLength: 32
-          - type: 'null'
-          title: Unit
-        computed_at:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Computed At
-        metric_type:
-          type: string
-          const: boolean
-          title: Metric Type
-        value:
+        succeeded:
           anyOf:
           - type: boolean
           - type: 'null'
-          title: Value
+          title: Succeeded
+        duration_ms:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Duration Ms
+        from_state:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: From State
+        to_state:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: To State
+        emotion:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Emotion
+        valence:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Valence
+        state:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: State
       type: object
       required:
-      - metric_key
-      - period_start
-      - period_end
-      - event_count
-      - metric_type
-      - value
-      title: BooleanMetricValueResponse
+      - type
+      - lane
+      - start
+      - end
+      - label
+      - turn_index
+      title: TimelineSegment
     CreateOutboundCallRequest:
       properties:
         phone_to:
@@ -1851,42 +1897,346 @@ components:
         ``use_case_id`` is required: channel-manager selects the optimal outbound
 
         phone number bound to that use case (the sole caller-ID resolution path).'
-    Counterfactual:
+    ValidationError:
       properties:
-        timestamp_seconds:
-          anyOf:
-          - type: number
-            maximum: 86400.0
-            minimum: 0.0
-          - type: 'null'
-          title: Timestamp Seconds
-          description: When the alternative action was available (seconds)
-        actual:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
           type: string
-          maxLength: 2000
-          minLength: 1
-          title: Actual
-          description: What the agent actually did
-        alternative:
+          title: Message
+        type:
           type: string
-          maxLength: 2000
-          minLength: 1
-          title: Alternative
-          description: What it could have done instead
-        predicted_impact:
-          type: string
-          maxLength: 2000
-          minLength: 1
-          title: Predicted Impact
-          description: How the call would have gone differently
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
       type: object
       required:
-      - actual
-      - alternative
-      - predicted_impact
-      title: Counterfactual
-      description: An alternative action that would have meaningfully changed the call outcome.
-    NumericalMetricValueResponse:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    WorkspaceBenchmarks:
+      properties:
+        avg_quality_score:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Avg Quality Score
+        p50_quality_score:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: P50 Quality Score
+        p25_quality_score:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: P25 Quality Score
+        p75_quality_score:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: P75 Quality Score
+        total_calls:
+          type: integer
+          title: Total Calls
+          default: 0
+        avg_duration_seconds:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Avg Duration Seconds
+        escalation_rate:
+          type: number
+          title: Escalation Rate
+          default: 0.0
+        quality_distribution:
+          additionalProperties:
+            type: integer
+          type: object
+          title: Quality Distribution
+          default: {}
+      type: object
+      title: WorkspaceBenchmarks
+      description: Workspace-level call quality benchmarks for contextual comparison.
+    NameString:
+      type: string
+      maxLength: 256
+      minLength: 1
+    ConceptMatch:
+      properties:
+        concept:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Concept
+        similarity:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Similarity
+        agent_action:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Agent Action
+        agent_confidence:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Agent Confidence
+        agent_reasoning:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Agent Reasoning
+        at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: string
+          - type: 'null'
+          title: At
+      type: object
+      title: ConceptMatch
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    RiskSummary:
+      properties:
+        composite_score:
+          type: number
+          title: Composite Score
+          description: Overall risk score 0.0 to 1.0
+          default: 0.0
+        level:
+          type: string
+          enum:
+          - low
+          - medium
+          - high
+          - critical
+          title: Level
+          description: Risk level
+          default: low
+      type: object
+      title: RiskSummary
+      description: 'Aggregated risk signals across the call.
+
+
+        Free-form residual on the raw ``risk_summary`` JSONB:
+
+        ``signals: list[{name, raw_score, weight, weighted_score, detail}]``
+
+        — the per-signal breakdown that aggregates into ``composite_score``.
+
+        Not exposed via this typed shape; consumers needing per-signal
+
+        detail read the JSONB endpoint.'
+    SafetySummary:
+      properties:
+        match_count:
+          type: integer
+          title: Match Count
+          description: Number of safety filter matches
+          default: 0
+      type: object
+      title: SafetySummary
+      description: 'Safety filter results.
+
+
+        Free-form residual on the raw ``safety_summary`` JSONB:
+
+        ``actions: dict | list`` — escalation handler actions taken
+
+        when ``match_count > 0``. Not exposed via this typed shape.'
+    DailyCallVolume:
+      properties:
+        date:
+          type: string
+          title: Date
+          description: ISO-8601 date (YYYY-MM-DD)
+        count:
+          type: integer
+          title: Count
+          description: Number of calls on this date
+      type: object
+      required:
+      - date
+      - count
+      title: DailyCallVolume
+      description: Call volume for a single date.
+    EmotionSummary:
+      properties:
+        dominant_emotion:
+          anyOf:
+          - type: string
+            maxLength: 256
+          - type: 'null'
+          title: Dominant Emotion
+          description: Most frequent emotion (e.g. 'neutral', 'happy', 'angry')
+        average_valence:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Average Valence
+          description: Average emotional valence -1.0 to 1.0
+        average_arousal:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Average Arousal
+          description: Average emotional arousal 0.0 to 1.0
+        peak_negative_valence:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Peak Negative Valence
+          description: Most negative valence observed
+        barge_in_count:
+          type: integer
+          title: Barge In Count
+          description: Number of caller interruptions (emotion-tagged)
+          default: 0
+      type: object
+      title: EmotionSummary
+      description: 'Aggregated emotional analysis across the call.
+
+
+        Free-form residual on the raw ``emotion_summary`` JSONB:
+
+        ``compound_emotions: list[{name, score}]``. Not exposed via this
+
+        typed shape — readers wanting it consume the JSONB endpoint.'
+    ToolCall:
+      properties:
+        tool_name:
+          type: string
+          title: Tool Name
+        call_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Call Id
+        input:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Input
+        output:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Output
+        output_truncated:
+          type: boolean
+          title: Output Truncated
+          default: false
+        output_original_length:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Output Original Length
+        output_truncated_to:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Output Truncated To
+        duration_ms:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Duration Ms
+        succeeded:
+          type: boolean
+          title: Succeeded
+          default: true
+        error_message:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Error Message
+        integration_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Integration Name
+        endpoint_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Endpoint Name
+        protocol:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Protocol
+      type: object
+      required:
+      - tool_name
+      title: ToolCall
+    ConversationConfig:
+      properties:
+        agent_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Agent Id
+        agent_version:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Agent Version
+        agent_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Agent Name
+        context_graph_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Context Graph Id
+        context_graph_version:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Context Graph Version
+        initial_state:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Initial State
+        gpt_audio_model:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Gpt Audio Model
+        navigation_model:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Navigation Model
+      type: object
+      title: ConversationConfig
+    BooleanMetricValueResponse:
       properties:
         metric_key:
           type: string
@@ -1950,11 +2300,11 @@ components:
           title: Computed At
         metric_type:
           type: string
-          const: numerical
+          const: boolean
           title: Metric Type
         value:
           anyOf:
-          - type: number
+          - type: boolean
           - type: 'null'
           title: Value
       type: object
@@ -1965,7 +2315,7 @@ components:
       - event_count
       - metric_type
       - value
-      title: NumericalMetricValueResponse
+      title: BooleanMetricValueResponse
     PlaybackTimeline:
       properties:
         turns:
@@ -2026,15 +2376,35 @@ components:
       - segments
       - duration_seconds
       title: PlaybackTimeline
-    HTTPValidationError:
+    TimelineTimebase:
       properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
+        unit:
+          type: string
+          const: seconds
+          title: Unit
+          description: Timeline offsets are always seconds.
+          default: seconds
+        origin:
+          type: string
+          enum:
+          - media_start
+          - call_start
+          - synthetic
+          title: Origin
+          description: Zero point used for segment start/end offsets.
+          default: media_start
+        start:
+          type: number
+          title: Start
+          description: Visible/canonical timeline range start in seconds.
+          default: 0.0
+        end:
+          type: number
+          title: End
+          description: Visible/canonical timeline range end in seconds.
+          default: 0.0
       type: object
-      title: HTTPValidationError
+      title: TimelineTimebase
     Participant:
       properties:
         participant_id:
@@ -2074,248 +2444,81 @@ components:
       - role
       - joined_at
       title: Participant
-    PhoneNumberCallVolume:
+    AuditSummary:
       properties:
-        phone_number:
-          type: string
-          title: Phone Number
-          description: E.164 phone number
-        total_calls:
+        event_count:
           type: integer
-          title: Total Calls
-          description: Total calls across the period
-        inbound:
-          type: integer
-          title: Inbound
-          description: Inbound call count
-        outbound:
-          type: integer
-          title: Outbound
-          description: Outbound call count
-        avg_duration_seconds:
+          title: Event Count
+          default: 0
+        latest_event:
           anyOf:
-          - type: number
+          - additionalProperties: true
+            type: object
           - type: 'null'
-          title: Avg Duration Seconds
-          description: Average call duration
-        by_date:
-          items:
-            $ref: '#/components/schemas/DailyCallVolume'
-          type: array
-          title: By Date
-          description: Daily volume breakdown
+          title: Latest Event
       type: object
-      required:
-      - phone_number
-      - total_calls
-      - inbound
-      - outbound
-      title: PhoneNumberCallVolume
-    SignalResponseAlignment:
+      title: AuditSummary
+    TimelineActor:
       properties:
-        signal:
-          type: string
-          maxLength: 2000
-          minLength: 1
-          title: Signal
-          description: The signal observed (e.g. caller tone shift, tool result, silence)
-        agent_response:
-          type: string
-          maxLength: 2000
-          minLength: 1
-          title: Agent Response
-          description: What the agent did in response
-        alignment:
+        kind:
           type: string
           enum:
-          - aligned
-          - misaligned
-          - partial
-          title: Alignment
-          description: Whether the response was aligned, misaligned, or partial
-        insight:
-          anyOf:
-          - type: string
-            maxLength: 2000
-            minLength: 1
-          - type: 'null'
-          title: Insight
-          description: Short insight on why the alignment went the way it did
-      type: object
-      required:
-      - signal
-      - agent_response
-      - alignment
-      title: SignalResponseAlignment
-      description: Whether the agent's response aligned with a salient signal in the call.
-    TimelineTimebase:
-      properties:
-        unit:
-          type: string
-          const: seconds
-          title: Unit
-          description: Timeline offsets are always seconds.
-          default: seconds
-        origin:
+          - agent
+          - human
+          - operator
+          - system
+          - tool
+          title: Kind
+        role:
           type: string
           enum:
-          - media_start
-          - call_start
-          - synthetic
-          title: Origin
-          description: Zero point used for segment start/end offsets.
-          default: media_start
-        start:
-          type: number
-          title: Start
-          description: Visible/canonical timeline range start in seconds.
-          default: 0.0
-        end:
-          type: number
-          title: End
-          description: Visible/canonical timeline range end in seconds.
-          default: 0.0
-      type: object
-      title: TimelineTimebase
-    HumanSegment:
-      properties:
-        speaker_role:
+          - agent
+          - caller
+          - operator
+          - runtime
+          - state
+          - tool
+          title: Role
+        label:
           type: string
-          title: Speaker Role
-        transcript:
-          type: string
-          title: Transcript
-          x-phi: true
-        timestamp:
+          title: Label
+        participant_id:
           anyOf:
           - type: string
-            format: date-time
           - type: 'null'
-          title: Timestamp
+          title: Participant Id
       type: object
       required:
-      - speaker_role
-      - transcript
-      title: HumanSegment
-    DescriptionString:
-      type: string
-      maxLength: 2000
-    TraceKeyMoment:
+      - kind
+      - role
+      - label
+      title: TimelineActor
+    QualityBreakdown:
       properties:
-        timestamp_seconds:
-          anyOf:
-          - type: number
-            maximum: 86400.0
-            minimum: 0.0
-          - type: 'null'
-          title: Timestamp Seconds
-          description: Approximate position in the recording (seconds from start)
-        what_happened:
-          type: string
-          maxLength: 2000
-          minLength: 1
-          title: What Happened
-          description: Plain-English description of the agent's decision
-        quality:
-          anyOf:
-          - type: string
-            enum:
-            - optimal
-            - adequate
-            - suboptimal
-          - type: 'null'
-          title: Quality
-          description: Assessment of the decision quality
-        reasoning:
-          anyOf:
-          - type: string
-            maxLength: 2000
-            minLength: 1
-          - type: 'null'
-          title: Reasoning
-          description: Why this was the right or wrong choice given the audio context
-        decision_factors:
+        score:
+          type: number
+          title: Score
+        components:
           items:
-            $ref: '#/components/schemas/DecisionFactor'
+            $ref: '#/components/schemas/QualityComponent'
           type: array
-          maxItems: 20
-          title: Decision Factors
-          description: Specific audio inputs that drove this decision
-        alternative:
-          anyOf:
-          - type: string
-            maxLength: 2000
-            minLength: 1
-          - type: 'null'
-          title: Alternative
-          description: What else the agent could have done and the likely outcome
-      type: object
-      required:
-      - what_happened
-      title: TraceKeyMoment
-      description: A key decision point identified from the call audio.
-      examples:
-      - alternative: Could have confirmed insurance first, but would have slowed the positive momentum
-        decision_factors:
-        - factor: Caller said 'yes, Thursday works'
-          source_type: transcript
-        - factor: Speech rate increased - eagerness to proceed
-          source_type: speech_rate
-        quality: optimal
-        reasoning: Caller's confident tone and direct 'Thursday works' indicated readiness to schedule
-        timestamp_seconds: 23.4
-        what_happened: Agent transitioned to scheduling after caller confirmed availability
-    EmotionalShift:
-      properties:
-        timestamp_seconds:
+          title: Components
+        workspace_avg:
           anyOf:
           - type: number
-            maximum: 86400.0
-            minimum: 0.0
           - type: 'null'
-          title: Timestamp Seconds
-          description: When the shift occurred (seconds from start)
-        from_state:
+          title: Workspace Avg
+        workspace_percentile:
           anyOf:
-          - type: string
-            maxLength: 500
-            minLength: 1
+          - type: number
           - type: 'null'
-          title: From State
-          description: Emotional state before the shift
-        to_state:
-          anyOf:
-          - type: string
-            maxLength: 500
-            minLength: 1
-          - type: 'null'
-          title: To State
-          description: Emotional state after the shift
-        trigger:
-          anyOf:
-          - type: string
-            maxLength: 2000
-            minLength: 1
-          - type: 'null'
-          title: Trigger
-          description: What caused the shift - exact words and tone
-        agent_awareness:
-          anyOf:
-          - type: string
-            maxLength: 2000
-            minLength: 1
-          - type: 'null'
-          title: Agent Awareness
-          description: Whether the agent noticed and responded to this shift
+          title: Workspace Percentile
       type: object
-      title: EmotionalShift
-      description: A critical emotional state change detected in the caller's voice.
-      examples:
-      - agent_awareness: Agent did not acknowledge the frustration - continued with the standard verification flow
-        from_state: neutral
-        timestamp_seconds: 15.2
-        to_state: frustrated
-        trigger: Caller's pitch rose and speech rate doubled when saying 'I already told you my date of birth'
+      required:
+      - score
+      - components
+      title: QualityBreakdown
+      description: Structured breakdown of how quality score was computed.
     CategoricalMetricValueResponse:
       properties:
         metric_key:
@@ -2396,116 +2599,6 @@ components:
       - metric_type
       - value
       title: CategoricalMetricValueResponse
-    NameString:
-      type: string
-      maxLength: 256
-      minLength: 1
-    KeyMoment:
-      properties:
-        turn:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Turn
-          description: Turn index where the moment occurred
-        type:
-          type: string
-          enum:
-          - latency_spike
-          - silence
-          - barge_in
-          - loop
-          - tool_failure
-          - escalation
-          - safety_flag
-          - high_risk
-          - elevated_risk
-          title: Type
-          description: Category of the moment
-        severity:
-          type: string
-          enum:
-          - info
-          - warning
-          - error
-          title: Severity
-          description: Severity level
-          default: warning
-        description:
-          type: string
-          title: Description
-          description: Human-readable description
-      type: object
-      required:
-      - type
-      - description
-      title: KeyMoment
-      description: Notable event during the call worth highlighting.
-    LatencySummary:
-      properties:
-        avg_engine_ms:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Avg Engine Ms
-          description: Average reasoning-engine latency (ms)
-        p50_engine_ms:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: P50 Engine Ms
-          description: Median engine latency (ms)
-        p95_engine_ms:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: P95 Engine Ms
-          description: 95th percentile engine latency (ms)
-        avg_audio_ttfb_ms:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Avg Audio Ttfb Ms
-          description: Average audio time-to-first-byte (ms)
-        p50_audio_ttfb_ms:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: P50 Audio Ttfb Ms
-          description: Median audio TTFB (ms)
-        p95_audio_ttfb_ms:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: P95 Audio Ttfb Ms
-          description: 95th percentile audio TTFB (ms)
-        avg_nav_ms:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Avg Nav Ms
-          description: Average navigation latency (ms)
-        avg_render_ms:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Avg Render Ms
-          description: Average render latency (ms)
-        turn_count:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Turn Count
-          description: Number of turns the latency averages were computed over
-        silence_ratio:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Silence Ratio
-          description: Fraction of call spent in silence
-      type: object
-      title: LatencySummary
-      description: Audio + engine latency metrics (one entry per turn averaged).
     CallDetailResponse:
       properties:
         id:
@@ -2792,6 +2885,152 @@ components:
         spec is generated from this model. The SDK TypeScript types are generated
 
         from the spec. The developer-console consumes SDK types directly.'
+    ForwardingDetails:
+      properties:
+        forward_to:
+          type: string
+          title: Forward To
+          x-phi: true
+        should_disconnect:
+          type: boolean
+          title: Should Disconnect
+        warm_transfer:
+          type: boolean
+          title: Warm Transfer
+          default: true
+        forwarded_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Forwarded At
+      type: object
+      required:
+      - forward_to
+      - should_disconnect
+      title: ForwardingDetails
+    PhoneNumberCallVolume:
+      properties:
+        phone_number:
+          type: string
+          title: Phone Number
+          description: E.164 phone number
+        total_calls:
+          type: integer
+          title: Total Calls
+          description: Total calls across the period
+        inbound:
+          type: integer
+          title: Inbound
+          description: Inbound call count
+        outbound:
+          type: integer
+          title: Outbound
+          description: Outbound call count
+        avg_duration_seconds:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Avg Duration Seconds
+          description: Average call duration
+        by_date:
+          items:
+            $ref: '#/components/schemas/DailyCallVolume'
+          type: array
+          title: By Date
+          description: Daily volume breakdown
+      type: object
+      required:
+      - phone_number
+      - total_calls
+      - inbound
+      - outbound
+      title: PhoneNumberCallVolume
+    ConversationSummary:
+      properties:
+        turn_count:
+          type: integer
+          title: Turn Count
+          description: Total turn count for the call
+          default: 0
+        states_visited_count:
+          type: integer
+          title: States Visited Count
+          description: Number of states visited (including repeats)
+          default: 0
+        unique_states:
+          type: integer
+          title: Unique States
+          description: Number of distinct states visited
+          default: 0
+        loop_count:
+          type: integer
+          title: Loop Count
+          description: Number of detected state loops
+          default: 0
+        barge_in_count:
+          type: integer
+          title: Barge In Count
+          description: Number of caller interruptions
+          default: 0
+      type: object
+      title: ConversationSummary
+      description: 'Conversation flow metrics.
+
+
+        Free-form residual on the raw ``conversation_summary`` JSONB:
+
+        ``text_intelligence: dict`` (text-channel intelligence
+
+        sub-payload), and on the simulation path ``transcript_text:
+
+        str`` (PHI), ``tool_calls: list``, ``score``,
+
+        ``score_rationale``, ``terminal_reached``, ``states_visited``.
+
+        Not exposed via this typed shape.'
+    SignalResponseAlignment:
+      properties:
+        signal:
+          type: string
+          maxLength: 2000
+          minLength: 1
+          title: Signal
+          description: The signal observed (e.g. caller tone shift, tool result, silence)
+        agent_response:
+          type: string
+          maxLength: 2000
+          minLength: 1
+          title: Agent Response
+          description: What the agent did in response
+        alignment:
+          type: string
+          enum:
+          - aligned
+          - misaligned
+          - partial
+          title: Alignment
+          description: Whether the response was aligned, misaligned, or partial
+        insight:
+          anyOf:
+          - type: string
+            maxLength: 2000
+            minLength: 1
+          - type: 'null'
+          title: Insight
+          description: Short insight on why the alignment went the way it did
+      type: object
+      required:
+      - signal
+      - agent_response
+      - alignment
+      title: SignalResponseAlignment
+      description: Whether the agent's response aligned with a salient signal in the call.
+    CanonicalIdString:
+      type: string
+      maxLength: 256
+      minLength: 3
+      pattern: ^[A-Za-z0-9._-]+:[A-Za-z0-9._-]+:[A-Za-z0-9._-]+$
     TraceAnalysisResponse:
       properties:
         call_sid:
@@ -2947,6 +3186,121 @@ components:
         outcome: abandoned
         status: ready
         summary: The caller initially cooperated with scheduling but became distracted by a nearby conversation, ultimately abandoning the call without booking.
+    OperatorIntelligenceSummary:
+      properties:
+        escalated:
+          type: boolean
+          title: Escalated
+          description: Whether the call was escalated to a human operator
+          default: false
+        operator_active:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Operator Active
+          description: Whether an operator was active during escalation. True = active; False = escalation occurred but no operator picked up; None = no escalation occurred (do NOT coerce to False).
+      type: object
+      title: OperatorIntelligenceSummary
+      description: "Operator intervention summary.\n\nThree-valued semantics on ``operator_active``:\n- ``True``  — escalation occurred and an operator was active.\n- ``False`` — escalation occurred but no operator picked up.\n- ``None``  — no escalation occurred (producer omits the key).\n  Readers must distinguish; do not coerce ``None`` → ``False``."
+    Counterfactual:
+      properties:
+        timestamp_seconds:
+          anyOf:
+          - type: number
+            maximum: 86400.0
+            minimum: 0.0
+          - type: 'null'
+          title: Timestamp Seconds
+          description: When the alternative action was available (seconds)
+        actual:
+          type: string
+          maxLength: 2000
+          minLength: 1
+          title: Actual
+          description: What the agent actually did
+        alternative:
+          type: string
+          maxLength: 2000
+          minLength: 1
+          title: Alternative
+          description: What it could have done instead
+        predicted_impact:
+          type: string
+          maxLength: 2000
+          minLength: 1
+          title: Predicted Impact
+          description: How the call would have gone differently
+      type: object
+      required:
+      - actual
+      - alternative
+      - predicted_impact
+      title: Counterfactual
+      description: An alternative action that would have meaningfully changed the call outcome.
+    TraceAnalysisListItem:
+      properties:
+        call_sid:
+          type: string
+          maxLength: 128
+          minLength: 1
+          title: Call Sid
+          description: Call identifier
+        call_entity_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Call Entity Id
+          description: Associated world.entities_synced call row UUID
+        outcome:
+          anyOf:
+          - type: string
+            enum:
+            - succeeded
+            - partially
+            - failed
+            - abandoned
+          - type: 'null'
+          title: Outcome
+          description: Overall call outcome
+        summary:
+          anyOf:
+          - type: string
+            maxLength: 2000
+            minLength: 1
+          - type: 'null'
+          title: Summary
+          description: Short call summary
+        emotional_arc:
+          anyOf:
+          - type: string
+            maxLength: 2000
+            minLength: 1
+          - type: 'null'
+          title: Emotional Arc
+          description: Caller emotional trajectory string
+        key_moment_count:
+          type: integer
+          minimum: 0.0
+          title: Key Moment Count
+          description: Number of key moments identified
+          default: 0
+        computed_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Computed At
+          description: When the analysis was produced
+      type: object
+      required:
+      - call_sid
+      title: TraceAnalysisListItem
+      description: Compact summary of a trace analysis row for list views.
+    PhoneE164:
+      type: string
+      maxLength: 16
+      minLength: 2
     SafetyState:
       properties:
         peak_concern_level:
@@ -2977,6 +3331,123 @@ components:
           default: []
       type: object
       title: SafetyState
+    StateTransition:
+      properties:
+        type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Type
+        previous_state:
+          type: string
+          title: Previous State
+          default: ''
+        next_state:
+          type: string
+          title: Next State
+          default: ''
+        annotation:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Annotation
+        nav_ms:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Nav Ms
+        from_state:
+          type: string
+          title: From State
+          readOnly: true
+        to_state:
+          type: string
+          title: To State
+          readOnly: true
+      type: object
+      required:
+      - from_state
+      - to_state
+      title: StateTransition
+    TimelineLaneDefinition:
+      properties:
+        id:
+          type: string
+          maxLength: 160
+          minLength: 1
+          title: Id
+          description: Stable canonical lane id used by timeline visualizations. Segments attach via TimelineSegment.lane_id; consumers should not re-infer lanes from CSS or pixel positions.
+        track:
+          type: string
+          enum:
+          - agent
+          - caller
+          - operator
+          - system
+          - tool
+          title: Track
+          description: High-level actor-semantic track for styling and grouping.
+        label:
+          type: string
+          title: Label
+          description: Display label for the lane.
+        order:
+          type: integer
+          title: Order
+          description: Stable vertical order within the timeline lane model.
+        actor:
+          anyOf:
+          - $ref: '#/components/schemas/TimelineActor'
+          - type: 'null'
+          description: Actor represented by this lane when applicable.
+      type: object
+      required:
+      - id
+      - track
+      - label
+      - order
+      title: TimelineLaneDefinition
+    DecisionFactor:
+      properties:
+        factor:
+          type: string
+          maxLength: 2000
+          minLength: 1
+          title: Factor
+          description: What specifically drove this decision - exact words heard or tone described
+        source_type:
+          type: string
+          title: Source Type
+          description: Category of the audio input
+      type: object
+      required:
+      - factor
+      - source_type
+      title: DecisionFactor
+      description: A specific audio input that drove an agent decision.
+      examples:
+      - factor: Caller said 'yes, Thursday works' with confident, faster speech
+        source_type: transcript
+    MetricListResponse:
+      properties:
+        metrics:
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/NumericalMetricValueResponse'
+            - $ref: '#/components/schemas/CategoricalMetricValueResponse'
+            - $ref: '#/components/schemas/BooleanMetricValueResponse'
+            discriminator:
+              propertyName: metric_type
+              mapping:
+                boolean: '#/components/schemas/BooleanMetricValueResponse'
+                categorical: '#/components/schemas/CategoricalMetricValueResponse'
+                numerical: '#/components/schemas/NumericalMetricValueResponse'
+          type: array
+          title: Metrics
+      type: object
+      required:
+      - metrics
+      title: MetricListResponse
     CallSummary:
       properties:
         entity_id:
@@ -3134,299 +3605,6 @@ components:
       required:
       - entity_id
       title: CallSummary
-    AuditSummary:
-      properties:
-        event_count:
-          type: integer
-          title: Event Count
-          default: 0
-        latest_event:
-          anyOf:
-          - additionalProperties: true
-            type: object
-          - type: 'null'
-          title: Latest Event
-      type: object
-      title: AuditSummary
-    EmotionalSummary:
-      properties:
-        dominant_emotion:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Dominant Emotion
-        average_valence:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Average Valence
-        average_arousal:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Average Arousal
-        peak_negative_valence:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Peak Negative Valence
-        peak_negative_emotion:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Peak Negative Emotion
-        emotional_shifts:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Emotional Shifts
-        final_trend:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Final Trend
-        segment_count:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Segment Count
-        barge_in_count:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Barge In Count
-        compound_emotions:
-          anyOf:
-          - items:
-              additionalProperties: true
-              type: object
-            type: array
-          - type: 'null'
-          title: Compound Emotions
-      type: object
-      title: EmotionalSummary
-    WorkspaceBenchmarks:
-      properties:
-        avg_quality_score:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Avg Quality Score
-        p50_quality_score:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: P50 Quality Score
-        p25_quality_score:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: P25 Quality Score
-        p75_quality_score:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: P75 Quality Score
-        total_calls:
-          type: integer
-          title: Total Calls
-          default: 0
-        avg_duration_seconds:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Avg Duration Seconds
-        escalation_rate:
-          type: number
-          title: Escalation Rate
-          default: 0.0
-        quality_distribution:
-          additionalProperties:
-            type: integer
-          type: object
-          title: Quality Distribution
-          default: {}
-      type: object
-      title: WorkspaceBenchmarks
-      description: Workspace-level call quality benchmarks for contextual comparison.
-    OperatorIntelligenceSummary:
-      properties:
-        escalated:
-          type: boolean
-          title: Escalated
-          description: Whether the call was escalated to a human operator
-          default: false
-        operator_active:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          title: Operator Active
-          description: Whether an operator was active during escalation. True = active; False = escalation occurred but no operator picked up; None = no escalation occurred (do NOT coerce to False).
-      type: object
-      title: OperatorIntelligenceSummary
-      description: "Operator intervention summary.\n\nThree-valued semantics on ``operator_active``:\n- ``True``  — escalation occurred and an operator was active.\n- ``False`` — escalation occurred but no operator picked up.\n- ``None``  — no escalation occurred (producer omits the key).\n  Readers must distinguish; do not coerce ``None`` → ``False``."
-    InteractionDynamics:
-      properties:
-        turn_taking_quality:
-          anyOf:
-          - type: string
-            maxLength: 2000
-            minLength: 1
-          - type: 'null'
-          title: Turn Taking Quality
-          description: How well speakers managed turn-taking - interruptions, overlaps, pacing
-        information_density:
-          anyOf:
-          - type: string
-            maxLength: 2000
-            minLength: 1
-          - type: 'null'
-          title: Information Density
-          description: Whether the agent gave too much or too little information per turn
-        repair_effectiveness:
-          anyOf:
-          - type: string
-            maxLength: 2000
-            minLength: 1
-          - type: 'null'
-          title: Repair Effectiveness
-          description: How misunderstandings were detected and resolved
-        rapport_trajectory:
-          anyOf:
-          - type: string
-            maxLength: 2000
-            minLength: 1
-          - type: 'null'
-          title: Rapport Trajectory
-          description: How the interpersonal dynamic evolved across the call
-      type: object
-      title: InteractionDynamics
-      description: System-level analysis of the conversation as a whole.
-    RiskSummary:
-      properties:
-        composite_score:
-          type: number
-          title: Composite Score
-          description: Overall risk score 0.0 to 1.0
-          default: 0.0
-        level:
-          type: string
-          enum:
-          - low
-          - medium
-          - high
-          - critical
-          title: Level
-          description: Risk level
-          default: low
-      type: object
-      title: RiskSummary
-      description: 'Aggregated risk signals across the call.
-
-
-        Free-form residual on the raw ``risk_summary`` JSONB:
-
-        ``signals: list[{name, raw_score, weight, weighted_score, detail}]``
-
-        — the per-signal breakdown that aggregates into ``composite_score``.
-
-        Not exposed via this typed shape; consumers needing per-signal
-
-        detail read the JSONB endpoint.'
-    StateTransition:
-      properties:
-        type:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Type
-        previous_state:
-          type: string
-          title: Previous State
-          default: ''
-        next_state:
-          type: string
-          title: Next State
-          default: ''
-        annotation:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Annotation
-        nav_ms:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Nav Ms
-        from_state:
-          type: string
-          title: From State
-          readOnly: true
-        to_state:
-          type: string
-          title: To State
-          readOnly: true
-      type: object
-      required:
-      - from_state
-      - to_state
-      title: StateTransition
-    ToolSummary:
-      properties:
-        total_calls:
-          type: integer
-          title: Total Calls
-          description: Total tool invocations
-          default: 0
-        succeeded:
-          type: integer
-          title: Succeeded
-          description: Successful tool invocations
-          default: 0
-        failed:
-          type: integer
-          title: Failed
-          description: Failed tool invocations
-          default: 0
-        failure_rate:
-          type: number
-          title: Failure Rate
-          description: Tool failure rate 0.0 to 1.0
-          default: 0.0
-      type: object
-      title: ToolSummary
-      description: 'Tool usage statistics.
-
-
-        Free-form residual on the raw ``tool_summary`` JSONB:
-
-        ``by_tool: list[{name, calls, succeeded, failed, avg_duration_ms}]``
-
-        — per-tool breakdown. Not exposed via this typed shape.'
-    ForwardingDetails:
-      properties:
-        forward_to:
-          type: string
-          title: Forward To
-          x-phi: true
-        should_disconnect:
-          type: boolean
-          title: Should Disconnect
-        warm_transfer:
-          type: boolean
-          title: Warm Transfer
-          default: true
-        forwarded_at:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Forwarded At
-      type: object
-      required:
-      - forward_to
-      - should_disconnect
-      title: ForwardingDetails
     TurnTimeline:
       properties:
         turn_index:
@@ -3448,246 +3626,54 @@ components:
       - active_start
       - active_end
       title: TurnTimeline
-    TimelineSegment:
+    DescriptionString:
+      type: string
+      maxLength: 2000
+    BargeInEvent:
       properties:
         type:
-          type: string
-          enum:
-          - agent_speech
-          - barge_in
-          - caller_speech
-          - filler_hesitation
-          - filler_nav
-          - greeting
-          - interrupted_speech
-          - processing_gap
-          - silence
-          - silence_check
-          - state_transition
-          - tool_call
+          const: barge_in
+          default: barge_in
           title: Type
-        lane:
           type: string
-          enum:
-          - agent
-          - caller
-          - events
-          - operator
-          - system
-          - tool
-          title: Lane
-        track:
+        interrupted_text:
           anyOf:
           - type: string
-            enum:
-            - agent
-            - caller
-            - operator
-            - system
-            - tool
           - type: 'null'
-          title: Track
-          description: Actor-semantic display track for the segment. Inferred for legacy producers.
-        lane_id:
+          default: null
+          title: Interrupted Text
+          x-phi: true
+        discarded_texts:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          default: null
+          title: Discarded Texts
+          x-phi: true
+        interrupted_speaker_id:
           anyOf:
           - type: string
-            maxLength: 160
-            minLength: 1
           - type: 'null'
-          title: Lane Id
-          description: Canonical lane id. Must match PlaybackTimeline.lanes[].id after platform normalization.
-        order:
+          default: null
+          title: Interrupted Speaker Id
+        interrupting_speaker_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: null
+          title: Interrupting Speaker Id
+        total_barge_ins:
           anyOf:
           - type: integer
           - type: 'null'
-          title: Order
-          description: Canonical event order after platform time/lane normalization.
-        actor:
-          anyOf:
-          - $ref: '#/components/schemas/TimelineActor'
-          - type: 'null'
-          description: Actor responsible for the segment. Inferred for legacy producers.
-        start:
-          type: number
-          title: Start
-        end:
-          type: number
-          title: End
-        label:
-          type: string
-          title: Label
-        turn_index:
-          type: integer
-          title: Turn Index
-        stt_confidence:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Stt Confidence
-        eot_confidence:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Eot Confidence
-        audio_window_start:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Audio Window Start
-        audio_window_end:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Audio Window End
-        engine_ms:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Engine Ms
-        nav_ms:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Nav Ms
-        render_ms:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Render Ms
-        audio_ttfb_ms:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Audio Ttfb Ms
-        e2e_ttfb_ms:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: E2E Ttfb Ms
-        tool_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Tool Name
-        call_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Call Id
-        parent_call_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Parent Call Id
-        integration_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Integration Name
-        endpoint_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Endpoint Name
-        protocol:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Protocol
-        succeeded:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          title: Succeeded
-        duration_ms:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Duration Ms
-        from_state:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: From State
-        to_state:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: To State
-        emotion:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Emotion
-        valence:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Valence
-        state:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: State
+          default: null
+          title: Total Barge Ins
+      title: BargeInEvent
       type: object
-      required:
-      - type
-      - lane
-      - start
-      - end
-      - label
-      - turn_index
-      title: TimelineSegment
-    TimelineLaneDefinition:
-      properties:
-        id:
-          type: string
-          maxLength: 160
-          minLength: 1
-          title: Id
-          description: Stable canonical lane id used by timeline visualizations. Segments attach via TimelineSegment.lane_id; consumers should not re-infer lanes from CSS or pixel positions.
-        track:
-          type: string
-          enum:
-          - agent
-          - caller
-          - operator
-          - system
-          - tool
-          title: Track
-          description: High-level actor-semantic track for styling and grouping.
-        label:
-          type: string
-          title: Label
-          description: Display label for the lane.
-        order:
-          type: integer
-          title: Order
-          description: Stable vertical order within the timeline lane model.
-        actor:
-          anyOf:
-          - $ref: '#/components/schemas/TimelineActor'
-          - type: 'null'
-          description: Actor represented by this lane when applicable.
-      type: object
-      required:
-      - id
-      - track
-      - label
-      - order
-      title: TimelineLaneDefinition
   securitySchemes:
-    Bearer-Authorization:
+    BearerAuth:
       type: http
       scheme: bearer
-      bearerFormat: JWT
-      description: Amigo issued JWT token that identifies an user. It's issued either after logging in through the frontend, or manually through the [`SignInWithAPIKey`](sign-in-with-api-key) endpoint.
-    Bearer-Authorization-Organization:
-      type: apiKey
-      in: header
-      name: X-ORG-ID
-      description: An optional organization identifier that indicates from which organization the token is issued. This is used in rare cases where the user to authenticate is making a request for resources in another organization.
-    Basic:
-      type: http
-      scheme: basic
-      description: The username should be set to {org_id}_{user_id}, and the password should be the Amigo issued JWT token that identifies the user.
+      description: API key issued via `POST /v1/{workspace_id}/api-keys`. Pass the returned `api_key` value as a Bearer token.

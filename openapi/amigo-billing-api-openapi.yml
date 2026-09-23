@@ -1,17 +1,13 @@
-openapi: 3.1.0
+openapi: 3.2.0
 info:
-  title: Amigo Account Billing API
-  version: 0.1.0
+  title: Platform Billing API
+  description: Management API for the Amigo platform. Provides CRUD operations for workspaces, API keys, and resources.
+  version: 1.0.0
 servers:
-- url: https://api.amigo.ai
-- url: https://internal-api.amigo.ai
-- url: https://api-eu-central-1.amigo.ai
-- url: https://api-ap-southeast-2.amigo.ai
-- url: https://api-ca-central-1.amigo.ai
+- url: https://api.platform.amigo.ai
+  description: Production
 security:
-- Bearer-Authorization: []
-  Bearer-Authorization-Organization: []
-  Basic: []
+- BearerAuth: []
 tags:
 - name: Billing
 paths:
@@ -882,6 +878,278 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
+    UpdateCustomerRequest:
+      properties:
+        name:
+          anyOf:
+          - type: string
+            maxLength: 256
+            minLength: 1
+          - type: 'null'
+          title: Name
+        billing_email:
+          anyOf:
+          - type: string
+            format: email
+          - type: 'null'
+          title: Billing Email
+        billing_contact:
+          anyOf:
+          - type: string
+            maxLength: 256
+          - type: 'null'
+          title: Billing Contact
+        mercury_memo:
+          anyOf:
+          - type: string
+            maxLength: 256
+          - type: 'null'
+          title: Mercury Memo
+        address:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Address
+        status:
+          anyOf:
+          - type: string
+            enum:
+            - active
+            - archived
+          - type: 'null'
+          title: Status
+      type: object
+      title: UpdateCustomerRequest
+    CustomerItem:
+      properties:
+        id:
+          type: string
+          title: Id
+          description: Customer ID
+        name:
+          type: string
+          title: Name
+          description: Customer name
+        slug:
+          type: string
+          title: Slug
+          description: URL-safe identifier
+        billing_email:
+          type: string
+          title: Billing Email
+          description: Primary billing email
+        billing_contact:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Billing Contact
+          description: Billing contact name
+        mercury_memo:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Mercury Memo
+          description: Mercury bank memo reference
+        address:
+          $ref: '#/components/schemas/CustomerAddress'
+          description: Billing address
+        status:
+          type: string
+          enum:
+          - active
+          - archived
+          title: Status
+          description: Customer status
+        created_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Created At
+          description: When the customer was created (ISO-8601)
+        updated_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Updated At
+          description: When the customer was last updated (ISO-8601)
+      type: object
+      required:
+      - id
+      - name
+      - slug
+      - billing_email
+      - billing_contact
+      - mercury_memo
+      - address
+      - status
+      - created_at
+      - updated_at
+      title: CustomerItem
+    BillingDashboardResponse:
+      properties:
+        workspace_id:
+          type: string
+          format: uuid
+          title: Workspace Id
+          description: Workspace ID
+        current_period_total:
+          type: number
+          title: Current Period Total
+          description: Total billing for the current period
+        previous_period_total:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Previous Period Total
+          description: Total billing for the previous period
+        delta_pct:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Delta Pct
+          description: Percentage change from previous period
+        top_meters:
+          items:
+            $ref: '#/components/schemas/MeterSummary'
+          type: array
+          title: Top Meters
+          description: Top meters by value
+        invoice_status_summary:
+          additionalProperties:
+            type: integer
+          type: object
+          title: Invoice Status Summary
+          description: Invoice counts by status
+        period_start:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Period Start
+          description: Current period start date (ISO-8601)
+        period_end:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Period End
+          description: Current period end date (ISO-8601)
+      type: object
+      required:
+      - workspace_id
+      - current_period_total
+      - previous_period_total
+      - delta_pct
+      - top_meters
+      - invoice_status_summary
+      - period_start
+      - period_end
+      title: BillingDashboardResponse
+    CustomerAddress:
+      properties:
+        line1:
+          type: string
+          title: Line1
+          description: Street address line 1
+          default: ''
+        line2:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Line2
+          description: Street address line 2
+        city:
+          type: string
+          title: City
+          description: City
+          default: ''
+        state:
+          type: string
+          title: State
+          description: State or province
+          default: ''
+        postal_code:
+          type: string
+          title: Postal Code
+          description: Postal or ZIP code
+          default: ''
+        country:
+          type: string
+          title: Country
+          description: ISO 3166-1 alpha-2 country code
+          default: US
+      type: object
+      title: CustomerAddress
+      description: Customer billing address.
+    AttachWorkspaceRequest:
+      properties:
+        workspace_id:
+          type: string
+          format: uuid
+          title: Workspace Id
+        environment:
+          type: string
+          enum:
+          - production
+          - staging
+          - development
+          title: Environment
+          default: production
+        billable:
+          type: boolean
+          title: Billable
+          default: true
+      type: object
+      required:
+      - workspace_id
+      title: AttachWorkspaceRequest
+    InvoiceLineItem:
+      properties:
+        meter_key:
+          type: string
+          title: Meter Key
+          description: Meter identifier
+        metering_source:
+          type: string
+          enum:
+          - production
+          - simulation
+          title: Metering Source
+          description: Traffic class
+          default: production
+        description:
+          type: string
+          title: Description
+          description: Line item description
+          default: ''
+        quantity:
+          type: string
+          title: Quantity
+          description: Usage quantity
+        unit_price:
+          type: string
+          title: Unit Price
+          description: Price per unit
+        total:
+          type: string
+          title: Total
+          description: Line item total
+      type: object
+      required:
+      - meter_key
+      - quantity
+      - unit_price
+      - total
+      title: InvoiceLineItem
+      description: 'A single line item on an invoice.
+
+
+        ``metering_source`` defaults to ``"production"`` for backward
+
+        compatibility with invoices generated before the metering_source
+
+        dimension was introduced — those invoices were production-only by
+
+        definition. New invoices always carry an explicit value.'
     PaginatedResponse_CustomerItem_:
       properties:
         items:
@@ -907,17 +1175,155 @@ components:
       - items
       - has_more
       title: PaginatedResponse[CustomerItem]
-    MeterBreakdown:
+    ValidationError:
       properties:
-        categories:
-          additionalProperties:
-            type: number
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
           type: object
-          title: Categories
-          description: Sub-category values
+          title: Context
       type: object
-      title: MeterBreakdown
-      description: Breakdown of a meter value by sub-category.
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    UpdateConfigRequest:
+      properties:
+        strategy:
+          anyOf:
+          - type: string
+            enum:
+            - usage
+            - outcome
+            - custom
+          - type: 'null'
+          title: Strategy
+        currency:
+          anyOf:
+          - type: string
+            maxLength: 3
+          - type: 'null'
+          title: Currency
+        billing_cycle:
+          anyOf:
+          - type: string
+            enum:
+            - monthly
+            - quarterly
+            - annual
+          - type: 'null'
+          title: Billing Cycle
+        billing_day:
+          anyOf:
+          - type: integer
+            maximum: 28.0
+            minimum: 1.0
+          - type: 'null'
+          title: Billing Day
+        price_rules:
+          anyOf:
+          - items:
+              additionalProperties: true
+              type: object
+            type: array
+            maxItems: 100
+          - type: 'null'
+          title: Price Rules
+        minimum_charge:
+          anyOf:
+          - type: number
+            minimum: 0.0
+          - type: string
+            pattern: ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$
+          - type: 'null'
+          title: Minimum Charge
+        effective_from:
+          anyOf:
+          - type: string
+            format: date
+          - type: 'null'
+          title: Effective From
+        effective_to:
+          anyOf:
+          - type: string
+            format: date
+          - type: 'null'
+          title: Effective To
+      type: object
+      title: UpdateConfigRequest
+    MeterValueItem:
+      properties:
+        id:
+          type: string
+          title: Id
+          description: Meter value record ID
+        customer_id:
+          type: string
+          title: Customer Id
+          description: Customer ID
+        meter_key:
+          type: string
+          title: Meter Key
+          description: Meter identifier
+        metering_source:
+          type: string
+          enum:
+          - production
+          - simulation
+          title: Metering Source
+          description: Traffic class
+          default: production
+        period_start:
+          type: string
+          title: Period Start
+          description: Period start (ISO-8601)
+        period_end:
+          type: string
+          title: Period End
+          description: Period end (ISO-8601)
+        value:
+          type: string
+          title: Value
+          description: Metered value
+        unit:
+          type: string
+          title: Unit
+          description: Unit of measurement
+        breakdown:
+          $ref: '#/components/schemas/MeterBreakdown'
+          description: Sub-category breakdown
+        updated_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Updated At
+          description: Last updated (ISO-8601)
+      type: object
+      required:
+      - id
+      - customer_id
+      - meter_key
+      - period_start
+      - period_end
+      - value
+      - unit
+      - breakdown
+      - updated_at
+      title: MeterValueItem
     InvoiceItem:
       properties:
         id:
@@ -1015,6 +1421,133 @@ components:
       - created_at
       - updated_at
       title: InvoiceItem
+    PaginatedResponse_MeterValueItem_:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/MeterValueItem'
+          type: array
+          title: Items
+        has_more:
+          type: boolean
+          title: Has More
+        continuation_token:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Continuation Token
+        total:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Total
+      type: object
+      required:
+      - items
+      - has_more
+      title: PaginatedResponse[MeterValueItem]
+    UsageTrendPoint:
+      properties:
+        period_start:
+          type: string
+          title: Period Start
+          description: Period start date (ISO-8601)
+        period_end:
+          type: string
+          title: Period End
+          description: Period end date (ISO-8601)
+        meter_key:
+          type: string
+          title: Meter Key
+          description: Meter identifier
+        metering_source:
+          type: string
+          enum:
+          - production
+          - simulation
+          title: Metering Source
+          description: Traffic class
+          default: production
+        value:
+          type: number
+          title: Value
+          description: Metered value for this period
+        unit:
+          type: string
+          title: Unit
+          description: Unit of measurement
+      type: object
+      required:
+      - period_start
+      - period_end
+      - meter_key
+      - value
+      - unit
+      title: UsageTrendPoint
+    PaginatedResponse_InvoiceItem_:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/InvoiceItem'
+          type: array
+          title: Items
+        has_more:
+          type: boolean
+          title: Has More
+        continuation_token:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Continuation Token
+        total:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Total
+      type: object
+      required:
+      - items
+      - has_more
+      title: PaginatedResponse[InvoiceItem]
+    CreateCustomerRequest:
+      properties:
+        name:
+          type: string
+          maxLength: 256
+          minLength: 1
+          title: Name
+        slug:
+          type: string
+          maxLength: 63
+          minLength: 2
+          pattern: ^[a-z0-9][a-z0-9-]*[a-z0-9]$
+          title: Slug
+        billing_email:
+          type: string
+          format: email
+          title: Billing Email
+        billing_contact:
+          anyOf:
+          - type: string
+            maxLength: 256
+          - type: 'null'
+          title: Billing Contact
+        mercury_memo:
+          anyOf:
+          - type: string
+            maxLength: 256
+          - type: 'null'
+          title: Mercury Memo
+        address:
+          additionalProperties: true
+          type: object
+          title: Address
+      type: object
+      required:
+      - name
+      - slug
+      - billing_email
+      title: CreateCustomerRequest
     HTTPValidationError:
       properties:
         detail:
@@ -1057,566 +1590,19 @@ components:
       - value
       - unit
       title: MeterSummary
-    ValidationError:
+    MeterBreakdown:
       properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-        input:
-          title: Input
-        ctx:
-          type: object
-          title: Context
-      type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
-    UpdateConfigRequest:
-      properties:
-        strategy:
-          anyOf:
-          - type: string
-            enum:
-            - usage
-            - outcome
-            - custom
-          - type: 'null'
-          title: Strategy
-        currency:
-          anyOf:
-          - type: string
-            maxLength: 3
-          - type: 'null'
-          title: Currency
-        billing_cycle:
-          anyOf:
-          - type: string
-            enum:
-            - monthly
-            - quarterly
-            - annual
-          - type: 'null'
-          title: Billing Cycle
-        billing_day:
-          anyOf:
-          - type: integer
-            maximum: 28.0
-            minimum: 1.0
-          - type: 'null'
-          title: Billing Day
-        price_rules:
-          anyOf:
-          - items:
-              additionalProperties: true
-              type: object
-            type: array
-            maxItems: 100
-          - type: 'null'
-          title: Price Rules
-        minimum_charge:
-          anyOf:
-          - type: number
-            minimum: 0.0
-          - type: string
-            pattern: ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$
-          - type: 'null'
-          title: Minimum Charge
-        effective_from:
-          anyOf:
-          - type: string
-            format: date
-          - type: 'null'
-          title: Effective From
-        effective_to:
-          anyOf:
-          - type: string
-            format: date
-          - type: 'null'
-          title: Effective To
-      type: object
-      title: UpdateConfigRequest
-    UpdateCustomerRequest:
-      properties:
-        name:
-          anyOf:
-          - type: string
-            maxLength: 256
-            minLength: 1
-          - type: 'null'
-          title: Name
-        billing_email:
-          anyOf:
-          - type: string
-            format: email
-          - type: 'null'
-          title: Billing Email
-        billing_contact:
-          anyOf:
-          - type: string
-            maxLength: 256
-          - type: 'null'
-          title: Billing Contact
-        mercury_memo:
-          anyOf:
-          - type: string
-            maxLength: 256
-          - type: 'null'
-          title: Mercury Memo
-        address:
-          anyOf:
-          - additionalProperties: true
-            type: object
-          - type: 'null'
-          title: Address
-        status:
-          anyOf:
-          - type: string
-            enum:
-            - active
-            - archived
-          - type: 'null'
-          title: Status
-      type: object
-      title: UpdateCustomerRequest
-    UsageTrendPoint:
-      properties:
-        period_start:
-          type: string
-          title: Period Start
-          description: Period start date (ISO-8601)
-        period_end:
-          type: string
-          title: Period End
-          description: Period end date (ISO-8601)
-        meter_key:
-          type: string
-          title: Meter Key
-          description: Meter identifier
-        metering_source:
-          type: string
-          enum:
-          - production
-          - simulation
-          title: Metering Source
-          description: Traffic class
-          default: production
-        value:
-          type: number
-          title: Value
-          description: Metered value for this period
-        unit:
-          type: string
-          title: Unit
-          description: Unit of measurement
-      type: object
-      required:
-      - period_start
-      - period_end
-      - meter_key
-      - value
-      - unit
-      title: UsageTrendPoint
-    CustomerItem:
-      properties:
-        id:
-          type: string
-          title: Id
-          description: Customer ID
-        name:
-          type: string
-          title: Name
-          description: Customer name
-        slug:
-          type: string
-          title: Slug
-          description: URL-safe identifier
-        billing_email:
-          type: string
-          title: Billing Email
-          description: Primary billing email
-        billing_contact:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Billing Contact
-          description: Billing contact name
-        mercury_memo:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Mercury Memo
-          description: Mercury bank memo reference
-        address:
-          $ref: '#/components/schemas/CustomerAddress'
-          description: Billing address
-        status:
-          type: string
-          enum:
-          - active
-          - archived
-          title: Status
-          description: Customer status
-        created_at:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Created At
-          description: When the customer was created (ISO-8601)
-        updated_at:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Updated At
-          description: When the customer was last updated (ISO-8601)
-      type: object
-      required:
-      - id
-      - name
-      - slug
-      - billing_email
-      - billing_contact
-      - mercury_memo
-      - address
-      - status
-      - created_at
-      - updated_at
-      title: CustomerItem
-    AttachWorkspaceRequest:
-      properties:
-        workspace_id:
-          type: string
-          format: uuid
-          title: Workspace Id
-        environment:
-          type: string
-          enum:
-          - production
-          - staging
-          - development
-          title: Environment
-          default: production
-        billable:
-          type: boolean
-          title: Billable
-          default: true
-      type: object
-      required:
-      - workspace_id
-      title: AttachWorkspaceRequest
-    PaginatedResponse_InvoiceItem_:
-      properties:
-        items:
-          items:
-            $ref: '#/components/schemas/InvoiceItem'
-          type: array
-          title: Items
-        has_more:
-          type: boolean
-          title: Has More
-        continuation_token:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Continuation Token
-        total:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Total
-      type: object
-      required:
-      - items
-      - has_more
-      title: PaginatedResponse[InvoiceItem]
-    BillingDashboardResponse:
-      properties:
-        workspace_id:
-          type: string
-          format: uuid
-          title: Workspace Id
-          description: Workspace ID
-        current_period_total:
-          type: number
-          title: Current Period Total
-          description: Total billing for the current period
-        previous_period_total:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Previous Period Total
-          description: Total billing for the previous period
-        delta_pct:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Delta Pct
-          description: Percentage change from previous period
-        top_meters:
-          items:
-            $ref: '#/components/schemas/MeterSummary'
-          type: array
-          title: Top Meters
-          description: Top meters by value
-        invoice_status_summary:
+        categories:
           additionalProperties:
-            type: integer
+            type: number
           type: object
-          title: Invoice Status Summary
-          description: Invoice counts by status
-        period_start:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Period Start
-          description: Current period start date (ISO-8601)
-        period_end:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Period End
-          description: Current period end date (ISO-8601)
+          title: Categories
+          description: Sub-category values
       type: object
-      required:
-      - workspace_id
-      - current_period_total
-      - previous_period_total
-      - delta_pct
-      - top_meters
-      - invoice_status_summary
-      - period_start
-      - period_end
-      title: BillingDashboardResponse
-    MeterValueItem:
-      properties:
-        id:
-          type: string
-          title: Id
-          description: Meter value record ID
-        customer_id:
-          type: string
-          title: Customer Id
-          description: Customer ID
-        meter_key:
-          type: string
-          title: Meter Key
-          description: Meter identifier
-        metering_source:
-          type: string
-          enum:
-          - production
-          - simulation
-          title: Metering Source
-          description: Traffic class
-          default: production
-        period_start:
-          type: string
-          title: Period Start
-          description: Period start (ISO-8601)
-        period_end:
-          type: string
-          title: Period End
-          description: Period end (ISO-8601)
-        value:
-          type: string
-          title: Value
-          description: Metered value
-        unit:
-          type: string
-          title: Unit
-          description: Unit of measurement
-        breakdown:
-          $ref: '#/components/schemas/MeterBreakdown'
-          description: Sub-category breakdown
-        updated_at:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Updated At
-          description: Last updated (ISO-8601)
-      type: object
-      required:
-      - id
-      - customer_id
-      - meter_key
-      - period_start
-      - period_end
-      - value
-      - unit
-      - breakdown
-      - updated_at
-      title: MeterValueItem
-    CustomerAddress:
-      properties:
-        line1:
-          type: string
-          title: Line1
-          description: Street address line 1
-          default: ''
-        line2:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Line2
-          description: Street address line 2
-        city:
-          type: string
-          title: City
-          description: City
-          default: ''
-        state:
-          type: string
-          title: State
-          description: State or province
-          default: ''
-        postal_code:
-          type: string
-          title: Postal Code
-          description: Postal or ZIP code
-          default: ''
-        country:
-          type: string
-          title: Country
-          description: ISO 3166-1 alpha-2 country code
-          default: US
-      type: object
-      title: CustomerAddress
-      description: Customer billing address.
-    PaginatedResponse_MeterValueItem_:
-      properties:
-        items:
-          items:
-            $ref: '#/components/schemas/MeterValueItem'
-          type: array
-          title: Items
-        has_more:
-          type: boolean
-          title: Has More
-        continuation_token:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Continuation Token
-        total:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Total
-      type: object
-      required:
-      - items
-      - has_more
-      title: PaginatedResponse[MeterValueItem]
-    CreateCustomerRequest:
-      properties:
-        name:
-          type: string
-          maxLength: 256
-          minLength: 1
-          title: Name
-        slug:
-          type: string
-          maxLength: 63
-          minLength: 2
-          pattern: ^[a-z0-9][a-z0-9-]*[a-z0-9]$
-          title: Slug
-        billing_email:
-          type: string
-          format: email
-          title: Billing Email
-        billing_contact:
-          anyOf:
-          - type: string
-            maxLength: 256
-          - type: 'null'
-          title: Billing Contact
-        mercury_memo:
-          anyOf:
-          - type: string
-            maxLength: 256
-          - type: 'null'
-          title: Mercury Memo
-        address:
-          additionalProperties: true
-          type: object
-          title: Address
-      type: object
-      required:
-      - name
-      - slug
-      - billing_email
-      title: CreateCustomerRequest
-    InvoiceLineItem:
-      properties:
-        meter_key:
-          type: string
-          title: Meter Key
-          description: Meter identifier
-        metering_source:
-          type: string
-          enum:
-          - production
-          - simulation
-          title: Metering Source
-          description: Traffic class
-          default: production
-        description:
-          type: string
-          title: Description
-          description: Line item description
-          default: ''
-        quantity:
-          type: string
-          title: Quantity
-          description: Usage quantity
-        unit_price:
-          type: string
-          title: Unit Price
-          description: Price per unit
-        total:
-          type: string
-          title: Total
-          description: Line item total
-      type: object
-      required:
-      - meter_key
-      - quantity
-      - unit_price
-      - total
-      title: InvoiceLineItem
-      description: 'A single line item on an invoice.
-
-
-        ``metering_source`` defaults to ``"production"`` for backward
-
-        compatibility with invoices generated before the metering_source
-
-        dimension was introduced — those invoices were production-only by
-
-        definition. New invoices always carry an explicit value.'
+      title: MeterBreakdown
+      description: Breakdown of a meter value by sub-category.
   securitySchemes:
-    Bearer-Authorization:
+    BearerAuth:
       type: http
       scheme: bearer
-      bearerFormat: JWT
-      description: Amigo issued JWT token that identifies an user. It's issued either after logging in through the frontend, or manually through the [`SignInWithAPIKey`](sign-in-with-api-key) endpoint.
-    Bearer-Authorization-Organization:
-      type: apiKey
-      in: header
-      name: X-ORG-ID
-      description: An optional organization identifier that indicates from which organization the token is issued. This is used in rare cases where the user to authenticate is making a request for resources in another organization.
-    Basic:
-      type: http
-      scheme: basic
-      description: The username should be set to {org_id}_{user_id}, and the password should be the Amigo issued JWT token that identifies the user.
+      description: API key issued via `POST /v1/{workspace_id}/api-keys`. Pass the returned `api_key` value as a Bearer token.

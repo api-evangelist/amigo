@@ -1,17 +1,13 @@
-openapi: 3.1.0
+openapi: 3.2.0
 info:
-  title: Amigo Account Functions API
-  version: 0.1.0
+  title: Platform Functions API
+  description: Management API for the Amigo platform. Provides CRUD operations for workspaces, API keys, and resources.
+  version: 1.0.0
 servers:
-- url: https://api.amigo.ai
-- url: https://internal-api.amigo.ai
-- url: https://api-eu-central-1.amigo.ai
-- url: https://api-ap-southeast-2.amigo.ai
-- url: https://api-ca-central-1.amigo.ai
+- url: https://api.platform.amigo.ai
+  description: Production
 security:
-- Bearer-Authorization: []
-  Bearer-Authorization-Organization: []
-  Basic: []
+- BearerAuth: []
 tags:
 - name: Functions
 paths:
@@ -293,6 +289,20 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
+    InvokeResponse:
+      properties:
+        result:
+          title: Result
+        duration_ms:
+          type: number
+          title: Duration Ms
+          default: 0.0
+        row_count:
+          type: integer
+          title: Row Count
+          default: 0
+      type: object
+      title: InvokeResponse
     FunctionExample:
       properties:
         input:
@@ -319,30 +329,151 @@ components:
         clause the way Databricks'' native authoring requires. The DC
 
         tool-picker shows them; the LLM tool spec includes them inline.'
-    HTTPValidationError:
+    ReturnColumn:
       properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
-    RegisteredFunctionListResponse:
-      properties:
-        items:
-          items:
-            $ref: '#/components/schemas/RegisteredFunctionResponse'
-          type: array
-          title: Items
-        count:
-          type: integer
-          title: Count
+        name:
+          type: string
+          maxLength: 64
+          minLength: 1
+          pattern: ^[a-z][a-z0-9_]*$
+          title: Name
+        type:
+          type: string
+          enum:
+          - string
+          - integer
+          - number
+          - boolean
+          title: Type
+        description:
+          type: string
+          maxLength: 512
+          title: Description
+          default: ''
+      additionalProperties: false
       type: object
       required:
-      - items
-      - count
-      title: RegisteredFunctionListResponse
+      - name
+      - type
+      title: ReturnColumn
+      description: 'One column in a UDTF''s output schema.
+
+
+        UC ``RETURNS TABLE(<col1> <type1>, <col2> <type2>, ...)`` requires
+
+        declaring the schema at deploy time. This list anchors that
+
+        schema for ``function_type=udtf`` rows. ``name`` becomes the
+
+        column name in the result rows; ``type`` maps to a Databricks
+
+        SQL type via the same ``ParameterType`` Literal we use for inputs.'
+    RegisteredFunctionResponse:
+      properties:
+        name:
+          type: string
+          title: Name
+        function_type:
+          type: string
+          title: Function Type
+        returns_kind:
+          type: string
+          title: Returns Kind
+        description:
+          type: string
+          title: Description
+          default: ''
+        when_to_use:
+          type: string
+          title: When To Use
+          default: ''
+        parameters:
+          items:
+            additionalProperties: true
+            type: object
+          type: array
+          title: Parameters
+        sql_template:
+          type: string
+          title: Sql Template
+        input_schema:
+          additionalProperties: true
+          type: object
+          title: Input Schema
+        examples:
+          items:
+            additionalProperties: true
+            type: object
+          type: array
+          title: Examples
+        timeout_ms:
+          type: integer
+          title: Timeout Ms
+          default: 30000
+        last_test_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Last Test At
+        last_test_status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Last Test Status
+        last_test_error:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Last Test Error
+        last_test_duration_ms:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Last Test Duration Ms
+        deployed_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Deployed At
+        deployed_by:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Deployed By
+      type: object
+      required:
+      - name
+      - function_type
+      - returns_kind
+      - sql_template
+      title: RegisteredFunctionResponse
+      description: Single row from ``platform.functions``.
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
     platform_lib__platform_functions__models__Parameter:
       properties:
         name:
@@ -400,32 +531,73 @@ components:
         silently break tool selection — the registration layer rejects
 
         empty strings.'
-    ValidationError:
+    TestInvokeResponse:
       properties:
-        loc:
+        result:
+          title: Result
+        duration_ms:
+          type: number
+          title: Duration Ms
+          default: 0.0
+        row_count:
+          type: integer
+          title: Row Count
+          default: 0
+        status:
+          type: string
+          title: Status
+          default: pass
+        error:
+          anyOf:
+          - type: string
+            maxLength: 2000
+          - type: 'null'
+          title: Error
+        test_duration_ms:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Test Duration Ms
+      type: object
+      title: TestInvokeResponse
+      description: 'Response shape for ``POST /v1/{ws}/functions/{name}/test``.
+
+
+        Structural superset of :class:`InvokeResponse`. Adds ``status`` and
+
+        ``error`` so the DC can render the executor''s failure detail inline
+
+        rather than a generic "Invocation failed." The underlying invoke
+
+        uses the same path; ``status`` / ``error`` are filled in by
+
+        ``service.test`` after catching any ``HTTPException`` (503) from the
+
+        executor, so the route never bubbles a 5xx for a logical SQL
+
+        failure — it''s still a 200 with ``status=fail`` so the caller can
+
+        show the message.
+
+
+        Invariant (enforced by :func:`_check_error_when_fail`):
+
+        ``status == "fail" → error is not None and len(error) > 0``.'
+    RegisteredFunctionListResponse:
+      properties:
+        items:
           items:
-            anyOf:
-            - type: string
-            - type: integer
+            $ref: '#/components/schemas/RegisteredFunctionResponse'
           type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-        input:
-          title: Input
-        ctx:
-          type: object
-          title: Context
+          title: Items
+        count:
+          type: integer
+          title: Count
       type: object
       required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
+      - items
+      - count
+      title: RegisteredFunctionListResponse
     RegisteredFunction:
       properties:
         name:
@@ -523,58 +695,15 @@ components:
         ``CREATE OR REPLACE FUNCTION`` against the warehouse to materialize
 
         the UC UDF.'
-    TestInvokeResponse:
+    HTTPValidationError:
       properties:
-        result:
-          title: Result
-        duration_ms:
-          type: number
-          title: Duration Ms
-          default: 0.0
-        row_count:
-          type: integer
-          title: Row Count
-          default: 0
-        status:
-          type: string
-          title: Status
-          default: pass
-        error:
-          anyOf:
-          - type: string
-            maxLength: 2000
-          - type: 'null'
-          title: Error
-        test_duration_ms:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Test Duration Ms
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
       type: object
-      title: TestInvokeResponse
-      description: 'Response shape for ``POST /v1/{ws}/functions/{name}/test``.
-
-
-        Structural superset of :class:`InvokeResponse`. Adds ``status`` and
-
-        ``error`` so the DC can render the executor''s failure detail inline
-
-        rather than a generic "Invocation failed." The underlying invoke
-
-        uses the same path; ``status`` / ``error`` are filled in by
-
-        ``service.test`` after catching any ``HTTPException`` (503) from the
-
-        executor, so the route never bubbles a 5xx for a logical SQL
-
-        failure — it''s still a 200 with ``status=fail`` so the caller can
-
-        show the message.
-
-
-        Invariant (enforced by :func:`_check_error_when_fail`):
-
-        ``status == "fail" → error is not None and len(error) > 0``.'
+      title: HTTPValidationError
     InvokeRequest:
       properties:
         input:
@@ -585,151 +714,8 @@ components:
       type: object
       title: InvokeRequest
       description: Invoke a registered function with caller-supplied args.
-    ReturnColumn:
-      properties:
-        name:
-          type: string
-          maxLength: 64
-          minLength: 1
-          pattern: ^[a-z][a-z0-9_]*$
-          title: Name
-        type:
-          type: string
-          enum:
-          - string
-          - integer
-          - number
-          - boolean
-          title: Type
-        description:
-          type: string
-          maxLength: 512
-          title: Description
-          default: ''
-      additionalProperties: false
-      type: object
-      required:
-      - name
-      - type
-      title: ReturnColumn
-      description: 'One column in a UDTF''s output schema.
-
-
-        UC ``RETURNS TABLE(<col1> <type1>, <col2> <type2>, ...)`` requires
-
-        declaring the schema at deploy time. This list anchors that
-
-        schema for ``function_type=udtf`` rows. ``name`` becomes the
-
-        column name in the result rows; ``type`` maps to a Databricks
-
-        SQL type via the same ``ParameterType`` Literal we use for inputs.'
-    InvokeResponse:
-      properties:
-        result:
-          title: Result
-        duration_ms:
-          type: number
-          title: Duration Ms
-          default: 0.0
-        row_count:
-          type: integer
-          title: Row Count
-          default: 0
-      type: object
-      title: InvokeResponse
-    RegisteredFunctionResponse:
-      properties:
-        name:
-          type: string
-          title: Name
-        function_type:
-          type: string
-          title: Function Type
-        returns_kind:
-          type: string
-          title: Returns Kind
-        description:
-          type: string
-          title: Description
-          default: ''
-        when_to_use:
-          type: string
-          title: When To Use
-          default: ''
-        parameters:
-          items:
-            additionalProperties: true
-            type: object
-          type: array
-          title: Parameters
-        sql_template:
-          type: string
-          title: Sql Template
-        input_schema:
-          additionalProperties: true
-          type: object
-          title: Input Schema
-        examples:
-          items:
-            additionalProperties: true
-            type: object
-          type: array
-          title: Examples
-        timeout_ms:
-          type: integer
-          title: Timeout Ms
-          default: 30000
-        last_test_at:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Last Test At
-        last_test_status:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Last Test Status
-        last_test_error:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Last Test Error
-        last_test_duration_ms:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Last Test Duration Ms
-        deployed_at:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Deployed At
-        deployed_by:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Deployed By
-      type: object
-      required:
-      - name
-      - function_type
-      - returns_kind
-      - sql_template
-      title: RegisteredFunctionResponse
-      description: Single row from ``platform.functions``.
   securitySchemes:
-    Bearer-Authorization:
+    BearerAuth:
       type: http
       scheme: bearer
-      bearerFormat: JWT
-      description: Amigo issued JWT token that identifies an user. It's issued either after logging in through the frontend, or manually through the [`SignInWithAPIKey`](sign-in-with-api-key) endpoint.
-    Bearer-Authorization-Organization:
-      type: apiKey
-      in: header
-      name: X-ORG-ID
-      description: An optional organization identifier that indicates from which organization the token is issued. This is used in rare cases where the user to authenticate is making a request for resources in another organization.
-    Basic:
-      type: http
-      scheme: basic
-      description: The username should be set to {org_id}_{user_id}, and the password should be the Amigo issued JWT token that identifies the user.
+      description: API key issued via `POST /v1/{workspace_id}/api-keys`. Pass the returned `api_key` value as a Bearer token.

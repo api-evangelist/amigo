@@ -1,17 +1,13 @@
-openapi: 3.1.0
+openapi: 3.2.0
 info:
-  title: Amigo Account FHIR API
-  version: 0.1.0
+  title: Platform FHIR API
+  description: Management API for the Amigo platform. Provides CRUD operations for workspaces, API keys, and resources.
+  version: 1.0.0
 servers:
-- url: https://api.amigo.ai
-- url: https://internal-api.amigo.ai
-- url: https://api-eu-central-1.amigo.ai
-- url: https://api-ap-southeast-2.amigo.ai
-- url: https://api-ca-central-1.amigo.ai
+- url: https://api.platform.amigo.ai
+  description: Production
 security:
-- Bearer-Authorization: []
-  Bearer-Authorization-Organization: []
-  Basic: []
+- BearerAuth: []
 tags:
 - name: FHIR
 paths:
@@ -1118,53 +1114,246 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
-    FhirStatusResponse:
+    FhirPractitionerListResponse:
       properties:
-        configured:
+        practitioners:
+          items:
+            $ref: '#/components/schemas/FhirPractitionerView'
+          type: array
+          title: Practitioners
+        total:
+          type: integer
+          title: Total
+        has_more:
           type: boolean
-          title: Configured
-        connector_type:
+          title: Has More
+          default: false
+        next_offset:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Next Offset
+      type: object
+      required:
+      - practitioners
+      - total
+      title: FhirPractitionerListResponse
+    FhirResourceHistoryEntry:
+      properties:
+        event_id:
+          type: string
+          format: uuid
+          title: Event Id
+        event_type:
+          type: string
+          title: Event Type
+        source:
           anyOf:
           - type: string
           - type: 'null'
-          title: Connector Type
+          title: Source
+        source_system:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Source System
+        data_source_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Data Source Id
+        entity_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Entity Id
+        confidence:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Confidence
+        is_current:
+          type: boolean
+          title: Is Current
+        effective_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Effective At
+        created_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Created At
+        fields_affected:
+          items:
+            type: string
+          type: array
+          title: Fields Affected
+        data:
+          additionalProperties: true
+          type: object
+          title: Data
+      type: object
+      required:
+      - event_id
+      - event_type
+      - is_current
+      title: FhirResourceHistoryEntry
+    PatientSummaryResponse:
+      properties:
+        entity_id:
+          type: string
+          format: uuid
+          title: Entity Id
+        entity_type:
+          type: string
+          title: Entity Type
+        display_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Display Name
+        state:
+          additionalProperties: true
+          type: object
+          title: State
+          description: Full JSONB state blob. Prefer typed fields below.
+          deprecated: true
         event_count:
           type: integer
           title: Event Count
-        entity_count:
-          type: integer
-          title: Entity Count
-        entity_type_counts:
-          additionalProperties:
-            type: integer
-          type: object
-          title: Entity Type Counts
-        resource_type_counts:
-          additionalProperties:
-            type: integer
-          type: object
-          title: Resource Type Counts
-        last_poll_at:
+        last_event_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Last Event At
+        name:
           anyOf:
           - type: string
           - type: 'null'
-          title: Last Poll At
-        last_change_at:
+          title: Name
+          description: Patient name
+        phone:
           anyOf:
           - type: string
           - type: 'null'
-          title: Last Change At
-        sync_healthy:
+          title: Phone
+          description: Primary phone number (E.164)
+        email:
           anyOf:
-          - type: boolean
+          - type: string
           - type: 'null'
-          title: Sync Healthy
+          title: Email
+          description: Primary email address
+        birth_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Birth Date
+          description: Date of birth (YYYY-MM-DD)
+        gender:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Gender
+          description: Gender
+        mrn:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Mrn
+          description: Medical record number
       type: object
       required:
-      - configured
+      - entity_id
+      - entity_type
+      - display_name
       - event_count
-      - entity_count
-      title: FhirStatusResponse
+      - last_event_at
+      title: PatientSummaryResponse
+    FhirUnsupportedResourcePolicy:
+      type: string
+      enum:
+      - error
+      - skip
+    PatientSearchResponse:
+      properties:
+        patients:
+          items:
+            $ref: '#/components/schemas/PatientListItem'
+          type: array
+          title: Patients
+        total:
+          type: integer
+          title: Total
+        has_more:
+          type: boolean
+          title: Has More
+          default: false
+        next_offset:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Next Offset
+      type: object
+      required:
+      - patients
+      - total
+      title: PatientSearchResponse
+    FhirLocationListResponse:
+      properties:
+        locations:
+          items:
+            $ref: '#/components/schemas/FhirLocationView'
+          type: array
+          title: Locations
+        total:
+          type: integer
+          title: Total
+        has_more:
+          type: boolean
+          title: Has More
+          default: false
+        next_offset:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Next Offset
+      type: object
+      required:
+      - locations
+      - total
+      title: FhirLocationListResponse
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
     FhirSlotView:
       properties:
         entity_id:
@@ -1244,84 +1433,13 @@ components:
       required:
       - entity_id
       title: FhirSlotView
-    ValidationError:
+    FhirSlotListResponse:
       properties:
-        loc:
+        slots:
           items:
-            anyOf:
-            - type: string
-            - type: integer
+            $ref: '#/components/schemas/FhirSlotView'
           type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-        input:
-          title: Input
-        ctx:
-          type: object
-          title: Context
-      type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
-    FhirResourceResponse:
-      properties:
-        resource_type:
-          type: string
-          title: Resource Type
-        resource_id:
-          type: string
-          title: Resource Id
-        entity_id:
-          anyOf:
-          - type: string
-            format: uuid
-          - type: 'null'
-          title: Entity Id
-        data:
-          additionalProperties: true
-          type: object
-          title: Data
-      type: object
-      required:
-      - resource_type
-      - resource_id
-      - data
-      title: FhirResourceResponse
-    PatientTimelineResponse:
-      properties:
-        entity_id:
-          type: string
-          format: uuid
-          title: Entity Id
-        events:
-          items:
-            additionalProperties: true
-            type: object
-          type: array
-          title: Events
-        total:
-          type: integer
-          title: Total
-      type: object
-      required:
-      - entity_id
-      - events
-      - total
-      title: PatientTimelineResponse
-    FhirOrganizationListResponse:
-      properties:
-        organizations:
-          items:
-            $ref: '#/components/schemas/FhirOrganizationView'
-          type: array
-          title: Organizations
+          title: Slots
         total:
           type: integer
           title: Total
@@ -1336,45 +1454,309 @@ components:
           title: Next Offset
       type: object
       required:
-      - organizations
+      - slots
       - total
-      title: FhirOrganizationListResponse
-    FhirImportRequest:
+      title: FhirSlotListResponse
+    FhirResourceHistoryResponse:
       properties:
-        bundle:
-          additionalProperties: true
-          type: object
-          title: Bundle
-        source:
+        resource_type:
           type: string
-          maxLength: 128
-          title: Source
-          default: fhir_import
+          title: Resource Type
+        resource_id:
+          type: string
+          title: Resource Id
+        entries:
+          items:
+            $ref: '#/components/schemas/FhirResourceHistoryEntry'
+          type: array
+          title: Entries
+        total:
+          type: integer
+          title: Total
+        has_more:
+          type: boolean
+          title: Has More
+          default: false
+        next_offset:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Next Offset
+      type: object
+      required:
+      - resource_type
+      - resource_id
+      - entries
+      - total
+      title: FhirResourceHistoryResponse
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    FhirPatientListResponse:
+      properties:
+        patients:
+          items:
+            $ref: '#/components/schemas/FhirPatientView'
+          type: array
+          title: Patients
+        total:
+          type: integer
+          title: Total
+        has_more:
+          type: boolean
+          title: Has More
+          default: false
+        next_offset:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Next Offset
+      type: object
+      required:
+      - patients
+      - total
+      title: FhirPatientListResponse
+    FhirAppointmentView:
+      properties:
+        entity_id:
+          type: string
+          format: uuid
+          title: Entity Id
+        status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Status
+        start:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Start
+        end:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: End
+        patient_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Patient Name
+        practitioner_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Practitioner Name
+        location_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Location Name
+        reason:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Reason
+        cancel_reason:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Cancel Reason
+        appointment_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Appointment Type
+        duration_minutes:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Duration Minutes
+        modality:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Modality
         source_system:
           anyOf:
           - type: string
-            maxLength: 128
           - type: 'null'
           title: Source System
-        data_source_id:
+        canonical_id:
           anyOf:
           - type: string
-            format: uuid
           - type: 'null'
-          title: Data Source Id
-        dedup:
-          type: boolean
-          title: Dedup
-          description: When true, identical re-uploads of the same FHIR resource are skipped via content-hash dedup. Set to false to force emission regardless of content changes.
-          default: true
-        unsupported_resource_policy:
-          $ref: '#/components/schemas/FhirUnsupportedResourcePolicy'
-          description: Controls resources whose resourceType is missing or not projected by platform FHIR APIs. 'error' skips the resource and adds a per-resource error; 'skip' skips it without adding an error. Unsupported resources are never emitted as silent raw world events.
-          default: error
+          title: Canonical Id
+        event_count:
+          type: integer
+          title: Event Count
+          default: 0
+        last_event_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Last Event At
       type: object
       required:
-      - bundle
-      title: FhirImportRequest
+      - entity_id
+      title: FhirAppointmentView
+    FhirLocationView:
+      properties:
+        entity_id:
+          type: string
+          format: uuid
+          title: Entity Id
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        address:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Address
+        address_line:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Address Line
+        city:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: City
+        state:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: State
+        postal_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Postal Code
+        country:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Country
+        latitude:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Latitude
+        longitude:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Longitude
+        timezone:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Timezone
+        facility_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Facility Id
+        phone:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Phone
+        hours:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Hours
+        source_system:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Source System
+        canonical_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Canonical Id
+        event_count:
+          type: integer
+          title: Event Count
+          default: 0
+        last_event_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Last Event At
+      type: object
+      required:
+      - entity_id
+      title: FhirLocationView
+    FhirOrganizationView:
+      properties:
+        entity_id:
+          type: string
+          format: uuid
+          title: Entity Id
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        phone:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Phone
+        domain:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Domain
+        industry:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Industry
+        address:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Address
+        source_system:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Source System
+        canonical_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Canonical Id
+        event_count:
+          type: integer
+          title: Event Count
+          default: 0
+        last_event_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Last Event At
+      type: object
+      required:
+      - entity_id
+      title: FhirOrganizationView
     PatientListItem:
       properties:
         entity_id:
@@ -1431,178 +1813,42 @@ components:
       - entity_id
       title: PatientListItem
       description: Typed patient list item — replaces untyped dict.
-    PatientSummaryResponse:
+    FhirImportRequest:
       properties:
-        entity_id:
-          type: string
-          format: uuid
-          title: Entity Id
-        entity_type:
-          type: string
-          title: Entity Type
-        display_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Display Name
-        state:
+        bundle:
           additionalProperties: true
           type: object
-          title: State
-          description: Full JSONB state blob. Prefer typed fields below.
-          deprecated: true
-        event_count:
-          type: integer
-          title: Event Count
-        last_event_at:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Last Event At
-        name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Name
-          description: Patient name
-        phone:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Phone
-          description: Primary phone number (E.164)
-        email:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Email
-          description: Primary email address
-        birth_date:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Birth Date
-          description: Date of birth (YYYY-MM-DD)
-        gender:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Gender
-          description: Gender
-        mrn:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Mrn
-          description: Medical record number
-      type: object
-      required:
-      - entity_id
-      - entity_type
-      - display_name
-      - event_count
-      - last_event_at
-      title: PatientSummaryResponse
-    FhirPatientListResponse:
-      properties:
-        patients:
-          items:
-            $ref: '#/components/schemas/FhirPatientView'
-          type: array
-          title: Patients
-        total:
-          type: integer
-          title: Total
-        has_more:
-          type: boolean
-          title: Has More
-          default: false
-        next_offset:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Next Offset
-      type: object
-      required:
-      - patients
-      - total
-      title: FhirPatientListResponse
-    FhirSearchResponse:
-      properties:
-        resource_type:
+          title: Bundle
+        source:
           type: string
-          title: Resource Type
-        total:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Total
-        entries:
-          items:
-            additionalProperties: true
-            type: object
-          type: array
-          title: Entries
-        next_url:
+          maxLength: 128
+          title: Source
+          default: fhir_import
+        source_system:
           anyOf:
           - type: string
+            maxLength: 128
           - type: 'null'
-          title: Next Url
-      type: object
-      required:
-      - resource_type
-      - total
-      - entries
-      title: FhirSearchResponse
-    FhirAppointmentListResponse:
-      properties:
-        appointments:
-          items:
-            $ref: '#/components/schemas/FhirAppointmentView'
-          type: array
-          title: Appointments
-        total:
-          type: integer
-          title: Total
-        has_more:
-          type: boolean
-          title: Has More
-          default: false
-        next_offset:
+          title: Source System
+        data_source_id:
           anyOf:
-          - type: integer
+          - type: string
+            format: uuid
           - type: 'null'
-          title: Next Offset
-      type: object
-      required:
-      - appointments
-      - total
-      title: FhirAppointmentListResponse
-    FhirPractitionerListResponse:
-      properties:
-        practitioners:
-          items:
-            $ref: '#/components/schemas/FhirPractitionerView'
-          type: array
-          title: Practitioners
-        total:
-          type: integer
-          title: Total
-        has_more:
+          title: Data Source Id
+        dedup:
           type: boolean
-          title: Has More
-          default: false
-        next_offset:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Next Offset
+          title: Dedup
+          description: When true, identical re-uploads of the same FHIR resource are skipped via content-hash dedup. Set to false to force emission regardless of content changes.
+          default: true
+        unsupported_resource_policy:
+          $ref: '#/components/schemas/FhirUnsupportedResourcePolicy'
+          description: Controls resources whose resourceType is missing or not projected by platform FHIR APIs. 'error' skips the resource and adds a per-resource error; 'skip' skips it without adding an error. Unsupported resources are never emitted as silent raw world events.
+          default: error
       type: object
       required:
-      - practitioners
-      - total
-      title: FhirPractitionerListResponse
+      - bundle
+      title: FhirImportRequest
     FhirPractitionerView:
       properties:
         entity_id:
@@ -1667,29 +1913,81 @@ components:
       required:
       - entity_id
       title: FhirPractitionerView
-    FhirWriteRequest:
+    FhirStatusResponse:
       properties:
-        data:
-          additionalProperties: true
-          type: object
-          title: Data
-        data_source_id:
+        configured:
+          type: boolean
+          title: Configured
+        connector_type:
           anyOf:
           - type: string
-            format: uuid
           - type: 'null'
-          title: Data Source Id
+          title: Connector Type
+        event_count:
+          type: integer
+          title: Event Count
+        entity_count:
+          type: integer
+          title: Entity Count
+        entity_type_counts:
+          additionalProperties:
+            type: integer
+          type: object
+          title: Entity Type Counts
+        resource_type_counts:
+          additionalProperties:
+            type: integer
+          type: object
+          title: Resource Type Counts
+        last_poll_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Last Poll At
+        last_change_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Last Change At
+        sync_healthy:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Sync Healthy
       type: object
       required:
-      - data
-      title: FhirWriteRequest
-    PatientSearchResponse:
+      - configured
+      - event_count
+      - entity_count
+      title: FhirStatusResponse
+    PatientTimelineResponse:
       properties:
-        patients:
+        entity_id:
+          type: string
+          format: uuid
+          title: Entity Id
+        events:
           items:
-            $ref: '#/components/schemas/PatientListItem'
+            additionalProperties: true
+            type: object
           type: array
-          title: Patients
+          title: Events
+        total:
+          type: integer
+          title: Total
+      type: object
+      required:
+      - entity_id
+      - events
+      - total
+      title: PatientTimelineResponse
+    FhirOrganizationListResponse:
+      properties:
+        organizations:
+          items:
+            $ref: '#/components/schemas/FhirOrganizationView'
+          type: array
+          title: Organizations
         total:
           type: integer
           title: Total
@@ -1704,9 +2002,9 @@ components:
           title: Next Offset
       type: object
       required:
-      - patients
+      - organizations
       - total
-      title: PatientSearchResponse
+      title: FhirOrganizationListResponse
     FhirPatientView:
       properties:
         entity_id:
@@ -1857,131 +2155,49 @@ components:
       required:
       - entity_id
       title: FhirPatientView
-    FhirResourceHistoryResponse:
+    FhirUnsupportedResourceItem:
       properties:
         resource_type:
-          type: string
+          anyOf:
+          - type: string
+            maxLength: 128
+          - type: 'null'
           title: Resource Type
         resource_id:
-          type: string
+          anyOf:
+          - type: string
+            maxLength: 512
+          - type: 'null'
           title: Resource Id
-        entries:
-          items:
-            $ref: '#/components/schemas/FhirResourceHistoryEntry'
-          type: array
-          title: Entries
-        total:
-          type: integer
-          title: Total
-        has_more:
-          type: boolean
-          title: Has More
-          default: false
-        next_offset:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Next Offset
-      type: object
-      required:
-      - resource_type
-      - resource_id
-      - entries
-      - total
-      title: FhirResourceHistoryResponse
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
-    FhirAppointmentView:
-      properties:
-        entity_id:
+        location:
           type: string
-          format: uuid
-          title: Entity Id
-        status:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Status
-        start:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Start
-        end:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: End
-        patient_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Patient Name
-        practitioner_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Practitioner Name
-        location_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Location Name
+          maxLength: 128
+          title: Location
         reason:
-          anyOf:
-          - type: string
-          - type: 'null'
+          type: string
+          maxLength: 512
           title: Reason
-        cancel_reason:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Cancel Reason
-        appointment_type:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Appointment Type
-        duration_minutes:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Duration Minutes
-        modality:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Modality
-        source_system:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Source System
-        canonical_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Canonical Id
-        event_count:
-          type: integer
-          title: Event Count
-          default: 0
-        last_event_at:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Last Event At
       type: object
       required:
-      - entity_id
-      title: FhirAppointmentView
+      - location
+      - reason
+      title: FhirUnsupportedResourceItem
+    FhirWriteRequest:
+      properties:
+        data:
+          additionalProperties: true
+          type: object
+          title: Data
+        data_source_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Data Source Id
+      type: object
+      required:
+      - data
+      title: FhirWriteRequest
     FhirImportResponse:
       properties:
         events_created:
@@ -2047,313 +2263,83 @@ components:
       - entities_created
       - entities_updated
       title: FhirImportResponse
-    FhirResourceHistoryEntry:
+    FhirAppointmentListResponse:
       properties:
-        event_id:
+        appointments:
+          items:
+            $ref: '#/components/schemas/FhirAppointmentView'
+          type: array
+          title: Appointments
+        total:
+          type: integer
+          title: Total
+        has_more:
+          type: boolean
+          title: Has More
+          default: false
+        next_offset:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Next Offset
+      type: object
+      required:
+      - appointments
+      - total
+      title: FhirAppointmentListResponse
+    FhirSearchResponse:
+      properties:
+        resource_type:
           type: string
-          format: uuid
-          title: Event Id
-        event_type:
+          title: Resource Type
+        total:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Total
+        entries:
+          items:
+            additionalProperties: true
+            type: object
+          type: array
+          title: Entries
+        next_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Next Url
+      type: object
+      required:
+      - resource_type
+      - total
+      - entries
+      title: FhirSearchResponse
+    FhirResourceResponse:
+      properties:
+        resource_type:
           type: string
-          title: Event Type
-        source:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Source
-        source_system:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Source System
-        data_source_id:
-          anyOf:
-          - type: string
-            format: uuid
-          - type: 'null'
-          title: Data Source Id
+          title: Resource Type
+        resource_id:
+          type: string
+          title: Resource Id
         entity_id:
           anyOf:
           - type: string
             format: uuid
           - type: 'null'
           title: Entity Id
-        confidence:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Confidence
-        is_current:
-          type: boolean
-          title: Is Current
-        effective_at:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Effective At
-        created_at:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Created At
-        fields_affected:
-          items:
-            type: string
-          type: array
-          title: Fields Affected
         data:
           additionalProperties: true
           type: object
           title: Data
       type: object
       required:
-      - event_id
-      - event_type
-      - is_current
-      title: FhirResourceHistoryEntry
-    FhirSlotListResponse:
-      properties:
-        slots:
-          items:
-            $ref: '#/components/schemas/FhirSlotView'
-          type: array
-          title: Slots
-        total:
-          type: integer
-          title: Total
-        has_more:
-          type: boolean
-          title: Has More
-          default: false
-        next_offset:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Next Offset
-      type: object
-      required:
-      - slots
-      - total
-      title: FhirSlotListResponse
-    FhirLocationView:
-      properties:
-        entity_id:
-          type: string
-          format: uuid
-          title: Entity Id
-        name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Name
-        address:
-          anyOf:
-          - additionalProperties: true
-            type: object
-          - type: 'null'
-          title: Address
-        address_line:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Address Line
-        city:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: City
-        state:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: State
-        postal_code:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Postal Code
-        country:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Country
-        latitude:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Latitude
-        longitude:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Longitude
-        timezone:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Timezone
-        facility_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Facility Id
-        phone:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Phone
-        hours:
-          anyOf:
-          - additionalProperties: true
-            type: object
-          - type: 'null'
-          title: Hours
-        source_system:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Source System
-        canonical_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Canonical Id
-        event_count:
-          type: integer
-          title: Event Count
-          default: 0
-        last_event_at:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Last Event At
-      type: object
-      required:
-      - entity_id
-      title: FhirLocationView
-    FhirUnsupportedResourceItem:
-      properties:
-        resource_type:
-          anyOf:
-          - type: string
-            maxLength: 128
-          - type: 'null'
-          title: Resource Type
-        resource_id:
-          anyOf:
-          - type: string
-            maxLength: 512
-          - type: 'null'
-          title: Resource Id
-        location:
-          type: string
-          maxLength: 128
-          title: Location
-        reason:
-          type: string
-          maxLength: 512
-          title: Reason
-      type: object
-      required:
-      - location
-      - reason
-      title: FhirUnsupportedResourceItem
-    FhirOrganizationView:
-      properties:
-        entity_id:
-          type: string
-          format: uuid
-          title: Entity Id
-        name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Name
-        phone:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Phone
-        domain:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Domain
-        industry:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Industry
-        address:
-          anyOf:
-          - additionalProperties: true
-            type: object
-          - type: 'null'
-          title: Address
-        source_system:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Source System
-        canonical_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Canonical Id
-        event_count:
-          type: integer
-          title: Event Count
-          default: 0
-        last_event_at:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Last Event At
-      type: object
-      required:
-      - entity_id
-      title: FhirOrganizationView
-    FhirUnsupportedResourcePolicy:
-      type: string
-      enum:
-      - error
-      - skip
-    FhirLocationListResponse:
-      properties:
-        locations:
-          items:
-            $ref: '#/components/schemas/FhirLocationView'
-          type: array
-          title: Locations
-        total:
-          type: integer
-          title: Total
-        has_more:
-          type: boolean
-          title: Has More
-          default: false
-        next_offset:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Next Offset
-      type: object
-      required:
-      - locations
-      - total
-      title: FhirLocationListResponse
+      - resource_type
+      - resource_id
+      - data
+      title: FhirResourceResponse
   securitySchemes:
-    Bearer-Authorization:
+    BearerAuth:
       type: http
       scheme: bearer
-      bearerFormat: JWT
-      description: Amigo issued JWT token that identifies an user. It's issued either after logging in through the frontend, or manually through the [`SignInWithAPIKey`](sign-in-with-api-key) endpoint.
-    Bearer-Authorization-Organization:
-      type: apiKey
-      in: header
-      name: X-ORG-ID
-      description: An optional organization identifier that indicates from which organization the token is issued. This is used in rare cases where the user to authenticate is making a request for resources in another organization.
-    Basic:
-      type: http
-      scheme: basic
-      description: The username should be set to {org_id}_{user_id}, and the password should be the Amigo issued JWT token that identifies the user.
+      description: API key issued via `POST /v1/{workspace_id}/api-keys`. Pass the returned `api_key` value as a Bearer token.

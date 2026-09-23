@@ -1,17 +1,13 @@
-openapi: 3.1.0
+openapi: 3.2.0
 info:
-  title: Amigo Account Operators API
-  version: 0.1.0
+  title: Platform Operators API
+  description: Management API for the Amigo platform. Provides CRUD operations for workspaces, API keys, and resources.
+  version: 1.0.0
 servers:
-- url: https://api.amigo.ai
-- url: https://internal-api.amigo.ai
-- url: https://api-eu-central-1.amigo.ai
-- url: https://api-ap-southeast-2.amigo.ai
-- url: https://api-ca-central-1.amigo.ai
+- url: https://api.platform.amigo.ai
+  description: Production
 security:
-- Bearer-Authorization: []
-  Bearer-Authorization-Organization: []
-  Basic: []
+- BearerAuth: []
 tags:
 - name: Operators
 paths:
@@ -815,155 +811,6 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
-    SendGuidanceResponse:
-      properties:
-        status:
-          type: string
-          enum:
-          - delivered
-          - queued_no_subscriber
-          - deduplicated
-          - failed
-          - unknown
-          title: Status
-          description: Delivery status
-        call_sid:
-          type: string
-          title: Call Sid
-          description: Call SID the guidance was sent to
-      type: object
-      required:
-      - status
-      - call_sid
-      title: SendGuidanceResponse
-    PaginatedResponse_EscalationEventResponse_:
-      properties:
-        items:
-          items:
-            $ref: '#/components/schemas/EscalationEventResponse'
-          type: array
-          title: Items
-        has_more:
-          type: boolean
-          title: Has More
-        continuation_token:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Continuation Token
-        total:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Total
-      type: object
-      required:
-      - items
-      - has_more
-      title: PaginatedResponse[EscalationEventResponse]
-    AccessTokenResponse:
-      properties:
-        token:
-          type: string
-          title: Token
-        identity:
-          type: string
-          title: Identity
-        conference_sid:
-          type: string
-          title: Conference Sid
-        connect_params:
-          additionalProperties:
-            type: string
-          type: object
-          title: Connect Params
-          default: {}
-      type: object
-      required:
-      - token
-      - identity
-      - conference_sid
-      title: AccessTokenResponse
-    ValidationError:
-      properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-        input:
-          title: Input
-        ctx:
-          type: object
-          title: Context
-      type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
-    OperatorPerformanceItem:
-      properties:
-        operator_id:
-          type: string
-          format: uuid
-          title: Operator Id
-        name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Name
-          description: Display name
-        status:
-          type: string
-          enum:
-          - online
-          - busy
-          - offline
-          title: Status
-          description: Current availability
-        total_escalations_handled:
-          type: integer
-          title: Total Escalations Handled
-          description: Lifetime escalation count
-        avg_handle_time_seconds:
-          type: number
-          title: Avg Handle Time Seconds
-          description: Average handle time in seconds
-        last_call_at:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Last Call At
-          description: ISO-8601 timestamp of last call
-      type: object
-      required:
-      - operator_id
-      - status
-      - total_escalations_handled
-      - avg_handle_time_seconds
-      title: OperatorPerformanceItem
-    SwitchModeResponse:
-      properties:
-        mode:
-          type: string
-          enum:
-          - listen
-          - takeover
-          title: Mode
-          description: New operator mode
-      type: object
-      required:
-      - mode
-      title: SwitchModeResponse
     BriefingResponse:
       properties:
         call_sid:
@@ -999,436 +846,6 @@ components:
       required:
       - success
       title: LeaveCallResponse
-    PriorityQueueItem:
-      properties:
-        call_sid:
-          type: string
-          title: Call Sid
-          description: Twilio call SID
-        caller_id:
-          type: string
-          title: Caller Id
-          description: Caller phone number
-          default: ''
-        caller_phone:
-          anyOf:
-          - type: string
-            maxLength: 16
-            pattern: ^\+[1-9]\d{1,14}$
-          - type: 'null'
-          title: Caller Phone
-          description: Caller E.164 phone number for console clients
-        service_id:
-          type: string
-          title: Service Id
-          description: Service ID handling the call
-          default: ''
-        service_name:
-          anyOf:
-          - $ref: '#/components/schemas/NameString'
-          - type: 'null'
-          description: Human-readable service name when available
-        direction:
-          type: string
-          enum:
-          - inbound
-          - outbound
-          - playground
-          - simulated
-          - test
-          title: Direction
-          description: Call direction
-          default: inbound
-        data_quality_flags:
-          items:
-            type: string
-            const: invalid_direction
-          type: array
-          title: Data Quality Flags
-          default: []
-        started_at:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Started At
-          description: When the active call started
-        priority_score:
-          type: number
-          maximum: 1.0
-          minimum: 0.0
-          title: Priority Score
-          description: Priority score normalized to 0.0-1.0
-        priority_reasons:
-          items:
-            type: string
-            enum:
-            - high_risk
-            - long_wait
-            - negative_emotion
-            - safety_concern
-            - looping
-          type: array
-          title: Priority Reasons
-          default: []
-        wait_seconds:
-          type: number
-          title: Wait Seconds
-          default: 0.0
-        risk_score:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Risk Score
-        risk_level:
-          anyOf:
-          - type: string
-            enum:
-            - low
-            - medium
-            - high
-            - critical
-          - type: 'null'
-          title: Risk Level
-        current_emotion:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Current Emotion
-        current_valence:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Current Valence
-        current_state:
-          type: string
-          title: Current State
-          default: ''
-        turn_count:
-          type: integer
-          title: Turn Count
-          default: 0
-        escalation_active:
-          type: boolean
-          title: Escalation Active
-          default: false
-        entity_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Entity Name
-        brief_context:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Brief Context
-      type: object
-      required:
-      - call_sid
-      - priority_score
-      title: PriorityQueueItem
-      description: An active call ranked by operator priority.
-    BriefingSection:
-      properties:
-        title:
-          type: string
-          title: Title
-        content:
-          type: string
-          title: Content
-      type: object
-      required:
-      - title
-      - content
-      title: BriefingSection
-      description: A named section of the operator briefing.
-    PhoneE164:
-      type: string
-      maxLength: 16
-      minLength: 2
-    JoinCallResponse:
-      properties:
-        participant_call_sid:
-          type: string
-          title: Participant Call Sid
-          description: Twilio participant call SID
-        conference_sid:
-          type: string
-          title: Conference Sid
-          description: Twilio conference SID
-        mode:
-          type: string
-          enum:
-          - listen
-          - takeover
-          title: Mode
-          description: 'Operator mode: listen or takeover'
-        operator_entity_id:
-          type: string
-          format: uuid
-          title: Operator Entity Id
-          description: World entity ID of the operator
-      type: object
-      required:
-      - participant_call_sid
-      - conference_sid
-      - mode
-      - operator_entity_id
-      title: JoinCallResponse
-      description: Confirmation of operator joining a call's conference.
-    JoinCallRequest:
-      properties:
-        call_sid:
-          type: string
-          maxLength: 64
-          minLength: 1
-          title: Call Sid
-        mode:
-          type: string
-          enum:
-          - listen
-          - takeover
-          title: Mode
-          default: takeover
-      type: object
-      required:
-      - call_sid
-      title: JoinCallRequest
-      description: Request to join an active call as operator.
-    WrapUpResponse:
-      properties:
-        success:
-          type: boolean
-          title: Success
-      type: object
-      required:
-      - success
-      title: WrapUpResponse
-    SendGuidanceRequest:
-      properties:
-        call_sid:
-          type: string
-          maxLength: 64
-          minLength: 1
-          title: Call Sid
-        message:
-          type: string
-          maxLength: 5000
-          minLength: 1
-          title: Message
-      type: object
-      required:
-      - call_sid
-      - message
-      title: SendGuidanceRequest
-    EscalationStatsBucket:
-      properties:
-        key:
-          type: string
-          title: Key
-        count:
-          type: integer
-          title: Count
-      type: object
-      required:
-      - key
-      - count
-      title: EscalationStatsBucket
-    WrapUpRequest:
-      properties:
-        call_sid:
-          type: string
-          maxLength: 64
-          minLength: 1
-          title: Call Sid
-        outcome:
-          type: string
-          enum:
-          - resolved
-          - escalated
-          - transferred
-          title: Outcome
-        notes:
-          type: string
-          maxLength: 2000
-          title: Notes
-          default: ''
-      type: object
-      required:
-      - call_sid
-      - outcome
-      title: WrapUpRequest
-      description: Request to record operator intervention wrap-up.
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
-    OperatorStatusCounts:
-      properties:
-        total:
-          type: integer
-          title: Total
-        online:
-          type: integer
-          title: Online
-        busy:
-          type: integer
-          title: Busy
-        offline:
-          type: integer
-          title: Offline
-      type: object
-      required:
-      - total
-      - online
-      - busy
-      - offline
-      title: OperatorStatusCounts
-    LeaveCallRequest:
-      properties:
-        call_sid:
-          type: string
-          maxLength: 64
-          minLength: 1
-          title: Call Sid
-      type: object
-      required:
-      - call_sid
-      title: LeaveCallRequest
-      description: Request to remove operator from an active call.
-    src__routes__operators_models__AuditEventResponse:
-      properties:
-        id:
-          type: string
-          format: uuid
-          title: Id
-        workspace_id:
-          type: string
-          format: uuid
-          title: Workspace Id
-        event_type:
-          type: string
-          title: Event Type
-          description: Audit event type (e.g. operator.status_change)
-        data:
-          additionalProperties: true
-          type: object
-          title: Data
-          description: Audit payload — shape varies by event_type
-        source:
-          type: string
-          title: Source
-          description: System that emitted the event
-        ingested_at:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Ingested At
-          description: When the event was ingested
-        created_at:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Created At
-          description: When the event occurred
-      type: object
-      required:
-      - id
-      - workspace_id
-      - event_type
-      - data
-      - source
-      title: AuditEventResponse
-    CallTranscriptResponse:
-      properties:
-        call_entity_id:
-          type: string
-          format: uuid
-          title: Call Entity Id
-        call_sid:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Call Sid
-        total_segments:
-          type: integer
-          title: Total Segments
-        segments:
-          items:
-            $ref: '#/components/schemas/TranscriptSegment'
-          type: array
-          title: Segments
-      type: object
-      required:
-      - call_entity_id
-      - call_sid
-      - total_segments
-      - segments
-      title: CallTranscriptResponse
-    PriorityQueueResponse:
-      properties:
-        workspace_id:
-          type: string
-          format: uuid
-          title: Workspace Id
-        queue:
-          items:
-            $ref: '#/components/schemas/PriorityQueueItem'
-          type: array
-          title: Queue
-        total_active:
-          type: integer
-          title: Total Active
-      type: object
-      required:
-      - workspace_id
-      - queue
-      - total_active
-      title: PriorityQueueResponse
-    AccessTokenRequest:
-      properties:
-        call_sid:
-          type: string
-          maxLength: 64
-          minLength: 1
-          title: Call Sid
-      type: object
-      required:
-      - call_sid
-      title: AccessTokenRequest
-      description: Request to generate a Twilio AccessToken for browser-based audio.
-    PaginatedResponse_ActiveEscalationItem_:
-      properties:
-        items:
-          items:
-            $ref: '#/components/schemas/ActiveEscalationItem'
-          type: array
-          title: Items
-        has_more:
-          type: boolean
-          title: Has More
-        continuation_token:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Continuation Token
-        total:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Total
-      type: object
-      required:
-      - items
-      - has_more
-      title: PaginatedResponse[ActiveEscalationItem]
     EscalationStatsResponse:
       properties:
         workspace_id:
@@ -1457,252 +874,6 @@ components:
       - buckets
       - total
       title: EscalationStatsResponse
-    PerformanceSummaryResponse:
-      properties:
-        workspace_id:
-          type: string
-          format: uuid
-          title: Workspace Id
-        total_operators:
-          type: integer
-          title: Total Operators
-        online:
-          type: integer
-          title: Online
-        busy:
-          type: integer
-          title: Busy
-        offline:
-          type: integer
-          title: Offline
-        total_escalations_handled:
-          type: integer
-          title: Total Escalations Handled
-        avg_handle_time_seconds:
-          type: number
-          title: Avg Handle Time Seconds
-        operators:
-          items:
-            $ref: '#/components/schemas/OperatorPerformanceItem'
-          type: array
-          title: Operators
-      type: object
-      required:
-      - workspace_id
-      - total_operators
-      - online
-      - busy
-      - offline
-      - total_escalations_handled
-      - avg_handle_time_seconds
-      - operators
-      title: PerformanceSummaryResponse
-    UpdateOperatorRequest:
-      properties:
-        name:
-          anyOf:
-          - $ref: '#/components/schemas/NameString'
-          - type: 'null'
-        email:
-          anyOf:
-          - type: string
-            format: email
-          - type: 'null'
-          title: Email
-        type:
-          anyOf:
-          - type: string
-            enum:
-            - clinical
-            - administrative
-            - crisis_counselor
-          - type: 'null'
-          title: Type
-        skills:
-          anyOf:
-          - items:
-              type: string
-              maxLength: 64
-              minLength: 1
-            type: array
-            maxItems: 50
-          - type: 'null'
-          title: Skills
-        connection_method:
-          anyOf:
-          - type: string
-            enum:
-            - browser
-            - phone
-          - type: 'null'
-          title: Connection Method
-        phone_number:
-          anyOf:
-          - $ref: '#/components/schemas/PhoneE164'
-          - type: 'null'
-        role:
-          anyOf:
-          - type: string
-            enum:
-            - operator
-            - supervisor
-            - admin
-          - type: 'null'
-          title: Role
-        status:
-          anyOf:
-          - type: string
-            enum:
-            - online
-            - busy
-            - offline
-          - type: 'null'
-          title: Status
-      type: object
-      title: UpdateOperatorRequest
-    SwitchModeRequest:
-      properties:
-        call_sid:
-          type: string
-          maxLength: 64
-          minLength: 1
-          title: Call Sid
-        participant_call_sid:
-          type: string
-          maxLength: 64
-          title: Participant Call Sid
-          default: ''
-        mode:
-          type: string
-          enum:
-          - listen
-          - takeover
-          title: Mode
-      type: object
-      required:
-      - call_sid
-      - mode
-      title: SwitchModeRequest
-      description: Request to toggle operator mode on an active call.
-    TranscriptSegment:
-      properties:
-        speaker_role:
-          type: string
-          title: Speaker Role
-        transcript:
-          type: string
-          title: Transcript
-        timestamp:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Timestamp
-        escalation_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Escalation Id
-        confidence:
-          type: number
-          title: Confidence
-      type: object
-      required:
-      - speaker_role
-      - transcript
-      - timestamp
-      - escalation_id
-      - confidence
-      title: TranscriptSegment
-    NameString:
-      type: string
-      maxLength: 256
-      minLength: 1
-    BriefingRequest:
-      properties:
-        call_sid:
-          type: string
-          maxLength: 64
-          minLength: 1
-          title: Call Sid
-      type: object
-      required:
-      - call_sid
-      title: BriefingRequest
-      description: Request for operator briefing on a specific call.
-    EscalationDailyStats:
-      properties:
-        requested:
-          type: integer
-          title: Requested
-          default: 0
-        connected:
-          type: integer
-          title: Connected
-          default: 0
-        completed:
-          type: integer
-          title: Completed
-          default: 0
-        avg_wait_seconds:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Avg Wait Seconds
-        avg_handle_time_seconds:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Avg Handle Time Seconds
-      type: object
-      title: EscalationDailyStats
-    CreateOperatorRequest:
-      properties:
-        name:
-          $ref: '#/components/schemas/NameString'
-        email:
-          type: string
-          format: email
-          title: Email
-        type:
-          type: string
-          enum:
-          - clinical
-          - administrative
-          - crisis_counselor
-          title: Type
-          default: clinical
-        skills:
-          items:
-            type: string
-            maxLength: 64
-            minLength: 1
-          type: array
-          maxItems: 50
-          title: Skills
-        connection_method:
-          type: string
-          enum:
-          - browser
-          - phone
-          title: Connection Method
-          default: browser
-        phone_number:
-          anyOf:
-          - $ref: '#/components/schemas/PhoneE164'
-          - type: 'null'
-        role:
-          type: string
-          enum:
-          - operator
-          - supervisor
-          - admin
-          title: Role
-          default: operator
-      type: object
-      required:
-      - name
-      - email
-      title: CreateOperatorRequest
     ActiveEscalationItem:
       properties:
         call_entity_id:
@@ -1832,6 +1003,872 @@ components:
       - immediate
       title: ActiveEscalationItem
       description: A call with an active escalation, enriched from projected state.
+    LeaveCallRequest:
+      properties:
+        call_sid:
+          type: string
+          maxLength: 64
+          minLength: 1
+          title: Call Sid
+      type: object
+      required:
+      - call_sid
+      title: LeaveCallRequest
+      description: Request to remove operator from an active call.
+    UpdateOperatorRequest:
+      properties:
+        name:
+          anyOf:
+          - $ref: '#/components/schemas/NameString'
+          - type: 'null'
+        email:
+          anyOf:
+          - type: string
+            format: email
+          - type: 'null'
+          title: Email
+        type:
+          anyOf:
+          - type: string
+            enum:
+            - clinical
+            - administrative
+            - crisis_counselor
+          - type: 'null'
+          title: Type
+        skills:
+          anyOf:
+          - items:
+              type: string
+              maxLength: 64
+              minLength: 1
+            type: array
+            maxItems: 50
+          - type: 'null'
+          title: Skills
+        connection_method:
+          anyOf:
+          - type: string
+            enum:
+            - browser
+            - phone
+          - type: 'null'
+          title: Connection Method
+        phone_number:
+          anyOf:
+          - $ref: '#/components/schemas/PhoneE164'
+          - type: 'null'
+        role:
+          anyOf:
+          - type: string
+            enum:
+            - operator
+            - supervisor
+            - admin
+          - type: 'null'
+          title: Role
+        status:
+          anyOf:
+          - type: string
+            enum:
+            - online
+            - busy
+            - offline
+          - type: 'null'
+          title: Status
+      type: object
+      title: UpdateOperatorRequest
+    EscalationEventResponse:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        workspace_id:
+          type: string
+          format: uuid
+          title: Workspace Id
+        event_type:
+          type: string
+          title: Event Type
+          description: Event type (e.g. escalation.requested, escalation.connected)
+        data:
+          additionalProperties: true
+          type: object
+          title: Data
+          description: Event payload — shape varies by event_type
+        source:
+          type: string
+          title: Source
+          description: System that emitted the event
+        confidence:
+          type: number
+          title: Confidence
+          description: Confidence score 0.0 to 1.0
+        ingested_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Ingested At
+          description: When the event was ingested
+        created_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Created At
+          description: When the event occurred
+      type: object
+      required:
+      - id
+      - workspace_id
+      - event_type
+      - data
+      - source
+      - confidence
+      title: EscalationEventResponse
+    AccessTokenRequest:
+      properties:
+        call_sid:
+          type: string
+          maxLength: 64
+          minLength: 1
+          title: Call Sid
+      type: object
+      required:
+      - call_sid
+      title: AccessTokenRequest
+      description: Request to generate a Twilio AccessToken for browser-based audio.
+    PriorityQueueItem:
+      properties:
+        call_sid:
+          type: string
+          title: Call Sid
+          description: Twilio call SID
+        caller_id:
+          type: string
+          title: Caller Id
+          description: Caller phone number
+          default: ''
+        caller_phone:
+          anyOf:
+          - type: string
+            maxLength: 16
+            pattern: ^\+[1-9]\d{1,14}$
+          - type: 'null'
+          title: Caller Phone
+          description: Caller E.164 phone number for console clients
+        service_id:
+          type: string
+          title: Service Id
+          description: Service ID handling the call
+          default: ''
+        service_name:
+          anyOf:
+          - $ref: '#/components/schemas/NameString'
+          - type: 'null'
+          description: Human-readable service name when available
+        direction:
+          type: string
+          enum:
+          - inbound
+          - outbound
+          - playground
+          - simulated
+          - test
+          title: Direction
+          description: Call direction
+          default: inbound
+        data_quality_flags:
+          items:
+            type: string
+            const: invalid_direction
+          type: array
+          title: Data Quality Flags
+          default: []
+        started_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Started At
+          description: When the active call started
+        priority_score:
+          type: number
+          maximum: 1.0
+          minimum: 0.0
+          title: Priority Score
+          description: Priority score normalized to 0.0-1.0
+        priority_reasons:
+          items:
+            type: string
+            enum:
+            - high_risk
+            - long_wait
+            - negative_emotion
+            - safety_concern
+            - looping
+          type: array
+          title: Priority Reasons
+          default: []
+        wait_seconds:
+          type: number
+          title: Wait Seconds
+          default: 0.0
+        risk_score:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Risk Score
+        risk_level:
+          anyOf:
+          - type: string
+            enum:
+            - low
+            - medium
+            - high
+            - critical
+          - type: 'null'
+          title: Risk Level
+        current_emotion:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Current Emotion
+        current_valence:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Current Valence
+        current_state:
+          type: string
+          title: Current State
+          default: ''
+        turn_count:
+          type: integer
+          title: Turn Count
+          default: 0
+        escalation_active:
+          type: boolean
+          title: Escalation Active
+          default: false
+        entity_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Entity Name
+        brief_context:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Brief Context
+      type: object
+      required:
+      - call_sid
+      - priority_score
+      title: PriorityQueueItem
+      description: An active call ranked by operator priority.
+    AccessTokenResponse:
+      properties:
+        token:
+          type: string
+          title: Token
+        identity:
+          type: string
+          title: Identity
+        conference_sid:
+          type: string
+          title: Conference Sid
+        connect_params:
+          additionalProperties:
+            type: string
+          type: object
+          title: Connect Params
+          default: {}
+      type: object
+      required:
+      - token
+      - identity
+      - conference_sid
+      title: AccessTokenResponse
+    CreateOperatorRequest:
+      properties:
+        name:
+          $ref: '#/components/schemas/NameString'
+        email:
+          type: string
+          format: email
+          title: Email
+        type:
+          type: string
+          enum:
+          - clinical
+          - administrative
+          - crisis_counselor
+          title: Type
+          default: clinical
+        skills:
+          items:
+            type: string
+            maxLength: 64
+            minLength: 1
+          type: array
+          maxItems: 50
+          title: Skills
+        connection_method:
+          type: string
+          enum:
+          - browser
+          - phone
+          title: Connection Method
+          default: browser
+        phone_number:
+          anyOf:
+          - $ref: '#/components/schemas/PhoneE164'
+          - type: 'null'
+        role:
+          type: string
+          enum:
+          - operator
+          - supervisor
+          - admin
+          title: Role
+          default: operator
+      type: object
+      required:
+      - name
+      - email
+      title: CreateOperatorRequest
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    WrapUpRequest:
+      properties:
+        call_sid:
+          type: string
+          maxLength: 64
+          minLength: 1
+          title: Call Sid
+        outcome:
+          type: string
+          enum:
+          - resolved
+          - escalated
+          - transferred
+          title: Outcome
+        notes:
+          type: string
+          maxLength: 2000
+          title: Notes
+          default: ''
+      type: object
+      required:
+      - call_sid
+      - outcome
+      title: WrapUpRequest
+      description: Request to record operator intervention wrap-up.
+    NameString:
+      type: string
+      maxLength: 256
+      minLength: 1
+    JoinCallRequest:
+      properties:
+        call_sid:
+          type: string
+          maxLength: 64
+          minLength: 1
+          title: Call Sid
+        mode:
+          type: string
+          enum:
+          - listen
+          - takeover
+          title: Mode
+          default: takeover
+      type: object
+      required:
+      - call_sid
+      title: JoinCallRequest
+      description: Request to join an active call as operator.
+    PaginatedResponse_AuditEventResponse_:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/src__routes__operators_models__AuditEventResponse'
+          type: array
+          title: Items
+        has_more:
+          type: boolean
+          title: Has More
+        continuation_token:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Continuation Token
+        total:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Total
+      type: object
+      required:
+      - items
+      - has_more
+      title: PaginatedResponse[AuditEventResponse]
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    EscalationStatsBucket:
+      properties:
+        key:
+          type: string
+          title: Key
+        count:
+          type: integer
+          title: Count
+      type: object
+      required:
+      - key
+      - count
+      title: EscalationStatsBucket
+    BriefingSection:
+      properties:
+        title:
+          type: string
+          title: Title
+        content:
+          type: string
+          title: Content
+      type: object
+      required:
+      - title
+      - content
+      title: BriefingSection
+      description: A named section of the operator briefing.
+    SwitchModeRequest:
+      properties:
+        call_sid:
+          type: string
+          maxLength: 64
+          minLength: 1
+          title: Call Sid
+        participant_call_sid:
+          type: string
+          maxLength: 64
+          title: Participant Call Sid
+          default: ''
+        mode:
+          type: string
+          enum:
+          - listen
+          - takeover
+          title: Mode
+      type: object
+      required:
+      - call_sid
+      - mode
+      title: SwitchModeRequest
+      description: Request to toggle operator mode on an active call.
+    JoinCallResponse:
+      properties:
+        participant_call_sid:
+          type: string
+          title: Participant Call Sid
+          description: Twilio participant call SID
+        conference_sid:
+          type: string
+          title: Conference Sid
+          description: Twilio conference SID
+        mode:
+          type: string
+          enum:
+          - listen
+          - takeover
+          title: Mode
+          description: 'Operator mode: listen or takeover'
+        operator_entity_id:
+          type: string
+          format: uuid
+          title: Operator Entity Id
+          description: World entity ID of the operator
+      type: object
+      required:
+      - participant_call_sid
+      - conference_sid
+      - mode
+      - operator_entity_id
+      title: JoinCallResponse
+      description: Confirmation of operator joining a call's conference.
+    SwitchModeResponse:
+      properties:
+        mode:
+          type: string
+          enum:
+          - listen
+          - takeover
+          title: Mode
+          description: New operator mode
+      type: object
+      required:
+      - mode
+      title: SwitchModeResponse
+    SendGuidanceRequest:
+      properties:
+        call_sid:
+          type: string
+          maxLength: 64
+          minLength: 1
+          title: Call Sid
+        message:
+          type: string
+          maxLength: 5000
+          minLength: 1
+          title: Message
+      type: object
+      required:
+      - call_sid
+      - message
+      title: SendGuidanceRequest
+    PaginatedResponse_EscalationEventResponse_:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/EscalationEventResponse'
+          type: array
+          title: Items
+        has_more:
+          type: boolean
+          title: Has More
+        continuation_token:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Continuation Token
+        total:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Total
+      type: object
+      required:
+      - items
+      - has_more
+      title: PaginatedResponse[EscalationEventResponse]
+    CallTranscriptResponse:
+      properties:
+        call_entity_id:
+          type: string
+          format: uuid
+          title: Call Entity Id
+        call_sid:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Call Sid
+        total_segments:
+          type: integer
+          title: Total Segments
+        segments:
+          items:
+            $ref: '#/components/schemas/TranscriptSegment'
+          type: array
+          title: Segments
+      type: object
+      required:
+      - call_entity_id
+      - call_sid
+      - total_segments
+      - segments
+      title: CallTranscriptResponse
+    PerformanceSummaryResponse:
+      properties:
+        workspace_id:
+          type: string
+          format: uuid
+          title: Workspace Id
+        total_operators:
+          type: integer
+          title: Total Operators
+        online:
+          type: integer
+          title: Online
+        busy:
+          type: integer
+          title: Busy
+        offline:
+          type: integer
+          title: Offline
+        total_escalations_handled:
+          type: integer
+          title: Total Escalations Handled
+        avg_handle_time_seconds:
+          type: number
+          title: Avg Handle Time Seconds
+        operators:
+          items:
+            $ref: '#/components/schemas/OperatorPerformanceItem'
+          type: array
+          title: Operators
+      type: object
+      required:
+      - workspace_id
+      - total_operators
+      - online
+      - busy
+      - offline
+      - total_escalations_handled
+      - avg_handle_time_seconds
+      - operators
+      title: PerformanceSummaryResponse
+    PaginatedResponse_ActiveEscalationItem_:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/ActiveEscalationItem'
+          type: array
+          title: Items
+        has_more:
+          type: boolean
+          title: Has More
+        continuation_token:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Continuation Token
+        total:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Total
+      type: object
+      required:
+      - items
+      - has_more
+      title: PaginatedResponse[ActiveEscalationItem]
+    TranscriptSegment:
+      properties:
+        speaker_role:
+          type: string
+          title: Speaker Role
+        transcript:
+          type: string
+          title: Transcript
+        timestamp:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Timestamp
+        escalation_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Escalation Id
+        confidence:
+          type: number
+          title: Confidence
+      type: object
+      required:
+      - speaker_role
+      - transcript
+      - timestamp
+      - escalation_id
+      - confidence
+      title: TranscriptSegment
+    BriefingRequest:
+      properties:
+        call_sid:
+          type: string
+          maxLength: 64
+          minLength: 1
+          title: Call Sid
+      type: object
+      required:
+      - call_sid
+      title: BriefingRequest
+      description: Request for operator briefing on a specific call.
+    DashboardResponse:
+      properties:
+        workspace_id:
+          type: string
+          format: uuid
+          title: Workspace Id
+        operators:
+          $ref: '#/components/schemas/OperatorStatusCounts'
+        active_escalations:
+          type: integer
+          title: Active Escalations
+        escalations_today:
+          $ref: '#/components/schemas/EscalationDailyStats'
+        recent_escalations:
+          items:
+            $ref: '#/components/schemas/ActiveEscalationItem'
+          type: array
+          title: Recent Escalations
+      type: object
+      required:
+      - workspace_id
+      - operators
+      - active_escalations
+      - escalations_today
+      - recent_escalations
+      title: DashboardResponse
+    PriorityQueueResponse:
+      properties:
+        workspace_id:
+          type: string
+          format: uuid
+          title: Workspace Id
+        queue:
+          items:
+            $ref: '#/components/schemas/PriorityQueueItem'
+          type: array
+          title: Queue
+        total_active:
+          type: integer
+          title: Total Active
+      type: object
+      required:
+      - workspace_id
+      - queue
+      - total_active
+      title: PriorityQueueResponse
+    SendGuidanceResponse:
+      properties:
+        status:
+          type: string
+          enum:
+          - delivered
+          - queued_no_subscriber
+          - deduplicated
+          - failed
+          - unknown
+          title: Status
+          description: Delivery status
+        call_sid:
+          type: string
+          title: Call Sid
+          description: Call SID the guidance was sent to
+      type: object
+      required:
+      - status
+      - call_sid
+      title: SendGuidanceResponse
+    OperatorPerformanceItem:
+      properties:
+        operator_id:
+          type: string
+          format: uuid
+          title: Operator Id
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+          description: Display name
+        status:
+          type: string
+          enum:
+          - online
+          - busy
+          - offline
+          title: Status
+          description: Current availability
+        total_escalations_handled:
+          type: integer
+          title: Total Escalations Handled
+          description: Lifetime escalation count
+        avg_handle_time_seconds:
+          type: number
+          title: Avg Handle Time Seconds
+          description: Average handle time in seconds
+        last_call_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Last Call At
+          description: ISO-8601 timestamp of last call
+      type: object
+      required:
+      - operator_id
+      - status
+      - total_escalations_handled
+      - avg_handle_time_seconds
+      title: OperatorPerformanceItem
+    src__routes__operators_models__AuditEventResponse:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        workspace_id:
+          type: string
+          format: uuid
+          title: Workspace Id
+        event_type:
+          type: string
+          title: Event Type
+          description: Audit event type (e.g. operator.status_change)
+        data:
+          additionalProperties: true
+          type: object
+          title: Data
+          description: Audit payload — shape varies by event_type
+        source:
+          type: string
+          title: Source
+          description: System that emitted the event
+        ingested_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Ingested At
+          description: When the event was ingested
+        created_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Created At
+          description: When the event occurred
+      type: object
+      required:
+      - id
+      - workspace_id
+      - event_type
+      - data
+      - source
+      title: AuditEventResponse
     OperatorResponse:
       properties:
         id:
@@ -1950,56 +1987,19 @@ components:
       - total_escalations_handled
       - avg_handle_time_seconds
       title: OperatorResponse
-    EscalationEventResponse:
+    PhoneE164:
+      type: string
+      maxLength: 16
+      minLength: 2
+    WrapUpResponse:
       properties:
-        id:
-          type: string
-          format: uuid
-          title: Id
-        workspace_id:
-          type: string
-          format: uuid
-          title: Workspace Id
-        event_type:
-          type: string
-          title: Event Type
-          description: Event type (e.g. escalation.requested, escalation.connected)
-        data:
-          additionalProperties: true
-          type: object
-          title: Data
-          description: Event payload — shape varies by event_type
-        source:
-          type: string
-          title: Source
-          description: System that emitted the event
-        confidence:
-          type: number
-          title: Confidence
-          description: Confidence score 0.0 to 1.0
-        ingested_at:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Ingested At
-          description: When the event was ingested
-        created_at:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Created At
-          description: When the event occurred
+        success:
+          type: boolean
+          title: Success
       type: object
       required:
-      - id
-      - workspace_id
-      - event_type
-      - data
-      - source
-      - confidence
-      title: EscalationEventResponse
+      - success
+      title: WrapUpResponse
     PaginatedResponse_OperatorResponse_:
       properties:
         items:
@@ -2025,69 +2025,55 @@ components:
       - items
       - has_more
       title: PaginatedResponse[OperatorResponse]
-    DashboardResponse:
+    OperatorStatusCounts:
       properties:
-        workspace_id:
-          type: string
-          format: uuid
-          title: Workspace Id
-        operators:
-          $ref: '#/components/schemas/OperatorStatusCounts'
-        active_escalations:
-          type: integer
-          title: Active Escalations
-        escalations_today:
-          $ref: '#/components/schemas/EscalationDailyStats'
-        recent_escalations:
-          items:
-            $ref: '#/components/schemas/ActiveEscalationItem'
-          type: array
-          title: Recent Escalations
-      type: object
-      required:
-      - workspace_id
-      - operators
-      - active_escalations
-      - escalations_today
-      - recent_escalations
-      title: DashboardResponse
-    PaginatedResponse_AuditEventResponse_:
-      properties:
-        items:
-          items:
-            $ref: '#/components/schemas/src__routes__operators_models__AuditEventResponse'
-          type: array
-          title: Items
-        has_more:
-          type: boolean
-          title: Has More
-        continuation_token:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Continuation Token
         total:
-          anyOf:
-          - type: integer
-          - type: 'null'
+          type: integer
           title: Total
+        online:
+          type: integer
+          title: Online
+        busy:
+          type: integer
+          title: Busy
+        offline:
+          type: integer
+          title: Offline
       type: object
       required:
-      - items
-      - has_more
-      title: PaginatedResponse[AuditEventResponse]
+      - total
+      - online
+      - busy
+      - offline
+      title: OperatorStatusCounts
+    EscalationDailyStats:
+      properties:
+        requested:
+          type: integer
+          title: Requested
+          default: 0
+        connected:
+          type: integer
+          title: Connected
+          default: 0
+        completed:
+          type: integer
+          title: Completed
+          default: 0
+        avg_wait_seconds:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Avg Wait Seconds
+        avg_handle_time_seconds:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Avg Handle Time Seconds
+      type: object
+      title: EscalationDailyStats
   securitySchemes:
-    Bearer-Authorization:
+    BearerAuth:
       type: http
       scheme: bearer
-      bearerFormat: JWT
-      description: Amigo issued JWT token that identifies an user. It's issued either after logging in through the frontend, or manually through the [`SignInWithAPIKey`](sign-in-with-api-key) endpoint.
-    Bearer-Authorization-Organization:
-      type: apiKey
-      in: header
-      name: X-ORG-ID
-      description: An optional organization identifier that indicates from which organization the token is issued. This is used in rare cases where the user to authenticate is making a request for resources in another organization.
-    Basic:
-      type: http
-      scheme: basic
-      description: The username should be set to {org_id}_{user_id}, and the password should be the Amigo issued JWT token that identifies the user.
+      description: API key issued via `POST /v1/{workspace_id}/api-keys`. Pass the returned `api_key` value as a Bearer token.

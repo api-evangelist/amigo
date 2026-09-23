@@ -1,17 +1,13 @@
-openapi: 3.1.0
+openapi: 3.2.0
 info:
-  title: Amigo Account Agents API
-  version: 0.1.0
+  title: Platform Agents API
+  description: Management API for the Amigo platform. Provides CRUD operations for workspaces, API keys, and resources.
+  version: 1.0.0
 servers:
-- url: https://api.amigo.ai
-- url: https://internal-api.amigo.ai
-- url: https://api-eu-central-1.amigo.ai
-- url: https://api-ap-southeast-2.amigo.ai
-- url: https://api-ca-central-1.amigo.ai
+- url: https://api.platform.amigo.ai
+  description: Production
 security:
-- Bearer-Authorization: []
-  Bearer-Authorization-Organization: []
-  Basic: []
+- BearerAuth: []
 tags:
 - name: Agents
 paths:
@@ -399,14 +395,11 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
-    BackgroundString:
-      type: string
-      maxLength: 10000
-    PaginatedResponse_AgentVersionResponse_:
+    PaginatedResponse_AgentResponse_:
       properties:
         items:
           items:
-            $ref: '#/components/schemas/AgentVersionResponse'
+            $ref: '#/components/schemas/AgentResponse'
           type: array
           title: Items
         has_more:
@@ -426,20 +419,10 @@ components:
       required:
       - items
       - has_more
-      title: PaginatedResponse[AgentVersionResponse]
-    NameString:
+      title: PaginatedResponse[AgentResponse]
+    BackgroundString:
       type: string
-      maxLength: 256
-      minLength: 1
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
+      maxLength: 10000
     VoiceConfig:
       properties:
         voice_id:
@@ -530,6 +513,200 @@ components:
       - name
       - identity
       title: CreateAgentVersionRequest
+    PaginatedResponse_AgentVersionResponse_:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/AgentVersionResponse'
+          type: array
+          title: Items
+        has_more:
+          type: boolean
+          title: Has More
+        continuation_token:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Continuation Token
+        total:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Total
+      type: object
+      required:
+      - items
+      - has_more
+      title: PaginatedResponse[AgentVersionResponse]
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    CreateAgentRequest:
+      properties:
+        name:
+          $ref: '#/components/schemas/NameString'
+        description:
+          $ref: '#/components/schemas/DescriptionString'
+          default: ''
+      type: object
+      required:
+      - name
+      title: CreateAgentRequest
+    Identity:
+      properties:
+        name:
+          type: string
+          title: Name
+        role:
+          type: string
+          title: Role
+        developed_by:
+          type: string
+          title: Developed By
+        default_spoken_language:
+          type: string
+          title: Default Spoken Language
+        relationship_to_developer:
+          $ref: '#/components/schemas/RelationshipToDeveloper'
+      type: object
+      required:
+      - name
+      - role
+      - developed_by
+      - default_spoken_language
+      title: Identity
+    NameString:
+      type: string
+      maxLength: 256
+      minLength: 1
+    UpdateAgentRequest:
+      properties:
+        name:
+          anyOf:
+          - $ref: '#/components/schemas/NameString'
+          - type: 'null'
+        description:
+          anyOf:
+          - $ref: '#/components/schemas/DescriptionString'
+          - type: 'null'
+      type: object
+      title: UpdateAgentRequest
+    SearchString:
+      type: string
+      maxLength: 200
+      minLength: 1
+    AgentResponse:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        workspace_id:
+          type: string
+          format: uuid
+          title: Workspace Id
+        name:
+          type: string
+          title: Name
+        description:
+          type: string
+          title: Description
+        latest_version:
+          type: integer
+          title: Latest Version
+          default: 0
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+      type: object
+      required:
+      - id
+      - workspace_id
+      - name
+      - description
+      - created_at
+      - updated_at
+      title: AgentResponse
+    LanguageProviderEntry:
+      properties:
+        provider:
+          type: string
+          enum:
+          - cartesia
+          - elevenlabs
+          - groq
+          title: Provider
+        config:
+          additionalProperties: true
+          type: object
+          maxProperties: 20
+          title: Config
+      type: object
+      required:
+      - provider
+      title: LanguageProviderEntry
+      description: Per-language TTS provider configuration.
+    DescriptionString:
+      type: string
+      maxLength: 2000
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    RelationshipToDeveloper:
+      properties:
+        ownership:
+          type: string
+          title: Ownership
+        type:
+          type: string
+          title: Type
+        conversation_visibility:
+          type: string
+          title: Conversation Visibility
+        thought_visibility:
+          type: string
+          title: Thought Visibility
+      type: object
+      required:
+      - ownership
+      - type
+      - conversation_visibility
+      - thought_visibility
+      title: RelationshipToDeveloper
     AgentVersionResponse:
       properties:
         id:
@@ -596,199 +773,8 @@ components:
       - created_at
       - updated_at
       title: AgentVersionResponse
-    SearchString:
-      type: string
-      maxLength: 200
-      minLength: 1
-    RelationshipToDeveloper:
-      properties:
-        ownership:
-          type: string
-          title: Ownership
-        type:
-          type: string
-          title: Type
-        conversation_visibility:
-          type: string
-          title: Conversation Visibility
-        thought_visibility:
-          type: string
-          title: Thought Visibility
-      type: object
-      required:
-      - ownership
-      - type
-      - conversation_visibility
-      - thought_visibility
-      title: RelationshipToDeveloper
-    UpdateAgentRequest:
-      properties:
-        name:
-          anyOf:
-          - $ref: '#/components/schemas/NameString'
-          - type: 'null'
-        description:
-          anyOf:
-          - $ref: '#/components/schemas/DescriptionString'
-          - type: 'null'
-      type: object
-      title: UpdateAgentRequest
-    Identity:
-      properties:
-        name:
-          type: string
-          title: Name
-        role:
-          type: string
-          title: Role
-        developed_by:
-          type: string
-          title: Developed By
-        default_spoken_language:
-          type: string
-          title: Default Spoken Language
-        relationship_to_developer:
-          $ref: '#/components/schemas/RelationshipToDeveloper'
-      type: object
-      required:
-      - name
-      - role
-      - developed_by
-      - default_spoken_language
-      title: Identity
-    ValidationError:
-      properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-        input:
-          title: Input
-        ctx:
-          type: object
-          title: Context
-      type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
-    LanguageProviderEntry:
-      properties:
-        provider:
-          type: string
-          enum:
-          - cartesia
-          - elevenlabs
-          - groq
-          title: Provider
-        config:
-          additionalProperties: true
-          type: object
-          maxProperties: 20
-          title: Config
-      type: object
-      required:
-      - provider
-      title: LanguageProviderEntry
-      description: Per-language TTS provider configuration.
-    AgentResponse:
-      properties:
-        id:
-          type: string
-          format: uuid
-          title: Id
-        workspace_id:
-          type: string
-          format: uuid
-          title: Workspace Id
-        name:
-          type: string
-          title: Name
-        description:
-          type: string
-          title: Description
-        latest_version:
-          type: integer
-          title: Latest Version
-          default: 0
-        created_at:
-          type: string
-          format: date-time
-          title: Created At
-        updated_at:
-          type: string
-          format: date-time
-          title: Updated At
-      type: object
-      required:
-      - id
-      - workspace_id
-      - name
-      - description
-      - created_at
-      - updated_at
-      title: AgentResponse
-    DescriptionString:
-      type: string
-      maxLength: 2000
-    PaginatedResponse_AgentResponse_:
-      properties:
-        items:
-          items:
-            $ref: '#/components/schemas/AgentResponse'
-          type: array
-          title: Items
-        has_more:
-          type: boolean
-          title: Has More
-        continuation_token:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Continuation Token
-        total:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Total
-      type: object
-      required:
-      - items
-      - has_more
-      title: PaginatedResponse[AgentResponse]
-    CreateAgentRequest:
-      properties:
-        name:
-          $ref: '#/components/schemas/NameString'
-        description:
-          $ref: '#/components/schemas/DescriptionString'
-          default: ''
-      type: object
-      required:
-      - name
-      title: CreateAgentRequest
   securitySchemes:
-    Bearer-Authorization:
+    BearerAuth:
       type: http
       scheme: bearer
-      bearerFormat: JWT
-      description: Amigo issued JWT token that identifies an user. It's issued either after logging in through the frontend, or manually through the [`SignInWithAPIKey`](sign-in-with-api-key) endpoint.
-    Bearer-Authorization-Organization:
-      type: apiKey
-      in: header
-      name: X-ORG-ID
-      description: An optional organization identifier that indicates from which organization the token is issued. This is used in rare cases where the user to authenticate is making a request for resources in another organization.
-    Basic:
-      type: http
-      scheme: basic
-      description: The username should be set to {org_id}_{user_id}, and the password should be the Amigo issued JWT token that identifies the user.
+      description: API key issued via `POST /v1/{workspace_id}/api-keys`. Pass the returned `api_key` value as a Bearer token.

@@ -1,6 +1,6 @@
-openapi: 3.1.0
+openapi: 3.2.0
 info:
-  title: Amigo Account Role API
+  title: Amigo Role API
   version: 0.1.0
 servers:
 - url: https://api.amigo.ai
@@ -561,317 +561,9 @@ paths:
           description: The user has exceeded the rate limit of 1000 requests per minute for this endpoint.
 components:
   schemas:
-    src__app__endpoints__role__create_role__Request:
-      properties:
-        role_name:
-          $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__2'
-          description: The name of the role to create. The role must have a max length of 256 characters.
-        description:
-          $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
-          description: A description about the role.
-        permission_grants:
-          items:
-            $ref: '#/components/schemas/PermissionGrant-Input'
-          type: array
-          title: Permission Grants
-          description: A list of permission grants associated with this role.
-        frontend_view:
-          $ref: '#/components/schemas/FrontendView'
-          description: The frontend view for users of this role.
-      type: object
-      required:
-      - role_name
-      - description
-      - permission_grants
-      - frontend_view
-      title: Request
-    src__app__endpoints__role__get_roles__Response:
-      properties:
-        roles:
-          items:
-            $ref: '#/components/schemas/RoleInstance'
-          type: array
-          title: Roles
-          description: A list of roles in this organization.
-      type: object
-      required:
-      - roles
-      title: Response
-    RoleInstance:
-      properties:
-        id:
-          type: string
-          title: Id
-          description: The ID of the role.
-        name:
-          type: string
-          title: Name
-          description: The name of the role.
-        description:
-          type: string
-          title: Description
-          description: A description of the role.
-        frontend_view:
-          $ref: '#/components/schemas/FrontendView'
-          description: The frontend view of the role. This determines the UI that all users of a role will see.
-        permission_grants:
-          items:
-            $ref: '#/components/schemas/PermissionGrant-Output'
-          type: array
-          title: Permission Grants
-          description: 'The permission grants given to the role. Only returned if the `return_permission_grants` query parameter is True. '
-      type: object
-      required:
-      - id
-      - name
-      - description
-      - frontend_view
-      - permission_grants
-      title: RoleInstance
-    src__app__endpoints__role__create_temporary_permission_grant__Request:
-      properties:
-        user_id:
-          type: string
-          title: User Id
-          description: The ID of the user to grant the temporary permission to.
-        duration:
-          type: string
-          format: duration
-          title: Duration
-          description: In ISO8601 format, the duration that this permission grant will last.
-        permission_grant:
-          $ref: '#/components/schemas/PermissionGrantInstance'
-          description: The permission grant to give to the user.
-        tags:
-          additionalProperties:
-            anyOf:
-            - $ref: '#/components/schemas/StrippedNonemptyString___w__s_____'
-            - type: 'null'
-          propertyNames:
-            $ref: '#/components/schemas/StrippedNonemptyString___w__s_____'
-          type: object
-          maxProperties: 20
-          title: Tags
-          description: The tags of the permission grant. Both the key and the value can only contain alphanumeric characters, underscores, or spaces.
-        justification:
-          $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__5'
-          description: A justification for why this grant is made.
-      type: object
-      required:
-      - user_id
-      - duration
-      - permission_grant
-      - tags
-      - justification
-      title: Request
     amigo_lib__pydantic__base_model__StrippedNonemptyString__1:
       type: string
       minLength: 1
-    EqualCondition:
-      properties:
-        type:
-          type: string
-          const: Equals
-          title: Type
-          default: Equals
-        value:
-          title: Value
-          description: The value that the attribute must be equal to. It must be of the same type as the type of this attribute in the permission.
-      type: object
-      required:
-      - value
-      title: EqualCondition
-      description: Requires that the attribute value in the request to be equal to a specific value.
-    amigo_lib__mongo__collections__temporary_permission_grant__TemporaryPermissionGrant__UserInfo:
-      properties:
-        org_id:
-          type: string
-          title: Org Id
-        user_id:
-          type: string
-          title: User Id
-      type: object
-      required:
-      - org_id
-      - user_id
-      title: UserInfo
-    src__app__endpoints__role__assign_role__Request:
-      properties:
-        user_id:
-          type: string
-          title: User Id
-          description: The identifier of the user to assign the role to.
-      type: object
-      required:
-      - user_id
-      title: Request
-    src__app__endpoints__role__assign_role__Response:
-      properties:
-        role_id:
-          type: string
-          title: Role Id
-          description: The identifier of the role assigned to the user.
-      type: object
-      required:
-      - role_id
-      title: Response
-    amigo_lib__pydantic__base_model__StrippedNonemptyString__2:
-      type: string
-      maxLength: 256
-      minLength: 1
-    PermissionGrantInstance:
-      properties:
-        permission_name:
-          type: string
-          title: Permission Name
-          description: The name of the permission.
-        conditions:
-          additionalProperties:
-            $ref: '#/components/schemas/Condition'
-          type: object
-          title: Conditions
-          description: A dictionary of attribute name to condition that must be met for this grant to be applicable.
-      type: object
-      required:
-      - permission_name
-      - conditions
-      title: PermissionGrantInstance
-    src__app__endpoints__role__create_temporary_permission_grant__Response:
-      properties:
-        temporary_permission_grant_id:
-          type: string
-          title: Temporary Permission Grant Id
-          description: The ID of the created temporary permission grant.
-        expires_at:
-          type: string
-          format: date-time
-          title: Expires At
-          description: The time in UTC at which the permission grant expires.
-      type: object
-      required:
-      - temporary_permission_grant_id
-      - expires_at
-      title: Response
-    src__app__endpoints__role__modify_role__Response:
-      properties:
-        role_id:
-          type: string
-          title: Role Id
-          description: The identifier of the updated role.
-      type: object
-      required:
-      - role_id
-      title: Response
-    src__app__endpoints__role__create_role__Response:
-      properties:
-        role_id:
-          type: string
-          title: Role Id
-          description: The ID of the newly created role.
-      type: object
-      required:
-      - role_id
-      title: Response
-    InCondition:
-      properties:
-        type:
-          type: string
-          const: In
-          title: Type
-          default: In
-        values:
-          items: {}
-          type: array
-          title: Values
-          description: A list of values, one of which the attribute must be equal to. All values must be of the same type as the type of this attribute in the permission.
-      type: object
-      required:
-      - values
-      title: InCondition
-      description: Requires that the attribute value in the request to be one of the specified values.
-    FrontendView:
-      type: string
-      enum:
-      - client
-      - admin
-    PermissionGrant-Input:
-      properties:
-        permission_name:
-          type: string
-          title: Permission Name
-          description: The name of the permission.
-        conditions:
-          additionalProperties:
-            $ref: '#/components/schemas/Condition'
-          type: object
-          title: Conditions
-          description: A dictionary of attribute name to condition that must be met for this grant to be applicable.
-      type: object
-      required:
-      - permission_name
-      - conditions
-      title: PermissionGrant
-    NotEqualCondition:
-      properties:
-        type:
-          type: string
-          const: NotEquals
-          title: Type
-          default: NotEquals
-        value:
-          title: Value
-          description: The value that the attribute must be unequal to. It must be of the same type as the type of this attribute in the permission.
-      type: object
-      required:
-      - value
-      title: NotEqualCondition
-      description: Requires that the attribute value in the request to be not equal to a specific value.
-    src__app__endpoints__role__modify_role__Request:
-      properties:
-        description:
-          anyOf:
-          - $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
-          - type: 'null'
-          description: A description about the role. Only updated if specified. This field is a mutable field.
-        permission_grants:
-          anyOf:
-          - items:
-              $ref: '#/components/schemas/PermissionGrant-Input'
-            type: array
-          - type: 'null'
-          title: Permission Grants
-          description: A list of permission grants associated with this role. Only updated if specified. This field is an immutable field.
-        frontend_view:
-          anyOf:
-          - $ref: '#/components/schemas/FrontendView'
-          - type: 'null'
-          description: The frontend view for the user of this role. Only updated if specified. This field is an immutable field.
-      type: object
-      title: Request
-    src__app__endpoints__role__get_temporary_permission_grants__Response:
-      properties:
-        temporary_permission_grants:
-          items:
-            $ref: '#/components/schemas/TemporaryPermissionGrant'
-          type: array
-          title: Temporary Permission Grants
-          description: The retrieved temporary permission grants.
-        has_more:
-          type: boolean
-          title: Has More
-          description: Whether there are more temporary permission grants to retrieve.
-        continuation_token:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Continuation Token
-          description: The continuation token to use to retrieve the next set of temporary permission grants.
-      type: object
-      required:
-      - temporary_permission_grants
-      - has_more
-      - continuation_token
-      title: Response
     TemporaryPermissionGrant:
       properties:
         _id:
@@ -929,6 +621,85 @@ components:
       - tags
       title: TemporaryPermissionGrant
       description: A temporary permission grant provides an user additional permission grants beyond what their role allows for a limited amount of time.
+    src__app__endpoints__role__get_roles__Response:
+      properties:
+        roles:
+          items:
+            $ref: '#/components/schemas/RoleInstance'
+          type: array
+          title: Roles
+          description: A list of roles in this organization.
+      type: object
+      required:
+      - roles
+      title: Response
+    src__app__endpoints__role__get_temporary_permission_grants__Response:
+      properties:
+        temporary_permission_grants:
+          items:
+            $ref: '#/components/schemas/TemporaryPermissionGrant'
+          type: array
+          title: Temporary Permission Grants
+          description: The retrieved temporary permission grants.
+        has_more:
+          type: boolean
+          title: Has More
+          description: Whether there are more temporary permission grants to retrieve.
+        continuation_token:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Continuation Token
+          description: The continuation token to use to retrieve the next set of temporary permission grants.
+      type: object
+      required:
+      - temporary_permission_grants
+      - has_more
+      - continuation_token
+      title: Response
+    PermissionGrant-Input:
+      properties:
+        permission_name:
+          type: string
+          title: Permission Name
+          description: The name of the permission.
+        conditions:
+          additionalProperties:
+            $ref: '#/components/schemas/Condition'
+          type: object
+          title: Conditions
+          description: A dictionary of attribute name to condition that must be met for this grant to be applicable.
+      type: object
+      required:
+      - permission_name
+      - conditions
+      title: PermissionGrant
+    src__app__endpoints__role__create_role__Response:
+      properties:
+        role_id:
+          type: string
+          title: Role Id
+          description: The ID of the newly created role.
+      type: object
+      required:
+      - role_id
+      title: Response
+    src__app__endpoints__role__create_temporary_permission_grant__Response:
+      properties:
+        temporary_permission_grant_id:
+          type: string
+          title: Temporary Permission Grant Id
+          description: The ID of the created temporary permission grant.
+        expires_at:
+          type: string
+          format: date-time
+          title: Expires At
+          description: The time in UTC at which the permission grant expires.
+      type: object
+      required:
+      - temporary_permission_grant_id
+      - expires_at
+      title: Response
     PermissionGrant-Output:
       properties:
         permission_name:
@@ -946,13 +717,146 @@ components:
       - permission_name
       - conditions
       title: PermissionGrant
+    NotEqualCondition:
+      properties:
+        type:
+          type: string
+          const: NotEquals
+          title: Type
+          default: NotEquals
+        value:
+          title: Value
+          description: The value that the attribute must be unequal to. It must be of the same type as the type of this attribute in the permission.
+      type: object
+      required:
+      - value
+      title: NotEqualCondition
+      description: Requires that the attribute value in the request to be not equal to a specific value.
+    FrontendView:
+      type: string
+      enum:
+      - client
+      - admin
+    src__app__endpoints__role__create_temporary_permission_grant__Request:
+      properties:
+        user_id:
+          type: string
+          title: User Id
+          description: The ID of the user to grant the temporary permission to.
+        duration:
+          type: string
+          format: duration
+          title: Duration
+          description: In ISO8601 format, the duration that this permission grant will last.
+        permission_grant:
+          $ref: '#/components/schemas/PermissionGrantInstance'
+          description: The permission grant to give to the user.
+        tags:
+          additionalProperties:
+            anyOf:
+            - $ref: '#/components/schemas/StrippedNonemptyString___w__s_____'
+            - type: 'null'
+          propertyNames:
+            $ref: '#/components/schemas/StrippedNonemptyString___w__s_____'
+          type: object
+          maxProperties: 20
+          title: Tags
+          description: The tags of the permission grant. Both the key and the value can only contain alphanumeric characters, underscores, or spaces.
+        justification:
+          $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__5'
+          description: A justification for why this grant is made.
+      type: object
+      required:
+      - user_id
+      - duration
+      - permission_grant
+      - tags
+      - justification
+      title: Request
+    EqualCondition:
+      properties:
+        type:
+          type: string
+          const: Equals
+          title: Type
+          default: Equals
+        value:
+          title: Value
+          description: The value that the attribute must be equal to. It must be of the same type as the type of this attribute in the permission.
+      type: object
+      required:
+      - value
+      title: EqualCondition
+      description: Requires that the attribute value in the request to be equal to a specific value.
+    amigo_lib__pydantic__base_model__StrippedNonemptyString__2:
+      type: string
+      maxLength: 256
+      minLength: 1
+    src__app__endpoints__role__assign_role__Request:
+      properties:
+        user_id:
+          type: string
+          title: User Id
+          description: The identifier of the user to assign the role to.
+      type: object
+      required:
+      - user_id
+      title: Request
+    InCondition:
+      properties:
+        type:
+          type: string
+          const: In
+          title: Type
+          default: In
+        values:
+          items: {}
+          type: array
+          title: Values
+          description: A list of values, one of which the attribute must be equal to. All values must be of the same type as the type of this attribute in the permission.
+      type: object
+      required:
+      - values
+      title: InCondition
+      description: Requires that the attribute value in the request to be one of the specified values.
+    src__app__endpoints__role__create_role__Request:
+      properties:
+        role_name:
+          $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__2'
+          description: The name of the role to create. The role must have a max length of 256 characters.
+        description:
+          $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
+          description: A description about the role.
+        permission_grants:
+          items:
+            $ref: '#/components/schemas/PermissionGrant-Input'
+          type: array
+          title: Permission Grants
+          description: A list of permission grants associated with this role.
+        frontend_view:
+          $ref: '#/components/schemas/FrontendView'
+          description: The frontend view for users of this role.
+      type: object
+      required:
+      - role_name
+      - description
+      - permission_grants
+      - frontend_view
+      title: Request
+    src__app__endpoints__role__assign_role__Response:
+      properties:
+        role_id:
+          type: string
+          title: Role Id
+          description: The identifier of the role assigned to the user.
+      type: object
+      required:
+      - role_id
+      title: Response
     StrippedNonemptyString___w__s_____:
       type: string
       minLength: 1
       pattern: ^[\w\s]+$
-    amigo_lib__pydantic__base_model__StrippedNonemptyString__5:
-      type: string
-      minLength: 10
     Condition:
       oneOf:
       - $ref: '#/components/schemas/EqualCondition'
@@ -964,6 +868,102 @@ components:
           Equals: '#/components/schemas/EqualCondition'
           In: '#/components/schemas/InCondition'
           NotEquals: '#/components/schemas/NotEqualCondition'
+    PermissionGrantInstance:
+      properties:
+        permission_name:
+          type: string
+          title: Permission Name
+          description: The name of the permission.
+        conditions:
+          additionalProperties:
+            $ref: '#/components/schemas/Condition'
+          type: object
+          title: Conditions
+          description: A dictionary of attribute name to condition that must be met for this grant to be applicable.
+      type: object
+      required:
+      - permission_name
+      - conditions
+      title: PermissionGrantInstance
+    amigo_lib__mongo__collections__temporary_permission_grant__TemporaryPermissionGrant__UserInfo:
+      properties:
+        org_id:
+          type: string
+          title: Org Id
+        user_id:
+          type: string
+          title: User Id
+      type: object
+      required:
+      - org_id
+      - user_id
+      title: UserInfo
+    src__app__endpoints__role__modify_role__Request:
+      properties:
+        description:
+          anyOf:
+          - $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
+          - type: 'null'
+          description: A description about the role. Only updated if specified. This field is a mutable field.
+        permission_grants:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/PermissionGrant-Input'
+            type: array
+          - type: 'null'
+          title: Permission Grants
+          description: A list of permission grants associated with this role. Only updated if specified. This field is an immutable field.
+        frontend_view:
+          anyOf:
+          - $ref: '#/components/schemas/FrontendView'
+          - type: 'null'
+          description: The frontend view for the user of this role. Only updated if specified. This field is an immutable field.
+      type: object
+      title: Request
+    RoleInstance:
+      properties:
+        id:
+          type: string
+          title: Id
+          description: The ID of the role.
+        name:
+          type: string
+          title: Name
+          description: The name of the role.
+        description:
+          type: string
+          title: Description
+          description: A description of the role.
+        frontend_view:
+          $ref: '#/components/schemas/FrontendView'
+          description: The frontend view of the role. This determines the UI that all users of a role will see.
+        permission_grants:
+          items:
+            $ref: '#/components/schemas/PermissionGrant-Output'
+          type: array
+          title: Permission Grants
+          description: 'The permission grants given to the role. Only returned if the `return_permission_grants` query parameter is True. '
+      type: object
+      required:
+      - id
+      - name
+      - description
+      - frontend_view
+      - permission_grants
+      title: RoleInstance
+    amigo_lib__pydantic__base_model__StrippedNonemptyString__5:
+      type: string
+      minLength: 10
+    src__app__endpoints__role__modify_role__Response:
+      properties:
+        role_id:
+          type: string
+          title: Role Id
+          description: The identifier of the updated role.
+      type: object
+      required:
+      - role_id
+      title: Response
   securitySchemes:
     Bearer-Authorization:
       type: http

@@ -1,17 +1,13 @@
-openapi: 3.1.0
+openapi: 3.2.0
 info:
-  title: Amigo Account Workspace Data Queries API
-  version: 0.1.0
+  title: Platform Workspace Data Queries API
+  description: Management API for the Amigo platform. Provides CRUD operations for workspaces, API keys, and resources.
+  version: 1.0.0
 servers:
-- url: https://api.amigo.ai
-- url: https://internal-api.amigo.ai
-- url: https://api-eu-central-1.amigo.ai
-- url: https://api-ap-southeast-2.amigo.ai
-- url: https://api-ca-central-1.amigo.ai
+- url: https://api.platform.amigo.ai
+  description: Production
 security:
-- Bearer-Authorization: []
-  Bearer-Authorization-Organization: []
-  Basic: []
+- BearerAuth: []
 tags:
 - name: Workspace Data Queries
 paths:
@@ -352,67 +348,6 @@ components:
         so a bad payload surfaces as a Pydantic 422 with the standard wire
 
         shape — no try/except in the handler.'
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
-    StoredParameter:
-      properties:
-        name:
-          type: string
-          title: Name
-        type:
-          type: string
-          enum:
-          - string
-          - integer
-          - number
-          - boolean
-          title: Type
-        description:
-          type: string
-          title: Description
-        default:
-          anyOf:
-          - type: string
-          - type: integer
-          - type: number
-          - type: boolean
-          - type: 'null'
-          title: Default
-      additionalProperties: false
-      type: object
-      required:
-      - name
-      - type
-      - description
-      title: StoredParameter
-      description: 'One typed input parameter to a workspace data query — trusted shape.
-
-
-        Read-path model: the DB''s CHECK constraints already enforced ``name``
-
-        regex and ``type`` enum on write, and the deploy endpoint''s strict
-
-        :class:`Parameter` validators enforced ``description`` length and
-
-        typo-rejection at the inbound network edge. After that, every
-
-        construction of this model (DB read projection, executor binding,
-
-        agent-engine spec, outbound response) is trusted — no 422 surface.
-
-
-        ``default is None`` is the canonical "required" signal: the executor
-
-        raises if a caller omits a required argument, otherwise substitutes
-
-        the stored default.'
     ValidationError:
       properties:
         loc:
@@ -439,7 +374,42 @@ components:
       - msg
       - type
       title: ValidationError
-    src__routes__workspace_data_queries__create_workspace_data_query__Request__Parameter:
+    src__routes__workspace_data_queries__invoke_workspace_data_query__Response:
+      properties:
+        result:
+          items:
+            additionalProperties: true
+            type: object
+          type: array
+          title: Result
+        duration_ms:
+          type: number
+          title: Duration Ms
+          default: 0.0
+        row_count:
+          type: integer
+          title: Row Count
+          default: 0
+      type: object
+      title: Response
+    src__routes__workspace_data_queries__list_workspace_data_queries__Response:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/src__routes__workspace_data_queries__list_workspace_data_queries__Response__Item'
+          type: array
+          title: Items
+        has_more:
+          type: boolean
+          title: Has More
+        continuation_token:
+          title: Continuation Token
+      type: object
+      required:
+      - items
+      - has_more
+      title: Response
+    src__routes__workspace_data_queries__update_workspace_data_query__Request__Parameter:
       properties:
         name:
           type: string
@@ -476,23 +446,6 @@ components:
       - description
       title: Parameter
       description: Strict write-side validator for one declared parameter.
-    src__routes__workspace_data_queries__list_workspace_data_queries__Response:
-      properties:
-        items:
-          items:
-            $ref: '#/components/schemas/src__routes__workspace_data_queries__list_workspace_data_queries__Response__Item'
-          type: array
-          title: Items
-        has_more:
-          type: boolean
-          title: Has More
-        continuation_token:
-          title: Continuation Token
-      type: object
-      required:
-      - items
-      - has_more
-      title: Response
     src__routes__workspace_data_queries__invoke_workspace_data_query__Request:
       properties:
         input:
@@ -502,70 +455,6 @@ components:
           description: Caller arguments matching the declared parameters.
       type: object
       title: Request
-    src__routes__workspace_data_queries__list_workspace_data_queries__Response__Item:
-      properties:
-        id:
-          type: string
-          format: uuid
-          title: Id
-        name:
-          type: string
-          title: Name
-        description:
-          type: string
-          title: Description
-        sql_template:
-          type: string
-          title: Sql Template
-        parameter_count:
-          type: integer
-          title: Parameter Count
-        timeout_ms:
-          type: integer
-          title: Timeout Ms
-        last_invoked_at:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Last Invoked At
-        deployed_at:
-          type: string
-          format: date-time
-          title: Deployed At
-        deployed_by:
-          type: string
-          format: uuid
-          title: Deployed By
-      type: object
-      required:
-      - id
-      - name
-      - description
-      - sql_template
-      - parameter_count
-      - timeout_ms
-      - deployed_at
-      - deployed_by
-      title: Item
-    src__routes__workspace_data_queries__invoke_workspace_data_query__Response:
-      properties:
-        result:
-          items:
-            additionalProperties: true
-            type: object
-          type: array
-          title: Result
-        duration_ms:
-          type: number
-          title: Duration Ms
-          default: 0.0
-        row_count:
-          type: integer
-          title: Row Count
-          default: 0
-      type: object
-      title: Response
     WorkspaceDataQueryItem:
       properties:
         id:
@@ -631,7 +520,16 @@ components:
         from ``parameters[]``. UI consumers can build the JSON Schema view
 
         locally if they need it.'
-    src__routes__workspace_data_queries__update_workspace_data_query__Request__Parameter:
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    src__routes__workspace_data_queries__create_workspace_data_query__Request__Parameter:
       properties:
         name:
           type: string
@@ -668,18 +566,106 @@ components:
       - description
       title: Parameter
       description: Strict write-side validator for one declared parameter.
+    src__routes__workspace_data_queries__list_workspace_data_queries__Response__Item:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        name:
+          type: string
+          title: Name
+        description:
+          type: string
+          title: Description
+        sql_template:
+          type: string
+          title: Sql Template
+        parameter_count:
+          type: integer
+          title: Parameter Count
+        timeout_ms:
+          type: integer
+          title: Timeout Ms
+        last_invoked_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Last Invoked At
+        deployed_at:
+          type: string
+          format: date-time
+          title: Deployed At
+        deployed_by:
+          type: string
+          format: uuid
+          title: Deployed By
+      type: object
+      required:
+      - id
+      - name
+      - description
+      - sql_template
+      - parameter_count
+      - timeout_ms
+      - deployed_at
+      - deployed_by
+      title: Item
+    StoredParameter:
+      properties:
+        name:
+          type: string
+          title: Name
+        type:
+          type: string
+          enum:
+          - string
+          - integer
+          - number
+          - boolean
+          title: Type
+        description:
+          type: string
+          title: Description
+        default:
+          anyOf:
+          - type: string
+          - type: integer
+          - type: number
+          - type: boolean
+          - type: 'null'
+          title: Default
+      additionalProperties: false
+      type: object
+      required:
+      - name
+      - type
+      - description
+      title: StoredParameter
+      description: 'One typed input parameter to a workspace data query — trusted shape.
+
+
+        Read-path model: the DB''s CHECK constraints already enforced ``name``
+
+        regex and ``type`` enum on write, and the deploy endpoint''s strict
+
+        :class:`Parameter` validators enforced ``description`` length and
+
+        typo-rejection at the inbound network edge. After that, every
+
+        construction of this model (DB read projection, executor binding,
+
+        agent-engine spec, outbound response) is trusted — no 422 surface.
+
+
+        ``default is None`` is the canonical "required" signal: the executor
+
+        raises if a caller omits a required argument, otherwise substitutes
+
+        the stored default.'
   securitySchemes:
-    Bearer-Authorization:
+    BearerAuth:
       type: http
       scheme: bearer
-      bearerFormat: JWT
-      description: Amigo issued JWT token that identifies an user. It's issued either after logging in through the frontend, or manually through the [`SignInWithAPIKey`](sign-in-with-api-key) endpoint.
-    Bearer-Authorization-Organization:
-      type: apiKey
-      in: header
-      name: X-ORG-ID
-      description: An optional organization identifier that indicates from which organization the token is issued. This is used in rare cases where the user to authenticate is making a request for resources in another organization.
-    Basic:
-      type: http
-      scheme: basic
-      description: The username should be set to {org_id}_{user_id}, and the password should be the Amigo issued JWT token that identifies the user.
+      description: API key issued via `POST /v1/{workspace_id}/api-keys`. Pass the returned `api_key` value as a Bearer token.

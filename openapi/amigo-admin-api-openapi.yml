@@ -1,6 +1,6 @@
-openapi: 3.1.0
+openapi: 3.2.0
 info:
-  title: Amigo Account Admin API
+  title: Amigo Admin API
   version: 0.1.0
 servers:
 - url: https://api.amigo.ai
@@ -221,6 +221,39 @@ paths:
           description: The user has exceeded the rate limit of 20 requests per minute for this endpoint.
 components:
   schemas:
+    amigo_lib__pydantic__base_model__StrippedNonemptyString__1:
+      type: string
+      minLength: 1
+    Column:
+      properties:
+        name:
+          type: string
+          title: Name
+          description: The name of the column.
+        type:
+          type: string
+          title: Type
+          description: The data type of the column.
+      type: object
+      required:
+      - name
+      - type
+      title: Column
+    Model:
+      properties:
+        name:
+          type: string
+          title: Name
+        params_model_schema:
+          additionalProperties: true
+          type: object
+          title: Params Model Schema
+      additionalProperties: true
+      type: object
+      required:
+      - name
+      - params_model_schema
+      title: Model
     src__app__endpoints__admin__submit_sql_query__Response:
       properties:
         execution_time_ms:
@@ -251,21 +284,6 @@ components:
       - truncated
       - columns
       title: SyncQueryResponse
-    src__app__endpoints__admin__get_models__Response:
-      properties:
-        models:
-          items:
-            $ref: '#/components/schemas/Model'
-          type: array
-          title: Models
-      additionalProperties: true
-      type: object
-      required:
-      - models
-      title: Response
-    amigo_lib__pydantic__base_model__StrippedNonemptyString__1:
-      type: string
-      minLength: 1
     src__app__endpoints__admin__submit_sql_query__Request:
       properties:
         sql_query:
@@ -283,36 +301,18 @@ components:
       - sql_query
       - async_query
       title: Request
-    Model:
+    src__app__endpoints__admin__get_models__Response:
       properties:
-        name:
-          type: string
-          title: Name
-        params_model_schema:
-          additionalProperties: true
-          type: object
-          title: Params Model Schema
+        models:
+          items:
+            $ref: '#/components/schemas/Model'
+          type: array
+          title: Models
       additionalProperties: true
       type: object
       required:
-      - name
-      - params_model_schema
-      title: Model
-    Column:
-      properties:
-        name:
-          type: string
-          title: Name
-          description: The name of the column.
-        type:
-          type: string
-          title: Type
-          description: The data type of the column.
-      type: object
-      required:
-      - name
-      - type
-      title: Column
+      - models
+      title: Response
   securitySchemes:
     Bearer-Authorization:
       type: http

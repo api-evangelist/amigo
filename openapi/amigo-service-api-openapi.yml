@@ -1,6 +1,6 @@
-openapi: 3.1.0
+openapi: 3.2.0
 info:
-  title: Amigo Account Service API
+  title: Amigo Service API
   version: 0.1.0
 servers:
 - url: https://api.amigo.ai
@@ -465,236 +465,15 @@ paths:
           description: The user has exceeded the rate limit of 20 requests per minute for this endpoint.
 components:
   schemas:
-    ServiceInstance:
-      properties:
-        id:
-          type: string
-          title: Id
-          description: The identifier of the service.
-        name:
-          type: string
-          title: Name
-          description: The name of the service.
-        version_sets:
-          additionalProperties:
-            $ref: '#/components/schemas/VersionSet-Output'
-          type: object
-          title: Version Sets
-          description: The available version sets of the service.
-        description:
-          type: string
-          title: Description
-          description: A description of the service.
-        is_active:
-          type: boolean
-          title: Is Active
-          description: Whether the service is active.
-        service_hierarchical_state_machine_id:
-          type: string
-          title: Service Hierarchical State Machine Id
-          description: The ID of the state machine that this service uses.
-        agent_id:
-          type: string
-          title: Agent Id
-          description: The ID of the agent that this service uses.
-        tags:
-          items:
-            $ref: '#/components/schemas/Tag'
-          type: array
-          title: Tags
-          description: The tags of the service.
-        keyterms:
-          items:
-            type: string
-          type: array
-          title: Keyterms
-          description: A list of keyterms that are easy to get wrong during audio transcriptions that tend to occur commonly in audio sessions using this service.
-        creator:
-          $ref: '#/components/schemas/amigo_lib__mongo__collections__service__Service__UserInfo'
-          description: The user who created the service.
-        updated_by:
-          $ref: '#/components/schemas/amigo_lib__mongo__collections__service__Service__UserInfo'
-          description: The user who last updated the service.
-      type: object
-      required:
-      - id
-      - name
-      - version_sets
-      - description
-      - is_active
-      - service_hierarchical_state_machine_id
-      - agent_id
-      - tags
-      - keyterms
-      - creator
-      - updated_by
-      title: ServiceInstance
-    VersionSet-Input:
-      properties:
-        agent_version_number:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Agent Version Number
-          description: The version number of the agent to be used. If None, the latest agent version will be used.
-        service_hierarchical_state_machine_version_number:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Service Hierarchical State Machine Version Number
-          description: The version number of the state machine to be used. If None, the latest state machine version will be used.
-        llm_model_preferences:
-          additionalProperties:
-            $ref: '#/components/schemas/LLMConfig-Input'
-          type: object
-          title: Llm Model Preferences
-      type: object
-      required:
-      - agent_version_number
-      - service_hierarchical_state_machine_version_number
-      - llm_model_preferences
-      title: VersionSet
-    StrippedNonemptyString_A-Za-z0-9_-______MaxLen_max_length_40_:
-      type: string
-      maxLength: 40
-      minLength: 1
-      pattern: ^[A-Za-z0-9_-]+$
-    LLMType:
-      type: string
-      enum:
-      - azure_gpt-4.1-2025-04-14
-      - openai_gpt-4.1-2025-04-14
-      - azure_gpt-4.1-mini-2025-04-14
-      - openai_gpt-4.1-mini-2025-04-14
-      - azure_gpt-5-nano-2025-08-07
-      - azure_gpt-5.1-2025-11-13
-      - openai_gpt-5.1-2025-11-13
-      - azure_gpt-5.2-2025-12-11
-      - openai_gpt-5-nano-2025-08-07
-      - openai_gpt-5-mini-2025-08-07
-      - openai_gpt-5.4-nano-2026-03-17
-      - openai_gpt-5.4-mini-2026-03-17
-      - openai_gpt-5.5-2026-04-23
-      - openai_gpt-5.2-2025-12-11
-      - aws_claude-sonnet-4-5-20250929
-      - aws_claude-haiku-4-5-20251001
-      - aws_claude-sonnet-4-6
-      - aws_claude-opus-4-6
-      - google_gemini-2.5-pro
-      - google_gemini-2.5-flash
-    src__app__endpoints__service__upsert_service_version_set__Request:
-      properties:
-        version_set:
-          $ref: '#/components/schemas/VersionSet-Input'
-          description: The version set to upsert.
-      type: object
-      required:
-      - version_set
-      title: Request
-    src__app__endpoints__service__update_service__Request:
-      properties:
-        name:
-          anyOf:
-          - $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
-          - type: 'null'
-          description: The name of the service. Only updated if not-null.
-        description:
-          anyOf:
-          - $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
-          - type: 'null'
-          description: A description of this `Service`. Only updates if not-null.
-        is_active:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          title: Is Active
-          description: 'The activeness of the service. Only updated if not-null.
-
-
-            If set to `True` and the service is currently inactive, no other service with the same name can be active.
-
-
-            If set to `False` and the service is currently active, it is deactivated. This will error if the service is used in a simulation unit test.'
-        agent_id:
-          anyOf:
-          - type: string
-            pattern: ^[a-f0-9]{24}$
-          - type: 'null'
-          title: Agent Id
-          description: The ID of the agent that this service uses. Only updated if not-null.
-        service_hierarchical_state_machine_id:
-          anyOf:
-          - type: string
-            pattern: ^[a-f0-9]{24}$
-          - type: 'null'
-          title: Service Hierarchical State Machine Id
-          description: The ID of the service hierarchical state machine that this service uses. Only updated if not-null.
-        tags:
-          anyOf:
-          - additionalProperties:
-              anyOf:
-              - $ref: '#/components/schemas/StrippedNonemptyString___w__s_____'
-              - type: 'null'
-            propertyNames:
-              $ref: '#/components/schemas/StrippedNonemptyString___w__s_____'
-            type: object
-            maxProperties: 20
-          - type: 'null'
-          title: Tags
-          description: The tags of this service. Only updated if not-null.
-        keyterms:
-          anyOf:
-          - items:
-              $ref: '#/components/schemas/StrippedNonemptyString_a-z-_____a-z-____0_2____'
-            type: array
-            maxItems: 20
-          - type: 'null'
-          title: Keyterms
-          description: A list of keyterms that are easy to get wrong during audio transcriptions that tend to occur commonly in audio sessions using this service. Only updated if not-null.
-      type: object
-      title: Request
     amigo_lib__pydantic__base_model__StrippedNonemptyString__1:
       type: string
       minLength: 1
-    src__app__endpoints__service__get_services__Response:
-      properties:
-        services:
-          items:
-            $ref: '#/components/schemas/ServiceInstance'
-          type: array
-          title: Services
-          description: The services that are found.
-        has_more:
-          type: boolean
-          title: Has More
-          description: Whether there are more services to retrieve.
-        continuation_token:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Continuation Token
-          description: A token to supply to the next request to retrieve the next page of services. Only populated if `has_more` is `True`.
-        filter_values:
-          anyOf:
-          - $ref: '#/components/schemas/src__app__endpoints__service__get_services__Response__FilterValues'
-          - type: 'null'
-          description: 'For each filter that this endpoint supports that can take on dynamic values, this field includes what these values are. This is only provided for the first page in the pagination results.
-
-
-            Note that the values are counted assuming the authenticated user has access to all the services, so they might differ from how many services are actually
-
-            retrieved.'
-      type: object
-      required:
-      - services
-      - has_more
-      - continuation_token
-      - filter_values
-      title: Response
-    LLMConfig-Input:
+    LLMConfig-Output:
       properties:
         llm_name:
-          $ref: '#/components/schemas/LLMType'
+          type: string
+          title: Llm Name
+          description: The name of the LLM to use.
         params:
           additionalProperties: true
           type: object
@@ -705,62 +484,6 @@ components:
       required:
       - llm_name
       title: LLMConfig
-    src__app__endpoints__service__get_services__Response__FilterValues:
-      properties:
-        tags:
-          items:
-            type: string
-          type: array
-          title: Tags
-          description: A list of tags of the services.
-      type: object
-      required:
-      - tags
-      title: FilterValues
-    Tag:
-      properties:
-        key:
-          type: string
-          title: Key
-        value:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Value
-      type: object
-      required:
-      - key
-      - value
-      title: Tag
-    VersionSet-Output:
-      properties:
-        agent_version_number:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Agent Version Number
-          description: The version number of the agent to be used. If None, the latest agent version will be used.
-        service_hierarchical_state_machine_version_number:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Service Hierarchical State Machine Version Number
-          description: The version number of the state machine to be used. If None, the latest state machine version will be used.
-        llm_model_preferences:
-          additionalProperties:
-            $ref: '#/components/schemas/LLMConfig-Output'
-          type: object
-          title: Llm Model Preferences
-          description: 'A map of `LLMInteraction` name to the preferred LLM config that can be used for that interaction.
-
-            If an `LLMInteraction` is not in this map, the default model config will be used (defined in each `LLMInteraction` instance).'
-      type: object
-      required:
-      - agent_version_number
-      - service_hierarchical_state_machine_version_number
-      - llm_model_preferences
-      title: VersionSet
-      description: A version set pins the agent, state machine, and model version used by this service.
     src__app__endpoints__service__create_service__Response:
       properties:
         id:
@@ -828,10 +551,6 @@ components:
       - keyterms
       - tags
       title: Request
-    StrippedNonemptyString___w__s_____:
-      type: string
-      minLength: 1
-      pattern: ^[\w\s]+$
     amigo_lib__mongo__collections__service__Service__UserInfo:
       properties:
         org_id:
@@ -845,12 +564,142 @@ components:
       - org_id
       - user_id
       title: UserInfo
-    LLMConfig-Output:
+    StrippedNonemptyString_A-Za-z0-9_-______MaxLen_max_length_40_:
+      type: string
+      maxLength: 40
+      minLength: 1
+      pattern: ^[A-Za-z0-9_-]+$
+    StrippedNonemptyString_a-z-_____a-z-____0_2____:
+      type: string
+      minLength: 1
+      pattern: ^[a-z-]+( [a-z-]+){0,2}$
+    src__app__endpoints__service__upsert_service_version_set__Request:
+      properties:
+        version_set:
+          $ref: '#/components/schemas/VersionSet-Input'
+          description: The version set to upsert.
+      type: object
+      required:
+      - version_set
+      title: Request
+    ServiceInstance:
+      properties:
+        id:
+          type: string
+          title: Id
+          description: The identifier of the service.
+        name:
+          type: string
+          title: Name
+          description: The name of the service.
+        version_sets:
+          additionalProperties:
+            $ref: '#/components/schemas/VersionSet-Output'
+          type: object
+          title: Version Sets
+          description: The available version sets of the service.
+        description:
+          type: string
+          title: Description
+          description: A description of the service.
+        is_active:
+          type: boolean
+          title: Is Active
+          description: Whether the service is active.
+        service_hierarchical_state_machine_id:
+          type: string
+          title: Service Hierarchical State Machine Id
+          description: The ID of the state machine that this service uses.
+        agent_id:
+          type: string
+          title: Agent Id
+          description: The ID of the agent that this service uses.
+        tags:
+          items:
+            $ref: '#/components/schemas/Tag'
+          type: array
+          title: Tags
+          description: The tags of the service.
+        keyterms:
+          items:
+            type: string
+          type: array
+          title: Keyterms
+          description: A list of keyterms that are easy to get wrong during audio transcriptions that tend to occur commonly in audio sessions using this service.
+        creator:
+          $ref: '#/components/schemas/amigo_lib__mongo__collections__service__Service__UserInfo'
+          description: The user who created the service.
+        updated_by:
+          $ref: '#/components/schemas/amigo_lib__mongo__collections__service__Service__UserInfo'
+          description: The user who last updated the service.
+      type: object
+      required:
+      - id
+      - name
+      - version_sets
+      - description
+      - is_active
+      - service_hierarchical_state_machine_id
+      - agent_id
+      - tags
+      - keyterms
+      - creator
+      - updated_by
+      title: ServiceInstance
+    Tag:
+      properties:
+        key:
+          type: string
+          title: Key
+        value:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Value
+      type: object
+      required:
+      - key
+      - value
+      title: Tag
+    src__app__endpoints__service__get_services__Response:
+      properties:
+        services:
+          items:
+            $ref: '#/components/schemas/ServiceInstance'
+          type: array
+          title: Services
+          description: The services that are found.
+        has_more:
+          type: boolean
+          title: Has More
+          description: Whether there are more services to retrieve.
+        continuation_token:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Continuation Token
+          description: A token to supply to the next request to retrieve the next page of services. Only populated if `has_more` is `True`.
+        filter_values:
+          anyOf:
+          - $ref: '#/components/schemas/src__app__endpoints__service__get_services__Response__FilterValues'
+          - type: 'null'
+          description: 'For each filter that this endpoint supports that can take on dynamic values, this field includes what these values are. This is only provided for the first page in the pagination results.
+
+
+            Note that the values are counted assuming the authenticated user has access to all the services, so they might differ from how many services are actually
+
+            retrieved.'
+      type: object
+      required:
+      - services
+      - has_more
+      - continuation_token
+      - filter_values
+      title: Response
+    LLMConfig-Input:
       properties:
         llm_name:
-          type: string
-          title: Llm Name
-          description: The name of the LLM to use.
+          $ref: '#/components/schemas/LLMType'
         params:
           additionalProperties: true
           type: object
@@ -861,10 +710,161 @@ components:
       required:
       - llm_name
       title: LLMConfig
-    StrippedNonemptyString_a-z-_____a-z-____0_2____:
+    VersionSet-Input:
+      properties:
+        agent_version_number:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Agent Version Number
+          description: The version number of the agent to be used. If None, the latest agent version will be used.
+        service_hierarchical_state_machine_version_number:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Service Hierarchical State Machine Version Number
+          description: The version number of the state machine to be used. If None, the latest state machine version will be used.
+        llm_model_preferences:
+          additionalProperties:
+            $ref: '#/components/schemas/LLMConfig-Input'
+          type: object
+          title: Llm Model Preferences
+      type: object
+      required:
+      - agent_version_number
+      - service_hierarchical_state_machine_version_number
+      - llm_model_preferences
+      title: VersionSet
+    LLMType:
+      type: string
+      enum:
+      - azure_gpt-4.1-2025-04-14
+      - openai_gpt-4.1-2025-04-14
+      - azure_gpt-4.1-mini-2025-04-14
+      - openai_gpt-4.1-mini-2025-04-14
+      - azure_gpt-5-nano-2025-08-07
+      - azure_gpt-5.1-2025-11-13
+      - openai_gpt-5.1-2025-11-13
+      - azure_gpt-5.2-2025-12-11
+      - openai_gpt-5-nano-2025-08-07
+      - openai_gpt-5-mini-2025-08-07
+      - openai_gpt-5.4-nano-2026-03-17
+      - openai_gpt-5.4-mini-2026-03-17
+      - openai_gpt-5.5-2026-04-23
+      - openai_gpt-5.2-2025-12-11
+      - aws_claude-sonnet-4-5-20250929
+      - aws_claude-haiku-4-5-20251001
+      - aws_claude-sonnet-4-6
+      - aws_claude-opus-4-6
+      - google_gemini-2.5-pro
+      - google_gemini-2.5-flash
+    StrippedNonemptyString___w__s_____:
       type: string
       minLength: 1
-      pattern: ^[a-z-]+( [a-z-]+){0,2}$
+      pattern: ^[\w\s]+$
+    VersionSet-Output:
+      properties:
+        agent_version_number:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Agent Version Number
+          description: The version number of the agent to be used. If None, the latest agent version will be used.
+        service_hierarchical_state_machine_version_number:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Service Hierarchical State Machine Version Number
+          description: The version number of the state machine to be used. If None, the latest state machine version will be used.
+        llm_model_preferences:
+          additionalProperties:
+            $ref: '#/components/schemas/LLMConfig-Output'
+          type: object
+          title: Llm Model Preferences
+          description: 'A map of `LLMInteraction` name to the preferred LLM config that can be used for that interaction.
+
+            If an `LLMInteraction` is not in this map, the default model config will be used (defined in each `LLMInteraction` instance).'
+      type: object
+      required:
+      - agent_version_number
+      - service_hierarchical_state_machine_version_number
+      - llm_model_preferences
+      title: VersionSet
+      description: A version set pins the agent, state machine, and model version used by this service.
+    src__app__endpoints__service__get_services__Response__FilterValues:
+      properties:
+        tags:
+          items:
+            type: string
+          type: array
+          title: Tags
+          description: A list of tags of the services.
+      type: object
+      required:
+      - tags
+      title: FilterValues
+    src__app__endpoints__service__update_service__Request:
+      properties:
+        name:
+          anyOf:
+          - $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
+          - type: 'null'
+          description: The name of the service. Only updated if not-null.
+        description:
+          anyOf:
+          - $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
+          - type: 'null'
+          description: A description of this `Service`. Only updates if not-null.
+        is_active:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Active
+          description: 'The activeness of the service. Only updated if not-null.
+
+
+            If set to `True` and the service is currently inactive, no other service with the same name can be active.
+
+
+            If set to `False` and the service is currently active, it is deactivated. This will error if the service is used in a simulation unit test.'
+        agent_id:
+          anyOf:
+          - type: string
+            pattern: ^[a-f0-9]{24}$
+          - type: 'null'
+          title: Agent Id
+          description: The ID of the agent that this service uses. Only updated if not-null.
+        service_hierarchical_state_machine_id:
+          anyOf:
+          - type: string
+            pattern: ^[a-f0-9]{24}$
+          - type: 'null'
+          title: Service Hierarchical State Machine Id
+          description: The ID of the service hierarchical state machine that this service uses. Only updated if not-null.
+        tags:
+          anyOf:
+          - additionalProperties:
+              anyOf:
+              - $ref: '#/components/schemas/StrippedNonemptyString___w__s_____'
+              - type: 'null'
+            propertyNames:
+              $ref: '#/components/schemas/StrippedNonemptyString___w__s_____'
+            type: object
+            maxProperties: 20
+          - type: 'null'
+          title: Tags
+          description: The tags of this service. Only updated if not-null.
+        keyterms:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/StrippedNonemptyString_a-z-_____a-z-____0_2____'
+            type: array
+            maxItems: 20
+          - type: 'null'
+          title: Keyterms
+          description: A list of keyterms that are easy to get wrong during audio transcriptions that tend to occur commonly in audio sessions using this service. Only updated if not-null.
+      type: object
+      title: Request
   securitySchemes:
     Bearer-Authorization:
       type: http

@@ -1,17 +1,13 @@
-openapi: 3.1.0
+openapi: 3.2.0
 info:
-  title: Amigo Account World API
-  version: 0.1.0
+  title: Platform World API
+  description: Management API for the Amigo platform. Provides CRUD operations for workspaces, API keys, and resources.
+  version: 1.0.0
 servers:
-- url: https://api.amigo.ai
-- url: https://internal-api.amigo.ai
-- url: https://api-eu-central-1.amigo.ai
-- url: https://api-ap-southeast-2.amigo.ai
-- url: https://api-ca-central-1.amigo.ai
+- url: https://api.platform.amigo.ai
+  description: Production
 security:
-- Bearer-Authorization: []
-  Bearer-Authorization-Organization: []
-  Basic: []
+- BearerAuth: []
 tags:
 - name: World
 paths:
@@ -1102,585 +1098,6 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
-    EntityStatsSummary:
-      properties:
-        total_entities:
-          type: integer
-          title: Total Entities
-        total_events:
-          type: integer
-          title: Total Events
-        sync_pending:
-          type: integer
-          title: Sync Pending
-        sync_synced:
-          type: integer
-          title: Sync Synced
-        sync_failed:
-          type: integer
-          title: Sync Failed
-        by_event_type:
-          additionalProperties:
-            type: integer
-          type: object
-          title: By Event Type
-        event_type_window_days:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Event Type Window Days
-          description: Window applied to by_event_type counts when an entity_type filter is supplied.
-      type: object
-      required:
-      - total_entities
-      - total_events
-      - sync_pending
-      - sync_synced
-      - sync_failed
-      title: EntityStatsSummary
-    MigrationConversationItem:
-      properties:
-        entity_id:
-          type: string
-          format: uuid
-          title: Entity Id
-        source_conversation_id:
-          type: string
-          maxLength: 128
-          minLength: 1
-          title: Source Conversation Id
-        started_at:
-          type: string
-          format: date-time
-          title: Started At
-        ended_at:
-          type: string
-          format: date-time
-          title: Ended At
-        channel_kind:
-          $ref: '#/components/schemas/ChannelKind'
-          default: web
-        turn_count:
-          type: integer
-          minimum: 0.0
-          title: Turn Count
-          default: 0
-      type: object
-      required:
-      - entity_id
-      - source_conversation_id
-      - started_at
-      - ended_at
-      title: MigrationConversationItem
-    EnrichmentKeyCreateBody:
-      properties:
-        entity_type:
-          type: string
-          maxLength: 64
-          minLength: 1
-          title: Entity Type
-        key:
-          type: string
-          maxLength: 128
-          minLength: 1
-          pattern: ^[a-z0-9][a-z0-9_\-]*$
-          title: Key
-        value_type:
-          type: string
-          enum:
-          - string
-          - number
-          - boolean
-          - date
-          - enum
-          - json
-          title: Value Type
-        allowed_values:
-          anyOf:
-          - items: {}
-            type: array
-          - type: 'null'
-          title: Allowed Values
-          description: Required when value_type=enum. Ignored otherwise.
-        source_hint:
-          anyOf:
-          - $ref: '#/components/schemas/DescriptionString'
-          - type: 'null'
-        description:
-          anyOf:
-          - $ref: '#/components/schemas/DescriptionString'
-          - type: 'null'
-        min_confidence:
-          type: number
-          maximum: 1.0
-          minimum: 0.0
-          title: Min Confidence
-          default: 0.0
-        is_pii:
-          type: boolean
-          title: Is Pii
-          default: false
-        tags:
-          items:
-            type: string
-            const: memory_extract
-          type: array
-          title: Tags
-          description: Routing tags. 'memory_extract' opts this key into memory extraction — the conversation extractor will infer it from transcripts as a workspace-custom memory dimension (person keys with a description only).
-      type: object
-      required:
-      - entity_type
-      - key
-      - value_type
-      title: EnrichmentKeyCreateBody
-    SourceBreakdownResponse:
-      properties:
-        breakdown:
-          items:
-            $ref: '#/components/schemas/SourceBreakdownItem'
-          type: array
-          title: Breakdown
-        total:
-          type: integer
-          title: Total
-      type: object
-      required:
-      - breakdown
-      - total
-      title: SourceBreakdownResponse
-    ConnectorResourcesResponse:
-      properties:
-        resource_type:
-          type: string
-          maxLength: 256
-          title: Resource Type
-          description: FHIR resource type (e.g. Patient, Condition, MedicationRequest)
-        data_source_id:
-          type: string
-          format: uuid
-          title: Data Source Id
-          description: UUID of the connected data source
-        total:
-          type: integer
-          title: Total
-          description: Total number of matching resources
-        entries:
-          items:
-            additionalProperties: true
-            type: object
-          type: array
-          maxItems: 100
-          title: Entries
-          description: Raw FHIR resource JSON objects
-      type: object
-      required:
-      - resource_type
-      - data_source_id
-      - total
-      - entries
-      title: ConnectorResourcesResponse
-      description: FHIR resources from a specific connected data source.
-    ValidationError:
-      properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-        input:
-          title: Input
-        ctx:
-          type: object
-          title: Context
-      type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
-    MigrationConversationsBody:
-      properties:
-        conversations:
-          items:
-            $ref: '#/components/schemas/MigrationConversationItem'
-          type: array
-          maxItems: 500
-          minItems: 1
-          title: Conversations
-      type: object
-      required:
-      - conversations
-      title: MigrationConversationsBody
-    SourceBreakdownItem:
-      properties:
-        source_system:
-          type: string
-          title: Source System
-        entity_type:
-          type: string
-          title: Entity Type
-        count:
-          type: integer
-          title: Count
-      type: object
-      required:
-      - source_system
-      - entity_type
-      - count
-      title: SourceBreakdownItem
-    EntityRelationshipsResponse:
-      properties:
-        entity_id:
-          type: string
-          format: uuid
-          title: Entity Id
-        relationships:
-          items:
-            $ref: '#/components/schemas/EntityRelationshipResponse'
-          type: array
-          title: Relationships
-        total:
-          type: integer
-          title: Total
-      type: object
-      required:
-      - entity_id
-      - relationships
-      - total
-      title: EntityRelationshipsResponse
-    MigrationConversationsResponse:
-      properties:
-        imported:
-          type: integer
-          title: Imported
-        created:
-          type: integer
-          title: Created
-        updated:
-          type: integer
-          title: Updated
-      type: object
-      required:
-      - imported
-      - created
-      - updated
-      title: MigrationConversationsResponse
-    EnrichmentHistoryResponse:
-      properties:
-        entity_id:
-          type: string
-          format: uuid
-          title: Entity Id
-        key:
-          type: string
-          maxLength: 128
-          minLength: 1
-          pattern: ^[a-z0-9][a-z0-9_\-]*$
-          title: Key
-        history:
-          items:
-            $ref: '#/components/schemas/EnrichmentHistoryEntry'
-          type: array
-          title: History
-        dropped_count:
-          type: integer
-          title: Dropped Count
-          default: 0
-      type: object
-      required:
-      - entity_id
-      - key
-      - history
-      title: EnrichmentHistoryResponse
-    EntityResolveExternalId:
-      properties:
-        system:
-          $ref: '#/components/schemas/ExternalSystemString'
-          description: External system label (lowercase, e.g. 'epic').
-        value:
-          $ref: '#/components/schemas/ExternalValueString'
-          description: System-issued identifier.
-      type: object
-      required:
-      - system
-      - value
-      title: EntityResolveExternalId
-      description: 'Reference to an external-system identifier.
-
-
-        ``system`` labels which system minted the value (``epic``, ``charm``,
-
-        ``charmhealth``, …). Resolution probes the canonical entity map
-
-        (``world.canonical_entity_map_synced``) with the candidate key forms
-
-        ``{system}:{ResourceType}:{value}`` (Patient / Practitioner /
-
-        Organization / Appointment) plus the bare ``value`` — so ``system``
-
-        constrains the probe keys, and the request''s ``entity_type``
-
-        constrains the map slice. External aliases that were never minted as
-
-        canonical keys (the legacy ``external_ids`` JSONB junk-drawer
-
-        entries) are no longer resolvable.'
-    EnrichmentWriteBody:
-      properties:
-        value:
-          title: Value
-          description: Scalar or JSON-compatible value to store.
-        value_type:
-          anyOf:
-          - type: string
-            enum:
-            - string
-            - number
-            - boolean
-            - date
-            - enum
-            - json
-          - type: 'null'
-          title: Value Type
-          description: Overrides the registry value_type when set. Rarely needed.
-        source:
-          type: string
-          maxLength: 64
-          minLength: 1
-          title: Source
-          description: Write source — e.g. manual, forms, auto_enrich.
-          default: manual
-        source_system:
-          anyOf:
-          - type: string
-            maxLength: 128
-            minLength: 1
-          - type: 'null'
-          title: Source System
-          description: Subsystem / connector identifier.
-        confidence:
-          type: number
-          maximum: 1.0
-          minimum: 0.0
-          title: Confidence
-          description: Write confidence. Must be >= registry min_confidence for the key.
-          default: 1.0
-        effective_at:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Effective At
-          description: When the value became true (UTC). Defaults to ingested_at.
-      type: object
-      required:
-      - value
-      title: EnrichmentWriteBody
-    EnrichmentHistoryEntry:
-      properties:
-        event_id:
-          type: string
-          format: uuid
-          title: Event Id
-        value:
-          title: Value
-        value_type:
-          type: string
-          enum:
-          - string
-          - number
-          - boolean
-          - date
-          - enum
-          - json
-          title: Value Type
-        confidence:
-          type: number
-          title: Confidence
-        source:
-          type: string
-          title: Source
-        source_system:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Source System
-        effective_at:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Effective At
-        ingested_at:
-          type: string
-          format: date-time
-          title: Ingested At
-        supersedes:
-          anyOf:
-          - type: string
-            format: uuid
-          - type: 'null'
-          title: Supersedes
-        is_current:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          title: Is Current
-      type: object
-      required:
-      - event_id
-      - value
-      - value_type
-      - confidence
-      - source
-      - ingested_at
-      - is_current
-      title: EnrichmentHistoryEntry
-    ConnectorOverviewItem:
-      properties:
-        data_source_id:
-          type: string
-          format: uuid
-          title: Data Source Id
-        name:
-          type: string
-          title: Name
-        display_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Display Name
-        source_type:
-          type: string
-          title: Source Type
-        connector_type:
-          type: string
-          title: Connector Type
-        entity_count:
-          type: integer
-          title: Entity Count
-        entities_by_type:
-          additionalProperties:
-            type: integer
-          type: object
-          title: Entities By Type
-        last_sync_at:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Last Sync At
-        last_sync_status:
-          anyOf:
-          - type: string
-            enum:
-            - success
-            - error
-          - type: 'null'
-          title: Last Sync Status
-        last_sync_event_count:
-          type: integer
-          title: Last Sync Event Count
-          default: 0
-        health_status:
-          type: string
-          enum:
-          - unknown
-          - healthy
-          - degraded
-          title: Health Status
-          default: unknown
-        is_active:
-          type: boolean
-          title: Is Active
-          default: true
-      type: object
-      required:
-      - data_source_id
-      - name
-      - source_type
-      - connector_type
-      - entity_count
-      title: ConnectorOverviewItem
-    OutboundSyncBySinkResponse:
-      properties:
-        sinks:
-          items:
-            $ref: '#/components/schemas/SinkSyncStatus'
-          type: array
-          title: Sinks
-      type: object
-      required:
-      - sinks
-      title: OutboundSyncBySinkResponse
-    EntityRelationshipResponse:
-      properties:
-        id:
-          type: string
-          format: uuid
-          title: Id
-        source_entity_id:
-          type: string
-          format: uuid
-          title: Source Entity Id
-        source_entity_type:
-          type: string
-          title: Source Entity Type
-        target_entity_id:
-          type: string
-          format: uuid
-          title: Target Entity Id
-        target_entity_type:
-          type: string
-          title: Target Entity Type
-        relationship:
-          type: string
-          title: Relationship
-        data:
-          additionalProperties: true
-          type: object
-          title: Data
-        confidence:
-          type: number
-          title: Confidence
-          default: 1.0
-        discovered_by:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Discovered By
-        is_current:
-          type: boolean
-          title: Is Current
-          default: true
-        created_at:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Created At
-          description: When the relationship was created
-      type: object
-      required:
-      - id
-      - source_entity_id
-      - source_entity_type
-      - target_entity_id
-      - target_entity_type
-      - relationship
-      title: EntityRelationshipResponse
-    PhoneE164:
-      type: string
-      maxLength: 16
-      minLength: 2
     EntityResolveRequest:
       properties:
         entity_type:
@@ -1745,63 +1162,23 @@ components:
         Multi-identifier queries are useful for confirming a row matches
 
         on more than one signal (phone + email + MRN).'
-    EventTypeRegistryResponse:
+    SourceBreakdownItem:
       properties:
-        event_types:
-          items:
-            $ref: '#/components/schemas/EventTypeSummary'
-          type: array
-          title: Event Types
-        total_events:
+        source_system:
+          type: string
+          title: Source System
+        entity_type:
+          type: string
+          title: Entity Type
+        count:
           type: integer
-          title: Total Events
+          title: Count
       type: object
       required:
-      - event_types
-      - total_events
-      title: EventTypeRegistryResponse
-    EnrichmentKeyPatchBody:
-      properties:
-        allowed_values:
-          anyOf:
-          - items: {}
-            type: array
-          - type: 'null'
-          title: Allowed Values
-        source_hint:
-          anyOf:
-          - $ref: '#/components/schemas/DescriptionString'
-          - type: 'null'
-        description:
-          anyOf:
-          - $ref: '#/components/schemas/DescriptionString'
-          - type: 'null'
-        min_confidence:
-          anyOf:
-          - type: number
-            maximum: 1.0
-            minimum: 0.0
-          - type: 'null'
-          title: Min Confidence
-        is_pii:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          title: Is Pii
-        tags:
-          anyOf:
-          - items:
-              type: string
-              const: memory_extract
-            type: array
-          - type: 'null'
-          title: Tags
-          description: Replaces the full tags list when set. Pass [] to remove all tags.
-      type: object
-      title: EnrichmentKeyPatchBody
-    EventCallSidString:
-      type: string
-      maxLength: 128
+      - source_system
+      - entity_type
+      - count
+      title: SourceBreakdownItem
     EntityListResponse:
       properties:
         entities:
@@ -1826,9 +1203,335 @@ components:
       - total
       - has_more
       title: EntityListResponse
+    EnrichmentListResponse:
+      properties:
+        entity_id:
+          type: string
+          format: uuid
+          title: Entity Id
+        values:
+          items:
+            $ref: '#/components/schemas/EnrichmentValueResponse'
+          type: array
+          title: Values
+      type: object
+      required:
+      - entity_id
+      - values
+      title: EnrichmentListResponse
+    ChannelKind:
+      type: string
+      enum:
+      - voice
+      - sms
+      - whatsapp
+      - email
+      - web
+      - imessage
+      title: ChannelKind
+      description: 'HSM execution channel type.
+
+
+        Determines how the HSM engine communicates with end users.
+
+        Each kind maps to one or more providers.'
     EventOutcomeString:
       type: string
       maxLength: 256
+    EntityResolveMatch:
+      properties:
+        entity_id:
+          type: string
+          format: uuid
+          title: Entity Id
+        entity_type:
+          type: string
+          title: Entity Type
+        confidence:
+          type: number
+          maximum: 1.0
+          minimum: 0.0
+          title: Confidence
+          description: Match confidence (0-1).
+        matched_on:
+          items:
+            type: string
+            enum:
+            - entity_id
+            - phone
+            - email
+            - canonical_id
+            - external_id
+          type: array
+          title: Matched On
+          description: Identifier kinds that actually matched this row.
+        summary:
+          $ref: '#/components/schemas/EntityResolveSummary'
+      type: object
+      required:
+      - entity_id
+      - entity_type
+      - confidence
+      - summary
+      title: EntityResolveMatch
+      description: One candidate match with provenance + confidence.
+    EntityResolveExternalId:
+      properties:
+        system:
+          $ref: '#/components/schemas/ExternalSystemString'
+          description: External system label (lowercase, e.g. 'epic').
+        value:
+          $ref: '#/components/schemas/ExternalValueString'
+          description: System-issued identifier.
+      type: object
+      required:
+      - system
+      - value
+      title: EntityResolveExternalId
+      description: 'Reference to an external-system identifier.
+
+
+        ``system`` labels which system minted the value (``epic``, ``charm``,
+
+        ``charmhealth``, …). Resolution probes the canonical entity map
+
+        (``world.canonical_entity_map_synced``) with the candidate key forms
+
+        ``{system}:{ResourceType}:{value}`` (Patient / Practitioner /
+
+        Organization / Appointment) plus the bare ``value`` — so ``system``
+
+        constrains the probe keys, and the request''s ``entity_type``
+
+        constrains the map slice. External aliases that were never minted as
+
+        canonical keys (the legacy ``external_ids`` JSONB junk-drawer
+
+        entries) are no longer resolvable.'
+    ExternalSystemString:
+      type: string
+      maxLength: 64
+      minLength: 1
+      pattern: ^[a-z0-9_\-]+$
+    EventDisplayNameString:
+      type: string
+      maxLength: 512
+    EnrichmentKeyCreateBody:
+      properties:
+        entity_type:
+          type: string
+          maxLength: 64
+          minLength: 1
+          title: Entity Type
+        key:
+          type: string
+          maxLength: 128
+          minLength: 1
+          pattern: ^[a-z0-9][a-z0-9_\-]*$
+          title: Key
+        value_type:
+          type: string
+          enum:
+          - string
+          - number
+          - boolean
+          - date
+          - enum
+          - json
+          title: Value Type
+        allowed_values:
+          anyOf:
+          - items: {}
+            type: array
+          - type: 'null'
+          title: Allowed Values
+          description: Required when value_type=enum. Ignored otherwise.
+        source_hint:
+          anyOf:
+          - $ref: '#/components/schemas/DescriptionString'
+          - type: 'null'
+        description:
+          anyOf:
+          - $ref: '#/components/schemas/DescriptionString'
+          - type: 'null'
+        min_confidence:
+          type: number
+          maximum: 1.0
+          minimum: 0.0
+          title: Min Confidence
+          default: 0.0
+        is_pii:
+          type: boolean
+          title: Is Pii
+          default: false
+        tags:
+          items:
+            type: string
+            const: memory_extract
+          type: array
+          title: Tags
+          description: Routing tags. 'memory_extract' opts this key into memory extraction — the conversation extractor will infer it from transcripts as a workspace-custom memory dimension (person keys with a description only).
+      type: object
+      required:
+      - entity_type
+      - key
+      - value_type
+      title: EnrichmentKeyCreateBody
+    EnrichmentKeyListResponse:
+      properties:
+        keys:
+          items:
+            $ref: '#/components/schemas/EnrichmentKeyResponse'
+          type: array
+          title: Keys
+      type: object
+      required:
+      - keys
+      title: EnrichmentKeyListResponse
+    EnrichmentKeyResponse:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        workspace_id:
+          type: string
+          format: uuid
+          title: Workspace Id
+        entity_type:
+          type: string
+          maxLength: 64
+          minLength: 1
+          title: Entity Type
+        key:
+          type: string
+          maxLength: 128
+          minLength: 1
+          pattern: ^[a-z0-9][a-z0-9_\-]*$
+          title: Key
+        value_type:
+          type: string
+          enum:
+          - string
+          - number
+          - boolean
+          - date
+          - enum
+          - json
+          title: Value Type
+        allowed_values:
+          anyOf:
+          - items: {}
+            type: array
+          - type: 'null'
+          title: Allowed Values
+        source_hint:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Source Hint
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        min_confidence:
+          type: number
+          title: Min Confidence
+        is_pii:
+          type: boolean
+          title: Is Pii
+        tags:
+          items:
+            type: string
+          type: array
+          title: Tags
+          default: []
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+      type: object
+      required:
+      - id
+      - workspace_id
+      - entity_type
+      - key
+      - value_type
+      - min_confidence
+      - is_pii
+      - created_at
+      - updated_at
+      title: EnrichmentKeyResponse
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    SourceBreakdownResponse:
+      properties:
+        breakdown:
+          items:
+            $ref: '#/components/schemas/SourceBreakdownItem'
+          type: array
+          title: Breakdown
+        total:
+          type: integer
+          title: Total
+      type: object
+      required:
+      - breakdown
+      - total
+      title: SourceBreakdownResponse
+    EntityTypeSummary:
+      properties:
+        entity_type:
+          type: string
+          title: Entity Type
+        count:
+          type: integer
+          title: Count
+        last_updated:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Last Updated
+        has_projection:
+          type: boolean
+          title: Has Projection
+      type: object
+      required:
+      - entity_type
+      - count
+      - last_updated
+      - has_projection
+      title: EntityTypeSummary
     EntityResponse:
       properties:
         id:
@@ -2017,240 +1720,6 @@ components:
       - workspace_id
       - entity_type
       title: EntityResponse
-    EntityResolveSummary:
-      properties:
-        display_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Display Name
-        name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Name
-        phone:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Phone
-        email:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Email
-        birth_date:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Birth Date
-        mrn:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Mrn
-        canonical_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Canonical Id
-          description: Canonical-map value when resolved through the map, else the entity's MRN.
-        external_ids:
-          additionalProperties: true
-          type: object
-          title: External Ids
-          description: Always {} — external aliases live in the canonical entity map, not on the serving row.
-        last_event_at:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Last Event At
-        event_count:
-          type: integer
-          title: Event Count
-          default: 0
-        tags:
-          items:
-            type: string
-          type: array
-          title: Tags
-          description: Always [] — no tags column on the synced serving table.
-      type: object
-      title: EntityResolveSummary
-      description: 'Compact identity card returned for each match.
-
-
-        Excludes full entity state — fetch via
-
-        ``GET /v1/{ws}/entities/{entity_id}`` if needed. The fields here are
-
-        the ones a UI / agent needs to confirm "yes, that''s the right
-
-        person" before paying for the full state read.
-
-
-        Stage-7 narrowing (resolver serves from ``entities_synced`` +
-
-        the canonical entity map; fields retained for wire compatibility):
-
-        ``external_ids`` is always ``{}`` and ``tags`` is always ``[]`` —
-
-        neither survives on the synced serving table. ``canonical_id`` is
-
-        the canonical-map value when the row resolved through the map, else
-
-        the entity''s MRN.'
-    ExternalSystemString:
-      type: string
-      maxLength: 64
-      minLength: 1
-      pattern: ^[a-z0-9_\-]+$
-    EntityTypeSummary:
-      properties:
-        entity_type:
-          type: string
-          title: Entity Type
-        count:
-          type: integer
-          title: Count
-        last_updated:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Last Updated
-        has_projection:
-          type: boolean
-          title: Has Projection
-      type: object
-      required:
-      - entity_type
-      - count
-      - last_updated
-      - has_projection
-      title: EntityTypeSummary
-    SinkSyncStatus:
-      properties:
-        data_source_id:
-          type: string
-          format: uuid
-          title: Data Source Id
-        name:
-          type: string
-          title: Name
-        source_type:
-          type: string
-          title: Source Type
-        total:
-          type: integer
-          title: Total
-        synced:
-          type: integer
-          title: Synced
-        failed:
-          type: integer
-          title: Failed
-        pending:
-          type: integer
-          title: Pending
-      type: object
-      required:
-      - data_source_id
-      - name
-      - source_type
-      - total
-      - synced
-      - failed
-      - pending
-      title: SinkSyncStatus
-    WorldDashboardResponse:
-      properties:
-        entity_counts:
-          $ref: '#/components/schemas/EntityStatsSummary'
-        events_24h:
-          anyOf:
-          - type: integer
-            minimum: 0.0
-          - type: 'null'
-          title: Events 24H
-          description: Event count from the Lakebase read model; null when the projection is empty or unavailable.
-        events_7d:
-          anyOf:
-          - type: integer
-            minimum: 0.0
-          - type: 'null'
-          title: Events 7D
-          description: Event count from the Lakebase read model; null when the projection is empty or unavailable.
-        avg_confidence:
-          anyOf:
-          - type: number
-            maximum: 1.0
-            minimum: 0.0
-          - type: 'null'
-          title: Avg Confidence
-        event_read_model_status:
-          type: string
-          enum:
-          - ready
-          - empty
-          - unavailable
-          title: Event Read Model Status
-          description: ready = Lakebase projection returned a row; empty = no summary row; unavailable = read failed.
-          default: empty
-        event_read_model_synced_at:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Event Read Model Synced At
-          description: platform.event_velocity_summary synced_at for this workspace.
-        sources:
-          items:
-            $ref: '#/components/schemas/SourceBreakdownItem'
-          type: array
-          maxItems: 500
-          title: Sources
-      type: object
-      required:
-      - entity_counts
-      title: WorldDashboardResponse
-    EventDisplayNameString:
-      type: string
-      maxLength: 512
-    EntityTimelineResponse:
-      properties:
-        entity_id:
-          type: string
-          format: uuid
-          title: Entity Id
-        events:
-          items:
-            $ref: '#/components/schemas/EntityEventResponse'
-          type: array
-          title: Events
-        total:
-          type: integer
-          title: Total
-        has_more:
-          type: boolean
-          title: Has More
-        next_offset:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Next Offset
-      type: object
-      required:
-      - entity_id
-      - events
-      - total
-      - has_more
-      title: EntityTimelineResponse
-    ExternalValueString:
-      type: string
-      maxLength: 256
-      minLength: 1
     EnrichmentValueResponse:
       properties:
         key:
@@ -2307,6 +1776,39 @@ components:
       - source
       - event_id
       title: EnrichmentValueResponse
+    EventTypeRegistryResponse:
+      properties:
+        event_types:
+          items:
+            $ref: '#/components/schemas/EventTypeSummary'
+          type: array
+          title: Event Types
+        total_events:
+          type: integer
+          title: Total Events
+      type: object
+      required:
+      - event_types
+      - total_events
+      title: EventTypeRegistryResponse
+    ConnectorOverviewResponse:
+      properties:
+        connectors:
+          items:
+            $ref: '#/components/schemas/ConnectorOverviewItem'
+          type: array
+          title: Connectors
+        total_entities:
+          type: integer
+          title: Total Entities
+      type: object
+      required:
+      - connectors
+      - total_entities
+      title: ConnectorOverviewResponse
+    EventDescriptionString:
+      type: string
+      maxLength: 4096
     HTTPValidationError:
       properties:
         detail:
@@ -2316,9 +1818,71 @@ components:
           title: Detail
       type: object
       title: HTTPValidationError
-    EventDirectionString:
+    ExternalValueString:
+      type: string
+      maxLength: 256
+      minLength: 1
+    EntityTypeString:
       type: string
       maxLength: 64
+      minLength: 1
+      pattern: ^[a-z0-9_]+$
+    EntityRelationshipResponse:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        source_entity_id:
+          type: string
+          format: uuid
+          title: Source Entity Id
+        source_entity_type:
+          type: string
+          title: Source Entity Type
+        target_entity_id:
+          type: string
+          format: uuid
+          title: Target Entity Id
+        target_entity_type:
+          type: string
+          title: Target Entity Type
+        relationship:
+          type: string
+          title: Relationship
+        data:
+          additionalProperties: true
+          type: object
+          title: Data
+        confidence:
+          type: number
+          title: Confidence
+          default: 1.0
+        discovered_by:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Discovered By
+        is_current:
+          type: boolean
+          title: Is Current
+          default: true
+        created_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Created At
+          description: When the relationship was created
+      type: object
+      required:
+      - id
+      - source_entity_id
+      - source_entity_type
+      - target_entity_id
+      - target_entity_type
+      - relationship
+      title: EntityRelationshipResponse
     EventTypeSummary:
       properties:
         event_type:
@@ -2344,168 +1908,9 @@ components:
       - domains
       - sources
       title: EventTypeSummary
-    EnrichmentKeyResponse:
-      properties:
-        id:
-          type: string
-          format: uuid
-          title: Id
-        workspace_id:
-          type: string
-          format: uuid
-          title: Workspace Id
-        entity_type:
-          type: string
-          maxLength: 64
-          minLength: 1
-          title: Entity Type
-        key:
-          type: string
-          maxLength: 128
-          minLength: 1
-          pattern: ^[a-z0-9][a-z0-9_\-]*$
-          title: Key
-        value_type:
-          type: string
-          enum:
-          - string
-          - number
-          - boolean
-          - date
-          - enum
-          - json
-          title: Value Type
-        allowed_values:
-          anyOf:
-          - items: {}
-            type: array
-          - type: 'null'
-          title: Allowed Values
-        source_hint:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Source Hint
-        description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Description
-        min_confidence:
-          type: number
-          title: Min Confidence
-        is_pii:
-          type: boolean
-          title: Is Pii
-        tags:
-          items:
-            type: string
-          type: array
-          title: Tags
-          default: []
-        created_at:
-          type: string
-          format: date-time
-          title: Created At
-        updated_at:
-          type: string
-          format: date-time
-          title: Updated At
-      type: object
-      required:
-      - id
-      - workspace_id
-      - entity_type
-      - key
-      - value_type
-      - min_confidence
-      - is_pii
-      - created_at
-      - updated_at
-      title: EnrichmentKeyResponse
-    ConnectorOverviewResponse:
-      properties:
-        connectors:
-          items:
-            $ref: '#/components/schemas/ConnectorOverviewItem'
-          type: array
-          title: Connectors
-        total_entities:
-          type: integer
-          title: Total Entities
-      type: object
-      required:
-      - connectors
-      - total_entities
-      title: ConnectorOverviewResponse
     EventStatusString:
       type: string
       maxLength: 128
-    CanonicalIdLookupString:
-      type: string
-      maxLength: 256
-      minLength: 1
-    EntityResolveMatch:
-      properties:
-        entity_id:
-          type: string
-          format: uuid
-          title: Entity Id
-        entity_type:
-          type: string
-          title: Entity Type
-        confidence:
-          type: number
-          maximum: 1.0
-          minimum: 0.0
-          title: Confidence
-          description: Match confidence (0-1).
-        matched_on:
-          items:
-            type: string
-            enum:
-            - entity_id
-            - phone
-            - email
-            - canonical_id
-            - external_id
-          type: array
-          title: Matched On
-          description: Identifier kinds that actually matched this row.
-        summary:
-          $ref: '#/components/schemas/EntityResolveSummary'
-      type: object
-      required:
-      - entity_id
-      - entity_type
-      - confidence
-      - summary
-      title: EntityResolveMatch
-      description: One candidate match with provenance + confidence.
-    DescriptionString:
-      type: string
-      maxLength: 2000
-    EntityResolveResponse:
-      properties:
-        matches:
-          items:
-            $ref: '#/components/schemas/EntityResolveMatch'
-          type: array
-          title: Matches
-        total:
-          type: integer
-          minimum: 0.0
-          title: Total
-          description: Number of candidates returned.
-      type: object
-      required:
-      - total
-      title: EntityResolveResponse
-    EntityTypeString:
-      type: string
-      maxLength: 64
-      minLength: 1
-      pattern: ^[a-z0-9_]+$
     EntityTypeRegistryResponse:
       properties:
         entity_types:
@@ -2521,9 +1926,323 @@ components:
       - entity_types
       - total_entities
       title: EntityTypeRegistryResponse
-    EventDescriptionString:
+    EntityTimelineResponse:
+      properties:
+        entity_id:
+          type: string
+          format: uuid
+          title: Entity Id
+        events:
+          items:
+            $ref: '#/components/schemas/EntityEventResponse'
+          type: array
+          title: Events
+        total:
+          type: integer
+          title: Total
+        has_more:
+          type: boolean
+          title: Has More
+        next_offset:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Next Offset
+      type: object
+      required:
+      - entity_id
+      - events
+      - total
+      - has_more
+      title: EntityTimelineResponse
+    EnrichmentKeyPatchBody:
+      properties:
+        allowed_values:
+          anyOf:
+          - items: {}
+            type: array
+          - type: 'null'
+          title: Allowed Values
+        source_hint:
+          anyOf:
+          - $ref: '#/components/schemas/DescriptionString'
+          - type: 'null'
+        description:
+          anyOf:
+          - $ref: '#/components/schemas/DescriptionString'
+          - type: 'null'
+        min_confidence:
+          anyOf:
+          - type: number
+            maximum: 1.0
+            minimum: 0.0
+          - type: 'null'
+          title: Min Confidence
+        is_pii:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Pii
+        tags:
+          anyOf:
+          - items:
+              type: string
+              const: memory_extract
+            type: array
+          - type: 'null'
+          title: Tags
+          description: Replaces the full tags list when set. Pass [] to remove all tags.
+      type: object
+      title: EnrichmentKeyPatchBody
+    EnrichmentHistoryResponse:
+      properties:
+        entity_id:
+          type: string
+          format: uuid
+          title: Entity Id
+        key:
+          type: string
+          maxLength: 128
+          minLength: 1
+          pattern: ^[a-z0-9][a-z0-9_\-]*$
+          title: Key
+        history:
+          items:
+            $ref: '#/components/schemas/EnrichmentHistoryEntry'
+          type: array
+          title: History
+        dropped_count:
+          type: integer
+          title: Dropped Count
+          default: 0
+      type: object
+      required:
+      - entity_id
+      - key
+      - history
+      title: EnrichmentHistoryResponse
+    MergedEntitiesResponse:
+      properties:
+        entity_id:
+          type: string
+          format: uuid
+          title: Entity Id
+        linked_entities:
+          items:
+            $ref: '#/components/schemas/EntityResponse'
+          type: array
+          title: Linked Entities
+        total:
+          type: integer
+          title: Total
+      type: object
+      required:
+      - entity_id
+      - linked_entities
+      - total
+      title: MergedEntitiesResponse
+    CanonicalIdLookupString:
       type: string
-      maxLength: 4096
+      maxLength: 256
+      minLength: 1
+    EnrichmentHistoryEntry:
+      properties:
+        event_id:
+          type: string
+          format: uuid
+          title: Event Id
+        value:
+          title: Value
+        value_type:
+          type: string
+          enum:
+          - string
+          - number
+          - boolean
+          - date
+          - enum
+          - json
+          title: Value Type
+        confidence:
+          type: number
+          title: Confidence
+        source:
+          type: string
+          title: Source
+        source_system:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Source System
+        effective_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Effective At
+        ingested_at:
+          type: string
+          format: date-time
+          title: Ingested At
+        supersedes:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Supersedes
+        is_current:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Current
+      type: object
+      required:
+      - event_id
+      - value
+      - value_type
+      - confidence
+      - source
+      - ingested_at
+      - is_current
+      title: EnrichmentHistoryEntry
+    EnrichmentWriteBody:
+      properties:
+        value:
+          title: Value
+          description: Scalar or JSON-compatible value to store.
+        value_type:
+          anyOf:
+          - type: string
+            enum:
+            - string
+            - number
+            - boolean
+            - date
+            - enum
+            - json
+          - type: 'null'
+          title: Value Type
+          description: Overrides the registry value_type when set. Rarely needed.
+        source:
+          type: string
+          maxLength: 64
+          minLength: 1
+          title: Source
+          description: Write source — e.g. manual, forms, auto_enrich.
+          default: manual
+        source_system:
+          anyOf:
+          - type: string
+            maxLength: 128
+            minLength: 1
+          - type: 'null'
+          title: Source System
+          description: Subsystem / connector identifier.
+        confidence:
+          type: number
+          maximum: 1.0
+          minimum: 0.0
+          title: Confidence
+          description: Write confidence. Must be >= registry min_confidence for the key.
+          default: 1.0
+        effective_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Effective At
+          description: When the value became true (UTC). Defaults to ingested_at.
+      type: object
+      required:
+      - value
+      title: EnrichmentWriteBody
+    EntityStatsSummary:
+      properties:
+        total_entities:
+          type: integer
+          title: Total Entities
+        total_events:
+          type: integer
+          title: Total Events
+        sync_pending:
+          type: integer
+          title: Sync Pending
+        sync_synced:
+          type: integer
+          title: Sync Synced
+        sync_failed:
+          type: integer
+          title: Sync Failed
+        by_event_type:
+          additionalProperties:
+            type: integer
+          type: object
+          title: By Event Type
+        event_type_window_days:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Event Type Window Days
+          description: Window applied to by_event_type counts when an entity_type filter is supplied.
+      type: object
+      required:
+      - total_entities
+      - total_events
+      - sync_pending
+      - sync_synced
+      - sync_failed
+      title: EntityStatsSummary
+    SinkSyncStatus:
+      properties:
+        data_source_id:
+          type: string
+          format: uuid
+          title: Data Source Id
+        name:
+          type: string
+          title: Name
+        source_type:
+          type: string
+          title: Source Type
+        total:
+          type: integer
+          title: Total
+        synced:
+          type: integer
+          title: Synced
+        failed:
+          type: integer
+          title: Failed
+        pending:
+          type: integer
+          title: Pending
+      type: object
+      required:
+      - data_source_id
+      - name
+      - source_type
+      - total
+      - synced
+      - failed
+      - pending
+      title: SinkSyncStatus
+    MigrationConversationsResponse:
+      properties:
+        imported:
+          type: integer
+          title: Imported
+        created:
+          type: integer
+          title: Created
+        updated:
+          type: integer
+          title: Updated
+      type: object
+      required:
+      - imported
+      - created
+      - updated
+      title: MigrationConversationsResponse
     EntityEventResponse:
       properties:
         id:
@@ -2679,84 +2398,351 @@ components:
       - domain
       - event_type
       title: EntityEventResponse
-    EventChannelString:
+    EventDirectionString:
       type: string
       maxLength: 64
-    EnrichmentListResponse:
+    MigrationConversationsBody:
+      properties:
+        conversations:
+          items:
+            $ref: '#/components/schemas/MigrationConversationItem'
+          type: array
+          maxItems: 500
+          minItems: 1
+          title: Conversations
+      type: object
+      required:
+      - conversations
+      title: MigrationConversationsBody
+    OutboundSyncBySinkResponse:
+      properties:
+        sinks:
+          items:
+            $ref: '#/components/schemas/SinkSyncStatus'
+          type: array
+          title: Sinks
+      type: object
+      required:
+      - sinks
+      title: OutboundSyncBySinkResponse
+    ConnectorResourcesResponse:
+      properties:
+        resource_type:
+          type: string
+          maxLength: 256
+          title: Resource Type
+          description: FHIR resource type (e.g. Patient, Condition, MedicationRequest)
+        data_source_id:
+          type: string
+          format: uuid
+          title: Data Source Id
+          description: UUID of the connected data source
+        total:
+          type: integer
+          title: Total
+          description: Total number of matching resources
+        entries:
+          items:
+            additionalProperties: true
+            type: object
+          type: array
+          maxItems: 100
+          title: Entries
+          description: Raw FHIR resource JSON objects
+      type: object
+      required:
+      - resource_type
+      - data_source_id
+      - total
+      - entries
+      title: ConnectorResourcesResponse
+      description: FHIR resources from a specific connected data source.
+    MigrationConversationItem:
       properties:
         entity_id:
           type: string
           format: uuid
           title: Entity Id
-        values:
-          items:
-            $ref: '#/components/schemas/EnrichmentValueResponse'
-          type: array
-          title: Values
+        source_conversation_id:
+          type: string
+          maxLength: 128
+          minLength: 1
+          title: Source Conversation Id
+        started_at:
+          type: string
+          format: date-time
+          title: Started At
+        ended_at:
+          type: string
+          format: date-time
+          title: Ended At
+        channel_kind:
+          $ref: '#/components/schemas/ChannelKind'
+          default: web
+        turn_count:
+          type: integer
+          minimum: 0.0
+          title: Turn Count
+          default: 0
       type: object
       required:
       - entity_id
-      - values
-      title: EnrichmentListResponse
-    MergedEntitiesResponse:
+      - source_conversation_id
+      - started_at
+      - ended_at
+      title: MigrationConversationItem
+    EntityRelationshipsResponse:
       properties:
         entity_id:
           type: string
           format: uuid
           title: Entity Id
-        linked_entities:
+        relationships:
           items:
-            $ref: '#/components/schemas/EntityResponse'
+            $ref: '#/components/schemas/EntityRelationshipResponse'
           type: array
-          title: Linked Entities
+          title: Relationships
         total:
           type: integer
           title: Total
       type: object
       required:
       - entity_id
-      - linked_entities
+      - relationships
       - total
-      title: MergedEntitiesResponse
-    EnrichmentKeyListResponse:
+      title: EntityRelationshipsResponse
+    EventChannelString:
+      type: string
+      maxLength: 64
+    PhoneE164:
+      type: string
+      maxLength: 16
+      minLength: 2
+    EntityResolveSummary:
       properties:
-        keys:
+        display_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Display Name
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        phone:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Phone
+        email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Email
+        birth_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Birth Date
+        mrn:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Mrn
+        canonical_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Canonical Id
+          description: Canonical-map value when resolved through the map, else the entity's MRN.
+        external_ids:
+          additionalProperties: true
+          type: object
+          title: External Ids
+          description: Always {} — external aliases live in the canonical entity map, not on the serving row.
+        last_event_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Last Event At
+        event_count:
+          type: integer
+          title: Event Count
+          default: 0
+        tags:
           items:
-            $ref: '#/components/schemas/EnrichmentKeyResponse'
+            type: string
           type: array
-          title: Keys
+          title: Tags
+          description: Always [] — no tags column on the synced serving table.
+      type: object
+      title: EntityResolveSummary
+      description: 'Compact identity card returned for each match.
+
+
+        Excludes full entity state — fetch via
+
+        ``GET /v1/{ws}/entities/{entity_id}`` if needed. The fields here are
+
+        the ones a UI / agent needs to confirm "yes, that''s the right
+
+        person" before paying for the full state read.
+
+
+        Stage-7 narrowing (resolver serves from ``entities_synced`` +
+
+        the canonical entity map; fields retained for wire compatibility):
+
+        ``external_ids`` is always ``{}`` and ``tags`` is always ``[]`` —
+
+        neither survives on the synced serving table. ``canonical_id`` is
+
+        the canonical-map value when the row resolved through the map, else
+
+        the entity''s MRN.'
+    DescriptionString:
+      type: string
+      maxLength: 2000
+    EntityResolveResponse:
+      properties:
+        matches:
+          items:
+            $ref: '#/components/schemas/EntityResolveMatch'
+          type: array
+          title: Matches
+        total:
+          type: integer
+          minimum: 0.0
+          title: Total
+          description: Number of candidates returned.
       type: object
       required:
-      - keys
-      title: EnrichmentKeyListResponse
-    ChannelKind:
+      - total
+      title: EntityResolveResponse
+    ConnectorOverviewItem:
+      properties:
+        data_source_id:
+          type: string
+          format: uuid
+          title: Data Source Id
+        name:
+          type: string
+          title: Name
+        display_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Display Name
+        source_type:
+          type: string
+          title: Source Type
+        connector_type:
+          type: string
+          title: Connector Type
+        entity_count:
+          type: integer
+          title: Entity Count
+        entities_by_type:
+          additionalProperties:
+            type: integer
+          type: object
+          title: Entities By Type
+        last_sync_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Last Sync At
+        last_sync_status:
+          anyOf:
+          - type: string
+            enum:
+            - success
+            - error
+          - type: 'null'
+          title: Last Sync Status
+        last_sync_event_count:
+          type: integer
+          title: Last Sync Event Count
+          default: 0
+        health_status:
+          type: string
+          enum:
+          - unknown
+          - healthy
+          - degraded
+          title: Health Status
+          default: unknown
+        is_active:
+          type: boolean
+          title: Is Active
+          default: true
+      type: object
+      required:
+      - data_source_id
+      - name
+      - source_type
+      - connector_type
+      - entity_count
+      title: ConnectorOverviewItem
+    EventCallSidString:
       type: string
-      enum:
-      - voice
-      - sms
-      - whatsapp
-      - email
-      - web
-      - imessage
-      title: ChannelKind
-      description: 'HSM execution channel type.
-
-
-        Determines how the HSM engine communicates with end users.
-
-        Each kind maps to one or more providers.'
+      maxLength: 128
+    WorldDashboardResponse:
+      properties:
+        entity_counts:
+          $ref: '#/components/schemas/EntityStatsSummary'
+        events_24h:
+          anyOf:
+          - type: integer
+            minimum: 0.0
+          - type: 'null'
+          title: Events 24H
+          description: Event count from the Lakebase read model; null when the projection is empty or unavailable.
+        events_7d:
+          anyOf:
+          - type: integer
+            minimum: 0.0
+          - type: 'null'
+          title: Events 7D
+          description: Event count from the Lakebase read model; null when the projection is empty or unavailable.
+        avg_confidence:
+          anyOf:
+          - type: number
+            maximum: 1.0
+            minimum: 0.0
+          - type: 'null'
+          title: Avg Confidence
+        event_read_model_status:
+          type: string
+          enum:
+          - ready
+          - empty
+          - unavailable
+          title: Event Read Model Status
+          description: ready = Lakebase projection returned a row; empty = no summary row; unavailable = read failed.
+          default: empty
+        event_read_model_synced_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Event Read Model Synced At
+          description: platform.event_velocity_summary synced_at for this workspace.
+        sources:
+          items:
+            $ref: '#/components/schemas/SourceBreakdownItem'
+          type: array
+          maxItems: 500
+          title: Sources
+      type: object
+      required:
+      - entity_counts
+      title: WorldDashboardResponse
   securitySchemes:
-    Bearer-Authorization:
+    BearerAuth:
       type: http
       scheme: bearer
-      bearerFormat: JWT
-      description: Amigo issued JWT token that identifies an user. It's issued either after logging in through the frontend, or manually through the [`SignInWithAPIKey`](sign-in-with-api-key) endpoint.
-    Bearer-Authorization-Organization:
-      type: apiKey
-      in: header
-      name: X-ORG-ID
-      description: An optional organization identifier that indicates from which organization the token is issued. This is used in rare cases where the user to authenticate is making a request for resources in another organization.
-    Basic:
-      type: http
-      scheme: basic
-      description: The username should be set to {org_id}_{user_id}, and the password should be the Amigo issued JWT token that identifies the user.
+      description: API key issued via `POST /v1/{workspace_id}/api-keys`. Pass the returned `api_key` value as a Bearer token.
