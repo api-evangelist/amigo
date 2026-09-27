@@ -649,55 +649,209 @@ paths:
           title: Workspace Id
 components:
   schemas:
-    DataTemplate-Output:
+    BrandingConfig:
       properties:
-        id:
-          type: string
-          format: uuid
-          title: Id
+        logo_url:
+          anyOf:
+          - type: string
+            maxLength: 2048
+          - type: 'null'
+          title: Logo Url
+        primary_color:
+          anyOf:
+          - type: string
+            maxLength: 32
+          - type: 'null'
+          title: Primary Color
+        background_color:
+          anyOf:
+          - type: string
+            maxLength: 32
+          - type: 'null'
+          title: Background Color
+        font_family:
+          anyOf:
+          - type: string
+            maxLength: 256
+          - type: 'null'
+          title: Font Family
+      type: object
+      title: BrandingConfig
+      description: Visual branding for patient-facing surfaces.
+    GapRequirement-Output:
+      properties:
         name:
           $ref: '#/components/schemas/NameString'
-        fields:
+        entity_type:
+          type: string
+          const: person
+          title: Entity Type
+          default: person
+        trigger:
+          type: string
+          enum:
+          - upcoming_appointment
+          - recent_interaction
+          title: Trigger
+          default: upcoming_appointment
+        required_fields:
           items:
-            $ref: '#/components/schemas/DataTemplateField'
+            $ref: '#/components/schemas/GapRequiredField'
           type: array
           maxItems: 50
           minItems: 1
-          title: Fields
+          title: Required Fields
+        channel:
+          $ref: '#/components/schemas/ChannelType'
+          default: email
+        priority:
+          type: string
+          enum:
+          - low
+          - normal
+          - high
+          title: Priority
+          default: normal
+        surface_title:
+          anyOf:
+          - $ref: '#/components/schemas/NameString'
+          - type: 'null'
+          description: Title for generated surfaces. Defaults to requirement name.
+        surface_description:
+          anyOf:
+          - $ref: '#/components/schemas/DescriptionString'
+          - type: 'null'
       type: object
       required:
       - name
-      - fields
-      title: DataTemplate
-      description: Named field template — reusable across multiple outreach rules.
-    EnvironmentOverrides:
+      - required_fields
+      title: GapRequirement
+      description: A named gap detection rule.
+    VoiceSettingsResponse:
       properties:
-        data_source_id:
+        voice_id:
           anyOf:
           - type: string
-            format: uuid
           - type: 'null'
-          title: Data Source Id
-        tool_overrides:
-          additionalProperties: true
-          type: object
-          title: Tool Overrides
-        data_source_overrides:
-          additionalProperties: true
-          type: object
-          title: Data Source Overrides
+          title: Voice Id
+        tone:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Tone
+        speed:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Speed
+        volume:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Volume
+        language:
+          type: string
+          title: Language
+        keyterms:
+          items:
+            type: string
+          type: array
+          title: Keyterms
+        pronunciation_dict_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Pronunciation Dict Id
+        sensitive_topics:
+          items:
+            type: string
+          type: array
+          title: Sensitive Topics
+        post_call_analysis_enabled:
+          type: boolean
+          title: Post Call Analysis Enabled
+        transcript_correction_enabled:
+          type: boolean
+          title: Transcript Correction Enabled
+        stt_provider:
+          anyOf:
+          - type: string
+            enum:
+            - deepgram
+            - openai
+            - cartesia
+          - type: 'null'
+          title: Stt Provider
+        tts_provider:
+          anyOf:
+          - type: string
+            enum:
+            - cartesia
+            - elevenlabs
+            - groq
+          - type: 'null'
+          title: Tts Provider
+        tts_config:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Tts Config
+        language_providers:
+          anyOf:
+          - additionalProperties:
+              $ref: '#/components/schemas/LanguageProviderEntry'
+            type: object
+          - type: 'null'
+          title: Language Providers
       type: object
-      title: EnvironmentOverrides
-      description: Per-environment config overrides merged at runtime.
-    EnvironmentSettingsResponse:
+      required:
+      - voice_id
+      - tone
+      - speed
+      - volume
+      - language
+      - keyterms
+      - pronunciation_dict_id
+      - sensitive_topics
+      - post_call_analysis_enabled
+      - transcript_correction_enabled
+      - stt_provider
+      - tts_provider
+      - tts_config
+      title: VoiceSettingsResponse
+      description: Voice experience state — what the PM configured.
+    MetricSettingsRequest:
       properties:
-        environments:
-          additionalProperties:
-            $ref: '#/components/schemas/EnvironmentOverrides'
-          type: object
-          title: Environments
+        definitions:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/MetricDefinition'
+            type: array
+          - type: 'null'
+          title: Definitions
       type: object
-      title: EnvironmentSettingsResponse
+      title: MetricSettingsRequest
+      description: 'Partial update — only provided fields are changed.
+
+
+        The definitions list is replaced entirely when provided.
+
+        Built-in metrics can be deactivated (active=false) or have their
+
+        freshness_sla_minutes changed, but their key cannot be reused
+
+        for custom metrics.'
+    GapScannerPreviewRequest:
+      properties:
+        limit:
+          type: integer
+          maximum: 200.0
+          minimum: 1.0
+          title: Limit
+          default: 50
+      type: object
+      title: GapScannerPreviewRequest
     RetentionPolicyResponse:
       properties:
         call_recordings_days:
@@ -732,6 +886,33 @@ components:
       - phi_data_days
       - legal_hold
       title: RetentionPolicyResponse
+    GapRequiredField:
+      properties:
+        path:
+          type: string
+          maxLength: 256
+          minLength: 1
+          title: Path
+          description: Dot-notation path into entity state
+        label:
+          $ref: '#/components/schemas/NameString'
+        field_type:
+          $ref: '#/components/schemas/FieldType'
+          default: text
+        min_items:
+          anyOf:
+          - type: integer
+            maximum: 100.0
+            minimum: 0.0
+          - type: 'null'
+          title: Min Items
+          description: For list fields, minimum items required
+      type: object
+      required:
+      - path
+      - label
+      title: GapRequiredField
+      description: A field that must be present in entity state.
     BrandingSettingsResponse:
       properties:
         branding:
@@ -740,180 +921,49 @@ components:
       required:
       - branding
       title: BrandingSettingsResponse
-    VoiceSettingsRequest:
-      properties:
-        voice_id:
-          anyOf:
-          - type: string
-            maxLength: 128
-          - type: 'null'
-          title: Voice Id
-        tone:
-          anyOf:
-          - type: string
-            maxLength: 2000
-          - type: 'null'
-          title: Tone
-        speed:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Speed
-        volume:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Volume
-        language:
-          anyOf:
-          - type: string
-            maxLength: 32
-          - type: 'null'
-          title: Language
-        keyterms:
-          anyOf:
-          - items:
-              type: string
-              maxLength: 128
-              minLength: 1
-            type: array
-            maxItems: 200
-          - type: 'null'
-          title: Keyterms
-        pronunciation_dict_id:
-          anyOf:
-          - type: string
-            maxLength: 128
-          - type: 'null'
-          title: Pronunciation Dict Id
-        sensitive_topics:
-          anyOf:
-          - items:
-              type: string
-              maxLength: 128
-              minLength: 1
-            type: array
-            maxItems: 50
-          - type: 'null'
-          title: Sensitive Topics
-        post_call_analysis_enabled:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          title: Post Call Analysis Enabled
-        transcript_correction_enabled:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          title: Transcript Correction Enabled
-        stt_provider:
-          anyOf:
-          - type: string
-            enum:
-            - deepgram
-            - openai
-            - cartesia
-          - type: 'null'
-          title: Stt Provider
-        tts_provider:
-          anyOf:
-          - type: string
-            enum:
-            - cartesia
-            - elevenlabs
-            - groq
-          - type: 'null'
-          title: Tts Provider
-        tts_config:
-          anyOf:
-          - additionalProperties: true
-            type: object
-          - type: 'null'
-          title: Tts Config
-        language_providers:
-          anyOf:
-          - additionalProperties:
-              $ref: '#/components/schemas/LanguageProviderEntry'
-            type: object
-          - type: 'null'
-          title: Language Providers
-      type: object
-      title: VoiceSettingsRequest
-      description: 'Voice experience control plane — PM-facing, high-level controls.
-
-
-        Controls the caller experience without exposing engineering internals.
-
-        Emotion detection, filler speech, model selection, and buffer tuning
-
-        are always-on internals managed by engineering.'
-    GapScannerSettingsRequest:
+    GapScannerSettingsResponse:
       properties:
         enabled:
-          anyOf:
-          - type: boolean
-          - type: 'null'
+          type: boolean
           title: Enabled
         scan_interval_seconds:
-          anyOf:
-          - type: integer
-            maximum: 86400.0
-            minimum: 60.0
-          - type: 'null'
+          type: integer
           title: Scan Interval Seconds
         appointment_lookahead_hours:
-          anyOf:
-          - type: integer
-            maximum: 720.0
-            minimum: 1.0
-          - type: 'null'
+          type: integer
           title: Appointment Lookahead Hours
         cooldown_hours:
-          anyOf:
-          - type: integer
-            maximum: 8760.0
-            minimum: 1.0
-          - type: 'null'
+          type: integer
           title: Cooldown Hours
         max_surfaces_per_tick:
-          anyOf:
-          - type: integer
-            maximum: 100.0
-            minimum: 1.0
-          - type: 'null'
+          type: integer
           title: Max Surfaces Per Tick
         max_pending_surfaces:
-          anyOf:
-          - type: integer
-            maximum: 50.0
-            minimum: 0.0
-          - type: 'null'
+          type: integer
           title: Max Pending Surfaces
-          description: Max non-terminal surfaces per entity (0 = disabled)
         min_completion_rate:
-          anyOf:
-          - type: number
-            maximum: 1.0
-            minimum: 0.0
-          - type: 'null'
+          type: number
           title: Min Completion Rate
-          description: Min historical completion rate to create new surfaces (0.0 = disabled)
         channel_optimization:
-          anyOf:
-          - type: boolean
-          - type: 'null'
+          type: boolean
           title: Channel Optimization
-          description: Use entity preferred channel over static requirement channel
         requirements:
-          anyOf:
-          - items:
-              $ref: '#/components/schemas/GapRequirement-Input'
-            type: array
-            maxItems: 100
-          - type: 'null'
+          items:
+            $ref: '#/components/schemas/GapRequirement-Output'
+          type: array
           title: Requirements
       type: object
-      title: GapScannerSettingsRequest
+      required:
+      - enabled
+      - scan_interval_seconds
+      - appointment_lookahead_hours
+      - cooldown_hours
+      - max_surfaces_per_tick
+      - max_pending_surfaces
+      - min_completion_rate
+      - channel_optimization
+      - requirements
+      title: GapScannerSettingsResponse
     OutreachSettingsResponse:
       properties:
         rules:
@@ -931,28 +981,6 @@ components:
       - rules
       - data_templates
       title: OutreachSettingsResponse
-    OutreachSettingsRequest:
-      properties:
-        rules:
-          anyOf:
-          - items:
-              $ref: '#/components/schemas/OutreachRule'
-            type: array
-          - type: 'null'
-          title: Rules
-        data_templates:
-          anyOf:
-          - items:
-              $ref: '#/components/schemas/DataTemplate-Input'
-            type: array
-          - type: 'null'
-          title: Data Templates
-      type: object
-      title: OutreachSettingsRequest
-      description: 'Partial update — only provided fields are changed.
-
-
-        Rules and data_templates lists are replaced entirely when provided.'
     MetricDefinition:
       properties:
         id:
@@ -1211,311 +1239,6 @@ components:
       - event_types
       title: MetricDefinition
       description: "A single metric definition — what to extract and how.\n\nTwo broad modes:\n- Built-in metrics: extraction is handled by hardcoded pipeline logic\n  (extract_path + aggregation). Shipped with every workspace.\n- Custom metrics: extraction uses AI functions or static JSONB paths.\n  Defined per-workspace via settings API.\n\nFrozen: builtins are process-wide singletons exposed via the\n``BUILTIN_METRICS`` list. A mutable list field (e.g.\n``applies_to_product_types``) could otherwise be mutated by one caller\nand leak into every subsequent call in the same process."
-    FieldType:
-      type: string
-      enum:
-      - text
-      - textarea
-      - date
-      - phone
-      - email
-      - number
-      - select
-      - multiselect
-      - checkbox
-      - photo
-      - signature
-      - file
-      - heading
-      - info
-      title: FieldType
-      description: Input field types for surface data collection.
-    ValidationError:
-      properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-        input:
-          title: Input
-        ctx:
-          type: object
-          title: Context
-      type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
-    MetricSettingsRequest:
-      properties:
-        definitions:
-          anyOf:
-          - items:
-              $ref: '#/components/schemas/MetricDefinition'
-            type: array
-          - type: 'null'
-          title: Definitions
-      type: object
-      title: MetricSettingsRequest
-      description: 'Partial update — only provided fields are changed.
-
-
-        The definitions list is replaced entirely when provided.
-
-        Built-in metrics can be deactivated (active=false) or have their
-
-        freshness_sla_minutes changed, but their key cannot be reused
-
-        for custom metrics.'
-    BrandingConfig:
-      properties:
-        logo_url:
-          anyOf:
-          - type: string
-            maxLength: 2048
-          - type: 'null'
-          title: Logo Url
-        primary_color:
-          anyOf:
-          - type: string
-            maxLength: 32
-          - type: 'null'
-          title: Primary Color
-        background_color:
-          anyOf:
-          - type: string
-            maxLength: 32
-          - type: 'null'
-          title: Background Color
-        font_family:
-          anyOf:
-          - type: string
-            maxLength: 256
-          - type: 'null'
-          title: Font Family
-      type: object
-      title: BrandingConfig
-      description: Visual branding for patient-facing surfaces.
-    NameString:
-      type: string
-      maxLength: 256
-      minLength: 1
-    EnvironmentSettingsRequest:
-      properties:
-        environments:
-          additionalProperties:
-            $ref: '#/components/schemas/EnvironmentOverrides'
-          type: object
-          title: Environments
-      type: object
-      required:
-      - environments
-      title: EnvironmentSettingsRequest
-    LanguageProviderEntry:
-      properties:
-        provider:
-          type: string
-          enum:
-          - cartesia
-          - elevenlabs
-          - groq
-          title: Provider
-        config:
-          additionalProperties: true
-          type: object
-          maxProperties: 20
-          title: Config
-      type: object
-      required:
-      - provider
-      title: LanguageProviderEntry
-      description: Per-language TTS provider configuration.
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
-    BrandingSettingsRequest:
-      properties:
-        branding:
-          $ref: '#/components/schemas/BrandingConfig'
-      type: object
-      required:
-      - branding
-      title: BrandingSettingsRequest
-      description: 'Update workspace branding. All fields are optional — only provided
-
-        fields are changed.'
-    VoiceSettingsResponse:
-      properties:
-        voice_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Voice Id
-        tone:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Tone
-        speed:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Speed
-        volume:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Volume
-        language:
-          type: string
-          title: Language
-        keyterms:
-          items:
-            type: string
-          type: array
-          title: Keyterms
-        pronunciation_dict_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Pronunciation Dict Id
-        sensitive_topics:
-          items:
-            type: string
-          type: array
-          title: Sensitive Topics
-        post_call_analysis_enabled:
-          type: boolean
-          title: Post Call Analysis Enabled
-        transcript_correction_enabled:
-          type: boolean
-          title: Transcript Correction Enabled
-        stt_provider:
-          anyOf:
-          - type: string
-            enum:
-            - deepgram
-            - openai
-            - cartesia
-          - type: 'null'
-          title: Stt Provider
-        tts_provider:
-          anyOf:
-          - type: string
-            enum:
-            - cartesia
-            - elevenlabs
-            - groq
-          - type: 'null'
-          title: Tts Provider
-        tts_config:
-          anyOf:
-          - additionalProperties: true
-            type: object
-          - type: 'null'
-          title: Tts Config
-        language_providers:
-          anyOf:
-          - additionalProperties:
-              $ref: '#/components/schemas/LanguageProviderEntry'
-            type: object
-          - type: 'null'
-          title: Language Providers
-      type: object
-      required:
-      - voice_id
-      - tone
-      - speed
-      - volume
-      - language
-      - keyterms
-      - pronunciation_dict_id
-      - sensitive_topics
-      - post_call_analysis_enabled
-      - transcript_correction_enabled
-      - stt_provider
-      - tts_provider
-      - tts_config
-      title: VoiceSettingsResponse
-      description: Voice experience state — what the PM configured.
-    GapScannerSettingsResponse:
-      properties:
-        enabled:
-          type: boolean
-          title: Enabled
-        scan_interval_seconds:
-          type: integer
-          title: Scan Interval Seconds
-        appointment_lookahead_hours:
-          type: integer
-          title: Appointment Lookahead Hours
-        cooldown_hours:
-          type: integer
-          title: Cooldown Hours
-        max_surfaces_per_tick:
-          type: integer
-          title: Max Surfaces Per Tick
-        max_pending_surfaces:
-          type: integer
-          title: Max Pending Surfaces
-        min_completion_rate:
-          type: number
-          title: Min Completion Rate
-        channel_optimization:
-          type: boolean
-          title: Channel Optimization
-        requirements:
-          items:
-            $ref: '#/components/schemas/GapRequirement-Output'
-          type: array
-          title: Requirements
-      type: object
-      required:
-      - enabled
-      - scan_interval_seconds
-      - appointment_lookahead_hours
-      - cooldown_hours
-      - max_surfaces_per_tick
-      - max_pending_surfaces
-      - min_completion_rate
-      - channel_optimization
-      - requirements
-      title: GapScannerSettingsResponse
-    ChannelType:
-      type: string
-      enum:
-      - email
-      - web
-      - sms
-      title: ChannelType
-      description: Delivery channels for surfaces.
-    MetricSettingsResponse:
-      properties:
-        definitions:
-          items:
-            $ref: '#/components/schemas/MetricDefinition'
-          type: array
-          title: Definitions
-      type: object
-      required:
-      - definitions
-      title: MetricSettingsResponse
     GapRequirement-Input:
       properties:
         name:
@@ -1565,223 +1288,228 @@ components:
       - required_fields
       title: GapRequirement
       description: A named gap detection rule.
-    DataTemplateField:
+    ValidationError:
       properties:
-        key:
-          type: string
-          maxLength: 128
-          minLength: 1
-          title: Key
-        label:
-          $ref: '#/components/schemas/NameString'
-        field_type:
-          $ref: '#/components/schemas/FieldType'
-          default: text
-        required:
-          type: boolean
-          title: Required
-          default: true
-        sensitive:
-          type: boolean
-          title: Sensitive
-          default: false
-        path:
-          type: string
-          maxLength: 256
-          minLength: 1
-          title: Path
-          description: Dot-notation path into entity state (e.g. demographics.date_of_birth)
-      type: object
-      required:
-      - key
-      - label
-      - path
-      title: DataTemplateField
-      description: A field in a data template — maps to entity state path for gap detection.
-    GapRequiredField:
-      properties:
-        path:
-          type: string
-          maxLength: 256
-          minLength: 1
-          title: Path
-          description: Dot-notation path into entity state
-        label:
-          $ref: '#/components/schemas/NameString'
-        field_type:
-          $ref: '#/components/schemas/FieldType'
-          default: text
-        min_items:
-          anyOf:
-          - type: integer
-            maximum: 100.0
-            minimum: 0.0
-          - type: 'null'
-          title: Min Items
-          description: For list fields, minimum items required
-      type: object
-      required:
-      - path
-      - label
-      title: GapRequiredField
-      description: A field that must be present in entity state.
-    RetentionPolicyRequest:
-      properties:
-        call_recordings_days:
-          anyOf:
-          - type: integer
-            maximum: 36500.0
-            minimum: 365.0
-          - type: 'null'
-          title: Call Recordings Days
-        call_transcripts_days:
-          anyOf:
-          - type: integer
-            maximum: 36500.0
-            minimum: 365.0
-          - type: 'null'
-          title: Call Transcripts Days
-        audit_log_days:
-          anyOf:
-          - type: integer
-            maximum: 36500.0
-            minimum: 365.0
-          - type: 'null'
-          title: Audit Log Days
-        world_events_days:
-          anyOf:
-          - type: integer
-            maximum: 36500.0
-            minimum: 365.0
-          - type: 'null'
-          title: World Events Days
-        phi_data_days:
-          anyOf:
-          - type: integer
-            maximum: 36500.0
-            minimum: 365.0
-          - type: 'null'
-          title: Phi Data Days
-        legal_hold:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          title: Legal Hold
-        legal_hold_reason:
-          anyOf:
-          - $ref: '#/components/schemas/DescriptionString'
-          - type: 'null'
-      type: object
-      title: RetentionPolicyRequest
-    GapScannerPreviewRequest:
-      properties:
-        limit:
-          type: integer
-          maximum: 200.0
-          minimum: 1.0
-          title: Limit
-          default: 50
-      type: object
-      title: GapScannerPreviewRequest
-    QuietHours:
-      properties:
-        enabled:
-          type: boolean
-          title: Enabled
-          default: false
-        start_hour:
-          type: integer
-          maximum: 23.0
-          minimum: 0.0
-          title: Start Hour
-          default: 21
-        end_hour:
-          type: integer
-          maximum: 23.0
-          minimum: 0.0
-          title: End Hour
-          default: 8
-        timezone:
-          type: string
-          maxLength: 64
-          title: Timezone
-          default: America/New_York
-      type: object
-      title: QuietHours
-      description: Quiet hours — no outbound outreach during this window.
-    DataTemplate-Input:
-      properties:
-        id:
-          type: string
-          format: uuid
-          title: Id
-        name:
-          $ref: '#/components/schemas/NameString'
-        fields:
+        loc:
           items:
-            $ref: '#/components/schemas/DataTemplateField'
+            anyOf:
+            - type: string
+            - type: integer
           type: array
-          maxItems: 50
-          minItems: 1
-          title: Fields
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
       type: object
       required:
-      - name
-      - fields
-      title: DataTemplate
-      description: Named field template — reusable across multiple outreach rules.
-    GapRequirement-Output:
-      properties:
-        name:
-          $ref: '#/components/schemas/NameString'
-        entity_type:
-          type: string
-          const: person
-          title: Entity Type
-          default: person
-        trigger:
-          type: string
-          enum:
-          - upcoming_appointment
-          - recent_interaction
-          title: Trigger
-          default: upcoming_appointment
-        required_fields:
-          items:
-            $ref: '#/components/schemas/GapRequiredField'
-          type: array
-          maxItems: 50
-          minItems: 1
-          title: Required Fields
-        channel:
-          $ref: '#/components/schemas/ChannelType'
-          default: email
-        priority:
-          type: string
-          enum:
-          - low
-          - normal
-          - high
-          title: Priority
-          default: normal
-        surface_title:
-          anyOf:
-          - $ref: '#/components/schemas/NameString'
-          - type: 'null'
-          description: Title for generated surfaces. Defaults to requirement name.
-        surface_description:
-          anyOf:
-          - $ref: '#/components/schemas/DescriptionString'
-          - type: 'null'
-      type: object
-      required:
-      - name
-      - required_fields
-      title: GapRequirement
-      description: A named gap detection rule.
+      - loc
+      - msg
+      - type
+      title: ValidationError
     DescriptionString:
       type: string
       maxLength: 2000
+    BrandingSettingsRequest:
+      properties:
+        branding:
+          $ref: '#/components/schemas/BrandingConfig'
+      type: object
+      required:
+      - branding
+      title: BrandingSettingsRequest
+      description: 'Update workspace branding. All fields are optional — only provided
+
+        fields are changed.'
+    ChannelType:
+      type: string
+      enum:
+      - email
+      - web
+      - sms
+      title: ChannelType
+      description: Delivery channels for surfaces.
+    GapScannerSettingsRequest:
+      properties:
+        enabled:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Enabled
+        scan_interval_seconds:
+          anyOf:
+          - type: integer
+            maximum: 86400.0
+            minimum: 60.0
+          - type: 'null'
+          title: Scan Interval Seconds
+        appointment_lookahead_hours:
+          anyOf:
+          - type: integer
+            maximum: 720.0
+            minimum: 1.0
+          - type: 'null'
+          title: Appointment Lookahead Hours
+        cooldown_hours:
+          anyOf:
+          - type: integer
+            maximum: 8760.0
+            minimum: 1.0
+          - type: 'null'
+          title: Cooldown Hours
+        max_surfaces_per_tick:
+          anyOf:
+          - type: integer
+            maximum: 100.0
+            minimum: 1.0
+          - type: 'null'
+          title: Max Surfaces Per Tick
+        max_pending_surfaces:
+          anyOf:
+          - type: integer
+            maximum: 50.0
+            minimum: 0.0
+          - type: 'null'
+          title: Max Pending Surfaces
+          description: Max non-terminal surfaces per entity (0 = disabled)
+        min_completion_rate:
+          anyOf:
+          - type: number
+            maximum: 1.0
+            minimum: 0.0
+          - type: 'null'
+          title: Min Completion Rate
+          description: Min historical completion rate to create new surfaces (0.0 = disabled)
+        channel_optimization:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Channel Optimization
+          description: Use entity preferred channel over static requirement channel
+        requirements:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/GapRequirement-Input'
+            type: array
+            maxItems: 100
+          - type: 'null'
+          title: Requirements
+      type: object
+      title: GapScannerSettingsRequest
+    VoiceSettingsRequest:
+      properties:
+        voice_id:
+          anyOf:
+          - type: string
+            maxLength: 128
+          - type: 'null'
+          title: Voice Id
+        tone:
+          anyOf:
+          - type: string
+            maxLength: 2000
+          - type: 'null'
+          title: Tone
+        speed:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Speed
+        volume:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Volume
+        language:
+          anyOf:
+          - type: string
+            maxLength: 32
+          - type: 'null'
+          title: Language
+        keyterms:
+          anyOf:
+          - items:
+              type: string
+              maxLength: 128
+              minLength: 1
+            type: array
+            maxItems: 200
+          - type: 'null'
+          title: Keyterms
+        pronunciation_dict_id:
+          anyOf:
+          - type: string
+            maxLength: 128
+          - type: 'null'
+          title: Pronunciation Dict Id
+        sensitive_topics:
+          anyOf:
+          - items:
+              type: string
+              maxLength: 128
+              minLength: 1
+            type: array
+            maxItems: 50
+          - type: 'null'
+          title: Sensitive Topics
+        post_call_analysis_enabled:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Post Call Analysis Enabled
+        transcript_correction_enabled:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Transcript Correction Enabled
+        stt_provider:
+          anyOf:
+          - type: string
+            enum:
+            - deepgram
+            - openai
+            - cartesia
+          - type: 'null'
+          title: Stt Provider
+        tts_provider:
+          anyOf:
+          - type: string
+            enum:
+            - cartesia
+            - elevenlabs
+            - groq
+          - type: 'null'
+          title: Tts Provider
+        tts_config:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Tts Config
+        language_providers:
+          anyOf:
+          - additionalProperties:
+              $ref: '#/components/schemas/LanguageProviderEntry'
+            type: object
+          - type: 'null'
+          title: Language Providers
+      type: object
+      title: VoiceSettingsRequest
+      description: 'Voice experience control plane — PM-facing, high-level controls.
+
+
+        Controls the caller experience without exposing engineering internals.
+
+        Emotion detection, filler speech, model selection, and buffer tuning
+
+        are always-on internals managed by engineering.'
     OutreachRule:
       properties:
         id:
@@ -1844,6 +1572,278 @@ components:
       - name
       title: OutreachRule
       description: A single outreach rule — defines WHEN, WHAT, and HOW to reach a patient.
+    DataTemplate-Output:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        name:
+          $ref: '#/components/schemas/NameString'
+        fields:
+          items:
+            $ref: '#/components/schemas/DataTemplateField'
+          type: array
+          maxItems: 50
+          minItems: 1
+          title: Fields
+      type: object
+      required:
+      - name
+      - fields
+      title: DataTemplate
+      description: Named field template — reusable across multiple outreach rules.
+    RetentionPolicyRequest:
+      properties:
+        call_recordings_days:
+          anyOf:
+          - type: integer
+            maximum: 36500.0
+            minimum: 365.0
+          - type: 'null'
+          title: Call Recordings Days
+        call_transcripts_days:
+          anyOf:
+          - type: integer
+            maximum: 36500.0
+            minimum: 365.0
+          - type: 'null'
+          title: Call Transcripts Days
+        audit_log_days:
+          anyOf:
+          - type: integer
+            maximum: 36500.0
+            minimum: 365.0
+          - type: 'null'
+          title: Audit Log Days
+        world_events_days:
+          anyOf:
+          - type: integer
+            maximum: 36500.0
+            minimum: 365.0
+          - type: 'null'
+          title: World Events Days
+        phi_data_days:
+          anyOf:
+          - type: integer
+            maximum: 36500.0
+            minimum: 365.0
+          - type: 'null'
+          title: Phi Data Days
+        legal_hold:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Legal Hold
+        legal_hold_reason:
+          anyOf:
+          - $ref: '#/components/schemas/DescriptionString'
+          - type: 'null'
+      type: object
+      title: RetentionPolicyRequest
+    DataTemplateField:
+      properties:
+        key:
+          type: string
+          maxLength: 128
+          minLength: 1
+          title: Key
+        label:
+          $ref: '#/components/schemas/NameString'
+        field_type:
+          $ref: '#/components/schemas/FieldType'
+          default: text
+        required:
+          type: boolean
+          title: Required
+          default: true
+        sensitive:
+          type: boolean
+          title: Sensitive
+          default: false
+        path:
+          type: string
+          maxLength: 256
+          minLength: 1
+          title: Path
+          description: Dot-notation path into entity state (e.g. demographics.date_of_birth)
+      type: object
+      required:
+      - key
+      - label
+      - path
+      title: DataTemplateField
+      description: A field in a data template — maps to entity state path for gap detection.
+    EnvironmentSettingsResponse:
+      properties:
+        environments:
+          additionalProperties:
+            $ref: '#/components/schemas/EnvironmentOverrides'
+          type: object
+          title: Environments
+      type: object
+      title: EnvironmentSettingsResponse
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    MetricSettingsResponse:
+      properties:
+        definitions:
+          items:
+            $ref: '#/components/schemas/MetricDefinition'
+          type: array
+          title: Definitions
+      type: object
+      required:
+      - definitions
+      title: MetricSettingsResponse
+    EnvironmentOverrides:
+      properties:
+        data_source_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Data Source Id
+        tool_overrides:
+          additionalProperties: true
+          type: object
+          title: Tool Overrides
+        data_source_overrides:
+          additionalProperties: true
+          type: object
+          title: Data Source Overrides
+      type: object
+      title: EnvironmentOverrides
+      description: Per-environment config overrides merged at runtime.
+    LanguageProviderEntry:
+      properties:
+        provider:
+          type: string
+          enum:
+          - cartesia
+          - elevenlabs
+          - groq
+          title: Provider
+        config:
+          additionalProperties: true
+          type: object
+          maxProperties: 20
+          title: Config
+      type: object
+      required:
+      - provider
+      title: LanguageProviderEntry
+      description: Per-language TTS provider configuration.
+    EnvironmentSettingsRequest:
+      properties:
+        environments:
+          additionalProperties:
+            $ref: '#/components/schemas/EnvironmentOverrides'
+          type: object
+          title: Environments
+      type: object
+      required:
+      - environments
+      title: EnvironmentSettingsRequest
+    DataTemplate-Input:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        name:
+          $ref: '#/components/schemas/NameString'
+        fields:
+          items:
+            $ref: '#/components/schemas/DataTemplateField'
+          type: array
+          maxItems: 50
+          minItems: 1
+          title: Fields
+      type: object
+      required:
+      - name
+      - fields
+      title: DataTemplate
+      description: Named field template — reusable across multiple outreach rules.
+    NameString:
+      type: string
+      maxLength: 256
+      minLength: 1
+    QuietHours:
+      properties:
+        enabled:
+          type: boolean
+          title: Enabled
+          default: false
+        start_hour:
+          type: integer
+          maximum: 23.0
+          minimum: 0.0
+          title: Start Hour
+          default: 21
+        end_hour:
+          type: integer
+          maximum: 23.0
+          minimum: 0.0
+          title: End Hour
+          default: 8
+        timezone:
+          type: string
+          maxLength: 64
+          title: Timezone
+          default: America/New_York
+      type: object
+      title: QuietHours
+      description: Quiet hours — no outbound outreach during this window.
+    FieldType:
+      type: string
+      enum:
+      - text
+      - textarea
+      - date
+      - phone
+      - email
+      - number
+      - select
+      - multiselect
+      - checkbox
+      - photo
+      - signature
+      - file
+      - heading
+      - info
+      title: FieldType
+      description: Input field types for surface data collection.
+    OutreachSettingsRequest:
+      properties:
+        rules:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/OutreachRule'
+            type: array
+          - type: 'null'
+          title: Rules
+        data_templates:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/DataTemplate-Input'
+            type: array
+          - type: 'null'
+          title: Data Templates
+      type: object
+      title: OutreachSettingsRequest
+      description: 'Partial update — only provided fields are changed.
+
+
+        Rules and data_templates lists are replaced entirely when provided.'
   securitySchemes:
     BearerAuth:
       type: http

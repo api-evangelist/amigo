@@ -72,54 +72,6 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
-    LoopLatencyPointItem:
-      properties:
-        hour:
-          type: string
-          format: date-time
-          title: Hour
-          description: UTC hour bucket (truncated to the hour).
-        count:
-          type: integer
-          title: Count
-          description: Sensing→action pairs whose sensing event lands in this hour.
-        p50_seconds:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: P50 Seconds
-          description: Median latency for this hour; null if no pairs.
-      type: object
-      required:
-      - hour
-      - count
-      title: LoopLatencyPointItem
-    ValidationError:
-      properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-        input:
-          title: Input
-        ctx:
-          type: object
-          title: Context
-      type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
     LoopLatencyResponse:
       properties:
         as_of:
@@ -157,6 +109,63 @@ components:
       - window_hours
       - overall_count
       title: LoopLatencyResponse
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    LoopLatencyPointItem:
+      properties:
+        hour:
+          type: string
+          format: date-time
+          title: Hour
+          description: UTC hour bucket (truncated to the hour).
+        count:
+          type: integer
+          title: Count
+          description: Sensing→action pairs whose sensing event lands in this hour.
+        p50_seconds:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: P50 Seconds
+          description: Median latency for this hour; null if no pairs.
+      type: object
+      required:
+      - hour
+      - count
+      title: LoopLatencyPointItem
     ConnectorHealthItem:
       properties:
         source:
@@ -236,15 +245,6 @@ components:
       - as_of
       - read_model_status
       title: ConnectorHealthResponse
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
   securitySchemes:
     BearerAuth:
       type: http

@@ -126,35 +126,6 @@ paths:
           title: Workspace Id
 components:
   schemas:
-    AccessReviewResponse:
-      properties:
-        generated_at:
-          type: string
-          title: Generated At
-        workspace_id:
-          type: string
-          format: uuid
-          title: Workspace Id
-        credentials:
-          items:
-            additionalProperties: true
-            type: object
-          type: array
-          title: Credentials
-        total_credentials:
-          type: integer
-          title: Total Credentials
-        jwt_credentials_note:
-          type: string
-          title: Jwt Credentials Note
-      type: object
-      required:
-      - generated_at
-      - workspace_id
-      - credentials
-      - total_credentials
-      - jwt_credentials_note
-      title: AccessReviewResponse
     ValidationError:
       properties:
         loc:
@@ -181,6 +152,15 @@ components:
       - msg
       - type
       title: ValidationError
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
     HipaaReportResponse:
       properties:
         generated_at:
@@ -268,15 +248,35 @@ components:
       - generated_at
       title: ComplianceDashboardResponse
       description: Composite compliance health overview.
-    HTTPValidationError:
+    AccessReviewResponse:
       properties:
-        detail:
+        generated_at:
+          type: string
+          title: Generated At
+        workspace_id:
+          type: string
+          format: uuid
+          title: Workspace Id
+        credentials:
           items:
-            $ref: '#/components/schemas/ValidationError'
+            additionalProperties: true
+            type: object
           type: array
-          title: Detail
+          title: Credentials
+        total_credentials:
+          type: integer
+          title: Total Credentials
+        jwt_credentials_note:
+          type: string
+          title: Jwt Credentials Note
       type: object
-      title: HTTPValidationError
+      required:
+      - generated_at
+      - workspace_id
+      - credentials
+      - total_credentials
+      - jwt_credentials_note
+      title: AccessReviewResponse
   securitySchemes:
     BearerAuth:
       type: http

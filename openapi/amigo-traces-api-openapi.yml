@@ -47,6 +47,81 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    TracesExportRequest:
+      properties:
+        start_time:
+          type: string
+          format: date-time
+          title: Start Time
+          description: Inclusive lower bound on span ``effective_at`` (ISO-8601).
+        end_time:
+          type: string
+          format: date-time
+          title: End Time
+          description: Exclusive upper bound on span ``effective_at`` (ISO-8601).
+        limit:
+          type: integer
+          maximum: 1000.0
+          exclusiveMinimum: 0.0
+          title: Limit
+          description: Max spans per page (1-1000).
+          default: 500
+        continuation_token:
+          title: Continuation Token
+          description: Opaque page cursor — round-trip the value from the previous response.
+      type: object
+      required:
+      - start_time
+      - end_time
+      title: TracesExportRequest
+    KeyValue:
+      properties:
+        key:
+          type: string
+          title: Key
+        value:
+          $ref: '#/components/schemas/AnyValue'
+      type: object
+      required:
+      - key
+      - value
+      title: KeyValue
+      description: OTLP ``KeyValue`` attribute pair.
     TracesExportResponse:
       properties:
         resourceSpans:
@@ -75,70 +150,6 @@ components:
         strict protojson push receiver rejects the ``has_more``/``continuation_token``
 
         siblings). Round-trip ``continuation_token`` to page.'
-    ScopeSpans:
-      properties:
-        scope:
-          $ref: '#/components/schemas/InstrumentationScope'
-        spans:
-          items:
-            $ref: '#/components/schemas/Span'
-          type: array
-          title: Spans
-      type: object
-      required:
-      - scope
-      - spans
-      title: ScopeSpans
-    Status:
-      properties:
-        code:
-          type: integer
-          title: Code
-      type: object
-      required:
-      - code
-      title: Status
-      description: OTLP ``Status`` — 0=UNSET, 1=OK, 2=ERROR.
-    InstrumentationScope:
-      properties:
-        name:
-          type: string
-          title: Name
-        version:
-          type: string
-          title: Version
-      type: object
-      required:
-      - name
-      - version
-      title: InstrumentationScope
-    TracesExportRequest:
-      properties:
-        start_time:
-          type: string
-          format: date-time
-          title: Start Time
-          description: Inclusive lower bound on span ``effective_at`` (ISO-8601).
-        end_time:
-          type: string
-          format: date-time
-          title: End Time
-          description: Exclusive upper bound on span ``effective_at`` (ISO-8601).
-        limit:
-          type: integer
-          maximum: 1000.0
-          exclusiveMinimum: 0.0
-          title: Limit
-          description: Max spans per page (1-1000).
-          default: 500
-        continuation_token:
-          title: Continuation Token
-          description: Opaque page cursor — round-trip the value from the previous response.
-      type: object
-      required:
-      - start_time
-      - end_time
-      title: TracesExportRequest
     ResourceSpans:
       properties:
         resource:
@@ -153,46 +164,6 @@ components:
       - resource
       - scopeSpans
       title: ResourceSpans
-    AnyValue:
-      additionalProperties: true
-      type: object
-    ValidationError:
-      properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-        input:
-          title: Input
-        ctx:
-          type: object
-          title: Context
-      type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
-    Resource:
-      properties:
-        attributes:
-          items:
-            $ref: '#/components/schemas/KeyValue'
-          type: array
-          title: Attributes
-      type: object
-      required:
-      - attributes
-      title: Resource
     Span:
       properties:
         traceId:
@@ -232,28 +203,57 @@ components:
       - status
       title: Span
       description: OTLP ``Span`` in OTLP/JSON encoding (ids hex, timestamps decimal-string).
-    HTTPValidationError:
+    ScopeSpans:
       properties:
-        detail:
+        scope:
+          $ref: '#/components/schemas/InstrumentationScope'
+        spans:
           items:
-            $ref: '#/components/schemas/ValidationError'
+            $ref: '#/components/schemas/Span'
           type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
-    KeyValue:
-      properties:
-        key:
-          type: string
-          title: Key
-        value:
-          $ref: '#/components/schemas/AnyValue'
+          title: Spans
       type: object
       required:
-      - key
-      - value
-      title: KeyValue
-      description: OTLP ``KeyValue`` attribute pair.
+      - scope
+      - spans
+      title: ScopeSpans
+    Status:
+      properties:
+        code:
+          type: integer
+          title: Code
+      type: object
+      required:
+      - code
+      title: Status
+      description: OTLP ``Status`` — 0=UNSET, 1=OK, 2=ERROR.
+    Resource:
+      properties:
+        attributes:
+          items:
+            $ref: '#/components/schemas/KeyValue'
+          type: array
+          title: Attributes
+      type: object
+      required:
+      - attributes
+      title: Resource
+    AnyValue:
+      additionalProperties: true
+      type: object
+    InstrumentationScope:
+      properties:
+        name:
+          type: string
+          title: Name
+        version:
+          type: string
+          title: Version
+      type: object
+      required:
+      - name
+      - version
+      title: InstrumentationScope
   securitySchemes:
     BearerAuth:
       type: http

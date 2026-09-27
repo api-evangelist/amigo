@@ -158,30 +158,6 @@ paths:
           title: Workspace Id
 components:
   schemas:
-    InjectRequest:
-      properties:
-        message:
-          type: string
-          maxLength: 5000
-          minLength: 1
-          title: Message
-        sender:
-          type: string
-          maxLength: 200
-          title: Sender
-          default: System
-        event_type:
-          type: string
-          enum:
-          - external_event
-          - guidance
-          title: Event Type
-          description: external_event (factual info) or guidance (instructional)
-          default: external_event
-      type: object
-      required:
-      - message
-      title: InjectRequest
     InjectResponse:
       properties:
         status:
@@ -224,6 +200,155 @@ components:
       - msg
       - type
       title: ValidationError
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    StartSessionResponse:
+      properties:
+        conversation_id:
+          type: string
+          format: uuid
+          title: Conversation Id
+        session_status:
+          type: string
+          enum:
+          - created
+          - already_active
+          title: Session Status
+        channel_kind:
+          type: string
+          const: web
+          title: Channel Kind
+        entity_id:
+          type: string
+          format: uuid
+          title: Entity Id
+        service_id:
+          type: string
+          format: uuid
+          title: Service Id
+        created_at:
+          type: string
+          title: Created At
+      type: object
+      required:
+      - conversation_id
+      - session_status
+      - channel_kind
+      - entity_id
+      - service_id
+      - created_at
+      title: StartSessionResponse
+    StartSessionRequest:
+      properties:
+        service_id:
+          type: string
+          format: uuid
+          title: Service Id
+        entity_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Entity Id
+          description: World model entity UUID. Provide either entity_id or canonical_id.
+        canonical_id:
+          anyOf:
+          - $ref: '#/components/schemas/CanonicalIdString'
+          - type: 'null'
+          description: World model canonical_id of the form 'source:resource_type:id' (e.g. 'charmhealth:Patient:67890'). The structural regex on CanonicalIdString blocks spaces, names, DOBs, and similar regulated content. Resolved against the SDP-projected world.entities_synced table; a freshly-created entity may not be visible yet if the projection is lagging. Provide either entity_id or canonical_id, not both.
+        channel_kind:
+          type: string
+          const: web
+          title: Channel Kind
+        greeting:
+          anyOf:
+          - type: string
+            maxLength: 2000
+          - type: 'null'
+          title: Greeting
+          description: Custom greeting. Agent auto-greets if omitted.
+      type: object
+      required:
+      - service_id
+      - channel_kind
+      title: StartSessionRequest
+    InjectRequest:
+      properties:
+        message:
+          type: string
+          maxLength: 5000
+          minLength: 1
+          title: Message
+        sender:
+          type: string
+          maxLength: 200
+          title: Sender
+          default: System
+        event_type:
+          type: string
+          enum:
+          - external_event
+          - guidance
+          title: Event Type
+          description: external_event (factual info) or guidance (instructional)
+          default: external_event
+      type: object
+      required:
+      - message
+      title: InjectRequest
+    CanonicalIdString:
+      type: string
+      maxLength: 256
+      minLength: 3
+      pattern: ^[A-Za-z0-9._-]+:[A-Za-z0-9._-]+:[A-Za-z0-9._-]+$
+    ActiveSession:
+      properties:
+        call_sid:
+          type: string
+          title: Call Sid
+        service_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Service Id
+        workspace_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Workspace Id
+        caller_id:
+          type: string
+          title: Caller Id
+        direction:
+          type: string
+          title: Direction
+        duration_seconds:
+          type: number
+          title: Duration Seconds
+        current_state:
+          type: string
+          title: Current State
+          default: ''
+        scenario:
+          type: string
+          title: Scenario
+          default: ''
+      type: object
+      required:
+      - call_sid
+      - caller_id
+      - direction
+      - duration_seconds
+      title: ActiveSession
     FleetStatusResponse:
       properties:
         fleet:
@@ -279,131 +404,6 @@ components:
         per-workspace. ``fleet``/``namespace`` echo which fleet was read (voice per-call
 
         fleet, or the tool-runner background-tool fleet via ``?fleet=tool-runner``).'
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
-    StartSessionResponse:
-      properties:
-        conversation_id:
-          type: string
-          format: uuid
-          title: Conversation Id
-        session_status:
-          type: string
-          enum:
-          - created
-          - already_active
-          title: Session Status
-        channel_kind:
-          type: string
-          const: web
-          title: Channel Kind
-        entity_id:
-          type: string
-          format: uuid
-          title: Entity Id
-        service_id:
-          type: string
-          format: uuid
-          title: Service Id
-        created_at:
-          type: string
-          title: Created At
-      type: object
-      required:
-      - conversation_id
-      - session_status
-      - channel_kind
-      - entity_id
-      - service_id
-      - created_at
-      title: StartSessionResponse
-    CanonicalIdString:
-      type: string
-      maxLength: 256
-      minLength: 3
-      pattern: ^[A-Za-z0-9._-]+:[A-Za-z0-9._-]+:[A-Za-z0-9._-]+$
-    ActiveSession:
-      properties:
-        call_sid:
-          type: string
-          title: Call Sid
-        service_id:
-          anyOf:
-          - type: string
-            format: uuid
-          - type: 'null'
-          title: Service Id
-        workspace_id:
-          anyOf:
-          - type: string
-            format: uuid
-          - type: 'null'
-          title: Workspace Id
-        caller_id:
-          type: string
-          title: Caller Id
-        direction:
-          type: string
-          title: Direction
-        duration_seconds:
-          type: number
-          title: Duration Seconds
-        current_state:
-          type: string
-          title: Current State
-          default: ''
-        scenario:
-          type: string
-          title: Scenario
-          default: ''
-      type: object
-      required:
-      - call_sid
-      - caller_id
-      - direction
-      - duration_seconds
-      title: ActiveSession
-    StartSessionRequest:
-      properties:
-        service_id:
-          type: string
-          format: uuid
-          title: Service Id
-        entity_id:
-          anyOf:
-          - type: string
-            format: uuid
-          - type: 'null'
-          title: Entity Id
-          description: World model entity UUID. Provide either entity_id or canonical_id.
-        canonical_id:
-          anyOf:
-          - $ref: '#/components/schemas/CanonicalIdString'
-          - type: 'null'
-          description: World model canonical_id of the form 'source:resource_type:id' (e.g. 'charmhealth:Patient:67890'). The structural regex on CanonicalIdString blocks spaces, names, DOBs, and similar regulated content. Resolved against the SDP-projected world.entities_synced table; a freshly-created entity may not be visible yet if the projection is lagging. Provide either entity_id or canonical_id, not both.
-        channel_kind:
-          type: string
-          const: web
-          title: Channel Kind
-        greeting:
-          anyOf:
-          - type: string
-            maxLength: 2000
-          - type: 'null'
-          title: Greeting
-          description: Custom greeting. Agent auto-greets if omitted.
-      type: object
-      required:
-      - service_id
-      - channel_kind
-      title: StartSessionRequest
   securitySchemes:
     BearerAuth:
       type: http

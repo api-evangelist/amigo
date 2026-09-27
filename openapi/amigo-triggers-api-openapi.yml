@@ -369,6 +369,365 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
+    PaginatedResponse_TriggerResponse_:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/TriggerResponse'
+          type: array
+          title: Items
+        has_more:
+          type: boolean
+          title: Has More
+        continuation_token:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Continuation Token
+        total:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Total
+      type: object
+      required:
+      - items
+      - has_more
+      title: PaginatedResponse[TriggerResponse]
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    CreateTriggerRequest:
+      properties:
+        name:
+          $ref: '#/components/schemas/NameString'
+        description:
+          anyOf:
+          - $ref: '#/components/schemas/DescriptionString'
+          - type: 'null'
+        event_type:
+          $ref: '#/components/schemas/TriggerableEvent'
+        event_filter:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Event Filter
+        action_id:
+          type: string
+          format: uuid
+          title: Action Id
+        input_template:
+          additionalProperties: true
+          type: object
+          title: Input Template
+        schedule:
+          anyOf:
+          - type: string
+            maxLength: 128
+            minLength: 1
+          - type: 'null'
+          title: Schedule
+        timezone:
+          type: string
+          maxLength: 64
+          minLength: 1
+          title: Timezone
+          default: UTC
+      type: object
+      required:
+      - name
+      - event_type
+      - action_id
+      title: CreateTriggerRequest
+    DescriptionString:
+      type: string
+      maxLength: 2000
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    UpdateTriggerRequest:
+      properties:
+        name:
+          anyOf:
+          - $ref: '#/components/schemas/NameString'
+          - type: 'null'
+        description:
+          anyOf:
+          - $ref: '#/components/schemas/DescriptionString'
+          - type: 'null'
+        event_type:
+          anyOf:
+          - $ref: '#/components/schemas/TriggerableEvent'
+          - type: 'null'
+        event_filter:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Event Filter
+        action_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Action Id
+        input_template:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Input Template
+        schedule:
+          anyOf:
+          - type: string
+            maxLength: 128
+            minLength: 1
+          - type: 'null'
+          title: Schedule
+        timezone:
+          anyOf:
+          - type: string
+            maxLength: 64
+            minLength: 1
+          - type: 'null'
+          title: Timezone
+      type: object
+      title: UpdateTriggerRequest
+    TriggerResponse:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        workspace_id:
+          type: string
+          format: uuid
+          title: Workspace Id
+        name:
+          type: string
+          title: Name
+          description: Trigger display name
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+          description: Human-readable description
+        event_type:
+          type: string
+          title: Event Type
+          description: Event type pattern to match
+        event_filter:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Event Filter
+          description: JSONPath filter on event data
+        action_id:
+          type: string
+          format: uuid
+          title: Action Id
+          description: Action (skill) to invoke when fired
+        input_template:
+          additionalProperties: true
+          type: object
+          title: Input Template
+          description: Input template merged with event data
+        schedule:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Schedule
+          description: Cron schedule expression (e.g. '0 9 * * 1-5')
+        timezone:
+          type: string
+          title: Timezone
+          description: IANA timezone for schedule evaluation
+        next_fire_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Next Fire At
+          description: Next scheduled fire time
+        is_active:
+          type: boolean
+          title: Is Active
+          description: Whether the trigger is active
+        created_by:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Created By
+          description: Entity ID of the creator
+        created_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Created At
+          description: When the trigger was created
+        updated_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Updated At
+          description: When the trigger was last updated
+      type: object
+      required:
+      - id
+      - workspace_id
+      - name
+      - event_type
+      - action_id
+      - input_template
+      - timezone
+      - is_active
+      title: TriggerResponse
+    PaginatedResponse_TriggerRunResponse_:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/TriggerRunResponse'
+          type: array
+          title: Items
+        has_more:
+          type: boolean
+          title: Has More
+        continuation_token:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Continuation Token
+        total:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Total
+      type: object
+      required:
+      - items
+      - has_more
+      title: PaginatedResponse[TriggerRunResponse]
+    TriggerFireResponse:
+      properties:
+        fired_event_id:
+          type: string
+          format: uuid
+          title: Fired Event Id
+        trigger_id:
+          type: string
+          format: uuid
+          title: Trigger Id
+        status:
+          type: string
+          const: fired
+          title: Status
+          default: fired
+      type: object
+      required:
+      - fired_event_id
+      - trigger_id
+      title: TriggerFireResponse
+    TriggerableEvent:
+      type: string
+      enum:
+      - amigo.trigger.cron
+      - appointment.booked
+      - appointment.cancelled
+      - appointment.confirmed
+      - booking.requested
+      - call.intelligence
+      - call.outcome
+      - channel.email.bounced
+      - channel.email.clicked
+      - channel.email.complained
+      - channel.email.delayed
+      - channel.email.delivered
+      - channel.email.opened
+      - channel.email.received
+      - channel.email.rejected
+      - channel.message.received
+      - channel.voice.voicemail_status
+      - conversation.channel_switched
+      - conversation.started
+      - conversation.turn_recorded
+      - coverage.created
+      - entity.enriched
+      - entity.resolved
+      - intake.file.received
+      - medication.refill_requested
+      - outbound.initiated
+      - outbound.scheduled
+      - patient.created
+      - patient.updated
+      - relationship.established
+      - review.approve
+      - review.correct
+      - review.reject
+      - surface.created
+      - surface.submitted
+      - ticket.created
+      - triage.completed
+      - trigger.completed
+      - trigger.failed
+      - trigger.fired
+      title: TriggerableEvent
+      description: 'Closed set of world events that trigger definitions may subscribe to.
+
+
+        The database column intentionally remains text for compatibility with old
+
+        rows, but API writes must choose from this list so typoed event names do
+
+        not silently create never-matching triggers.'
+    NameString:
+      type: string
+      maxLength: 256
+      minLength: 1
+    FireTriggerRequest:
+      properties:
+        input:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Input
+          description: Optional overrides merged into the trigger's input_template at fire time.
+      type: object
+      title: FireTriggerRequest
     TriggerRunResponse:
       properties:
         id:
@@ -482,365 +841,6 @@ components:
       - created_at
       - updated_at
       title: TriggerRunResponse
-    TriggerFireResponse:
-      properties:
-        fired_event_id:
-          type: string
-          format: uuid
-          title: Fired Event Id
-        trigger_id:
-          type: string
-          format: uuid
-          title: Trigger Id
-        status:
-          type: string
-          const: fired
-          title: Status
-          default: fired
-      type: object
-      required:
-      - fired_event_id
-      - trigger_id
-      title: TriggerFireResponse
-    TriggerResponse:
-      properties:
-        id:
-          type: string
-          format: uuid
-          title: Id
-        workspace_id:
-          type: string
-          format: uuid
-          title: Workspace Id
-        name:
-          type: string
-          title: Name
-          description: Trigger display name
-        description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Description
-          description: Human-readable description
-        event_type:
-          type: string
-          title: Event Type
-          description: Event type pattern to match
-        event_filter:
-          anyOf:
-          - additionalProperties: true
-            type: object
-          - type: 'null'
-          title: Event Filter
-          description: JSONPath filter on event data
-        action_id:
-          type: string
-          format: uuid
-          title: Action Id
-          description: Action (skill) to invoke when fired
-        input_template:
-          additionalProperties: true
-          type: object
-          title: Input Template
-          description: Input template merged with event data
-        schedule:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Schedule
-          description: Cron schedule expression (e.g. '0 9 * * 1-5')
-        timezone:
-          type: string
-          title: Timezone
-          description: IANA timezone for schedule evaluation
-        next_fire_at:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Next Fire At
-          description: Next scheduled fire time
-        is_active:
-          type: boolean
-          title: Is Active
-          description: Whether the trigger is active
-        created_by:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Created By
-          description: Entity ID of the creator
-        created_at:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Created At
-          description: When the trigger was created
-        updated_at:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Updated At
-          description: When the trigger was last updated
-      type: object
-      required:
-      - id
-      - workspace_id
-      - name
-      - event_type
-      - action_id
-      - input_template
-      - timezone
-      - is_active
-      title: TriggerResponse
-    UpdateTriggerRequest:
-      properties:
-        name:
-          anyOf:
-          - $ref: '#/components/schemas/NameString'
-          - type: 'null'
-        description:
-          anyOf:
-          - $ref: '#/components/schemas/DescriptionString'
-          - type: 'null'
-        event_type:
-          anyOf:
-          - $ref: '#/components/schemas/TriggerableEvent'
-          - type: 'null'
-        event_filter:
-          anyOf:
-          - additionalProperties: true
-            type: object
-          - type: 'null'
-          title: Event Filter
-        action_id:
-          anyOf:
-          - type: string
-            format: uuid
-          - type: 'null'
-          title: Action Id
-        input_template:
-          anyOf:
-          - additionalProperties: true
-            type: object
-          - type: 'null'
-          title: Input Template
-        schedule:
-          anyOf:
-          - type: string
-            maxLength: 128
-            minLength: 1
-          - type: 'null'
-          title: Schedule
-        timezone:
-          anyOf:
-          - type: string
-            maxLength: 64
-            minLength: 1
-          - type: 'null'
-          title: Timezone
-      type: object
-      title: UpdateTriggerRequest
-    ValidationError:
-      properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-        input:
-          title: Input
-        ctx:
-          type: object
-          title: Context
-      type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
-    NameString:
-      type: string
-      maxLength: 256
-      minLength: 1
-    PaginatedResponse_TriggerRunResponse_:
-      properties:
-        items:
-          items:
-            $ref: '#/components/schemas/TriggerRunResponse'
-          type: array
-          title: Items
-        has_more:
-          type: boolean
-          title: Has More
-        continuation_token:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Continuation Token
-        total:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Total
-      type: object
-      required:
-      - items
-      - has_more
-      title: PaginatedResponse[TriggerRunResponse]
-    DescriptionString:
-      type: string
-      maxLength: 2000
-    PaginatedResponse_TriggerResponse_:
-      properties:
-        items:
-          items:
-            $ref: '#/components/schemas/TriggerResponse'
-          type: array
-          title: Items
-        has_more:
-          type: boolean
-          title: Has More
-        continuation_token:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Continuation Token
-        total:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Total
-      type: object
-      required:
-      - items
-      - has_more
-      title: PaginatedResponse[TriggerResponse]
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
-    TriggerableEvent:
-      type: string
-      enum:
-      - amigo.trigger.cron
-      - appointment.booked
-      - appointment.cancelled
-      - appointment.confirmed
-      - booking.requested
-      - call.intelligence
-      - call.outcome
-      - channel.email.bounced
-      - channel.email.clicked
-      - channel.email.complained
-      - channel.email.delayed
-      - channel.email.delivered
-      - channel.email.opened
-      - channel.email.received
-      - channel.email.rejected
-      - channel.message.received
-      - channel.voice.voicemail_status
-      - conversation.channel_switched
-      - conversation.started
-      - conversation.turn_recorded
-      - coverage.created
-      - entity.enriched
-      - entity.resolved
-      - intake.file.received
-      - medication.refill_requested
-      - outbound.initiated
-      - outbound.scheduled
-      - patient.created
-      - patient.updated
-      - relationship.established
-      - review.approve
-      - review.correct
-      - review.reject
-      - surface.created
-      - surface.submitted
-      - ticket.created
-      - triage.completed
-      - trigger.completed
-      - trigger.failed
-      - trigger.fired
-      title: TriggerableEvent
-      description: 'Closed set of world events that trigger definitions may subscribe to.
-
-
-        The database column intentionally remains text for compatibility with old
-
-        rows, but API writes must choose from this list so typoed event names do
-
-        not silently create never-matching triggers.'
-    CreateTriggerRequest:
-      properties:
-        name:
-          $ref: '#/components/schemas/NameString'
-        description:
-          anyOf:
-          - $ref: '#/components/schemas/DescriptionString'
-          - type: 'null'
-        event_type:
-          $ref: '#/components/schemas/TriggerableEvent'
-        event_filter:
-          anyOf:
-          - additionalProperties: true
-            type: object
-          - type: 'null'
-          title: Event Filter
-        action_id:
-          type: string
-          format: uuid
-          title: Action Id
-        input_template:
-          additionalProperties: true
-          type: object
-          title: Input Template
-        schedule:
-          anyOf:
-          - type: string
-            maxLength: 128
-            minLength: 1
-          - type: 'null'
-          title: Schedule
-        timezone:
-          type: string
-          maxLength: 64
-          minLength: 1
-          title: Timezone
-          default: UTC
-      type: object
-      required:
-      - name
-      - event_type
-      - action_id
-      title: CreateTriggerRequest
-    FireTriggerRequest:
-      properties:
-        input:
-          anyOf:
-          - additionalProperties: true
-            type: object
-          - type: 'null'
-          title: Input
-          description: Optional overrides merged into the trigger's input_template at fire time.
-      type: object
-      title: FireTriggerRequest
   securitySchemes:
     BearerAuth:
       type: http

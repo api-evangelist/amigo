@@ -333,33 +333,6 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
-    OwnedUseCasesResponse:
-      properties:
-        items:
-          items:
-            type: string
-            format: uuid
-          type: array
-          title: Items
-      type: object
-      required:
-      - items
-      title: OwnedUseCasesResponse
-    OwnershipResponse:
-      properties:
-        use_case_id:
-          type: string
-          format: uuid
-          title: Use Case Id
-        workspace_id:
-          type: string
-          format: uuid
-          title: Workspace Id
-      type: object
-      required:
-      - use_case_id
-      - workspace_id
-      title: OwnershipResponse
     ValidationError:
       properties:
         loc:
@@ -386,6 +359,30 @@ components:
       - msg
       - type
       title: ValidationError
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    OwnershipResponse:
+      properties:
+        use_case_id:
+          type: string
+          format: uuid
+          title: Use Case Id
+        workspace_id:
+          type: string
+          format: uuid
+          title: Workspace Id
+      type: object
+      required:
+      - use_case_id
+      - workspace_id
+      title: OwnershipResponse
     UseCaseResponse:
       properties:
         id:
@@ -467,26 +464,6 @@ components:
       required:
       - service_id
       title: ServiceBindingRequest
-    UseCaseListResponse:
-      properties:
-        items:
-          items:
-            $ref: '#/components/schemas/UseCaseResponse'
-          type: array
-          title: Items
-      type: object
-      required:
-      - items
-      title: UseCaseListResponse
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
     ServiceBindingResponse:
       properties:
         use_case_id:
@@ -528,6 +505,29 @@ components:
       - created_at
       - updated_at
       title: ServiceBindingResponse
+    OwnedUseCasesResponse:
+      properties:
+        items:
+          items:
+            type: string
+            format: uuid
+          type: array
+          title: Items
+      type: object
+      required:
+      - items
+      title: OwnedUseCasesResponse
+    UseCaseListResponse:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/UseCaseResponse'
+          type: array
+          title: Items
+      type: object
+      required:
+      - items
+      title: UseCaseListResponse
   securitySchemes:
     BearerAuth:
       type: http

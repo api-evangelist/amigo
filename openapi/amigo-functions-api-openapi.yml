@@ -289,85 +289,6 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
-    InvokeResponse:
-      properties:
-        result:
-          title: Result
-        duration_ms:
-          type: number
-          title: Duration Ms
-          default: 0.0
-        row_count:
-          type: integer
-          title: Row Count
-          default: 0
-      type: object
-      title: InvokeResponse
-    FunctionExample:
-      properties:
-        input:
-          additionalProperties: true
-          type: object
-          title: Input
-        output:
-          title: Output
-        description:
-          type: string
-          title: Description
-          default: ''
-      additionalProperties: false
-      type: object
-      required:
-      - input
-      - output
-      title: FunctionExample
-      description: 'One example call, surfaced to the LLM and the DC test panel.
-
-
-        Examples are first-class metadata, not buried in a UC ``COMMENT``
-
-        clause the way Databricks'' native authoring requires. The DC
-
-        tool-picker shows them; the LLM tool spec includes them inline.'
-    ReturnColumn:
-      properties:
-        name:
-          type: string
-          maxLength: 64
-          minLength: 1
-          pattern: ^[a-z][a-z0-9_]*$
-          title: Name
-        type:
-          type: string
-          enum:
-          - string
-          - integer
-          - number
-          - boolean
-          title: Type
-        description:
-          type: string
-          maxLength: 512
-          title: Description
-          default: ''
-      additionalProperties: false
-      type: object
-      required:
-      - name
-      - type
-      title: ReturnColumn
-      description: 'One column in a UDTF''s output schema.
-
-
-        UC ``RETURNS TABLE(<col1> <type1>, <col2> <type2>, ...)`` requires
-
-        declaring the schema at deploy time. This list anchors that
-
-        schema for ``function_type=udtf`` rows. ``name`` becomes the
-
-        column name in the result rows; ``type`` maps to a Databricks
-
-        SQL type via the same ``ParameterType`` Literal we use for inputs.'
     RegisteredFunctionResponse:
       properties:
         name:
@@ -474,6 +395,171 @@ components:
       - msg
       - type
       title: ValidationError
+    FunctionExample:
+      properties:
+        input:
+          additionalProperties: true
+          type: object
+          title: Input
+        output:
+          title: Output
+        description:
+          type: string
+          title: Description
+          default: ''
+      additionalProperties: false
+      type: object
+      required:
+      - input
+      - output
+      title: FunctionExample
+      description: 'One example call, surfaced to the LLM and the DC test panel.
+
+
+        Examples are first-class metadata, not buried in a UC ``COMMENT``
+
+        clause the way Databricks'' native authoring requires. The DC
+
+        tool-picker shows them; the LLM tool spec includes them inline.'
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    InvokeRequest:
+      properties:
+        input:
+          additionalProperties: true
+          type: object
+          title: Input
+          description: Caller arguments matching input_schema.
+      type: object
+      title: InvokeRequest
+      description: Invoke a registered function with caller-supplied args.
+    InvokeResponse:
+      properties:
+        result:
+          title: Result
+        duration_ms:
+          type: number
+          title: Duration Ms
+          default: 0.0
+        row_count:
+          type: integer
+          title: Row Count
+          default: 0
+      type: object
+      title: InvokeResponse
+    ReturnColumn:
+      properties:
+        name:
+          type: string
+          maxLength: 64
+          minLength: 1
+          pattern: ^[a-z][a-z0-9_]*$
+          title: Name
+        type:
+          type: string
+          enum:
+          - string
+          - integer
+          - number
+          - boolean
+          title: Type
+        description:
+          type: string
+          maxLength: 512
+          title: Description
+          default: ''
+      additionalProperties: false
+      type: object
+      required:
+      - name
+      - type
+      title: ReturnColumn
+      description: 'One column in a UDTF''s output schema.
+
+
+        UC ``RETURNS TABLE(<col1> <type1>, <col2> <type2>, ...)`` requires
+
+        declaring the schema at deploy time. This list anchors that
+
+        schema for ``function_type=udtf`` rows. ``name`` becomes the
+
+        column name in the result rows; ``type`` maps to a Databricks
+
+        SQL type via the same ``ParameterType`` Literal we use for inputs.'
+    RegisteredFunctionListResponse:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/RegisteredFunctionResponse'
+          type: array
+          title: Items
+        count:
+          type: integer
+          title: Count
+      type: object
+      required:
+      - items
+      - count
+      title: RegisteredFunctionListResponse
+    TestInvokeResponse:
+      properties:
+        result:
+          title: Result
+        duration_ms:
+          type: number
+          title: Duration Ms
+          default: 0.0
+        row_count:
+          type: integer
+          title: Row Count
+          default: 0
+        status:
+          type: string
+          title: Status
+          default: pass
+        error:
+          anyOf:
+          - type: string
+            maxLength: 2000
+          - type: 'null'
+          title: Error
+        test_duration_ms:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Test Duration Ms
+      type: object
+      title: TestInvokeResponse
+      description: 'Response shape for ``POST /v1/{ws}/functions/{name}/test``.
+
+
+        Structural superset of :class:`InvokeResponse`. Adds ``status`` and
+
+        ``error`` so the DC can render the executor''s failure detail inline
+
+        rather than a generic "Invocation failed." The underlying invoke
+
+        uses the same path; ``status`` / ``error`` are filled in by
+
+        ``service.test`` after catching any ``HTTPException`` (503) from the
+
+        executor, so the route never bubbles a 5xx for a logical SQL
+
+        failure — it''s still a 200 with ``status=fail`` so the caller can
+
+        show the message.
+
+
+        Invariant (enforced by :func:`_check_error_when_fail`):
+
+        ``status == "fail" → error is not None and len(error) > 0``.'
     platform_lib__platform_functions__models__Parameter:
       properties:
         name:
@@ -531,73 +617,6 @@ components:
         silently break tool selection — the registration layer rejects
 
         empty strings.'
-    TestInvokeResponse:
-      properties:
-        result:
-          title: Result
-        duration_ms:
-          type: number
-          title: Duration Ms
-          default: 0.0
-        row_count:
-          type: integer
-          title: Row Count
-          default: 0
-        status:
-          type: string
-          title: Status
-          default: pass
-        error:
-          anyOf:
-          - type: string
-            maxLength: 2000
-          - type: 'null'
-          title: Error
-        test_duration_ms:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Test Duration Ms
-      type: object
-      title: TestInvokeResponse
-      description: 'Response shape for ``POST /v1/{ws}/functions/{name}/test``.
-
-
-        Structural superset of :class:`InvokeResponse`. Adds ``status`` and
-
-        ``error`` so the DC can render the executor''s failure detail inline
-
-        rather than a generic "Invocation failed." The underlying invoke
-
-        uses the same path; ``status`` / ``error`` are filled in by
-
-        ``service.test`` after catching any ``HTTPException`` (503) from the
-
-        executor, so the route never bubbles a 5xx for a logical SQL
-
-        failure — it''s still a 200 with ``status=fail`` so the caller can
-
-        show the message.
-
-
-        Invariant (enforced by :func:`_check_error_when_fail`):
-
-        ``status == "fail" → error is not None and len(error) > 0``.'
-    RegisteredFunctionListResponse:
-      properties:
-        items:
-          items:
-            $ref: '#/components/schemas/RegisteredFunctionResponse'
-          type: array
-          title: Items
-        count:
-          type: integer
-          title: Count
-      type: object
-      required:
-      - items
-      - count
-      title: RegisteredFunctionListResponse
     RegisteredFunction:
       properties:
         name:
@@ -695,25 +714,6 @@ components:
         ``CREATE OR REPLACE FUNCTION`` against the warehouse to materialize
 
         the UC UDF.'
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
-    InvokeRequest:
-      properties:
-        input:
-          additionalProperties: true
-          type: object
-          title: Input
-          description: Caller arguments matching input_schema.
-      type: object
-      title: InvokeRequest
-      description: Invoke a registered function with caller-supplied args.
   securitySchemes:
     BearerAuth:
       type: http

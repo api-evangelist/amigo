@@ -215,23 +215,15 @@ components:
       - msg
       - type
       title: ValidationError
-    src__routes__external_roles__ListResponse:
+    HTTPValidationError:
       properties:
-        items:
+        detail:
           items:
-            $ref: '#/components/schemas/ExternalRoleItem'
+            $ref: '#/components/schemas/ValidationError'
           type: array
-          title: Items
-        has_more:
-          type: boolean
-          title: Has More
-        continuation_token:
-          title: Continuation Token
+          title: Detail
       type: object
-      required:
-      - items
-      - has_more
-      title: ListResponse
+      title: HTTPValidationError
     ExternalRoleItem:
       properties:
         id:
@@ -266,15 +258,23 @@ components:
       - updated_at
       title: ExternalRoleItem
       description: Wire shape for read + create responses.
-    HTTPValidationError:
+    src__routes__external_roles__ListResponse:
       properties:
-        detail:
+        items:
           items:
-            $ref: '#/components/schemas/ValidationError'
+            $ref: '#/components/schemas/ExternalRoleItem'
           type: array
-          title: Detail
+          title: Items
+        has_more:
+          type: boolean
+          title: Has More
+        continuation_token:
+          title: Continuation Token
       type: object
-      title: HTTPValidationError
+      required:
+      - items
+      - has_more
+      title: ListResponse
   securitySchemes:
     BearerAuth:
       type: http

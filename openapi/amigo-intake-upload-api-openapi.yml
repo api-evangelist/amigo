@@ -105,6 +105,66 @@ paths:
           description: Rate limited or upload limit reached
 components:
   schemas:
+    LinkErrorResponse:
+      properties:
+        error_code:
+          type: string
+          enum:
+          - invalid_token
+          - link_not_found
+          - link_expired
+          - link_exhausted
+          title: Error Code
+          description: Machine-readable error code.
+        message:
+          type: string
+          maxLength: 512
+          title: Message
+          description: Human-readable error message.
+      type: object
+      required:
+      - error_code
+      - message
+      title: LinkErrorResponse
+      description: Error envelope returned for token / link validation failures.
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    DescriptionString:
+      type: string
+      maxLength: 2000
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
     LinkInfoResponse:
       properties:
         display_name:
@@ -134,32 +194,6 @@ components:
       - max_upload_bytes
       title: LinkInfoResponse
       description: Public metadata for an intake upload link, returned to the forms app.
-    ValidationError:
-      properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-        input:
-          title: Input
-        ctx:
-          type: object
-          title: Context
-      type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
     UploadFileResponse:
       properties:
         id:
@@ -201,40 +235,6 @@ components:
       - scan_status
       title: UploadFileResponse
       description: Receipt for a successful upload via an intake link.
-    LinkErrorResponse:
-      properties:
-        error_code:
-          type: string
-          enum:
-          - invalid_token
-          - link_not_found
-          - link_expired
-          - link_exhausted
-          title: Error Code
-          description: Machine-readable error code.
-        message:
-          type: string
-          maxLength: 512
-          title: Message
-          description: Human-readable error message.
-      type: object
-      required:
-      - error_code
-      - message
-      title: LinkErrorResponse
-      description: Error envelope returned for token / link validation failures.
-    DescriptionString:
-      type: string
-      maxLength: 2000
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
     UploadDuplicateInfo:
       properties:
         id:

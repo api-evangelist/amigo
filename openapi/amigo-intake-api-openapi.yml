@@ -1080,72 +1080,11 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
-    IntakeFieldType:
+    _FileType:
       type: string
-      enum:
-      - str
-      - int
-      - float
-      - bool
-      - date
-      - datetime
-      title: IntakeFieldType
-      description: 'Allowed ``schema[].type`` values for a registered contract.
-
-
-        Confirmed set (intake-ui-mvp design contract point #1): scalars plus
-
-        ISO date/datetime. Coercion semantics live in :func:`_coerces`.'
-    CreateLinkRequest:
-      properties:
-        customer_slug:
-          $ref: '#/components/schemas/SlugString'
-        display_name:
-          anyOf:
-          - $ref: '#/components/schemas/DescriptionString'
-          - type: 'null'
-        expires_in_hours:
-          type: integer
-          maximum: 720.0
-          minimum: 1.0
-          title: Expires In Hours
-          default: 168
-        max_uploads:
-          type: integer
-          maximum: 10000.0
-          minimum: 1.0
-          title: Max Uploads
-          default: 100
-      type: object
-      required:
-      - customer_slug
-      title: CreateLinkRequest
-    IntakeFileResponse:
-      properties:
-        id:
-          type: string
-          format: uuid
-          title: Id
-        volume_path:
-          type: string
-          title: Volume Path
-        sha256:
-          type: string
-          title: Sha256
-        size_bytes:
-          type: integer
-          title: Size Bytes
-        scan_status:
-          type: string
-          title: Scan Status
-      type: object
-      required:
-      - id
-      - volume_path
-      - sha256
-      - size_bytes
-      - scan_status
-      title: IntakeFileResponse
+      maxLength: 16
+      minLength: 1
+      pattern: ^[a-z0-9]+$
     MaterializationRow:
       properties:
         dataset:
@@ -1179,48 +1118,135 @@ components:
       description: 'Per-dataset status of the customer-data destination table
 
         (``customer_data_<env>.<workspace_id>.<dataset>``).'
-    Body_upload_intake_file_v1__workspace_id__intake_files_post:
+    DriveFolderMapping:
       properties:
+        folder_id:
+          type: string
+          maxLength: 256
+          minLength: 1
+          pattern: ^[A-Za-z0-9_-]+$
+          title: Folder Id
         dataset:
           type: string
           maxLength: 63
           minLength: 2
           pattern: ^[a-z0-9][a-z0-9_-]*[a-z0-9]$
           title: Dataset
-        file:
-          type: string
-          contentMediaType: application/octet-stream
-          title: File
-        document_id:
-          anyOf:
-          - type: string
-            format: uuid
-          - type: 'null'
-          title: Document Id
       type: object
       required:
+      - folder_id
       - dataset
-      - file
-      title: Body_upload_intake_file_v1__workspace_id__intake_files_post
-    MaterializeRequest:
-      properties:
-        dataset:
-          anyOf:
-          - $ref: '#/components/schemas/_DatasetSlug'
-          - type: 'null'
-      type: object
-      title: MaterializeRequest
-    SchemaFieldSpec:
+      title: DriveFolderMapping
+      description: 'One Google Drive folder ↔ one intake dataset.
+
+
+        ``folder_id`` is the Drive folder id (the identity — never the folder name,
+
+        which can be renamed/moved). One folder maps to exactly one dataset.'
+    NameString:
+      type: string
+      maxLength: 256
+      minLength: 1
+    DatasetRow:
       properties:
         name:
-          $ref: '#/components/schemas/_FieldName'
-        type:
-          $ref: '#/components/schemas/IntakeFieldType'
+          type: string
+          title: Name
+          description: Dataset slug (UI label "Schema").
+        schema_version:
+          type: string
+          title: Schema Version
+        field_count:
+          type: integer
+          title: Field Count
+        file_type:
+          type: string
+          title: File Type
+          description: Primary/representative file type (the first accepted type).
+        accepted_file_types:
+          items:
+            type: string
+          type: array
+          title: Accepted File Types
+          description: 'Document datasets: the full accepted-type set (V265). Empty for snapshot
+
+            or legacy single-type documents (the UI falls back to ``file_type``).'
+          default: []
+        ingestion_mode:
+          type: string
+          title: Ingestion Mode
+          description: '`snapshot` (CSV/Excel → CDC) or `document` (PDF/docx → extraction).'
+        limits:
+          $ref: '#/components/schemas/Limits'
       type: object
       required:
       - name
-      - type
-      title: SchemaFieldSpec
+      - schema_version
+      - field_count
+      - file_type
+      - ingestion_mode
+      - limits
+      title: DatasetRow
+      description: A registered schema in the Schemas list (intake-ui-mvp-design.md §5.3).
+    PaginatedResponse_MaterializationRow_:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/MaterializationRow'
+          type: array
+          title: Items
+        has_more:
+          type: boolean
+          title: Has More
+        continuation_token:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Continuation Token
+        total:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Total
+      type: object
+      required:
+      - items
+      - has_more
+      title: PaginatedResponse[MaterializationRow]
+    MaterializeResponse:
+      properties:
+        run_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Run Id
+      type: object
+      title: MaterializeResponse
+    PaginatedResponse_IntakeFileRow_:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/IntakeFileRow'
+          type: array
+          title: Items
+        has_more:
+          type: boolean
+          title: Has More
+        continuation_token:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Continuation Token
+        total:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Total
+      type: object
+      required:
+      - items
+      - has_more
+      title: PaginatedResponse[IntakeFileRow]
     DatasetUpdateRunResponse:
       properties:
         run_id:
@@ -1276,41 +1302,315 @@ components:
       - updated_at
       title: DatasetUpdateRunResponse
       description: Durable status for one dataset update action.
-    ValidationError:
+    _DatasetUpdateStatus:
+      type: string
+      enum:
+      - checking_drive
+      - preparing
+      - publishing
+      - completed
+      - needs_review
+      - failed
+    RegisterSchemaRequest:
       properties:
-        loc:
+        name:
+          $ref: '#/components/schemas/_DatasetSlug'
+        file_type:
+          $ref: '#/components/schemas/_FileType'
+        accepted_file_types:
           items:
-            anyOf:
-            - type: string
-            - type: integer
+            $ref: '#/components/schemas/_FileType'
           type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-        input:
-          title: Input
-        ctx:
-          type: object
-          title: Context
+          maxItems: 16
+          title: Accepted File Types
+          description: 'Document only — the SET of accepted file types (V265, e.g.
+
+            ``["pdf","docx","md"]``). Empty → single-type (just ``file_type``).
+
+            ``file_type`` is included as the primary. Mixing in a tabular type
+
+            (csv/xls/xlsx) is rejected; snapshot datasets are single-type.'
+          default: []
+        primary_key:
+          items:
+            $ref: '#/components/schemas/_FieldName'
+          type: array
+          maxItems: 32
+          title: Primary Key
+          description: Snapshot only — the canonical PK column(s). Empty/ignored for documents.
+          default: []
+        schema:
+          items:
+            $ref: '#/components/schemas/SchemaFieldSpec'
+          type: array
+          maxItems: 500
+          title: Schema
+          description: Snapshot only — canonical field list ``[{name, type}]`` (wire key ``schema``).
+          default: []
+        document_processing:
+          anyOf:
+          - $ref: '#/components/schemas/DocumentProcessingSpec'
+          - type: 'null'
+          description: Document only — extraction config; defaulted server-side when omitted.
+        max_size_mb:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Max Size Mb
       type: object
       required:
-      - loc
-      - msg
+      - name
+      - file_type
+      title: RegisterSchemaRequest
+      description: 'Create Schema payload (intake-ui-mvp-design.md §5.4, §5.9).
+
+
+        ``ingestion_mode`` is inferred from ``file_type`` (csv/xls/xlsx → snapshot;
+
+        else document) — not part of the wire contract. Snapshot datasets require
+
+        ``primary_key`` + ``schema``; document datasets take an optional
+
+        ``document_processing`` config and ignore primary_key/schema. The backend
+
+        applies the other hidden defaults (``on_schema_change=additive``,
+
+        ``schema_version`` auto).'
+    RegisterSourceRequest:
+      properties:
+        display_name:
+          type: string
+          maxLength: 200
+          minLength: 1
+          title: Display Name
+        drive_id:
+          anyOf:
+          - type: string
+            maxLength: 256
+          - type: 'null'
+          title: Drive Id
+        folders:
+          items:
+            $ref: '#/components/schemas/DriveFolderMapping'
+          type: array
+          maxItems: 100
+          minItems: 1
+          title: Folders
+        impersonate_subject:
+          anyOf:
+          - type: string
+            maxLength: 320
+          - type: 'null'
+          title: Impersonate Subject
+      type: object
+      required:
+      - display_name
+      - folders
+      title: RegisterSourceRequest
+      description: 'Register a Google Shared Drive intake source (design §3).
+
+
+        The credential is not part of the wire contract — the server derives the
+
+        SA-key SSM path deterministically from the generated ``source_id`` (the
+
+        ``/data-sources/`` convention) and the operator uploads the key there
+
+        out-of-band. ``drive_id`` is optional (resolved at sync if omitted).'
+    IntakeSourceRow:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+          description: source_id.
+        source_type:
+          type: string
+          title: Source Type
+        display_name:
+          type: string
+          title: Display Name
+        drive_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Drive Id
+        folders:
+          items:
+            $ref: '#/components/schemas/DriveFolderMapping'
+          type: array
+          title: Folders
+        credential_ssm_param_path:
+          type: string
+          title: Credential Ssm Param Path
+          description: Where the SA key must be uploaded (derived; the secret itself is never returned).
+        impersonate_subject:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Impersonate Subject
+          description: DWD impersonation subject, if this source authenticates via domain-wide delegation.
+        status:
+          type: string
+          title: Status
+        created_ts:
+          type: string
+          title: Created Ts
+          description: ISO-8601 timestamp.
+      type: object
+      required:
+      - id
+      - source_type
+      - display_name
+      - folders
+      - credential_ssm_param_path
+      - status
+      - created_ts
+      title: IntakeSourceRow
+      description: A registered intake source (Sources list).
+    IntakeUploadResponse:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        customer_slug:
+          $ref: '#/components/schemas/SlugString'
+        filename:
+          $ref: '#/components/schemas/NameString'
+        content_type:
+          type: string
+          maxLength: 256
+          title: Content Type
+        sha256:
+          type: string
+          maxLength: 64
+          minLength: 64
+          title: Sha256
+        size_bytes:
+          type: integer
+          title: Size Bytes
+        received_at:
+          type: string
+          format: date-time
+          title: Received At
+        scan_status:
+          type: string
+          enum:
+          - skipped
+          - pending
+          - clean
+          - infected
+          title: Scan Status
+      type: object
+      required:
+      - id
+      - customer_slug
+      - filename
+      - content_type
+      - sha256
+      - size_bytes
+      - received_at
+      - scan_status
+      title: IntakeUploadResponse
+    BatchProcessingManifest:
+      properties:
+        document_processing:
+          additionalProperties: true
+          type: object
+          title: Document Processing
+        files:
+          items:
+            $ref: '#/components/schemas/FileEntry'
+          type: array
+          title: Files
+      type: object
+      required:
+      - document_processing
+      - files
+      title: BatchProcessingManifest
+      description: 'Per-file extraction params for a document batch''s still-``received`` files —
+
+        consumed by the batch-extract job, which runs ONCE per batch and extracts
+
+        every file (instead of one run-now per file, which blows the request/gateway
+
+        timeout for large batches). Authenticated by the same short-lived
+
+        workspace-scoped token as the status write-back. ``document_processing`` is
+
+        dataset-wide (the contract); ``file_type`` is per-file (V265 multi-type).
+
+        Filenames are deliberately absent — PHI stays on the Lakebase row.'
+    PaginatedResponse_DatasetRow_:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/DatasetRow'
+          type: array
+          title: Items
+        has_more:
+          type: boolean
+          title: Has More
+        continuation_token:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Continuation Token
+        total:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Total
+      type: object
+      required:
+      - items
+      - has_more
+      title: PaginatedResponse[DatasetRow]
+    _FileStatus:
+      type: string
+      enum:
+      - received
+      - scanned
+      - processing
+      - curated
+      - rejected
+      - failed
+      - held
+    SchemaFieldSpec:
+      properties:
+        name:
+          $ref: '#/components/schemas/_FieldName'
+        type:
+          $ref: '#/components/schemas/IntakeFieldType'
+      type: object
+      required:
+      - name
       - type
-      title: ValidationError
-    _VolumePath:
-      type: string
-      maxLength: 1024
-      minLength: 1
-      pattern: ^[A-Za-z0-9/._-]+$
-    NameString:
-      type: string
-      maxLength: 256
-      minLength: 1
+      title: SchemaFieldSpec
+    SyncBatchRow:
+      properties:
+        batch_id:
+          type: string
+          format: uuid
+          title: Batch Id
+        dataset:
+          type: string
+          title: Dataset
+        files_found:
+          type: integer
+          title: Files Found
+        status:
+          type: string
+          title: Status
+      type: object
+      required:
+      - batch_id
+      - dataset
+      - files_found
+      - status
+      title: SyncBatchRow
+      description: One batch produced by a source sync (one per mapped folder/dataset).
     IntakeFileRow:
       properties:
         id:
@@ -1405,11 +1705,6 @@ components:
       - ingested_at
       title: IntakeFileRow
       description: A file in the Files list (intake-ui-mvp-design.md §5.1).
-    _FileType:
-      type: string
-      maxLength: 16
-      minLength: 1
-      pattern: ^[a-z0-9]+$
     StatusWriteBackRequest:
       properties:
         status:
@@ -1440,370 +1735,29 @@ components:
         must be PHI-safe (the engine reports column + type + counts only — never cell
 
         values). ``curated_path``/``cdc_path`` are set only on a clean verdict.'
-    PaginatedResponse_IntakeSourceRow_:
+    Body_upload_intake_file_v1__workspace_id__intake_files_post:
       properties:
-        items:
-          items:
-            $ref: '#/components/schemas/IntakeSourceRow'
-          type: array
-          title: Items
-        has_more:
-          type: boolean
-          title: Has More
-        continuation_token:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Continuation Token
-        total:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Total
-      type: object
-      required:
-      - items
-      - has_more
-      title: PaginatedResponse[IntakeSourceRow]
-    PaginatedResponse_DatasetRow_:
-      properties:
-        items:
-          items:
-            $ref: '#/components/schemas/DatasetRow'
-          type: array
-          title: Items
-        has_more:
-          type: boolean
-          title: Has More
-        continuation_token:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Continuation Token
-        total:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Total
-      type: object
-      required:
-      - items
-      - has_more
-      title: PaginatedResponse[DatasetRow]
-    PaginatedResponse_BatchRow_:
-      properties:
-        items:
-          items:
-            $ref: '#/components/schemas/BatchRow'
-          type: array
-          title: Items
-        has_more:
-          type: boolean
-          title: Has More
-        continuation_token:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Continuation Token
-        total:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Total
-      type: object
-      required:
-      - items
-      - has_more
-      title: PaginatedResponse[BatchRow]
-    SourceSyncResponse:
-      properties:
-        batches:
-          items:
-            $ref: '#/components/schemas/SyncBatchRow'
-          type: array
-          title: Batches
-      type: object
-      required:
-      - batches
-      title: SourceSyncResponse
-    SlugString:
-      type: string
-      maxLength: 63
-      minLength: 2
-      pattern: ^[a-z0-9][a-z0-9-]*[a-z0-9]$
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
-    BatchProcessingManifest:
-      properties:
-        document_processing:
-          additionalProperties: true
-          type: object
-          title: Document Processing
-        files:
-          items:
-            $ref: '#/components/schemas/FileEntry'
-          type: array
-          title: Files
-      type: object
-      required:
-      - document_processing
-      - files
-      title: BatchProcessingManifest
-      description: 'Per-file extraction params for a document batch''s still-``received`` files —
-
-        consumed by the batch-extract job, which runs ONCE per batch and extracts
-
-        every file (instead of one run-now per file, which blows the request/gateway
-
-        timeout for large batches). Authenticated by the same short-lived
-
-        workspace-scoped token as the status write-back. ``document_processing`` is
-
-        dataset-wide (the contract); ``file_type`` is per-file (V265 multi-type).
-
-        Filenames are deliberately absent — PHI stays on the Lakebase row.'
-    IntakeSourceRow:
-      properties:
-        id:
+        dataset:
           type: string
-          format: uuid
-          title: Id
-          description: source_id.
-        source_type:
+          maxLength: 63
+          minLength: 2
+          pattern: ^[a-z0-9][a-z0-9_-]*[a-z0-9]$
+          title: Dataset
+        file:
           type: string
-          title: Source Type
-        display_name:
-          type: string
-          title: Display Name
-        drive_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Drive Id
-        folders:
-          items:
-            $ref: '#/components/schemas/DriveFolderMapping'
-          type: array
-          title: Folders
-        credential_ssm_param_path:
-          type: string
-          title: Credential Ssm Param Path
-          description: Where the SA key must be uploaded (derived; the secret itself is never returned).
-        impersonate_subject:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Impersonate Subject
-          description: DWD impersonation subject, if this source authenticates via domain-wide delegation.
-        status:
-          type: string
-          title: Status
-        created_ts:
-          type: string
-          title: Created Ts
-          description: ISO-8601 timestamp.
-      type: object
-      required:
-      - id
-      - source_type
-      - display_name
-      - folders
-      - credential_ssm_param_path
-      - status
-      - created_ts
-      title: IntakeSourceRow
-      description: A registered intake source (Sources list).
-    _DatasetUpdateStatus:
-      type: string
-      enum:
-      - checking_drive
-      - preparing
-      - publishing
-      - completed
-      - needs_review
-      - failed
-    PaginatedResponse_MaterializationRow_:
-      properties:
-        items:
-          items:
-            $ref: '#/components/schemas/MaterializationRow'
-          type: array
-          title: Items
-        has_more:
-          type: boolean
-          title: Has More
-        continuation_token:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Continuation Token
-        total:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Total
-      type: object
-      required:
-      - items
-      - has_more
-      title: PaginatedResponse[MaterializationRow]
-    IntakeUploadResponse:
-      properties:
-        id:
-          type: string
-          format: uuid
-          title: Id
-        customer_slug:
-          $ref: '#/components/schemas/SlugString'
-        filename:
-          $ref: '#/components/schemas/NameString'
-        content_type:
-          type: string
-          maxLength: 256
-          title: Content Type
-        sha256:
-          type: string
-          maxLength: 64
-          minLength: 64
-          title: Sha256
-        size_bytes:
-          type: integer
-          title: Size Bytes
-        received_at:
-          type: string
-          format: date-time
-          title: Received At
-        scan_status:
-          type: string
-          enum:
-          - skipped
-          - pending
-          - clean
-          - infected
-          title: Scan Status
-      type: object
-      required:
-      - id
-      - customer_slug
-      - filename
-      - content_type
-      - sha256
-      - size_bytes
-      - received_at
-      - scan_status
-      title: IntakeUploadResponse
-    FileEntry:
-      properties:
-        file_id:
-          type: string
-          format: uuid
-          title: File Id
+          contentMediaType: application/octet-stream
+          title: File
         document_id:
           anyOf:
           - type: string
             format: uuid
           - type: 'null'
           title: Document Id
-        version:
-          type: integer
-          title: Version
-        source_path:
-          type: string
-          title: Source Path
-        file_type:
-          type: string
-          title: File Type
-        content_type:
-          type: string
-          title: Content Type
-        sha256:
-          type: string
-          title: Sha256
-        size_bytes:
-          type: integer
-          title: Size Bytes
-        ingested_at:
-          type: string
-          title: Ingested At
-        contract_id:
-          anyOf:
-          - type: string
-            format: uuid
-          - type: 'null'
-          title: Contract Id
-        contract_version:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Contract Version
       type: object
       required:
-      - file_id
-      - version
-      - source_path
-      - file_type
-      - content_type
-      - sha256
-      - size_bytes
-      - ingested_at
-      title: FileEntry
-    RegisterSourceRequest:
-      properties:
-        display_name:
-          type: string
-          maxLength: 200
-          minLength: 1
-          title: Display Name
-        drive_id:
-          anyOf:
-          - type: string
-            maxLength: 256
-          - type: 'null'
-          title: Drive Id
-        folders:
-          items:
-            $ref: '#/components/schemas/DriveFolderMapping'
-          type: array
-          maxItems: 100
-          minItems: 1
-          title: Folders
-        impersonate_subject:
-          anyOf:
-          - type: string
-            maxLength: 320
-          - type: 'null'
-          title: Impersonate Subject
-      type: object
-      required:
-      - display_name
-      - folders
-      title: RegisterSourceRequest
-      description: 'Register a Google Shared Drive intake source (design §3).
-
-
-        The credential is not part of the wire contract — the server derives the
-
-        SA-key SSM path deterministically from the generated ``source_id`` (the
-
-        ``/data-sources/`` convention) and the operator uploads the key there
-
-        out-of-band. ``drive_id`` is optional (resolved at sync if omitted).'
-    Limits:
-      properties:
-        max_size_mb:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Max Size Mb
-      type: object
-      title: Limits
+      - dataset
+      - file
+      title: Body_upload_intake_file_v1__workspace_id__intake_files_post
     IntakeLinkResponse:
       properties:
         id:
@@ -1879,11 +1833,109 @@ components:
       - upload_count
       - last_upload_at
       title: IntakeLinkResponse
-    PaginatedResponse_IntakeFileRow_:
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    DescriptionString:
+      type: string
+      maxLength: 2000
+    _DatasetSlug:
+      type: string
+      maxLength: 63
+      minLength: 2
+      pattern: ^[a-z0-9][a-z0-9_-]*[a-z0-9]$
+    Limits:
+      properties:
+        max_size_mb:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Max Size Mb
+      type: object
+      title: Limits
+    FileEntry:
+      properties:
+        file_id:
+          type: string
+          format: uuid
+          title: File Id
+        document_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Document Id
+        version:
+          type: integer
+          title: Version
+        source_path:
+          type: string
+          title: Source Path
+        file_type:
+          type: string
+          title: File Type
+        content_type:
+          type: string
+          title: Content Type
+        sha256:
+          type: string
+          title: Sha256
+        size_bytes:
+          type: integer
+          title: Size Bytes
+        ingested_at:
+          type: string
+          title: Ingested At
+        contract_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Contract Id
+        contract_version:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Contract Version
+      type: object
+      required:
+      - file_id
+      - version
+      - source_path
+      - file_type
+      - content_type
+      - sha256
+      - size_bytes
+      - ingested_at
+      title: FileEntry
+    PaginatedResponse_BatchRow_:
       properties:
         items:
           items:
-            $ref: '#/components/schemas/IntakeFileRow'
+            $ref: '#/components/schemas/BatchRow'
           type: array
           title: Items
         has_more:
@@ -1903,219 +1955,7 @@ components:
       required:
       - items
       - has_more
-      title: PaginatedResponse[IntakeFileRow]
-    DatasetRow:
-      properties:
-        name:
-          type: string
-          title: Name
-          description: Dataset slug (UI label "Schema").
-        schema_version:
-          type: string
-          title: Schema Version
-        field_count:
-          type: integer
-          title: Field Count
-        file_type:
-          type: string
-          title: File Type
-          description: Primary/representative file type (the first accepted type).
-        accepted_file_types:
-          items:
-            type: string
-          type: array
-          title: Accepted File Types
-          description: 'Document datasets: the full accepted-type set (V265). Empty for snapshot
-
-            or legacy single-type documents (the UI falls back to ``file_type``).'
-          default: []
-        ingestion_mode:
-          type: string
-          title: Ingestion Mode
-          description: '`snapshot` (CSV/Excel → CDC) or `document` (PDF/docx → extraction).'
-        limits:
-          $ref: '#/components/schemas/Limits'
-      type: object
-      required:
-      - name
-      - schema_version
-      - field_count
-      - file_type
-      - ingestion_mode
-      - limits
-      title: DatasetRow
-      description: A registered schema in the Schemas list (intake-ui-mvp-design.md §5.3).
-    BatchRow:
-      properties:
-        id:
-          type: string
-          format: uuid
-          title: Id
-          description: batch_id.
-        source_id:
-          anyOf:
-          - type: string
-            format: uuid
-          - type: 'null'
-          title: Source Id
-        dataset:
-          type: string
-          title: Dataset
-        status:
-          type: string
-          title: Status
-          description: discovered | ready | processing | completed | failed.
-        files_found:
-          type: integer
-          title: Files Found
-        created_ts:
-          type: string
-          title: Created Ts
-      type: object
-      required:
-      - id
-      - dataset
-      - status
-      - files_found
-      - created_ts
-      title: BatchRow
-      description: A source-sync batch (Batches list / detail).
-    DocumentProcessingSpec:
-      properties:
-        retain_source:
-          type: boolean
-          title: Retain Source
-          default: true
-        extraction_mode:
-          type: string
-          enum:
-          - text_extract
-          - OCR
-          - hybrid
-          title: Extraction Mode
-          default: text_extract
-      type: object
-      title: DocumentProcessingSpec
-      description: 'Processing config for a document dataset (``ingestion_mode=document``).
-
-
-        Documents have no schema/primary-key/CDC; this is what the contract carries
-
-        instead (docs/plans/intake_file_processing_pipeline.md §5.9). Page-split /
-
-        output-metadata rules are stored in the same jsonb and may be added later
-
-        without a migration.'
-    MaterializeResponse:
-      properties:
-        run_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Run Id
-      type: object
-      title: MaterializeResponse
-    _FieldName:
-      type: string
-      maxLength: 128
-      minLength: 1
-      pattern: ^[A-Za-z_][A-Za-z0-9_]*$
-    RegisterSchemaRequest:
-      properties:
-        name:
-          $ref: '#/components/schemas/_DatasetSlug'
-        file_type:
-          $ref: '#/components/schemas/_FileType'
-        accepted_file_types:
-          items:
-            $ref: '#/components/schemas/_FileType'
-          type: array
-          maxItems: 16
-          title: Accepted File Types
-          description: 'Document only — the SET of accepted file types (V265, e.g.
-
-            ``["pdf","docx","md"]``). Empty → single-type (just ``file_type``).
-
-            ``file_type`` is included as the primary. Mixing in a tabular type
-
-            (csv/xls/xlsx) is rejected; snapshot datasets are single-type.'
-          default: []
-        primary_key:
-          items:
-            $ref: '#/components/schemas/_FieldName'
-          type: array
-          maxItems: 32
-          title: Primary Key
-          description: Snapshot only — the canonical PK column(s). Empty/ignored for documents.
-          default: []
-        schema:
-          items:
-            $ref: '#/components/schemas/SchemaFieldSpec'
-          type: array
-          maxItems: 500
-          title: Schema
-          description: Snapshot only — canonical field list ``[{name, type}]`` (wire key ``schema``).
-          default: []
-        document_processing:
-          anyOf:
-          - $ref: '#/components/schemas/DocumentProcessingSpec'
-          - type: 'null'
-          description: Document only — extraction config; defaulted server-side when omitted.
-        max_size_mb:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Max Size Mb
-      type: object
-      required:
-      - name
-      - file_type
-      title: RegisterSchemaRequest
-      description: 'Create Schema payload (intake-ui-mvp-design.md §5.4, §5.9).
-
-
-        ``ingestion_mode`` is inferred from ``file_type`` (csv/xls/xlsx → snapshot;
-
-        else document) — not part of the wire contract. Snapshot datasets require
-
-        ``primary_key`` + ``schema``; document datasets take an optional
-
-        ``document_processing`` config and ignore primary_key/schema. The backend
-
-        applies the other hidden defaults (``on_schema_change=additive``,
-
-        ``schema_version`` auto).'
-    _DatasetSlug:
-      type: string
-      maxLength: 63
-      minLength: 2
-      pattern: ^[a-z0-9][a-z0-9_-]*[a-z0-9]$
-    DescriptionString:
-      type: string
-      maxLength: 2000
-    SyncBatchRow:
-      properties:
-        batch_id:
-          type: string
-          format: uuid
-          title: Batch Id
-        dataset:
-          type: string
-          title: Dataset
-        files_found:
-          type: integer
-          title: Files Found
-        status:
-          type: string
-          title: Status
-      type: object
-      required:
-      - batch_id
-      - dataset
-      - files_found
-      - status
-      title: SyncBatchRow
-      description: One batch produced by a source sync (one per mapped folder/dataset).
+      title: PaginatedResponse[BatchRow]
     BatchDetail:
       properties:
         id:
@@ -2156,41 +1996,201 @@ components:
       - files_found
       - created_ts
       title: BatchDetail
-    _FileStatus:
-      type: string
-      enum:
-      - received
-      - scanned
-      - processing
-      - curated
-      - rejected
-      - failed
-      - held
-    DriveFolderMapping:
+    PaginatedResponse_IntakeSourceRow_:
       properties:
-        folder_id:
-          type: string
-          maxLength: 256
-          minLength: 1
-          pattern: ^[A-Za-z0-9_-]+$
-          title: Folder Id
-        dataset:
-          type: string
-          maxLength: 63
-          minLength: 2
-          pattern: ^[a-z0-9][a-z0-9_-]*[a-z0-9]$
-          title: Dataset
+        items:
+          items:
+            $ref: '#/components/schemas/IntakeSourceRow'
+          type: array
+          title: Items
+        has_more:
+          type: boolean
+          title: Has More
+        continuation_token:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Continuation Token
+        total:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Total
       type: object
       required:
-      - folder_id
+      - items
+      - has_more
+      title: PaginatedResponse[IntakeSourceRow]
+    _VolumePath:
+      type: string
+      maxLength: 1024
+      minLength: 1
+      pattern: ^[A-Za-z0-9/._-]+$
+    BatchRow:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+          description: batch_id.
+        source_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Source Id
+        dataset:
+          type: string
+          title: Dataset
+        status:
+          type: string
+          title: Status
+          description: discovered | ready | processing | completed | failed.
+        files_found:
+          type: integer
+          title: Files Found
+        created_ts:
+          type: string
+          title: Created Ts
+      type: object
+      required:
+      - id
       - dataset
-      title: DriveFolderMapping
-      description: 'One Google Drive folder ↔ one intake dataset.
+      - status
+      - files_found
+      - created_ts
+      title: BatchRow
+      description: A source-sync batch (Batches list / detail).
+    _FieldName:
+      type: string
+      maxLength: 128
+      minLength: 1
+      pattern: ^[A-Za-z_][A-Za-z0-9_]*$
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    SlugString:
+      type: string
+      maxLength: 63
+      minLength: 2
+      pattern: ^[a-z0-9][a-z0-9-]*[a-z0-9]$
+    SourceSyncResponse:
+      properties:
+        batches:
+          items:
+            $ref: '#/components/schemas/SyncBatchRow'
+          type: array
+          title: Batches
+      type: object
+      required:
+      - batches
+      title: SourceSyncResponse
+    CreateLinkRequest:
+      properties:
+        customer_slug:
+          $ref: '#/components/schemas/SlugString'
+        display_name:
+          anyOf:
+          - $ref: '#/components/schemas/DescriptionString'
+          - type: 'null'
+        expires_in_hours:
+          type: integer
+          maximum: 720.0
+          minimum: 1.0
+          title: Expires In Hours
+          default: 168
+        max_uploads:
+          type: integer
+          maximum: 10000.0
+          minimum: 1.0
+          title: Max Uploads
+          default: 100
+      type: object
+      required:
+      - customer_slug
+      title: CreateLinkRequest
+    IntakeFieldType:
+      type: string
+      enum:
+      - str
+      - int
+      - float
+      - bool
+      - date
+      - datetime
+      title: IntakeFieldType
+      description: 'Allowed ``schema[].type`` values for a registered contract.
 
 
-        ``folder_id`` is the Drive folder id (the identity — never the folder name,
+        Confirmed set (intake-ui-mvp design contract point #1): scalars plus
 
-        which can be renamed/moved). One folder maps to exactly one dataset.'
+        ISO date/datetime. Coercion semantics live in :func:`_coerces`.'
+    IntakeFileResponse:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        volume_path:
+          type: string
+          title: Volume Path
+        sha256:
+          type: string
+          title: Sha256
+        size_bytes:
+          type: integer
+          title: Size Bytes
+        scan_status:
+          type: string
+          title: Scan Status
+      type: object
+      required:
+      - id
+      - volume_path
+      - sha256
+      - size_bytes
+      - scan_status
+      title: IntakeFileResponse
+    MaterializeRequest:
+      properties:
+        dataset:
+          anyOf:
+          - $ref: '#/components/schemas/_DatasetSlug'
+          - type: 'null'
+      type: object
+      title: MaterializeRequest
+    DocumentProcessingSpec:
+      properties:
+        retain_source:
+          type: boolean
+          title: Retain Source
+          default: true
+        extraction_mode:
+          type: string
+          enum:
+          - text_extract
+          - OCR
+          - hybrid
+          title: Extraction Mode
+          default: text_extract
+      type: object
+      title: DocumentProcessingSpec
+      description: 'Processing config for a document dataset (``ingestion_mode=document``).
+
+
+        Documents have no schema/primary-key/CDC; this is what the contract carries
+
+        instead (docs/plans/intake_file_processing_pipeline.md §5.9). Page-split /
+
+        output-metadata rules are stored in the same jsonb and may be added later
+
+        without a migration.'
   securitySchemes:
     BearerAuth:
       type: http

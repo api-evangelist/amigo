@@ -86,15 +86,26 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
-    HTTPValidationError:
+    DataQueryResponse:
       properties:
-        detail:
+        items:
           items:
-            $ref: '#/components/schemas/ValidationError'
+            additionalProperties: true
+            type: object
           type: array
-          title: Detail
+          title: Items
+        count:
+          type: integer
+          title: Count
+        has_more:
+          type: boolean
+          title: Has More
       type: object
-      title: HTTPValidationError
+      required:
+      - items
+      - count
+      - has_more
+      title: DataQueryResponse
     ValidationError:
       properties:
         loc:
@@ -121,26 +132,15 @@ components:
       - msg
       - type
       title: ValidationError
-    DataQueryResponse:
+    HTTPValidationError:
       properties:
-        items:
+        detail:
           items:
-            additionalProperties: true
-            type: object
+            $ref: '#/components/schemas/ValidationError'
           type: array
-          title: Items
-        count:
-          type: integer
-          title: Count
-        has_more:
-          type: boolean
-          title: Has More
+          title: Detail
       type: object
-      required:
-      - items
-      - count
-      - has_more
-      title: DataQueryResponse
+      title: HTTPValidationError
   securitySchemes:
     BearerAuth:
       type: http

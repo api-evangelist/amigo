@@ -395,11 +395,37 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
-    PaginatedResponse_AgentResponse_:
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    PaginatedResponse_AgentVersionResponse_:
       properties:
         items:
           items:
-            $ref: '#/components/schemas/AgentResponse'
+            $ref: '#/components/schemas/AgentVersionResponse'
           type: array
           title: Items
         has_more:
@@ -419,10 +445,72 @@ components:
       required:
       - items
       - has_more
-      title: PaginatedResponse[AgentResponse]
-    BackgroundString:
+      title: PaginatedResponse[AgentVersionResponse]
+    DescriptionString:
       type: string
-      maxLength: 10000
+      maxLength: 2000
+    CreateAgentVersionRequest:
+      properties:
+        name:
+          $ref: '#/components/schemas/NameString'
+        initials:
+          type: string
+          maxLength: 10
+          title: Initials
+          default: ''
+        identity:
+          $ref: '#/components/schemas/Identity'
+        voice_config:
+          anyOf:
+          - $ref: '#/components/schemas/VoiceConfig'
+          - type: 'null'
+        background:
+          $ref: '#/components/schemas/BackgroundString'
+          default: ''
+        behaviors:
+          items:
+            type: string
+            maxLength: 2000
+          type: array
+          maxItems: 200
+          title: Behaviors
+        communication_patterns:
+          items:
+            type: string
+            maxLength: 2000
+          type: array
+          maxItems: 200
+          title: Communication Patterns
+      type: object
+      required:
+      - name
+      - identity
+      title: CreateAgentVersionRequest
+    UpdateAgentRequest:
+      properties:
+        name:
+          anyOf:
+          - $ref: '#/components/schemas/NameString'
+          - type: 'null'
+        description:
+          anyOf:
+          - $ref: '#/components/schemas/DescriptionString'
+          - type: 'null'
+      type: object
+      title: UpdateAgentRequest
+    SearchString:
+      type: string
+      maxLength: 200
+      minLength: 1
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
     VoiceConfig:
       properties:
         voice_id:
@@ -476,105 +564,49 @@ components:
       required:
       - voice_id
       title: VoiceConfig
-    CreateAgentVersionRequest:
+    LanguageProviderEntry:
       properties:
-        name:
-          $ref: '#/components/schemas/NameString'
-        initials:
+        provider:
           type: string
-          maxLength: 10
-          title: Initials
-          default: ''
-        identity:
-          $ref: '#/components/schemas/Identity'
-        voice_config:
-          anyOf:
-          - $ref: '#/components/schemas/VoiceConfig'
-          - type: 'null'
-        background:
-          $ref: '#/components/schemas/BackgroundString'
-          default: ''
-        behaviors:
-          items:
-            type: string
-            maxLength: 2000
-          type: array
-          maxItems: 200
-          title: Behaviors
-        communication_patterns:
-          items:
-            type: string
-            maxLength: 2000
-          type: array
-          maxItems: 200
-          title: Communication Patterns
+          enum:
+          - cartesia
+          - elevenlabs
+          - groq
+          title: Provider
+        config:
+          additionalProperties: true
+          type: object
+          maxProperties: 20
+          title: Config
       type: object
       required:
-      - name
-      - identity
-      title: CreateAgentVersionRequest
-    PaginatedResponse_AgentVersionResponse_:
+      - provider
+      title: LanguageProviderEntry
+      description: Per-language TTS provider configuration.
+    RelationshipToDeveloper:
       properties:
-        items:
-          items:
-            $ref: '#/components/schemas/AgentVersionResponse'
-          type: array
-          title: Items
-        has_more:
-          type: boolean
-          title: Has More
-        continuation_token:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Continuation Token
-        total:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Total
-      type: object
-      required:
-      - items
-      - has_more
-      title: PaginatedResponse[AgentVersionResponse]
-    ValidationError:
-      properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
+        ownership:
           type: string
-          title: Message
+          title: Ownership
         type:
           type: string
-          title: Error Type
-        input:
-          title: Input
-        ctx:
-          type: object
-          title: Context
+          title: Type
+        conversation_visibility:
+          type: string
+          title: Conversation Visibility
+        thought_visibility:
+          type: string
+          title: Thought Visibility
       type: object
       required:
-      - loc
-      - msg
+      - ownership
       - type
-      title: ValidationError
-    CreateAgentRequest:
-      properties:
-        name:
-          $ref: '#/components/schemas/NameString'
-        description:
-          $ref: '#/components/schemas/DescriptionString'
-          default: ''
-      type: object
-      required:
-      - name
-      title: CreateAgentRequest
+      - conversation_visibility
+      - thought_visibility
+      title: RelationshipToDeveloper
+    BackgroundString:
+      type: string
+      maxLength: 10000
     Identity:
       properties:
         name:
@@ -598,26 +630,31 @@ components:
       - developed_by
       - default_spoken_language
       title: Identity
-    NameString:
-      type: string
-      maxLength: 256
-      minLength: 1
-    UpdateAgentRequest:
+    PaginatedResponse_AgentResponse_:
       properties:
-        name:
+        items:
+          items:
+            $ref: '#/components/schemas/AgentResponse'
+          type: array
+          title: Items
+        has_more:
+          type: boolean
+          title: Has More
+        continuation_token:
           anyOf:
-          - $ref: '#/components/schemas/NameString'
+          - type: integer
           - type: 'null'
-        description:
+          title: Continuation Token
+        total:
           anyOf:
-          - $ref: '#/components/schemas/DescriptionString'
+          - type: integer
           - type: 'null'
+          title: Total
       type: object
-      title: UpdateAgentRequest
-    SearchString:
-      type: string
-      maxLength: 200
-      minLength: 1
+      required:
+      - items
+      - has_more
+      title: PaginatedResponse[AgentResponse]
     AgentResponse:
       properties:
         id:
@@ -655,58 +692,10 @@ components:
       - created_at
       - updated_at
       title: AgentResponse
-    LanguageProviderEntry:
-      properties:
-        provider:
-          type: string
-          enum:
-          - cartesia
-          - elevenlabs
-          - groq
-          title: Provider
-        config:
-          additionalProperties: true
-          type: object
-          maxProperties: 20
-          title: Config
-      type: object
-      required:
-      - provider
-      title: LanguageProviderEntry
-      description: Per-language TTS provider configuration.
-    DescriptionString:
+    NameString:
       type: string
-      maxLength: 2000
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
-    RelationshipToDeveloper:
-      properties:
-        ownership:
-          type: string
-          title: Ownership
-        type:
-          type: string
-          title: Type
-        conversation_visibility:
-          type: string
-          title: Conversation Visibility
-        thought_visibility:
-          type: string
-          title: Thought Visibility
-      type: object
-      required:
-      - ownership
-      - type
-      - conversation_visibility
-      - thought_visibility
-      title: RelationshipToDeveloper
+      maxLength: 256
+      minLength: 1
     AgentVersionResponse:
       properties:
         id:
@@ -773,6 +762,17 @@ components:
       - created_at
       - updated_at
       title: AgentVersionResponse
+    CreateAgentRequest:
+      properties:
+        name:
+          $ref: '#/components/schemas/NameString'
+        description:
+          $ref: '#/components/schemas/DescriptionString'
+          default: ''
+      type: object
+      required:
+      - name
+      title: CreateAgentRequest
   securitySchemes:
     BearerAuth:
       type: http

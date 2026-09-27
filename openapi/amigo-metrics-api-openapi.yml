@@ -415,6 +415,263 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    MetricListResponse:
+      properties:
+        metrics:
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/NumericalMetricValueResponse'
+            - $ref: '#/components/schemas/CategoricalMetricValueResponse'
+            - $ref: '#/components/schemas/BooleanMetricValueResponse'
+            discriminator:
+              propertyName: metric_type
+              mapping:
+                boolean: '#/components/schemas/BooleanMetricValueResponse'
+                categorical: '#/components/schemas/CategoricalMetricValueResponse'
+                numerical: '#/components/schemas/NumericalMetricValueResponse'
+          type: array
+          title: Metrics
+      type: object
+      required:
+      - metrics
+      title: MetricListResponse
+    DescriptionString:
+      type: string
+      maxLength: 2000
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    MetricCatalogResponse:
+      properties:
+        metrics:
+          items:
+            $ref: '#/components/schemas/MetricCatalogEntry'
+          type: array
+          title: Metrics
+      type: object
+      required:
+      - metrics
+      title: MetricCatalogResponse
+    CategoricalMetricValueResponse:
+      properties:
+        metric_key:
+          type: string
+          title: Metric Key
+        source:
+          type: string
+          title: Source
+          default: production
+        entity_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Entity Type
+        entity_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Entity Id
+        service_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Service Id
+        run_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Run Id
+        session_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Session Id
+        period_start:
+          type: string
+          format: date-time
+          title: Period Start
+        period_end:
+          type: string
+          format: date-time
+          title: Period End
+        event_count:
+          type: integer
+          title: Event Count
+        avg_confidence:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Avg Confidence
+        unit:
+          anyOf:
+          - type: string
+            maxLength: 32
+          - type: 'null'
+          title: Unit
+        computed_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Computed At
+        metric_type:
+          type: string
+          const: categorical
+          title: Metric Type
+        value:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Value
+      type: object
+      required:
+      - metric_key
+      - period_start
+      - period_end
+      - event_count
+      - metric_type
+      - value
+      title: CategoricalMetricValueResponse
+    NameString:
+      type: string
+      maxLength: 256
+      minLength: 1
+    MetricCatalogEntry:
+      properties:
+        key:
+          type: string
+          maxLength: 64
+          minLength: 1
+          pattern: ^[a-z][a-z0-9_]*$
+          title: Key
+          description: Metric key (lowercase alphanumeric + underscores)
+        name:
+          $ref: '#/components/schemas/NameString'
+        description:
+          anyOf:
+          - $ref: '#/components/schemas/DescriptionString'
+          - type: 'null'
+        metric_type:
+          type: string
+          enum:
+          - numerical
+          - categorical
+          - boolean
+          title: Metric Type
+        source:
+          type: string
+          enum:
+          - call_intelligence
+          - world_events
+          - surface_events
+          - emotion_events
+          - connector_events
+          - zerobus_events
+          - voice_judge_results
+          - custom
+          title: Source
+        custom_source_key:
+          anyOf:
+          - type: string
+            maxLength: 128
+            pattern: ^[a-z][a-z0-9_]*$
+          - type: 'null'
+          title: Custom Source Key
+        extraction_mode:
+          type: string
+          enum:
+          - static
+          - ai_classify
+          - ai_extract
+          - ai_query
+          - sql_expr
+          title: Extraction Mode
+          default: static
+        granularity:
+          type: string
+          enum:
+          - aggregate
+          - per_entity
+          title: Granularity
+          default: aggregate
+        period_granularity:
+          type: string
+          enum:
+          - hourly
+          - daily
+          title: Period Granularity
+          default: daily
+        latency_tier:
+          type: string
+          enum:
+          - streaming
+          - near_realtime
+          - batch
+          title: Latency Tier
+          default: batch
+        model_tier:
+          type: string
+          enum:
+          - free
+          - fast
+          - balanced
+          - max
+          - custom
+          title: Model Tier
+          default: free
+        unit:
+          anyOf:
+          - type: string
+            maxLength: 32
+          - type: 'null'
+          title: Unit
+        has_prompt:
+          type: boolean
+          title: Has Prompt
+          default: false
+        builtin:
+          type: boolean
+          title: Builtin
+      type: object
+      required:
+      - key
+      - name
+      - metric_type
+      - source
+      - builtin
+      title: MetricCatalogEntry
     BooleanMetricValueResponse:
       properties:
         metric_key:
@@ -575,263 +832,6 @@ components:
       - metric_type
       - value
       title: NumericalMetricValueResponse
-    ValidationError:
-      properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-        input:
-          title: Input
-        ctx:
-          type: object
-          title: Context
-      type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
-    NameString:
-      type: string
-      maxLength: 256
-      minLength: 1
-    MetricListResponse:
-      properties:
-        metrics:
-          items:
-            oneOf:
-            - $ref: '#/components/schemas/NumericalMetricValueResponse'
-            - $ref: '#/components/schemas/CategoricalMetricValueResponse'
-            - $ref: '#/components/schemas/BooleanMetricValueResponse'
-            discriminator:
-              propertyName: metric_type
-              mapping:
-                boolean: '#/components/schemas/BooleanMetricValueResponse'
-                categorical: '#/components/schemas/CategoricalMetricValueResponse'
-                numerical: '#/components/schemas/NumericalMetricValueResponse'
-          type: array
-          title: Metrics
-      type: object
-      required:
-      - metrics
-      title: MetricListResponse
-    MetricCatalogResponse:
-      properties:
-        metrics:
-          items:
-            $ref: '#/components/schemas/MetricCatalogEntry'
-          type: array
-          title: Metrics
-      type: object
-      required:
-      - metrics
-      title: MetricCatalogResponse
-    DescriptionString:
-      type: string
-      maxLength: 2000
-    CategoricalMetricValueResponse:
-      properties:
-        metric_key:
-          type: string
-          title: Metric Key
-        source:
-          type: string
-          title: Source
-          default: production
-        entity_type:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Entity Type
-        entity_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Entity Id
-        service_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Service Id
-        run_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Run Id
-        session_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Session Id
-        period_start:
-          type: string
-          format: date-time
-          title: Period Start
-        period_end:
-          type: string
-          format: date-time
-          title: Period End
-        event_count:
-          type: integer
-          title: Event Count
-        avg_confidence:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Avg Confidence
-        unit:
-          anyOf:
-          - type: string
-            maxLength: 32
-          - type: 'null'
-          title: Unit
-        computed_at:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Computed At
-        metric_type:
-          type: string
-          const: categorical
-          title: Metric Type
-        value:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Value
-      type: object
-      required:
-      - metric_key
-      - period_start
-      - period_end
-      - event_count
-      - metric_type
-      - value
-      title: CategoricalMetricValueResponse
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
-    MetricCatalogEntry:
-      properties:
-        key:
-          type: string
-          maxLength: 64
-          minLength: 1
-          pattern: ^[a-z][a-z0-9_]*$
-          title: Key
-          description: Metric key (lowercase alphanumeric + underscores)
-        name:
-          $ref: '#/components/schemas/NameString'
-        description:
-          anyOf:
-          - $ref: '#/components/schemas/DescriptionString'
-          - type: 'null'
-        metric_type:
-          type: string
-          enum:
-          - numerical
-          - categorical
-          - boolean
-          title: Metric Type
-        source:
-          type: string
-          enum:
-          - call_intelligence
-          - world_events
-          - surface_events
-          - emotion_events
-          - connector_events
-          - zerobus_events
-          - voice_judge_results
-          - custom
-          title: Source
-        custom_source_key:
-          anyOf:
-          - type: string
-            maxLength: 128
-            pattern: ^[a-z][a-z0-9_]*$
-          - type: 'null'
-          title: Custom Source Key
-        extraction_mode:
-          type: string
-          enum:
-          - static
-          - ai_classify
-          - ai_extract
-          - ai_query
-          - sql_expr
-          title: Extraction Mode
-          default: static
-        granularity:
-          type: string
-          enum:
-          - aggregate
-          - per_entity
-          title: Granularity
-          default: aggregate
-        period_granularity:
-          type: string
-          enum:
-          - hourly
-          - daily
-          title: Period Granularity
-          default: daily
-        latency_tier:
-          type: string
-          enum:
-          - streaming
-          - near_realtime
-          - batch
-          title: Latency Tier
-          default: batch
-        model_tier:
-          type: string
-          enum:
-          - free
-          - fast
-          - balanced
-          - max
-          - custom
-          title: Model Tier
-          default: free
-        unit:
-          anyOf:
-          - type: string
-            maxLength: 32
-          - type: 'null'
-          title: Unit
-        has_prompt:
-          type: boolean
-          title: Has Prompt
-          default: false
-        builtin:
-          type: boolean
-          title: Builtin
-      type: object
-      required:
-      - key
-      - name
-      - metric_type
-      - source
-      - builtin
-      title: MetricCatalogEntry
   securitySchemes:
     BearerAuth:
       type: http

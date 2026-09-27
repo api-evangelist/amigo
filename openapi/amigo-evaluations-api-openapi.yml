@@ -280,106 +280,6 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
-    ProductionEvalDefinition:
-      properties:
-        id:
-          type: string
-          format: uuid
-          title: Id
-        workspace_id:
-          type: string
-          format: uuid
-          title: Workspace Id
-        service_id:
-          anyOf:
-          - type: string
-            format: uuid
-          - type: 'null'
-          title: Service Id
-        eval_key:
-          type: string
-          maxLength: 128
-          title: Eval Key
-        eval_type:
-          type: string
-          enum:
-          - assertion
-          - metric
-          title: Eval Type
-        assertion_kind:
-          anyOf:
-          - type: string
-            maxLength: 128
-          - type: 'null'
-          title: Assertion Kind
-        metric_key:
-          anyOf:
-          - type: string
-            maxLength: 128
-          - type: 'null'
-          title: Metric Key
-        expected:
-          title: Expected
-        params:
-          additionalProperties: true
-          type: object
-          title: Params
-        active:
-          type: boolean
-          title: Active
-          default: true
-        created_at:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Created At
-        updated_at:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Updated At
-      type: object
-      required:
-      - workspace_id
-      - eval_key
-      - eval_type
-      title: ProductionEvalDefinition
-      description: 'An eval (assertion or metric-eval) that runs against a workspace''s live
-
-        calls — the production analogue of a sim case''s ``evals``. ``service_id``
-
-        None applies to every service in the workspace. ``expected`` is JSON: a
-
-        phrase string for assertions, or a ``{gte|lte|equals|...}`` threshold for
-
-        metric-evals.'
-    PaginatedResponse_ProductionEvalDefinition_:
-      properties:
-        items:
-          items:
-            $ref: '#/components/schemas/ProductionEvalDefinition'
-          type: array
-          title: Items
-        has_more:
-          type: boolean
-          title: Has More
-        continuation_token:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Continuation Token
-        total:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Total
-      type: object
-      required:
-      - items
-      - has_more
-      title: PaginatedResponse[ProductionEvalDefinition]
     CallEvalResult:
       properties:
         id:
@@ -491,6 +391,78 @@ components:
         from the justified ai_query metric compute. PHI: ``justification`` / ``actual``
 
         can echo live transcript content; never log them.'
+    CreateProductionEvalDefinitionRequest:
+      properties:
+        eval_key:
+          type: string
+          maxLength: 128
+          minLength: 1
+          title: Eval Key
+        eval_type:
+          type: string
+          enum:
+          - assertion
+          - metric
+          title: Eval Type
+        service_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Service Id
+        assertion_kind:
+          anyOf:
+          - type: string
+            maxLength: 128
+          - type: 'null'
+          title: Assertion Kind
+        metric_key:
+          anyOf:
+          - type: string
+            maxLength: 128
+          - type: 'null'
+          title: Metric Key
+        expected:
+          title: Expected
+        params:
+          additionalProperties: true
+          type: object
+          title: Params
+        active:
+          type: boolean
+          title: Active
+          default: true
+      type: object
+      required:
+      - eval_key
+      - eval_type
+      title: CreateProductionEvalDefinitionRequest
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
     UpdateProductionEvalDefinitionRequest:
       properties:
         service_id:
@@ -541,32 +513,6 @@ components:
           title: Active
       type: object
       title: UpdateProductionEvalDefinitionRequest
-    ValidationError:
-      properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-        input:
-          title: Input
-        ctx:
-          type: object
-          title: Context
-      type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
     HTTPValidationError:
       properties:
         detail:
@@ -576,12 +522,66 @@ components:
           title: Detail
       type: object
       title: HTTPValidationError
-    CreateProductionEvalDefinitionRequest:
+    PaginatedResponse_ProductionEvalDefinition_:
       properties:
+        items:
+          items:
+            $ref: '#/components/schemas/ProductionEvalDefinition'
+          type: array
+          title: Items
+        has_more:
+          type: boolean
+          title: Has More
+        continuation_token:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Continuation Token
+        total:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Total
+      type: object
+      required:
+      - items
+      - has_more
+      title: PaginatedResponse[ProductionEvalDefinition]
+    CallEvalResultsResponse:
+      properties:
+        conversation_id:
+          type: string
+          format: uuid
+          title: Conversation Id
+        results:
+          items:
+            $ref: '#/components/schemas/CallEvalResult'
+          type: array
+          title: Results
+      type: object
+      required:
+      - conversation_id
+      - results
+      title: CallEvalResultsResponse
+    ProductionEvalDefinition:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        workspace_id:
+          type: string
+          format: uuid
+          title: Workspace Id
+        service_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Service Id
         eval_key:
           type: string
           maxLength: 128
-          minLength: 1
           title: Eval Key
         eval_type:
           type: string
@@ -589,12 +589,6 @@ components:
           - assertion
           - metric
           title: Eval Type
-        service_id:
-          anyOf:
-          - type: string
-            format: uuid
-          - type: 'null'
-          title: Service Id
         assertion_kind:
           anyOf:
           - type: string
@@ -617,27 +611,33 @@ components:
           type: boolean
           title: Active
           default: true
+        created_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Created At
+        updated_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Updated At
       type: object
       required:
+      - workspace_id
       - eval_key
       - eval_type
-      title: CreateProductionEvalDefinitionRequest
-    CallEvalResultsResponse:
-      properties:
-        conversation_id:
-          type: string
-          format: uuid
-          title: Conversation Id
-        results:
-          items:
-            $ref: '#/components/schemas/CallEvalResult'
-          type: array
-          title: Results
-      type: object
-      required:
-      - conversation_id
-      - results
-      title: CallEvalResultsResponse
+      title: ProductionEvalDefinition
+      description: 'An eval (assertion or metric-eval) that runs against a workspace''s live
+
+        calls — the production analogue of a sim case''s ``evals``. ``service_id``
+
+        None applies to every service in the workspace. ``expected`` is JSON: a
+
+        phrase string for assertions, or a ``{gte|lte|equals|...}`` threshold for
+
+        metric-evals.'
   securitySchemes:
     BearerAuth:
       type: http

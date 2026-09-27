@@ -218,6 +218,46 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
+    SessionResponse:
+      properties:
+        id:
+          type: string
+          title: Id
+        created_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Created At
+      type: object
+      required:
+      - id
+      title: SessionResponse
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
     SqlQueryRequest:
       properties:
         sql:
@@ -230,6 +270,15 @@ components:
       required:
       - sql
       title: SqlQueryRequest
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
     SchemaResponse:
       properties:
         lakebase_tables:
@@ -263,78 +312,6 @@ components:
       - uc_functions
       - ai_functions
       title: SchemaResponse
-    ChatRequest:
-      properties:
-        message:
-          type: string
-          maxLength: 16000
-          minLength: 1
-          title: Message
-          description: Insights chat user message.
-      type: object
-      required:
-      - message
-      title: ChatRequest
-    ValidationError:
-      properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-        input:
-          title: Input
-        ctx:
-          type: object
-          title: Context
-      type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
-    SessionResponse:
-      properties:
-        id:
-          type: string
-          title: Id
-        created_at:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Created At
-      type: object
-      required:
-      - id
-      title: SessionResponse
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
-    SuggestionsResponse:
-      properties:
-        suggestions:
-          items:
-            type: string
-          type: array
-          title: Suggestions
-      type: object
-      required:
-      - suggestions
-      title: SuggestionsResponse
     SqlQueryResponse:
       properties:
         results:
@@ -357,6 +334,29 @@ components:
           title: Error
       type: object
       title: SqlQueryResponse
+    SuggestionsResponse:
+      properties:
+        suggestions:
+          items:
+            type: string
+          type: array
+          title: Suggestions
+      type: object
+      required:
+      - suggestions
+      title: SuggestionsResponse
+    ChatRequest:
+      properties:
+        message:
+          type: string
+          maxLength: 16000
+          minLength: 1
+          title: Message
+          description: Insights chat user message.
+      type: object
+      required:
+      - message
+      title: ChatRequest
   securitySchemes:
     BearerAuth:
       type: http

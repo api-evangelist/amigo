@@ -559,417 +559,6 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
-    PipelineStatusResponse:
-      properties:
-        status:
-          type: string
-          title: Status
-        connector_runner_status:
-          type: string
-          title: Connector Runner Status
-        uptime_seconds:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Uptime Seconds
-        active_polls:
-          type: integer
-          title: Active Polls
-          default: 0
-        total_events:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Total Events
-          description: Read-model event count for the last 7 days. Null means the read model is empty or unavailable; zero means the read model is ready and has no events.
-        event_read_model_status:
-          type: string
-          enum:
-          - ready
-          - empty
-          - unavailable
-          title: Event Read Model Status
-          default: empty
-        event_read_model_synced_at:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Event Read Model Synced At
-        total_entities:
-          type: integer
-          title: Total Entities
-          default: 0
-        sources:
-          items:
-            $ref: '#/components/schemas/SourceStatus'
-          type: array
-          title: Sources
-          default: []
-        entity_resolution:
-          anyOf:
-          - additionalProperties: true
-            type: object
-          - type: 'null'
-          title: Entity Resolution
-        review_loop:
-          anyOf:
-          - additionalProperties: true
-            type: object
-          - type: 'null'
-          title: Review Loop
-        outbound_dispatch:
-          anyOf:
-          - additionalProperties: true
-            type: object
-          - type: 'null'
-          title: Outbound Dispatch
-        outbound_subscriber:
-          anyOf:
-          - additionalProperties: true
-            type: object
-          - type: 'null'
-          title: Outbound Subscriber
-        reconciliation:
-          anyOf:
-          - additionalProperties: true
-            type: object
-          - type: 'null'
-          title: Reconciliation
-        gap_scanner:
-          anyOf:
-          - additionalProperties: true
-            type: object
-          - type: 'null'
-          title: Gap Scanner
-      type: object
-      required:
-      - status
-      - connector_runner_status
-      title: PipelineStatusResponse
-    SourceFailureItem:
-      properties:
-        event_id:
-          type: string
-          format: uuid
-          title: Event Id
-        event_type:
-          type: string
-          title: Event Type
-        fhir_resource_type:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Fhir Resource Type
-        sync_error:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Sync Error
-        ingested_at:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Ingested At
-      type: object
-      required:
-      - event_id
-      - event_type
-      title: SourceFailureItem
-    SourceEventItem:
-      properties:
-        id:
-          type: string
-          format: uuid
-          title: Id
-        event_type:
-          type: string
-          title: Event Type
-        entity_type:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Entity Type
-        entity_id:
-          anyOf:
-          - type: string
-            format: uuid
-          - type: 'null'
-          title: Entity Id
-        source:
-          type: string
-          title: Source
-        source_system:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Source System
-        confidence:
-          type: number
-          title: Confidence
-        ingested_at:
-          type: string
-          format: date-time
-          title: Ingested At
-      type: object
-      required:
-      - id
-      - event_type
-      - source
-      - confidence
-      - ingested_at
-      title: SourceEventItem
-    SourceHistoryItem:
-      properties:
-        bucket:
-          type: string
-          title: Bucket
-        source_system:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Source System
-        event_count:
-          type: integer
-          title: Event Count
-      type: object
-      required:
-      - bucket
-      - event_count
-      title: SourceHistoryItem
-    SourceStatus:
-      properties:
-        data_source_id:
-          type: string
-          format: uuid
-          title: Data Source Id
-        workspace_id:
-          type: string
-          format: uuid
-          title: Workspace Id
-        source_type:
-          type: string
-          enum:
-          - rest_api
-          - webhook
-          - file_drop
-          - fhir_store
-          - ehr
-          - database
-          - custom
-          - smart_fhir
-          - customer_intake
-          - lakebase_schema
-          - crm
-          title: Source Type
-        connector_type:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Connector Type
-        status:
-          type: string
-          title: Status
-        last_poll_at:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Last Poll At
-        last_poll_duration_ms:
-          type: integer
-          title: Last Poll Duration Ms
-          default: 0
-        last_poll_event_count:
-          type: integer
-          title: Last Poll Event Count
-          default: 0
-        last_error:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Last Error
-        consecutive_errors:
-          type: integer
-          title: Consecutive Errors
-          default: 0
-        connection_healthy:
-          type: boolean
-          title: Connection Healthy
-          default: true
-      type: object
-      required:
-      - data_source_id
-      - workspace_id
-      - source_type
-      - status
-      title: SourceStatus
-    LastPollInfo:
-      properties:
-        at:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: At
-        duration_ms:
-          type: integer
-          title: Duration Ms
-          default: 0
-        event_count:
-          type: integer
-          title: Event Count
-          default: 0
-        error:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Error
-      type: object
-      title: LastPollInfo
-    OutboundSinkSummary:
-      properties:
-        data_source_id:
-          type: string
-          format: uuid
-          title: Data Source Id
-        data_source_name:
-          type: string
-          title: Data Source Name
-        total:
-          type: integer
-          title: Total
-        synced:
-          type: integer
-          title: Synced
-        failed:
-          type: integer
-          title: Failed
-        pending:
-          type: integer
-          title: Pending
-        last_synced_at:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Last Synced At
-      type: object
-      required:
-      - data_source_id
-      - data_source_name
-      - total
-      - synced
-      - failed
-      - pending
-      title: OutboundSinkSummary
-    ValidationError:
-      properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-        input:
-          title: Input
-        ctx:
-          type: object
-          title: Context
-      type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
-    OutboundSummary:
-      properties:
-        total:
-          type: integer
-          title: Total
-          default: 0
-        synced:
-          type: integer
-          title: Synced
-          default: 0
-        failed:
-          type: integer
-          title: Failed
-          default: 0
-        pending:
-          type: integer
-          title: Pending
-          default: 0
-        last_synced_at:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Last Synced At
-      type: object
-      title: OutboundSummary
-    ThroughputBucket:
-      properties:
-        bucket:
-          type: string
-          title: Bucket
-        source_system:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Source System
-        event_count:
-          type: integer
-          title: Event Count
-      type: object
-      required:
-      - bucket
-      - event_count
-      title: ThroughputBucket
-    ReviewMetrics:
-      properties:
-        queue_depth:
-          type: integer
-          title: Queue Depth
-        pending_by_priority:
-          additionalProperties:
-            type: integer
-          type: object
-          title: Pending By Priority
-        approved_7d:
-          type: integer
-          title: Approved 7D
-        rejected_7d:
-          type: integer
-          title: Rejected 7D
-        avg_review_time_hours:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Avg Review Time Hours
-        total_items:
-          type: integer
-          title: Total Items
-          default: 0
-      type: object
-      required:
-      - queue_depth
-      - pending_by_priority
-      - approved_7d
-      - rejected_7d
-      title: ReviewMetrics
     OutboundLogItem:
       properties:
         id:
@@ -1005,6 +594,31 @@ components:
       - attempt_count
       - created_at
       title: OutboundLogItem
+    PaginatedResponse_SourceEventItem_:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/SourceEventItem'
+          type: array
+          title: Items
+        has_more:
+          type: boolean
+          title: Has More
+        continuation_token:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Continuation Token
+        total:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Total
+      type: object
+      required:
+      - items
+      - has_more
+      title: PaginatedResponse[SourceEventItem]
     SourceListItem:
       properties:
         id:
@@ -1065,6 +679,32 @@ components:
       - is_active
       - health_status
       title: SourceListItem
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
     SourceOverviewResponse:
       properties:
         id:
@@ -1159,6 +799,391 @@ components:
       - is_active
       - health_status
       title: SourceOverviewResponse
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    ReviewMetrics:
+      properties:
+        queue_depth:
+          type: integer
+          title: Queue Depth
+        pending_by_priority:
+          additionalProperties:
+            type: integer
+          type: object
+          title: Pending By Priority
+        approved_7d:
+          type: integer
+          title: Approved 7D
+        rejected_7d:
+          type: integer
+          title: Rejected 7D
+        avg_review_time_hours:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Avg Review Time Hours
+        total_items:
+          type: integer
+          title: Total Items
+          default: 0
+      type: object
+      required:
+      - queue_depth
+      - pending_by_priority
+      - approved_7d
+      - rejected_7d
+      title: ReviewMetrics
+    SourceFailureItem:
+      properties:
+        event_id:
+          type: string
+          format: uuid
+          title: Event Id
+        event_type:
+          type: string
+          title: Event Type
+        fhir_resource_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Fhir Resource Type
+        sync_error:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Sync Error
+        ingested_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Ingested At
+      type: object
+      required:
+      - event_id
+      - event_type
+      title: SourceFailureItem
+    PipelineStatusResponse:
+      properties:
+        status:
+          type: string
+          title: Status
+        connector_runner_status:
+          type: string
+          title: Connector Runner Status
+        uptime_seconds:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Uptime Seconds
+        active_polls:
+          type: integer
+          title: Active Polls
+          default: 0
+        total_events:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Total Events
+          description: Read-model event count for the last 7 days. Null means the read model is empty or unavailable; zero means the read model is ready and has no events.
+        event_read_model_status:
+          type: string
+          enum:
+          - ready
+          - empty
+          - unavailable
+          title: Event Read Model Status
+          default: empty
+        event_read_model_synced_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Event Read Model Synced At
+        total_entities:
+          type: integer
+          title: Total Entities
+          default: 0
+        sources:
+          items:
+            $ref: '#/components/schemas/SourceStatus'
+          type: array
+          title: Sources
+          default: []
+        entity_resolution:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Entity Resolution
+        review_loop:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Review Loop
+        outbound_dispatch:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Outbound Dispatch
+        outbound_subscriber:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Outbound Subscriber
+        reconciliation:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Reconciliation
+        gap_scanner:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Gap Scanner
+      type: object
+      required:
+      - status
+      - connector_runner_status
+      title: PipelineStatusResponse
+    ThroughputBucket:
+      properties:
+        bucket:
+          type: string
+          title: Bucket
+        source_system:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Source System
+        event_count:
+          type: integer
+          title: Event Count
+      type: object
+      required:
+      - bucket
+      - event_count
+      title: ThroughputBucket
+    LastPollInfo:
+      properties:
+        at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: At
+        duration_ms:
+          type: integer
+          title: Duration Ms
+          default: 0
+        event_count:
+          type: integer
+          title: Event Count
+          default: 0
+        error:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Error
+      type: object
+      title: LastPollInfo
+    SourceEventItem:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        event_type:
+          type: string
+          title: Event Type
+        entity_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Entity Type
+        entity_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Entity Id
+        source:
+          type: string
+          title: Source
+        source_system:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Source System
+        confidence:
+          type: number
+          title: Confidence
+        ingested_at:
+          type: string
+          format: date-time
+          title: Ingested At
+      type: object
+      required:
+      - id
+      - event_type
+      - source
+      - confidence
+      - ingested_at
+      title: SourceEventItem
+    OutboundSinkSummary:
+      properties:
+        data_source_id:
+          type: string
+          format: uuid
+          title: Data Source Id
+        data_source_name:
+          type: string
+          title: Data Source Name
+        total:
+          type: integer
+          title: Total
+        synced:
+          type: integer
+          title: Synced
+        failed:
+          type: integer
+          title: Failed
+        pending:
+          type: integer
+          title: Pending
+        last_synced_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Last Synced At
+      type: object
+      required:
+      - data_source_id
+      - data_source_name
+      - total
+      - synced
+      - failed
+      - pending
+      title: OutboundSinkSummary
+    SourceStatus:
+      properties:
+        data_source_id:
+          type: string
+          format: uuid
+          title: Data Source Id
+        workspace_id:
+          type: string
+          format: uuid
+          title: Workspace Id
+        source_type:
+          type: string
+          enum:
+          - rest_api
+          - webhook
+          - file_drop
+          - fhir_store
+          - ehr
+          - database
+          - custom
+          - smart_fhir
+          - customer_intake
+          - lakebase_schema
+          - crm
+          title: Source Type
+        connector_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Connector Type
+        status:
+          type: string
+          title: Status
+        last_poll_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Last Poll At
+        last_poll_duration_ms:
+          type: integer
+          title: Last Poll Duration Ms
+          default: 0
+        last_poll_event_count:
+          type: integer
+          title: Last Poll Event Count
+          default: 0
+        last_error:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Last Error
+        consecutive_errors:
+          type: integer
+          title: Consecutive Errors
+          default: 0
+        connection_healthy:
+          type: boolean
+          title: Connection Healthy
+          default: true
+      type: object
+      required:
+      - data_source_id
+      - workspace_id
+      - source_type
+      - status
+      title: SourceStatus
+    SourceHistoryItem:
+      properties:
+        bucket:
+          type: string
+          title: Bucket
+        source_system:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Source System
+        event_count:
+          type: integer
+          title: Event Count
+      type: object
+      required:
+      - bucket
+      - event_count
+      title: SourceHistoryItem
+    OutboundSummary:
+      properties:
+        total:
+          type: integer
+          title: Total
+          default: 0
+        synced:
+          type: integer
+          title: Synced
+          default: 0
+        failed:
+          type: integer
+          title: Failed
+          default: 0
+        pending:
+          type: integer
+          title: Pending
+          default: 0
+        last_synced_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Last Synced At
+      type: object
+      title: OutboundSummary
     PaginatedResponse_OutboundLogItem_:
       properties:
         items:
@@ -1184,31 +1209,6 @@ components:
       - items
       - has_more
       title: PaginatedResponse[OutboundLogItem]
-    PaginatedResponse_SourceEventItem_:
-      properties:
-        items:
-          items:
-            $ref: '#/components/schemas/SourceEventItem'
-          type: array
-          title: Items
-        has_more:
-          type: boolean
-          title: Has More
-        continuation_token:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Continuation Token
-        total:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Total
-      type: object
-      required:
-      - items
-      - has_more
-      title: PaginatedResponse[SourceEventItem]
     EntityResolutionMetrics:
       properties:
         total_same_as_edges:

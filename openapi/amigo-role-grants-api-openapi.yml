@@ -176,59 +176,6 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
-    _Access:
-      type: string
-      enum:
-      - read
-      - write
-    RoleGrantItem:
-      properties:
-        id:
-          type: string
-          format: uuid
-          title: Id
-        role_id:
-          type: string
-          format: uuid
-          title: Role Id
-        resource_type:
-          $ref: '#/components/schemas/_ResourceType'
-        resource_key:
-          type: string
-          title: Resource Key
-        access:
-          $ref: '#/components/schemas/_Access'
-        param_binding:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Param Binding
-        status:
-          type: string
-          enum:
-          - active
-          - superseded
-          title: Status
-        changed_by:
-          anyOf:
-          - type: string
-            format: uuid
-          - type: 'null'
-          title: Changed By
-        created_at:
-          type: string
-          format: date-time
-          title: Created At
-      type: object
-      required:
-      - id
-      - role_id
-      - resource_type
-      - resource_key
-      - access
-      - status
-      - created_at
-      title: RoleGrantItem
     src__routes__role_grants__ListResponse:
       properties:
         items:
@@ -281,12 +228,6 @@ components:
           title: Detail
       type: object
       title: HTTPValidationError
-    _ResourceType:
-      type: string
-      enum:
-      - integration_endpoint
-      - skill
-      - kb_scope
     src__routes__role_grants__CreateRequest:
       properties:
         role_id:
@@ -316,6 +257,65 @@ components:
       - resource_key
       - access
       title: CreateRequest
+    RoleGrantItem:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        role_id:
+          type: string
+          format: uuid
+          title: Role Id
+        resource_type:
+          $ref: '#/components/schemas/_ResourceType'
+        resource_key:
+          type: string
+          title: Resource Key
+        access:
+          $ref: '#/components/schemas/_Access'
+        param_binding:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Param Binding
+        status:
+          type: string
+          enum:
+          - active
+          - superseded
+          title: Status
+        changed_by:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Changed By
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+      type: object
+      required:
+      - id
+      - role_id
+      - resource_type
+      - resource_key
+      - access
+      - status
+      - created_at
+      title: RoleGrantItem
+    _Access:
+      type: string
+      enum:
+      - read
+      - write
+    _ResourceType:
+      type: string
+      enum:
+      - integration_endpoint
+      - skill
+      - kb_scope
   securitySchemes:
     BearerAuth:
       type: http
