@@ -134,41 +134,32 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
-    RecordingUrlsResponse:
+    ValidationError:
       properties:
-        call_sid:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
           type: string
-          title: Call Sid
-          description: Twilio call SID
-        status:
+          title: Message
+        type:
           type: string
-          const: available
-          title: Status
-          description: Recording availability status
-          default: available
-        inbound_url:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Inbound Url
-          description: Download URL for inbound (caller) audio
-        outbound_url:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Outbound Url
-          description: Download URL for outbound (agent) audio
-        metadata_url:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Metadata Url
-          description: Download URL for recording metadata JSON
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
       type: object
       required:
-      - call_sid
-      title: RecordingUrlsResponse
-      description: Download paths for call recording playback.
+      - loc
+      - msg
+      - type
+      title: ValidationError
     RecordingMetadataResponse:
       properties:
         call_sid:
@@ -256,32 +247,6 @@ components:
       - media_start_epoch_ms
       title: RecordingMetadataResponse
       description: Call recording metadata.
-    ValidationError:
-      properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-        input:
-          title: Input
-        ctx:
-          type: object
-          title: Context
-      type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
     HTTPValidationError:
       properties:
         detail:
@@ -291,6 +256,41 @@ components:
           title: Detail
       type: object
       title: HTTPValidationError
+    RecordingUrlsResponse:
+      properties:
+        call_sid:
+          type: string
+          title: Call Sid
+          description: Twilio call SID
+        status:
+          type: string
+          const: available
+          title: Status
+          description: Recording availability status
+          default: available
+        inbound_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Inbound Url
+          description: Download URL for inbound (caller) audio
+        outbound_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Outbound Url
+          description: Download URL for outbound (agent) audio
+        metadata_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Metadata Url
+          description: Download URL for recording metadata JSON
+      type: object
+      required:
+      - call_sid
+      title: RecordingUrlsResponse
+      description: Download paths for call recording playback.
   securitySchemes:
     BearerAuth:
       type: http

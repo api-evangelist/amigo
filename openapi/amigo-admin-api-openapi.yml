@@ -221,6 +221,53 @@ paths:
           description: The user has exceeded the rate limit of 20 requests per minute for this endpoint.
 components:
   schemas:
+    src__app__endpoints__admin__submit_sql_query__Request:
+      properties:
+        sql_query:
+          $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
+          description: The SQL query to execute.
+        async_query:
+          type: boolean
+          const: false
+          title: Async Query
+          description: 'Whether the query is asynchronous. If true, a signed URL will be returned to download the results once the query is complete. If false, the results will be returned in the response, but at most
+
+            1000 rows will be returned, and the query is subject to a 30 second execution timeout.'
+      type: object
+      required:
+      - sql_query
+      - async_query
+      title: Request
+    src__app__endpoints__admin__get_models__Response:
+      properties:
+        models:
+          items:
+            $ref: '#/components/schemas/Model'
+          type: array
+          title: Models
+      additionalProperties: true
+      type: object
+      required:
+      - models
+      title: Response
+    Column:
+      properties:
+        name:
+          type: string
+          title: Name
+          description: The name of the column.
+        type:
+          type: string
+          title: Type
+          description: The data type of the column.
+      type: object
+      required:
+      - name
+      - type
+      title: Column
+    amigo_lib__pydantic__base_model__StrippedNonemptyString__1:
+      type: string
+      minLength: 1
     src__app__endpoints__admin__submit_sql_query__Response:
       properties:
         execution_time_ms:
@@ -251,36 +298,6 @@ components:
       - truncated
       - columns
       title: SyncQueryResponse
-    amigo_lib__pydantic__base_model__StrippedNonemptyString__1:
-      type: string
-      minLength: 1
-    src__app__endpoints__admin__get_models__Response:
-      properties:
-        models:
-          items:
-            $ref: '#/components/schemas/Model'
-          type: array
-          title: Models
-      additionalProperties: true
-      type: object
-      required:
-      - models
-      title: Response
-    Column:
-      properties:
-        name:
-          type: string
-          title: Name
-          description: The name of the column.
-        type:
-          type: string
-          title: Type
-          description: The data type of the column.
-      type: object
-      required:
-      - name
-      - type
-      title: Column
     Model:
       properties:
         name:
@@ -296,23 +313,6 @@ components:
       - name
       - params_model_schema
       title: Model
-    src__app__endpoints__admin__submit_sql_query__Request:
-      properties:
-        sql_query:
-          $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
-          description: The SQL query to execute.
-        async_query:
-          type: boolean
-          const: false
-          title: Async Query
-          description: 'Whether the query is asynchronous. If true, a signed URL will be returned to download the results once the query is complete. If false, the results will be returned in the response, but at most
-
-            1000 rows will be returned, and the query is subject to a 30 second execution timeout.'
-      type: object
-      required:
-      - sql_query
-      - async_query
-      title: Request
   securitySchemes:
     Bearer-Authorization:
       type: http

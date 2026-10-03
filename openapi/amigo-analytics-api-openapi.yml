@@ -1133,6 +1133,142 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
+    OperatorPerformanceResponse:
+      properties:
+        summary:
+          $ref: '#/components/schemas/OperatorPerformanceSummary'
+          description: Aggregate operator performance metrics
+        trend:
+          items:
+            $ref: '#/components/schemas/OperatorPerformanceTrendPoint'
+          type: array
+          maxItems: 2200
+          title: Trend
+          description: Time series of escalation counts per interval bucket
+      type: object
+      required:
+      - summary
+      - trend
+      title: OperatorPerformanceResponse
+      description: Operator escalation performance and quality comparison over time.
+    EvalQualityResponse:
+      properties:
+        summary:
+          $ref: '#/components/schemas/EvalQualitySummary'
+          description: Workspace-wide aggregate for the period
+        by_eval_key:
+          items:
+            $ref: '#/components/schemas/EvalQualitySummary'
+          type: array
+          maxItems: 200
+          title: By Eval Key
+          description: Per-eval-key aggregates, most-evaluated first
+        trend:
+          items:
+            $ref: '#/components/schemas/EvalQualityTrendPoint'
+          type: array
+          maxItems: 2200
+          title: Trend
+          description: Time series of eval pass-rate/score per interval bucket
+      type: object
+      required:
+      - summary
+      - by_eval_key
+      - trend
+      title: EvalQualityResponse
+      description: 'Production-eval quality: overall pass-rate/score, per-eval-key breakdown, and a trend.
+
+
+        The channel-agnostic quality surface. Returns zeroed shapes (empty ``by_eval_key``
+
+        and ``trend``, null rates) when no verdicts exist for the workspace/window — the
+
+        console renders an empty-state rather than erroring, so this ships safely ahead of
+
+        the eager-eval trigger being enabled in production.'
+    UsageSummaryResponse:
+      properties:
+        workspace_id:
+          type: string
+          format: uuid
+          title: Workspace Id
+          description: Workspace identifier
+        period_start:
+          type: string
+          format: date
+          title: Period Start
+          description: Start of the reporting period
+        period_end:
+          type: string
+          format: date
+          title: Period End
+          description: End of the reporting period
+        buckets:
+          items:
+            $ref: '#/components/schemas/UsageBucket'
+          type: array
+          title: Buckets
+          description: Usage data grouped by event type and date
+        total_events:
+          type: integer
+          title: Total Events
+          description: Total number of events in the period
+      type: object
+      required:
+      - workspace_id
+      - period_start
+      - period_end
+      - buckets
+      - total_events
+      title: UsageSummaryResponse
+    AnalyticsKpi:
+      properties:
+        value:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Value
+          description: Current-period value (None when no data)
+        delta_pct:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Delta Pct
+          description: Percent change vs the previous period, or None
+      type: object
+      title: AnalyticsKpi
+      description: 'A single headline KPI with its period-over-period change.
+
+
+        ``value`` is left broad (int for counts, float for rates/scores/durations,
+
+        ``None`` when the metric has no data for the period). ``delta_pct`` is the
+
+        signed percent change vs the previous equal-length period, or ``None`` when
+
+        a prior-period comparison is unavailable.'
+    DailyCallStat:
+      properties:
+        date:
+          type: string
+          title: Date
+          description: Date string (YYYY-MM-DD)
+        count:
+          type: integer
+          title: Count
+          description: Number of calls on this date
+        avg_duration_seconds:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Avg Duration Seconds
+          description: Average call duration in seconds
+      type: object
+      required:
+      - date
+      - count
+      title: DailyCallStat
+      description: Per-day call volume and duration.
     AnalyticsDashboardResponse:
       properties:
         call_volume:
@@ -1175,237 +1311,88 @@ components:
         higher-is-worse for ``escalation_rate``, ``avg_ttfb_ms``, ``avg_duration_s``.
 
         Consumers must color deltas by that per-KPI polarity, not by delta sign alone.'
-    EventBreakdownResponse:
+    EvalQualitySummary:
       properties:
-        workspace_id:
-          type: string
-          format: uuid
-          title: Workspace Id
-          description: Workspace identifier
-        period_start:
-          type: string
-          format: date
-          title: Period Start
-          description: Start of the reporting period
-        period_end:
-          type: string
-          format: date
-          title: Period End
-          description: End of the reporting period
-        by_type:
-          items:
-            $ref: '#/components/schemas/EventBreakdownItem'
-          type: array
-          title: By Type
-          description: Event counts grouped by event type
-        by_source:
-          items:
-            $ref: '#/components/schemas/EventBreakdownItem'
-          type: array
-          title: By Source
-          description: Event counts grouped by source
-        total_events:
+        eval_key:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Eval Key
+          description: Eval key for a per-key row; null for the overall summary
+        total_evals:
           type: integer
-          title: Total Events
-          description: Total number of events in the period
+          title: Total Evals
+          description: Total verdicts recorded (any status, incl. errored)
+        judged:
+          type: integer
+          title: Judged
+          description: Verdicts with a non-null pass/fail outcome (denominator for pass_rate)
+        pass_rate:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Pass Rate
+          description: Fraction of judged verdicts that passed (0.0-1.0)
+        avg_score:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Avg Score
+          description: Mean numeric judge score across scored verdicts
       type: object
       required:
-      - workspace_id
-      - period_start
-      - period_end
-      - by_type
-      - by_source
-      - total_events
-      title: EventBreakdownResponse
-    EvalQualityResponse:
+      - total_evals
+      - judged
+      title: EvalQualitySummary
+      description: 'Aggregate production-eval verdict stats, overall or for one eval_key.
+
+
+        Sourced from ``call_eval_results`` (LLM-judge + assertion verdicts), which is
+
+        keyed by ``conversation_id`` and therefore CHANNEL-AGNOSTIC — voice, text,
+
+        SMS, email all contribute equally, unlike the voice-shaped call-quality score.'
+    ValidationError:
       properties:
-        summary:
-          $ref: '#/components/schemas/EvalQualitySummary'
-          description: Workspace-wide aggregate for the period
-        by_eval_key:
+        loc:
           items:
-            $ref: '#/components/schemas/EvalQualitySummary'
+            anyOf:
+            - type: string
+            - type: integer
           type: array
-          maxItems: 200
-          title: By Eval Key
-          description: Per-eval-key aggregates, most-evaluated first
-        trend:
-          items:
-            $ref: '#/components/schemas/EvalQualityTrendPoint'
-          type: array
-          maxItems: 2200
-          title: Trend
-          description: Time series of eval pass-rate/score per interval bucket
-      type: object
-      required:
-      - summary
-      - by_eval_key
-      - trend
-      title: EvalQualityResponse
-      description: 'Production-eval quality: overall pass-rate/score, per-eval-key breakdown, and a trend.
-
-
-        The channel-agnostic quality surface. Returns zeroed shapes (empty ``by_eval_key``
-
-        and ``trend``, null rates) when no verdicts exist for the workspace/window — the
-
-        console renders an empty-state rather than erroring, so this ships safely ahead of
-
-        the eager-eval trigger being enabled in production.'
-    DailyCallStat:
-      properties:
-        date:
+          title: Location
+        msg:
           type: string
-          title: Date
-          description: Date string (YYYY-MM-DD)
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    ConfidenceBucket:
+      properties:
+        confidence_range:
+          type: string
+          title: Confidence Range
+          description: Confidence level bucket label (e.g. 'raw', 'verified', 'authoritative')
         count:
           type: integer
           title: Count
-          description: Number of calls on this date
-        avg_duration_seconds:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Avg Duration Seconds
-          description: Average call duration in seconds
+          description: Number of events in this confidence bucket
       type: object
       required:
-      - date
+      - confidence_range
       - count
-      title: DailyCallStat
-      description: Per-day call volume and duration.
-    AgentAnalyticsEntry:
-      properties:
-        agent_id:
-          type: string
-          format: uuid
-          title: Agent Id
-        agent_name:
-          type: string
-          title: Agent Name
-        total_calls:
-          type: integer
-          title: Total Calls
-        completed_calls:
-          type: integer
-          title: Completed Calls
-        avg_duration_seconds:
-          type: number
-          title: Avg Duration Seconds
-        completion_rate:
-          type: number
-          title: Completion Rate
-      type: object
-      required:
-      - agent_id
-      - agent_name
-      - total_calls
-      - completed_calls
-      - avg_duration_seconds
-      - completion_rate
-      title: AgentAnalyticsEntry
-    OperatorPerformanceResponse:
-      properties:
-        summary:
-          $ref: '#/components/schemas/OperatorPerformanceSummary'
-          description: Aggregate operator performance metrics
-        trend:
-          items:
-            $ref: '#/components/schemas/OperatorPerformanceTrendPoint'
-          type: array
-          maxItems: 2200
-          title: Trend
-          description: Time series of escalation counts per interval bucket
-      type: object
-      required:
-      - summary
-      - trend
-      title: OperatorPerformanceResponse
-      description: Operator escalation performance and quality comparison over time.
-    CallQualitySummary:
-      properties:
-        avg_quality_score:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Avg Quality Score
-          description: Mean quality score across calls (0-100)
-        p50_quality_score:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: P50 Quality Score
-          description: Median quality score (0-100)
-        p95_quality_score:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: P95 Quality Score
-          description: 95th-percentile quality score (0-100)
-        total_calls:
-          type: integer
-          title: Total Calls
-          description: Total number of calls in the period
-        escalation_rate:
-          type: number
-          title: Escalation Rate
-          description: Fraction of calls escalated to an operator (0.0-1.0)
-        avg_duration_seconds:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Avg Duration Seconds
-          description: Average call duration in seconds
-      type: object
-      required:
-      - total_calls
-      - escalation_rate
-      title: CallQualitySummary
-      description: Aggregate call-quality stats for the period.
-    OperatorPerformanceSummary:
-      properties:
-        total_calls:
-          type: integer
-          title: Total Calls
-          description: Total number of calls in the period
-        escalated_count:
-          type: integer
-          title: Escalated Count
-          description: Number of calls escalated to an operator
-        escalation_rate:
-          type: number
-          title: Escalation Rate
-          description: Fraction of calls that were escalated (0.0-1.0)
-        operator_handled_count:
-          type: integer
-          title: Operator Handled Count
-          description: Number of calls where an operator was active
-        avg_escalated_duration_seconds:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Avg Escalated Duration Seconds
-          description: Average duration in seconds of escalated calls
-        avg_escalated_quality_score:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Avg Escalated Quality Score
-          description: Average quality score of escalated calls
-        avg_non_escalated_quality_score:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Avg Non Escalated Quality Score
-          description: Average quality score of non-escalated calls
-      type: object
-      required:
-      - total_calls
-      - escalated_count
-      - escalation_rate
-      - operator_handled_count
-      title: OperatorPerformanceSummary
-      description: Aggregate operator escalation stats for the period.
+      title: ConfidenceBucket
     EventBreakdownItem:
       properties:
         key:
@@ -1448,187 +1435,39 @@ components:
       - poor_0_49
       title: CallQualityDistribution
       description: Call counts bucketed by quality-score band.
-    EvalQualitySummary:
+    UsageBucket:
       properties:
-        eval_key:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Eval Key
-          description: Eval key for a per-key row; null for the overall summary
-        total_evals:
-          type: integer
-          title: Total Evals
-          description: Total verdicts recorded (any status, incl. errored)
-        judged:
-          type: integer
-          title: Judged
-          description: Verdicts with a non-null pass/fail outcome (denominator for pass_rate)
-        pass_rate:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Pass Rate
-          description: Fraction of judged verdicts that passed (0.0-1.0)
-        avg_score:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Avg Score
-          description: Mean numeric judge score across scored verdicts
-      type: object
-      required:
-      - total_evals
-      - judged
-      title: EvalQualitySummary
-      description: 'Aggregate production-eval verdict stats, overall or for one eval_key.
-
-
-        Sourced from ``call_eval_results`` (LLM-judge + assertion verdicts), which is
-
-        keyed by ``conversation_id`` and therefore CHANNEL-AGNOSTIC — voice, text,
-
-        SMS, email all contribute equally, unlike the voice-shaped call-quality score.'
-    UsageSummaryResponse:
-      properties:
-        workspace_id:
+        event_type:
           type: string
-          format: uuid
-          title: Workspace Id
-          description: Workspace identifier
-        period_start:
+          title: Event Type
+          description: World event type
+        event_date:
           type: string
           format: date
-          title: Period Start
-          description: Start of the reporting period
-        period_end:
-          type: string
-          format: date
-          title: Period End
-          description: End of the reporting period
-        buckets:
-          items:
-            $ref: '#/components/schemas/UsageBucket'
-          type: array
-          title: Buckets
-          description: Usage data grouped by event type and date
-        total_events:
+          title: Event Date
+          description: Date of the usage bucket
+        count:
           type: integer
-          title: Total Events
-          description: Total number of events in the period
-      type: object
-      required:
-      - workspace_id
-      - period_start
-      - period_end
-      - buckets
-      - total_events
-      title: UsageSummaryResponse
-    ValidationError:
-      properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-        input:
-          title: Input
-        ctx:
-          type: object
-          title: Context
-      type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
-    EvalQualityTrendPoint:
-      properties:
-        date:
-          type: string
-          format: date
-          title: Date
-          description: Date bucket (granularity follows `interval`)
-        total_evals:
-          type: integer
-          title: Total Evals
-          description: Total verdicts in this bucket
-        judged:
-          type: integer
-          title: Judged
-          description: Verdicts with a non-null pass/fail outcome in this bucket
-        pass_rate:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Pass Rate
-          description: Fraction of judged verdicts that passed in this bucket
-        avg_score:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Avg Score
-          description: Mean numeric judge score in this bucket
-      type: object
-      required:
-      - date
-      - total_evals
-      - judged
-      title: EvalQualityTrendPoint
-      description: Single date-bucket data point in the eval-quality trend series.
-    CallStatsResponse:
-      properties:
-        workspace_id:
-          type: string
-          format: uuid
-          title: Workspace Id
-          description: Workspace identifier
-        period_start:
-          type: string
-          format: date
-          title: Period Start
-          description: Start of the reporting period
-        period_end:
-          type: string
-          format: date
-          title: Period End
-          description: End of the reporting period
-        total_calls:
-          type: integer
-          title: Total Calls
-          description: Total number of calls in the period
-        total_duration_seconds:
-          type: number
-          title: Total Duration Seconds
-          description: Sum of all call durations in seconds
+          title: Count
+          description: Number of events in this bucket
         avg_duration_seconds:
-          type: number
+          anyOf:
+          - type: number
+          - type: 'null'
           title: Avg Duration Seconds
-          description: Average call duration in seconds
-        calls_by_date:
-          items:
-            $ref: '#/components/schemas/DailyCallStat'
-          type: array
-          title: Calls By Date
-          description: Daily call volume breakdown
+          description: Average event duration in seconds
+        total_duration_seconds:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Total Duration Seconds
+          description: Total event duration in seconds
       type: object
       required:
-      - workspace_id
-      - period_start
-      - period_end
-      - total_calls
-      - total_duration_seconds
-      - avg_duration_seconds
-      - calls_by_date
-      title: CallStatsResponse
+      - event_type
+      - event_date
+      - count
+      title: UsageBucket
     DataQualityResponse:
       properties:
         workspace_id:
@@ -1688,21 +1527,229 @@ components:
       - total_events
       title: DataQualityResponse
       description: Data quality metrics — confidence distribution, review pipeline stats.
-    ConfidenceBucket:
+    CallQualityAnalyticsResponse:
       properties:
-        confidence_range:
-          type: string
-          title: Confidence Range
-          description: Confidence level bucket label (e.g. 'raw', 'verified', 'authoritative')
-        count:
-          type: integer
-          title: Count
-          description: Number of events in this confidence bucket
+        summary:
+          $ref: '#/components/schemas/CallQualitySummary'
+          description: Aggregate call-quality metrics for the period
+        trend:
+          items:
+            $ref: '#/components/schemas/CallQualityTrendPoint'
+          type: array
+          maxItems: 2200
+          title: Trend
+          description: Time series of call-quality metrics per interval bucket
+        quality_distribution:
+          $ref: '#/components/schemas/CallQualityDistribution'
+          description: Call counts bucketed by quality-score band
       type: object
       required:
-      - confidence_range
-      - count
-      title: ConfidenceBucket
+      - summary
+      - trend
+      - quality_distribution
+      title: CallQualityAnalyticsResponse
+      description: 'Call quality score trends, distribution, and summary over time.
+
+
+        Served from the live Delta projection ``analytics.source_call_intelligence``.'
+    AgentAnalyticsResponse:
+      properties:
+        agents:
+          items:
+            $ref: '#/components/schemas/AgentAnalyticsEntry'
+          type: array
+          title: Agents
+        period:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Period
+      type: object
+      required:
+      - agents
+      title: AgentAnalyticsResponse
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    EvalQualityTrendPoint:
+      properties:
+        date:
+          type: string
+          format: date
+          title: Date
+          description: Date bucket (granularity follows `interval`)
+        total_evals:
+          type: integer
+          title: Total Evals
+          description: Total verdicts in this bucket
+        judged:
+          type: integer
+          title: Judged
+          description: Verdicts with a non-null pass/fail outcome in this bucket
+        pass_rate:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Pass Rate
+          description: Fraction of judged verdicts that passed in this bucket
+        avg_score:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Avg Score
+          description: Mean numeric judge score in this bucket
+      type: object
+      required:
+      - date
+      - total_evals
+      - judged
+      title: EvalQualityTrendPoint
+      description: Single date-bucket data point in the eval-quality trend series.
+    OperatorPerformanceTrendPoint:
+      properties:
+        date:
+          type: string
+          format: date
+          title: Date
+          description: Date for the time bucket
+        total_calls:
+          type: integer
+          title: Total Calls
+          description: Total calls in this time bucket
+        escalated_count:
+          type: integer
+          title: Escalated Count
+          description: Escalated calls in this time bucket
+      type: object
+      required:
+      - date
+      - total_calls
+      - escalated_count
+      title: OperatorPerformanceTrendPoint
+      description: Single time-bucket data point in the operator performance trend series.
+    CallStatsResponse:
+      properties:
+        workspace_id:
+          type: string
+          format: uuid
+          title: Workspace Id
+          description: Workspace identifier
+        period_start:
+          type: string
+          format: date
+          title: Period Start
+          description: Start of the reporting period
+        period_end:
+          type: string
+          format: date
+          title: Period End
+          description: End of the reporting period
+        total_calls:
+          type: integer
+          title: Total Calls
+          description: Total number of calls in the period
+        total_duration_seconds:
+          type: number
+          title: Total Duration Seconds
+          description: Sum of all call durations in seconds
+        avg_duration_seconds:
+          type: number
+          title: Avg Duration Seconds
+          description: Average call duration in seconds
+        calls_by_date:
+          items:
+            $ref: '#/components/schemas/DailyCallStat'
+          type: array
+          title: Calls By Date
+          description: Daily call volume breakdown
+      type: object
+      required:
+      - workspace_id
+      - period_start
+      - period_end
+      - total_calls
+      - total_duration_seconds
+      - avg_duration_seconds
+      - calls_by_date
+      title: CallStatsResponse
+    EventBreakdownResponse:
+      properties:
+        workspace_id:
+          type: string
+          format: uuid
+          title: Workspace Id
+          description: Workspace identifier
+        period_start:
+          type: string
+          format: date
+          title: Period Start
+          description: Start of the reporting period
+        period_end:
+          type: string
+          format: date
+          title: Period End
+          description: End of the reporting period
+        by_type:
+          items:
+            $ref: '#/components/schemas/EventBreakdownItem'
+          type: array
+          title: By Type
+          description: Event counts grouped by event type
+        by_source:
+          items:
+            $ref: '#/components/schemas/EventBreakdownItem'
+          type: array
+          title: By Source
+          description: Event counts grouped by source
+        total_events:
+          type: integer
+          title: Total Events
+          description: Total number of events in the period
+      type: object
+      required:
+      - workspace_id
+      - period_start
+      - period_end
+      - by_type
+      - by_source
+      - total_events
+      title: EventBreakdownResponse
+    AgentAnalyticsEntry:
+      properties:
+        agent_id:
+          type: string
+          format: uuid
+          title: Agent Id
+        agent_name:
+          type: string
+          title: Agent Name
+        total_calls:
+          type: integer
+          title: Total Calls
+        completed_calls:
+          type: integer
+          title: Completed Calls
+        avg_duration_seconds:
+          type: number
+          title: Avg Duration Seconds
+        completion_rate:
+          type: number
+          title: Completion Rate
+      type: object
+      required:
+      - agent_id
+      - agent_name
+      - total_calls
+      - completed_calls
+      - avg_duration_seconds
+      - completion_rate
+      title: AgentAnalyticsEntry
     CallQualityTrendPoint:
       properties:
         date:
@@ -1730,137 +1777,90 @@ components:
       - escalation_count
       title: CallQualityTrendPoint
       description: Single time-bucket data point in the call-quality trend series.
-    AnalyticsKpi:
+    OperatorPerformanceSummary:
       properties:
-        value:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Value
-          description: Current-period value (None when no data)
-        delta_pct:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Delta Pct
-          description: Percent change vs the previous period, or None
-      type: object
-      title: AnalyticsKpi
-      description: 'A single headline KPI with its period-over-period change.
-
-
-        ``value`` is left broad (int for counts, float for rates/scores/durations,
-
-        ``None`` when the metric has no data for the period). ``delta_pct`` is the
-
-        signed percent change vs the previous equal-length period, or ``None`` when
-
-        a prior-period comparison is unavailable.'
-    AgentAnalyticsResponse:
-      properties:
-        agents:
-          items:
-            $ref: '#/components/schemas/AgentAnalyticsEntry'
-          type: array
-          title: Agents
-        period:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Period
-      type: object
-      required:
-      - agents
-      title: AgentAnalyticsResponse
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
-    OperatorPerformanceTrendPoint:
-      properties:
-        date:
-          type: string
-          format: date
-          title: Date
-          description: Date for the time bucket
         total_calls:
           type: integer
           title: Total Calls
-          description: Total calls in this time bucket
+          description: Total number of calls in the period
         escalated_count:
           type: integer
           title: Escalated Count
-          description: Escalated calls in this time bucket
+          description: Number of calls escalated to an operator
+        escalation_rate:
+          type: number
+          title: Escalation Rate
+          description: Fraction of calls that were escalated (0.0-1.0)
+        operator_handled_count:
+          type: integer
+          title: Operator Handled Count
+          description: Number of calls where an operator was active
+        avg_escalated_duration_seconds:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Avg Escalated Duration Seconds
+          description: Average duration in seconds of escalated calls
+        avg_escalated_quality_score:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Avg Escalated Quality Score
+          description: Average quality score of escalated calls
+        avg_non_escalated_quality_score:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Avg Non Escalated Quality Score
+          description: Average quality score of non-escalated calls
       type: object
       required:
-      - date
       - total_calls
       - escalated_count
-      title: OperatorPerformanceTrendPoint
-      description: Single time-bucket data point in the operator performance trend series.
-    CallQualityAnalyticsResponse:
+      - escalation_rate
+      - operator_handled_count
+      title: OperatorPerformanceSummary
+      description: Aggregate operator escalation stats for the period.
+    CallQualitySummary:
       properties:
-        summary:
-          $ref: '#/components/schemas/CallQualitySummary'
-          description: Aggregate call-quality metrics for the period
-        trend:
-          items:
-            $ref: '#/components/schemas/CallQualityTrendPoint'
-          type: array
-          maxItems: 2200
-          title: Trend
-          description: Time series of call-quality metrics per interval bucket
-        quality_distribution:
-          $ref: '#/components/schemas/CallQualityDistribution'
-          description: Call counts bucketed by quality-score band
-      type: object
-      required:
-      - summary
-      - trend
-      - quality_distribution
-      title: CallQualityAnalyticsResponse
-      description: 'Call quality score trends, distribution, and summary over time.
-
-
-        Served from the live Delta projection ``analytics.source_call_intelligence``.'
-    UsageBucket:
-      properties:
-        event_type:
-          type: string
-          title: Event Type
-          description: World event type
-        event_date:
-          type: string
-          format: date
-          title: Event Date
-          description: Date of the usage bucket
-        count:
+        avg_quality_score:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Avg Quality Score
+          description: Mean quality score across calls (0-100)
+        p50_quality_score:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: P50 Quality Score
+          description: Median quality score (0-100)
+        p95_quality_score:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: P95 Quality Score
+          description: 95th-percentile quality score (0-100)
+        total_calls:
           type: integer
-          title: Count
-          description: Number of events in this bucket
+          title: Total Calls
+          description: Total number of calls in the period
+        escalation_rate:
+          type: number
+          title: Escalation Rate
+          description: Fraction of calls escalated to an operator (0.0-1.0)
         avg_duration_seconds:
           anyOf:
           - type: number
           - type: 'null'
           title: Avg Duration Seconds
-          description: Average event duration in seconds
-        total_duration_seconds:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Total Duration Seconds
-          description: Total event duration in seconds
+          description: Average call duration in seconds
       type: object
       required:
-      - event_type
-      - event_date
-      - count
-      title: UsageBucket
+      - total_calls
+      - escalation_rate
+      title: CallQualitySummary
+      description: Aggregate call-quality stats for the period.
   securitySchemes:
     BearerAuth:
       type: http

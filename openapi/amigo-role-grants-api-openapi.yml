@@ -176,23 +176,6 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
-    src__routes__role_grants__ListResponse:
-      properties:
-        items:
-          items:
-            $ref: '#/components/schemas/RoleGrantItem'
-          type: array
-          title: Items
-        has_more:
-          type: boolean
-          title: Has More
-        continuation_token:
-          title: Continuation Token
-      type: object
-      required:
-      - items
-      - has_more
-      title: ListResponse
     ValidationError:
       properties:
         loc:
@@ -219,6 +202,17 @@ components:
       - msg
       - type
       title: ValidationError
+    _Access:
+      type: string
+      enum:
+      - read
+      - write
+    _ResourceType:
+      type: string
+      enum:
+      - integration_endpoint
+      - skill
+      - kb_scope
     HTTPValidationError:
       properties:
         detail:
@@ -228,35 +222,23 @@ components:
           title: Detail
       type: object
       title: HTTPValidationError
-    src__routes__role_grants__CreateRequest:
+    src__routes__role_grants__ListResponse:
       properties:
-        role_id:
-          type: string
-          format: uuid
-          title: Role Id
-        resource_type:
-          $ref: '#/components/schemas/_ResourceType'
-        resource_key:
-          type: string
-          maxLength: 512
-          minLength: 1
-          title: Resource Key
-        access:
-          $ref: '#/components/schemas/_Access'
-        param_binding:
-          anyOf:
-          - type: string
-            maxLength: 256
-          - type: 'null'
-          title: Param Binding
-      additionalProperties: false
+        items:
+          items:
+            $ref: '#/components/schemas/RoleGrantItem'
+          type: array
+          title: Items
+        has_more:
+          type: boolean
+          title: Has More
+        continuation_token:
+          title: Continuation Token
       type: object
       required:
-      - role_id
-      - resource_type
-      - resource_key
-      - access
-      title: CreateRequest
+      - items
+      - has_more
+      title: ListResponse
     RoleGrantItem:
       properties:
         id:
@@ -305,17 +287,35 @@ components:
       - status
       - created_at
       title: RoleGrantItem
-    _Access:
-      type: string
-      enum:
-      - read
-      - write
-    _ResourceType:
-      type: string
-      enum:
-      - integration_endpoint
-      - skill
-      - kb_scope
+    src__routes__role_grants__CreateRequest:
+      properties:
+        role_id:
+          type: string
+          format: uuid
+          title: Role Id
+        resource_type:
+          $ref: '#/components/schemas/_ResourceType'
+        resource_key:
+          type: string
+          maxLength: 512
+          minLength: 1
+          title: Resource Key
+        access:
+          $ref: '#/components/schemas/_Access'
+        param_binding:
+          anyOf:
+          - type: string
+            maxLength: 256
+          - type: 'null'
+          title: Param Binding
+      additionalProperties: false
+      type: object
+      required:
+      - role_id
+      - resource_type
+      - resource_key
+      - access
+      title: CreateRequest
   securitySchemes:
     BearerAuth:
       type: http

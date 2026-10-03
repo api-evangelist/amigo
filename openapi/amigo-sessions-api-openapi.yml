@@ -158,22 +158,6 @@ paths:
           title: Workspace Id
 components:
   schemas:
-    InjectResponse:
-      properties:
-        status:
-          type: string
-          enum:
-          - delivered
-          - queued_no_subscriber
-          title: Status
-        call_sid:
-          type: string
-          title: Call Sid
-      type: object
-      required:
-      - status
-      - call_sid
-      title: InjectResponse
     ValidationError:
       properties:
         loc:
@@ -200,15 +184,11 @@ components:
       - msg
       - type
       title: ValidationError
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
+    CanonicalIdString:
+      type: string
+      maxLength: 256
+      minLength: 3
+      pattern: ^[A-Za-z0-9._-]+:[A-Za-z0-9._-]+:[A-Za-z0-9._-]+$
     StartSessionResponse:
       properties:
         conversation_id:
@@ -279,35 +259,6 @@ components:
       - service_id
       - channel_kind
       title: StartSessionRequest
-    InjectRequest:
-      properties:
-        message:
-          type: string
-          maxLength: 5000
-          minLength: 1
-          title: Message
-        sender:
-          type: string
-          maxLength: 200
-          title: Sender
-          default: System
-        event_type:
-          type: string
-          enum:
-          - external_event
-          - guidance
-          title: Event Type
-          description: external_event (factual info) or guidance (instructional)
-          default: external_event
-      type: object
-      required:
-      - message
-      title: InjectRequest
-    CanonicalIdString:
-      type: string
-      maxLength: 256
-      minLength: 3
-      pattern: ^[A-Za-z0-9._-]+:[A-Za-z0-9._-]+:[A-Za-z0-9._-]+$
     ActiveSession:
       properties:
         call_sid:
@@ -349,6 +300,31 @@ components:
       - direction
       - duration_seconds
       title: ActiveSession
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    InjectResponse:
+      properties:
+        status:
+          type: string
+          enum:
+          - delivered
+          - queued_no_subscriber
+          title: Status
+        call_sid:
+          type: string
+          title: Call Sid
+      type: object
+      required:
+      - status
+      - call_sid
+      title: InjectResponse
     FleetStatusResponse:
       properties:
         fleet:
@@ -404,6 +380,30 @@ components:
         per-workspace. ``fleet``/``namespace`` echo which fleet was read (voice per-call
 
         fleet, or the tool-runner background-tool fleet via ``?fleet=tool-runner``).'
+    InjectRequest:
+      properties:
+        message:
+          type: string
+          maxLength: 5000
+          minLength: 1
+          title: Message
+        sender:
+          type: string
+          maxLength: 200
+          title: Sender
+          default: System
+        event_type:
+          type: string
+          enum:
+          - external_event
+          - guidance
+          title: Event Type
+          description: external_event (factual info) or guidance (instructional)
+          default: external_event
+      type: object
+      required:
+      - message
+      title: InjectRequest
   securitySchemes:
     BearerAuth:
       type: http

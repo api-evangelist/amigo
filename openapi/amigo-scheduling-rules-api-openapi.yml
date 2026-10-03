@@ -252,6 +252,69 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    CreateSchedulingRuleSetRequest:
+      properties:
+        agent_kind:
+          type: string
+          enum:
+          - tms
+          - ketamine
+          - general
+          title: Agent Kind
+        params:
+          oneOf:
+          - $ref: '#/components/schemas/ClinicOpenHoursParams'
+          - $ref: '#/components/schemas/TMSMappingReleaseParams'
+          - $ref: '#/components/schemas/TMSSessionGridParams'
+          - $ref: '#/components/schemas/KetamineBlockOverlapParams'
+          - $ref: '#/components/schemas/NinetyDayRollingParams'
+          - $ref: '#/components/schemas/ConcurrentStartBlockParams'
+          title: Params
+          description: Per-rule-kind typed parameters. The ``rule_kind`` discriminator field selects the params shape; one row per (agent_kind, rule_kind) per workspace.
+          discriminator:
+            propertyName: rule_kind
+            mapping:
+              clinic_open_hours: '#/components/schemas/ClinicOpenHoursParams'
+              concurrent_start_block: '#/components/schemas/ConcurrentStartBlockParams'
+              ketamine_block_overlap: '#/components/schemas/KetamineBlockOverlapParams'
+              ninety_day_rolling: '#/components/schemas/NinetyDayRollingParams'
+              tms_mapping_release: '#/components/schemas/TMSMappingReleaseParams'
+              tms_session_grid: '#/components/schemas/TMSSessionGridParams'
+        is_active:
+          type: boolean
+          title: Is Active
+          default: true
+      type: object
+      required:
+      - agent_kind
+      - params
+      title: CreateSchedulingRuleSetRequest
     UpdateSchedulingRuleSetRequest:
       properties:
         params:
@@ -286,25 +349,45 @@ components:
         must be the full per-kind shape (no patch within params); send the
 
         whole RuleParams or omit.'
-    NinetyDayRollingParams:
+    _DayHours:
+      properties:
+        start:
+          type: string
+          pattern: ^([01]\d|2[0-3]):[0-5]\d$
+          title: Start
+        end:
+          type: string
+          pattern: ^([01]\d|2[0-3]):[0-5]\d$
+          title: End
+      type: object
+      required:
+      - start
+      - end
+      title: _DayHours
+      description: 'Open-hours window for one weekday. Times in 24h ``HH:MM`` form,
+
+        interpreted in the rule set''s ``timezone``.'
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    ConcurrentStartBlockParams:
       properties:
         rule_kind:
           type: string
-          const: ninety_day_rolling
+          const: concurrent_start_block
           title: Rule Kind
-          default: ninety_day_rolling
-        days:
-          type: integer
-          maximum: 365.0
-          minimum: 1.0
-          title: Days
+          default: concurrent_start_block
       type: object
-      required:
-      - days
-      title: NinetyDayRollingParams
-      description: 'Rolling-window cap on appointments per patient (e.g. 90 days
+      title: ConcurrentStartBlockParams
+      description: 'Disallow two slots starting at the same time within a TMS scope.
 
-        between TMS sessions).'
+        No additional params — the discriminator is the whole config.'
     SchedulingRuleSetResponse:
       properties:
         id:
@@ -376,32 +459,25 @@ components:
         older clients still on the previous SDK version — the SDK''s typed
 
         helpers can re-validate into ``RuleParams`` when needed.'
-    ValidationError:
+    NinetyDayRollingParams:
       properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
+        rule_kind:
           type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-        input:
-          title: Input
-        ctx:
-          type: object
-          title: Context
+          const: ninety_day_rolling
+          title: Rule Kind
+          default: ninety_day_rolling
+        days:
+          type: integer
+          maximum: 365.0
+          minimum: 1.0
+          title: Days
       type: object
       required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
+      - days
+      title: NinetyDayRollingParams
+      description: 'Rolling-window cap on appointments per patient (e.g. 90 days
+
+        between TMS sessions).'
     TMSMappingReleaseParams:
       properties:
         rule_kind:
@@ -427,15 +503,6 @@ components:
         back to the pool. ``weekend_skip=True`` adds Saturday + Sunday days
 
         to the wall-clock countdown (clinic doesn''t release on weekends).'
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
     PaginatedResponse_SchedulingRuleSetResponse_:
       properties:
         items:
@@ -461,90 +528,6 @@ components:
       - items
       - has_more
       title: PaginatedResponse[SchedulingRuleSetResponse]
-    _DayHours:
-      properties:
-        start:
-          type: string
-          pattern: ^([01]\d|2[0-3]):[0-5]\d$
-          title: Start
-        end:
-          type: string
-          pattern: ^([01]\d|2[0-3]):[0-5]\d$
-          title: End
-      type: object
-      required:
-      - start
-      - end
-      title: _DayHours
-      description: 'Open-hours window for one weekday. Times in 24h ``HH:MM`` form,
-
-        interpreted in the rule set''s ``timezone``.'
-    CreateSchedulingRuleSetRequest:
-      properties:
-        agent_kind:
-          type: string
-          enum:
-          - tms
-          - ketamine
-          - general
-          title: Agent Kind
-        params:
-          oneOf:
-          - $ref: '#/components/schemas/ClinicOpenHoursParams'
-          - $ref: '#/components/schemas/TMSMappingReleaseParams'
-          - $ref: '#/components/schemas/TMSSessionGridParams'
-          - $ref: '#/components/schemas/KetamineBlockOverlapParams'
-          - $ref: '#/components/schemas/NinetyDayRollingParams'
-          - $ref: '#/components/schemas/ConcurrentStartBlockParams'
-          title: Params
-          description: Per-rule-kind typed parameters. The ``rule_kind`` discriminator field selects the params shape; one row per (agent_kind, rule_kind) per workspace.
-          discriminator:
-            propertyName: rule_kind
-            mapping:
-              clinic_open_hours: '#/components/schemas/ClinicOpenHoursParams'
-              concurrent_start_block: '#/components/schemas/ConcurrentStartBlockParams'
-              ketamine_block_overlap: '#/components/schemas/KetamineBlockOverlapParams'
-              ninety_day_rolling: '#/components/schemas/NinetyDayRollingParams'
-              tms_mapping_release: '#/components/schemas/TMSMappingReleaseParams'
-              tms_session_grid: '#/components/schemas/TMSSessionGridParams'
-        is_active:
-          type: boolean
-          title: Is Active
-          default: true
-      type: object
-      required:
-      - agent_kind
-      - params
-      title: CreateSchedulingRuleSetRequest
-    TMSSessionGridParams:
-      properties:
-        rule_kind:
-          type: string
-          const: tms_session_grid
-          title: Rule Kind
-          default: tms_session_grid
-        interval_minutes:
-          type: integer
-          maximum: 120.0
-          minimum: 5.0
-          title: Interval Minutes
-        boundary_minutes:
-          items:
-            type: integer
-          type: array
-          maxItems: 60
-          minItems: 1
-          title: Boundary Minutes
-      type: object
-      required:
-      - interval_minutes
-      - boundary_minutes
-      title: TMSSessionGridParams
-      description: 'TMS sessions only start at fixed minute-of-hour boundaries
-
-        (e.g. ``:00`` and ``:30``) so the technician can run them
-
-        back-to-back without gaps.'
     ClinicOpenHoursParams:
       properties:
         rule_kind:
@@ -616,18 +599,35 @@ components:
       description: 'How many days after a ketamine session to block follow-up
 
         appointments (clinical safety window).'
-    ConcurrentStartBlockParams:
+    TMSSessionGridParams:
       properties:
         rule_kind:
           type: string
-          const: concurrent_start_block
+          const: tms_session_grid
           title: Rule Kind
-          default: concurrent_start_block
+          default: tms_session_grid
+        interval_minutes:
+          type: integer
+          maximum: 120.0
+          minimum: 5.0
+          title: Interval Minutes
+        boundary_minutes:
+          items:
+            type: integer
+          type: array
+          maxItems: 60
+          minItems: 1
+          title: Boundary Minutes
       type: object
-      title: ConcurrentStartBlockParams
-      description: 'Disallow two slots starting at the same time within a TMS scope.
+      required:
+      - interval_minutes
+      - boundary_minutes
+      title: TMSSessionGridParams
+      description: 'TMS sessions only start at fixed minute-of-hour boundaries
 
-        No additional params — the discriminator is the whole config.'
+        (e.g. ``:00`` and ``:30``) so the technician can run them
+
+        back-to-back without gaps.'
   securitySchemes:
     BearerAuth:
       type: http

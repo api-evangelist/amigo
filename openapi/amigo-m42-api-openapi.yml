@@ -909,109 +909,6 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
-    DecompositionRow:
-      properties:
-        feature_name:
-          type: string
-          title: Feature Name
-        beta:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Beta
-        delta_x:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Delta X
-        contribution:
-          type: number
-          title: Contribution
-        family:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Family
-        ci_lo:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Ci Lo
-        ci_hi:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Ci Hi
-      type: object
-      required:
-      - feature_name
-      - contribution
-      title: DecompositionRow
-    ForecastFanResponse:
-      properties:
-        workspace_id:
-          type: string
-          format: uuid
-          title: Workspace Id
-        count:
-          type: integer
-          title: Count
-        items:
-          items:
-            $ref: '#/components/schemas/ForecastFanPointRow'
-          type: array
-          title: Items
-      type: object
-      required:
-      - workspace_id
-      - count
-      - items
-      title: ForecastFanResponse
-    NoteRollupResponse:
-      properties:
-        workspace_id:
-          type: string
-          format: uuid
-          title: Workspace Id
-        total_notes:
-          type: integer
-          title: Total Notes
-        cohort_mean_risk:
-          type: number
-          title: Cohort Mean Risk
-        sentiment_distribution:
-          items:
-            $ref: '#/components/schemas/NoteRollupCategoryEntry'
-          type: array
-          title: Sentiment Distribution
-        top_symptoms:
-          items:
-            $ref: '#/components/schemas/NoteRollupCategoryEntry'
-          type: array
-          title: Top Symptoms
-        top_concerns:
-          items:
-            $ref: '#/components/schemas/NoteRollupCategoryEntry'
-          type: array
-          title: Top Concerns
-        top_medications:
-          items:
-            $ref: '#/components/schemas/NoteRollupCategoryEntry'
-          type: array
-          title: Top Medications
-        sdoh:
-          $ref: '#/components/schemas/NoteRollupSdoh'
-      type: object
-      required:
-      - workspace_id
-      - total_notes
-      - cohort_mean_risk
-      - sentiment_distribution
-      - top_symptoms
-      - top_concerns
-      - top_medications
-      - sdoh
-      title: NoteRollupResponse
     ForecastFanPointRow:
       properties:
         workspace_id:
@@ -1071,100 +968,99 @@ components:
       - scenario
       - t
       title: ForecastFanPointRow
-    PositiveSignalResponse:
+    AnomalyAlertRow:
       properties:
         workspace_id:
-          type: string
-          format: uuid
+          anyOf:
+          - type: string
+            format: uuid
+          - type: string
+            const: labs
           title: Workspace Id
-        count:
-          type: integer
-          title: Count
-        items:
-          items:
-            $ref: '#/components/schemas/PositiveSignalRow'
-          type: array
-          title: Items
-      type: object
-      required:
-      - workspace_id
-      - count
-      - items
-      title: PositiveSignalResponse
-    ClusterForecastResponse:
-      properties:
-        workspace_id:
+        alert_id:
           type: string
-          format: uuid
-          title: Workspace Id
-        count:
-          type: integer
-          title: Count
-        items:
-          items:
-            $ref: '#/components/schemas/ClusterForecastPointRow'
-          type: array
-          title: Items
-      type: object
-      required:
-      - workspace_id
-      - count
-      - items
-      title: ClusterForecastResponse
-    M42CatalogResponse:
-      properties:
-        workspace_id:
+          title: Alert Id
+        slice_label:
           type: string
-          format: uuid
-          title: Workspace Id
-        count:
-          type: integer
-          title: Count
-        items:
-          items:
-            $ref: '#/components/schemas/CatalogEntry'
-          type: array
-          title: Items
-      type: object
-      required:
-      - workspace_id
-      - count
-      - items
-      title: M42CatalogResponse
-    PatientLabRow:
-      properties:
-        patient_id:
-          type: string
-          title: Patient Id
-        observation_date:
+          title: Slice Label
+        mechanism:
           anyOf:
           - type: string
           - type: 'null'
-          title: Observation Date
-        test_name:
-          type: string
-          title: Test Name
-        value:
+          title: Mechanism
+        severity:
+          anyOf:
+          - type: string
+            enum:
+            - high
+            - medium
+            - low
+          - type: 'null'
+          title: Severity
+        priority_score:
           anyOf:
           - type: number
           - type: 'null'
-          title: Value
-        units:
+          title: Priority Score
+        detected_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Detected At
+        narrative:
           anyOf:
           - type: string
           - type: 'null'
-          title: Units
-        loinc_code:
+          title: Narrative
+        stats_json:
           anyOf:
           - type: string
           - type: 'null'
-          title: Loinc Code
+          title: Stats Json
+        decomposition_json:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Decomposition Json
+        actions_json:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Actions Json
+        projection_json:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Projection Json
       type: object
       required:
-      - patient_id
-      - test_name
-      title: PatientLabRow
-    SampleResponse:
+      - workspace_id
+      - alert_id
+      - slice_label
+      title: AnomalyAlertRow
+    HistogramBin:
+      properties:
+        x_lo:
+          type: number
+          title: X Lo
+        x_hi:
+          type: number
+          title: X Hi
+        y0:
+          type: integer
+          title: Y0
+        y1:
+          type: integer
+          title: Y1
+      type: object
+      required:
+      - x_lo
+      - x_hi
+      - y0
+      - y1
+      title: HistogramBin
+    FeaturesResponse:
       properties:
         workspace_id:
           type: string
@@ -1175,8 +1071,7 @@ components:
           title: Count
         items:
           items:
-            additionalProperties: true
-            type: object
+            $ref: '#/components/schemas/FeatureDef'
           type: array
           title: Items
       type: object
@@ -1184,8 +1079,8 @@ components:
       - workspace_id
       - count
       - items
-      title: SampleResponse
-    AnomalyAlertResponse:
+      title: FeaturesResponse
+    DistrictMetricsResponse:
       properties:
         workspace_id:
           type: string
@@ -1196,7 +1091,7 @@ components:
           title: Count
         items:
           items:
-            $ref: '#/components/schemas/AnomalyAlertRow'
+            $ref: '#/components/schemas/DistrictMetricsRow'
           type: array
           title: Items
       type: object
@@ -1204,30 +1099,7 @@ components:
       - workspace_id
       - count
       - items
-      title: AnomalyAlertResponse
-    NoteRollupSdoh:
-      properties:
-        activity:
-          items:
-            $ref: '#/components/schemas/NoteRollupCategoryEntry'
-          type: array
-          title: Activity
-        smoking:
-          items:
-            $ref: '#/components/schemas/NoteRollupCategoryEntry'
-          type: array
-          title: Smoking
-        diet:
-          items:
-            $ref: '#/components/schemas/NoteRollupCategoryEntry'
-          type: array
-          title: Diet
-      type: object
-      required:
-      - activity
-      - smoking
-      - diet
-      title: NoteRollupSdoh
+      title: DistrictMetricsResponse
     PatientNoteExtractions:
       properties:
         symptoms:
@@ -1279,78 +1151,19 @@ components:
       - concerns
       - medications_planned
       title: PatientNoteExtractions
-    RankedAnomalyRow:
+    FeatureDef:
       properties:
-        indicator:
+        name:
           type: string
-          title: Indicator
-          default: t2d_risk
-        district_name:
+          title: Name
+        kind:
           type: string
-          title: District Name
-        lat:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Lat
-        lon:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Lon
-        rate_per_1k:
-          type: number
-          title: Rate Per 1K
-          default: 0.0
-        territory_mean:
-          type: number
-          title: Territory Mean
-          default: 0.0
-        residual:
-          type: number
-          title: Residual
-          default: 0.0
-        cohort_size:
-          type: integer
-          title: Cohort Size
-          default: 0
-        is_anomaly:
-          type: boolean
-          title: Is Anomaly
-          default: true
-        alert_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Alert Id
-        severity:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Severity
-        priority_score:
-          type: number
-          title: Priority Score
-          default: 0.0
-        impact:
-          type: number
-          title: Impact
-          default: 0.0
-        narrative:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Narrative
-        decomposition:
-          items:
-            $ref: '#/components/schemas/DecompositionRow'
-          type: array
-          title: Decomposition
-          default: []
+          title: Kind
       type: object
       required:
-      - district_name
-      title: RankedAnomalyRow
+      - name
+      - kind
+      title: FeatureDef
     ColumnsResponse:
       properties:
         workspace_id:
@@ -1371,6 +1184,440 @@ components:
       - count
       - items
       title: ColumnsResponse
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    ColumnInfo:
+      properties:
+        column_name:
+          type: string
+          title: Column Name
+        data_type:
+          type: string
+          title: Data Type
+        comment:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Comment
+      type: object
+      required:
+      - column_name
+      - data_type
+      title: ColumnInfo
+    ClusterForecastResponse:
+      properties:
+        workspace_id:
+          type: string
+          format: uuid
+          title: Workspace Id
+        count:
+          type: integer
+          title: Count
+        items:
+          items:
+            $ref: '#/components/schemas/ClusterForecastPointRow'
+          type: array
+          title: Items
+      type: object
+      required:
+      - workspace_id
+      - count
+      - items
+      title: ClusterForecastResponse
+    PositiveSignalRow:
+      properties:
+        workspace_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: string
+            const: labs
+          title: Workspace Id
+        signal_id:
+          type: string
+          title: Signal Id
+        metric_label:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Metric Label
+        headline:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Headline
+        delta_value:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Delta Value
+        delta_unit:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Delta Unit
+        baseline:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Baseline
+        narrative:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Narrative
+        updated_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Updated At
+      type: object
+      required:
+      - workspace_id
+      - signal_id
+      title: PositiveSignalRow
+    PatientNoteResponse:
+      properties:
+        workspace_id:
+          type: string
+          format: uuid
+          title: Workspace Id
+        patient_id:
+          type: string
+          title: Patient Id
+        authored_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Authored At
+        author:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Author
+        note_text:
+          type: string
+          title: Note Text
+        extractions:
+          $ref: '#/components/schemas/PatientNoteExtractions'
+      type: object
+      required:
+      - workspace_id
+      - patient_id
+      - note_text
+      - extractions
+      title: PatientNoteResponse
+    ForecastDrawsResponse:
+      properties:
+        workspace_id:
+          type: string
+          format: uuid
+          title: Workspace Id
+        count:
+          type: integer
+          title: Count
+        items:
+          items:
+            $ref: '#/components/schemas/ForecastDrawPoint'
+          type: array
+          title: Items
+      type: object
+      required:
+      - workspace_id
+      - count
+      - items
+      title: ForecastDrawsResponse
+    DecompositionRow:
+      properties:
+        feature_name:
+          type: string
+          title: Feature Name
+        beta:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Beta
+        delta_x:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Delta X
+        contribution:
+          type: number
+          title: Contribution
+        family:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Family
+        ci_lo:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Ci Lo
+        ci_hi:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Ci Hi
+      type: object
+      required:
+      - feature_name
+      - contribution
+      title: DecompositionRow
+    FeatureDistributionResponse:
+      properties:
+        workspace_id:
+          type: string
+          format: uuid
+          title: Workspace Id
+        feature:
+          type: string
+          title: Feature
+        kind:
+          type: string
+          title: Kind
+        bins:
+          items:
+            $ref: '#/components/schemas/HistogramBin'
+          type: array
+          title: Bins
+        n_total:
+          type: integer
+          title: N Total
+        n_y1:
+          type: integer
+          title: N Y1
+      type: object
+      required:
+      - workspace_id
+      - feature
+      - kind
+      - bins
+      - n_total
+      - n_y1
+      title: FeatureDistributionResponse
+    PatientTopologyResponse:
+      properties:
+        workspace_id:
+          type: string
+          format: uuid
+          title: Workspace Id
+        count:
+          type: integer
+          title: Count
+        items:
+          items:
+            $ref: '#/components/schemas/PatientTopologyRow'
+          type: array
+          title: Items
+      type: object
+      required:
+      - workspace_id
+      - count
+      - items
+      title: PatientTopologyResponse
+    DistrictMetricsRow:
+      properties:
+        workspace_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: string
+            const: labs
+          title: Workspace Id
+        district_name:
+          type: string
+          title: District Name
+        t2d_incidence_per_1k:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: T2D Incidence Per 1K
+        t2d_predicted_per_1k:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: T2D Predicted Per 1K
+        residual:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Residual
+        cohort_size:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Cohort Size
+        is_anomaly:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Anomaly
+        anomaly_narrative:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Anomaly Narrative
+        pcp_per_1k:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Pcp Per 1K
+        capacity_gap_pct:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Capacity Gap Pct
+        access_narrative:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Access Narrative
+        unmet_demand_score:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Unmet Demand Score
+        updated_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Updated At
+      type: object
+      required:
+      - workspace_id
+      - district_name
+      title: DistrictMetricsRow
+    ModelRegistryResponse:
+      properties:
+        workspace_id:
+          type: string
+          format: uuid
+          title: Workspace Id
+        count:
+          type: integer
+          title: Count
+        items:
+          items:
+            $ref: '#/components/schemas/ModelRegistryRow'
+          type: array
+          title: Items
+      type: object
+      required:
+      - workspace_id
+      - count
+      - items
+      title: ModelRegistryResponse
+    PatientLabRow:
+      properties:
+        patient_id:
+          type: string
+          title: Patient Id
+        observation_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Observation Date
+        test_name:
+          type: string
+          title: Test Name
+        value:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Value
+        units:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Units
+        loinc_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Loinc Code
+      type: object
+      required:
+      - patient_id
+      - test_name
+      title: PatientLabRow
+    ClusterSummaryResponse:
+      properties:
+        workspace_id:
+          type: string
+          format: uuid
+          title: Workspace Id
+        count:
+          type: integer
+          title: Count
+        items:
+          items:
+            $ref: '#/components/schemas/ClusterSummaryRow'
+          type: array
+          title: Items
+      type: object
+      required:
+      - workspace_id
+      - count
+      - items
+      title: ClusterSummaryResponse
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    AnomalyAlertResponse:
+      properties:
+        workspace_id:
+          type: string
+          format: uuid
+          title: Workspace Id
+        count:
+          type: integer
+          title: Count
+        items:
+          items:
+            $ref: '#/components/schemas/AnomalyAlertRow'
+          type: array
+          title: Items
+      type: object
+      required:
+      - workspace_id
+      - count
+      - items
+      title: AnomalyAlertResponse
     StratifiedFitRow:
       properties:
         workspace_id:
@@ -1431,43 +1678,6 @@ components:
       - cohort
       - region
       title: StratifiedFitRow
-    ForecastDrawPoint:
-      properties:
-        draw_id:
-          type: integer
-          title: Draw Id
-        t:
-          type: number
-          title: T
-        value:
-          type: number
-          title: Value
-      type: object
-      required:
-      - draw_id
-      - t
-      - value
-      title: ForecastDrawPoint
-    RankedAnomalyResponse:
-      properties:
-        workspace_id:
-          type: string
-          format: uuid
-          title: Workspace Id
-        count:
-          type: integer
-          title: Count
-        items:
-          items:
-            $ref: '#/components/schemas/RankedAnomalyRow'
-          type: array
-          title: Items
-      type: object
-      required:
-      - workspace_id
-      - count
-      - items
-      title: RankedAnomalyResponse
     PatientTopologyRow:
       properties:
         workspace_id:
@@ -1606,7 +1816,7 @@ components:
       - umap_y
       - cluster_name
       title: PatientTopologyRow
-    ForecastDrawsResponse:
+    M42CatalogResponse:
       properties:
         workspace_id:
           type: string
@@ -1617,7 +1827,7 @@ components:
           title: Count
         items:
           items:
-            $ref: '#/components/schemas/ForecastDrawPoint'
+            $ref: '#/components/schemas/CatalogEntry'
           type: array
           title: Items
       type: object
@@ -1625,8 +1835,33 @@ components:
       - workspace_id
       - count
       - items
-      title: ForecastDrawsResponse
-    FeaturesResponse:
+      title: M42CatalogResponse
+    CatalogEntry:
+      properties:
+        name:
+          type: string
+          title: Name
+        layer:
+          type: string
+          title: Layer
+        description:
+          type: string
+          title: Description
+        row_count:
+          type: integer
+          title: Row Count
+        exists:
+          type: boolean
+          title: Exists
+      type: object
+      required:
+      - name
+      - layer
+      - description
+      - row_count
+      - exists
+      title: CatalogEntry
+    SampleResponse:
       properties:
         workspace_id:
           type: string
@@ -1637,7 +1872,8 @@ components:
           title: Count
         items:
           items:
-            $ref: '#/components/schemas/FeatureDef'
+            additionalProperties: true
+            type: object
           type: array
           title: Items
       type: object
@@ -1645,106 +1881,7 @@ components:
       - workspace_id
       - count
       - items
-      title: FeaturesResponse
-    ValidationError:
-      properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-        input:
-          title: Input
-        ctx:
-          type: object
-          title: Context
-      type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
-    DistrictMetricsRow:
-      properties:
-        workspace_id:
-          anyOf:
-          - type: string
-            format: uuid
-          - type: string
-            const: labs
-          title: Workspace Id
-        district_name:
-          type: string
-          title: District Name
-        t2d_incidence_per_1k:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: T2D Incidence Per 1K
-        t2d_predicted_per_1k:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: T2D Predicted Per 1K
-        residual:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Residual
-        cohort_size:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Cohort Size
-        is_anomaly:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          title: Is Anomaly
-        anomaly_narrative:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Anomaly Narrative
-        pcp_per_1k:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Pcp Per 1K
-        capacity_gap_pct:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Capacity Gap Pct
-        access_narrative:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Access Narrative
-        unmet_demand_score:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Unmet Demand Score
-        updated_at:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Updated At
-      type: object
-      required:
-      - workspace_id
-      - district_name
-      title: DistrictMetricsRow
+      title: SampleResponse
     ClusterSummaryRow:
       properties:
         cluster_name:
@@ -1793,6 +1930,281 @@ components:
       - cluster_name
       - cohort_size
       title: ClusterSummaryRow
+    ForecastDrawPoint:
+      properties:
+        draw_id:
+          type: integer
+          title: Draw Id
+        t:
+          type: number
+          title: T
+        value:
+          type: number
+          title: Value
+      type: object
+      required:
+      - draw_id
+      - t
+      - value
+      title: ForecastDrawPoint
+    NoteRollupCategoryEntry:
+      properties:
+        value:
+          type: string
+          title: Value
+        n:
+          type: integer
+          title: N
+        pct:
+          type: number
+          title: Pct
+        mean_risk:
+          type: number
+          title: Mean Risk
+        risk_lift:
+          type: number
+          title: Risk Lift
+      type: object
+      required:
+      - value
+      - n
+      - pct
+      - mean_risk
+      - risk_lift
+      title: NoteRollupCategoryEntry
+    ClusterForecastPointRow:
+      properties:
+        workspace_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: string
+            const: labs
+          title: Workspace Id
+        cluster_name:
+          type: string
+          title: Cluster Name
+        focus_area:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Focus Area
+        t:
+          type: number
+          title: T
+        median:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Median
+        lower_95:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Lower 95
+        upper_95:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Upper 95
+        observed:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Observed
+        ym:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Ym
+        is_historical:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Historical
+      type: object
+      required:
+      - workspace_id
+      - cluster_name
+      - t
+      title: ClusterForecastPointRow
+    RankedAnomalyResponse:
+      properties:
+        workspace_id:
+          type: string
+          format: uuid
+          title: Workspace Id
+        count:
+          type: integer
+          title: Count
+        items:
+          items:
+            $ref: '#/components/schemas/RankedAnomalyRow'
+          type: array
+          title: Items
+      type: object
+      required:
+      - workspace_id
+      - count
+      - items
+      title: RankedAnomalyResponse
+    NoteRollupResponse:
+      properties:
+        workspace_id:
+          type: string
+          format: uuid
+          title: Workspace Id
+        total_notes:
+          type: integer
+          title: Total Notes
+        cohort_mean_risk:
+          type: number
+          title: Cohort Mean Risk
+        sentiment_distribution:
+          items:
+            $ref: '#/components/schemas/NoteRollupCategoryEntry'
+          type: array
+          title: Sentiment Distribution
+        top_symptoms:
+          items:
+            $ref: '#/components/schemas/NoteRollupCategoryEntry'
+          type: array
+          title: Top Symptoms
+        top_concerns:
+          items:
+            $ref: '#/components/schemas/NoteRollupCategoryEntry'
+          type: array
+          title: Top Concerns
+        top_medications:
+          items:
+            $ref: '#/components/schemas/NoteRollupCategoryEntry'
+          type: array
+          title: Top Medications
+        sdoh:
+          $ref: '#/components/schemas/NoteRollupSdoh'
+      type: object
+      required:
+      - workspace_id
+      - total_notes
+      - cohort_mean_risk
+      - sentiment_distribution
+      - top_symptoms
+      - top_concerns
+      - top_medications
+      - sdoh
+      title: NoteRollupResponse
+    PatientLabsResponse:
+      properties:
+        workspace_id:
+          type: string
+          format: uuid
+          title: Workspace Id
+        count:
+          type: integer
+          title: Count
+        items:
+          items:
+            $ref: '#/components/schemas/PatientLabRow'
+          type: array
+          title: Items
+      type: object
+      required:
+      - workspace_id
+      - count
+      - items
+      title: PatientLabsResponse
+    ForecastFanResponse:
+      properties:
+        workspace_id:
+          type: string
+          format: uuid
+          title: Workspace Id
+        count:
+          type: integer
+          title: Count
+        items:
+          items:
+            $ref: '#/components/schemas/ForecastFanPointRow'
+          type: array
+          title: Items
+      type: object
+      required:
+      - workspace_id
+      - count
+      - items
+      title: ForecastFanResponse
+    RankedAnomalyRow:
+      properties:
+        indicator:
+          type: string
+          title: Indicator
+          default: t2d_risk
+        district_name:
+          type: string
+          title: District Name
+        lat:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Lat
+        lon:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Lon
+        rate_per_1k:
+          type: number
+          title: Rate Per 1K
+          default: 0.0
+        territory_mean:
+          type: number
+          title: Territory Mean
+          default: 0.0
+        residual:
+          type: number
+          title: Residual
+          default: 0.0
+        cohort_size:
+          type: integer
+          title: Cohort Size
+          default: 0
+        is_anomaly:
+          type: boolean
+          title: Is Anomaly
+          default: true
+        alert_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Alert Id
+        severity:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Severity
+        priority_score:
+          type: number
+          title: Priority Score
+          default: 0.0
+        impact:
+          type: number
+          title: Impact
+          default: 0.0
+        narrative:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Narrative
+        decomposition:
+          items:
+            $ref: '#/components/schemas/DecompositionRow'
+          type: array
+          title: Decomposition
+          default: []
+      type: object
+      required:
+      - district_name
+      title: RankedAnomalyRow
     ModelRegistryRow:
       properties:
         workspace_id:
@@ -1856,109 +2268,49 @@ components:
       - workspace_id
       - model_id
       title: ModelRegistryRow
-    HistogramBin:
-      properties:
-        x_lo:
-          type: number
-          title: X Lo
-        x_hi:
-          type: number
-          title: X Hi
-        y0:
-          type: integer
-          title: Y0
-        y1:
-          type: integer
-          title: Y1
-      type: object
-      required:
-      - x_lo
-      - x_hi
-      - y0
-      - y1
-      title: HistogramBin
-    CatalogEntry:
-      properties:
-        name:
-          type: string
-          title: Name
-        layer:
-          type: string
-          title: Layer
-        description:
-          type: string
-          title: Description
-        row_count:
-          type: integer
-          title: Row Count
-        exists:
-          type: boolean
-          title: Exists
-      type: object
-      required:
-      - name
-      - layer
-      - description
-      - row_count
-      - exists
-      title: CatalogEntry
-    NoteRollupCategoryEntry:
-      properties:
-        value:
-          type: string
-          title: Value
-        n:
-          type: integer
-          title: N
-        pct:
-          type: number
-          title: Pct
-        mean_risk:
-          type: number
-          title: Mean Risk
-        risk_lift:
-          type: number
-          title: Risk Lift
-      type: object
-      required:
-      - value
-      - n
-      - pct
-      - mean_risk
-      - risk_lift
-      title: NoteRollupCategoryEntry
-    PatientNoteResponse:
+    PositiveSignalResponse:
       properties:
         workspace_id:
           type: string
           format: uuid
           title: Workspace Id
-        patient_id:
-          type: string
-          title: Patient Id
-        authored_at:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Authored At
-        author:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Author
-        note_text:
-          type: string
-          title: Note Text
-        extractions:
-          $ref: '#/components/schemas/PatientNoteExtractions'
+        count:
+          type: integer
+          title: Count
+        items:
+          items:
+            $ref: '#/components/schemas/PositiveSignalRow'
+          type: array
+          title: Items
       type: object
       required:
       - workspace_id
-      - patient_id
-      - note_text
-      - extractions
-      title: PatientNoteResponse
+      - count
+      - items
+      title: PositiveSignalResponse
+    NoteRollupSdoh:
+      properties:
+        activity:
+          items:
+            $ref: '#/components/schemas/NoteRollupCategoryEntry'
+          type: array
+          title: Activity
+        smoking:
+          items:
+            $ref: '#/components/schemas/NoteRollupCategoryEntry'
+          type: array
+          title: Smoking
+        diet:
+          items:
+            $ref: '#/components/schemas/NoteRollupCategoryEntry'
+          type: array
+          title: Diet
+      type: object
+      required:
+      - activity
+      - smoking
+      - diet
+      title: NoteRollupSdoh
     StratifiedFitsResponse:
       properties:
         workspace_id:
@@ -1979,358 +2331,6 @@ components:
       - count
       - items
       title: StratifiedFitsResponse
-    DistrictMetricsResponse:
-      properties:
-        workspace_id:
-          type: string
-          format: uuid
-          title: Workspace Id
-        count:
-          type: integer
-          title: Count
-        items:
-          items:
-            $ref: '#/components/schemas/DistrictMetricsRow'
-          type: array
-          title: Items
-      type: object
-      required:
-      - workspace_id
-      - count
-      - items
-      title: DistrictMetricsResponse
-    ColumnInfo:
-      properties:
-        column_name:
-          type: string
-          title: Column Name
-        data_type:
-          type: string
-          title: Data Type
-        comment:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Comment
-      type: object
-      required:
-      - column_name
-      - data_type
-      title: ColumnInfo
-    PositiveSignalRow:
-      properties:
-        workspace_id:
-          anyOf:
-          - type: string
-            format: uuid
-          - type: string
-            const: labs
-          title: Workspace Id
-        signal_id:
-          type: string
-          title: Signal Id
-        metric_label:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Metric Label
-        headline:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Headline
-        delta_value:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Delta Value
-        delta_unit:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Delta Unit
-        baseline:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Baseline
-        narrative:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Narrative
-        updated_at:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Updated At
-      type: object
-      required:
-      - workspace_id
-      - signal_id
-      title: PositiveSignalRow
-    FeatureDistributionResponse:
-      properties:
-        workspace_id:
-          type: string
-          format: uuid
-          title: Workspace Id
-        feature:
-          type: string
-          title: Feature
-        kind:
-          type: string
-          title: Kind
-        bins:
-          items:
-            $ref: '#/components/schemas/HistogramBin'
-          type: array
-          title: Bins
-        n_total:
-          type: integer
-          title: N Total
-        n_y1:
-          type: integer
-          title: N Y1
-      type: object
-      required:
-      - workspace_id
-      - feature
-      - kind
-      - bins
-      - n_total
-      - n_y1
-      title: FeatureDistributionResponse
-    PatientTopologyResponse:
-      properties:
-        workspace_id:
-          type: string
-          format: uuid
-          title: Workspace Id
-        count:
-          type: integer
-          title: Count
-        items:
-          items:
-            $ref: '#/components/schemas/PatientTopologyRow'
-          type: array
-          title: Items
-      type: object
-      required:
-      - workspace_id
-      - count
-      - items
-      title: PatientTopologyResponse
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
-    AnomalyAlertRow:
-      properties:
-        workspace_id:
-          anyOf:
-          - type: string
-            format: uuid
-          - type: string
-            const: labs
-          title: Workspace Id
-        alert_id:
-          type: string
-          title: Alert Id
-        slice_label:
-          type: string
-          title: Slice Label
-        mechanism:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Mechanism
-        severity:
-          anyOf:
-          - type: string
-            enum:
-            - high
-            - medium
-            - low
-          - type: 'null'
-          title: Severity
-        priority_score:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Priority Score
-        detected_at:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Detected At
-        narrative:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Narrative
-        stats_json:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Stats Json
-        decomposition_json:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Decomposition Json
-        actions_json:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Actions Json
-        projection_json:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Projection Json
-      type: object
-      required:
-      - workspace_id
-      - alert_id
-      - slice_label
-      title: AnomalyAlertRow
-    ModelRegistryResponse:
-      properties:
-        workspace_id:
-          type: string
-          format: uuid
-          title: Workspace Id
-        count:
-          type: integer
-          title: Count
-        items:
-          items:
-            $ref: '#/components/schemas/ModelRegistryRow'
-          type: array
-          title: Items
-      type: object
-      required:
-      - workspace_id
-      - count
-      - items
-      title: ModelRegistryResponse
-    ClusterSummaryResponse:
-      properties:
-        workspace_id:
-          type: string
-          format: uuid
-          title: Workspace Id
-        count:
-          type: integer
-          title: Count
-        items:
-          items:
-            $ref: '#/components/schemas/ClusterSummaryRow'
-          type: array
-          title: Items
-      type: object
-      required:
-      - workspace_id
-      - count
-      - items
-      title: ClusterSummaryResponse
-    FeatureDef:
-      properties:
-        name:
-          type: string
-          title: Name
-        kind:
-          type: string
-          title: Kind
-      type: object
-      required:
-      - name
-      - kind
-      title: FeatureDef
-    PatientLabsResponse:
-      properties:
-        workspace_id:
-          type: string
-          format: uuid
-          title: Workspace Id
-        count:
-          type: integer
-          title: Count
-        items:
-          items:
-            $ref: '#/components/schemas/PatientLabRow'
-          type: array
-          title: Items
-      type: object
-      required:
-      - workspace_id
-      - count
-      - items
-      title: PatientLabsResponse
-    ClusterForecastPointRow:
-      properties:
-        workspace_id:
-          anyOf:
-          - type: string
-            format: uuid
-          - type: string
-            const: labs
-          title: Workspace Id
-        cluster_name:
-          type: string
-          title: Cluster Name
-        focus_area:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Focus Area
-        t:
-          type: number
-          title: T
-        median:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Median
-        lower_95:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Lower 95
-        upper_95:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Upper 95
-        observed:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Observed
-        ym:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Ym
-        is_historical:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          title: Is Historical
-      type: object
-      required:
-      - workspace_id
-      - cluster_name
-      - t
-      title: ClusterForecastPointRow
   securitySchemes:
     BearerAuth:
       type: http

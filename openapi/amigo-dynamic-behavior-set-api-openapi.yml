@@ -806,189 +806,62 @@ paths:
           description: The user has exceeded the rate limit of 50 requests per minute for this endpoint.
 components:
   schemas:
-    src__app__endpoints__dynamic_behavior_set__get_dynamic_behavior_invocations__Response:
+    src__app__endpoints__dynamic_behavior_set__create_dynamic_behavior_set__Request:
       properties:
-        dynamic_behavior_invocations:
-          items:
-            $ref: '#/components/schemas/DynamicBehaviorInvocation'
-          type: array
-          title: Dynamic Behavior Invocations
-          description: The retrieved dynamic behavior invocations.
-        has_more:
-          type: boolean
-          title: Has More
-          description: Whether there are more dynamic behavior invocations to retrieve.
-        continuation_token:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Continuation Token
-          description: A token to supply to the next request to retrieve the next page of dynamic behavior invocations. Only populated if `has_more` is `True`.
-      type: object
-      required:
-      - dynamic_behavior_invocations
-      - has_more
-      - continuation_token
-      title: Response
-    src__app__endpoints__dynamic_behavior_set__create_dynamic_behavior_set_version__Response:
-      properties:
-        new_version_number:
-          type: integer
-          title: New Version Number
-          description: The version number of the new version.
-      type: object
-      required:
-      - new_version_number
-      title: Response
-    DynamicBehaviorSetInstance:
-      properties:
-        id:
-          type: string
-          title: Id
         name:
-          type: string
-          title: Name
-        is_active:
-          type: boolean
-          title: Is Active
-        applied_to_services:
-          items:
-            type: string
-          type: array
-          title: Applied To Services
+          $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
+          description: The name of the dynamic behavior set.
         tags:
           additionalProperties:
             anyOf:
-            - type: string
+            - $ref: '#/components/schemas/StrippedNonemptyString___w__s_____'
             - type: 'null'
+          propertyNames:
+            $ref: '#/components/schemas/StrippedNonemptyString___w__s_____'
           type: object
-          title: Tags
-        created_at:
-          type: string
-          format: date-time
-          title: Created At
-        creator:
-          $ref: '#/components/schemas/amigo_lib__mongo__collections__dynamic_behavior_set__DynamicBehaviorSet__UserInfo'
-        updated_at:
-          type: string
-          format: date-time
-          title: Updated At
-        updated_by:
-          $ref: '#/components/schemas/amigo_lib__mongo__collections__dynamic_behavior_set__DynamicBehaviorSet__UserInfo'
-      type: object
-      required:
-      - id
-      - name
-      - is_active
-      - applied_to_services
-      - tags
-      - created_at
-      - creator
-      - updated_at
-      - updated_by
-      title: DynamicBehaviorSetInstance
-    src__app__endpoints__dynamic_behavior_set__update_dynamic_behavior_set__Request:
-      properties:
-        name:
-          anyOf:
-          - $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
-          - type: 'null'
-          description: The name of the dynamic behavior set.
-        tags:
-          anyOf:
-          - additionalProperties:
-              anyOf:
-              - $ref: '#/components/schemas/StrippedNonemptyString___w__s_____'
-              - type: 'null'
-            propertyNames:
-              $ref: '#/components/schemas/StrippedNonemptyString___w__s_____'
-            type: object
-            maxProperties: 20
-          - type: 'null'
+          maxProperties: 20
           title: Tags
           description: The tags of the dynamic behavior set. Both the key and the value can only contain alphanumeric characters, underscores, or spaces.
         applied_to_services:
-          anyOf:
-          - items:
-              type: string
-              pattern: ^[a-f0-9]{24}$
-            type: array
-          - type: 'null'
+          items:
+            type: string
+            pattern: ^[a-f0-9]{24}$
+          type: array
           title: Applied To Services
           description: The services that the dynamic behavior set should be applied to.
-        is_active:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          title: Is Active
-          description: Whether the dynamic behavior set is active.
-      type: object
-      title: Request
-    src__app__endpoints__dynamic_behavior_set__create_dynamic_behavior_set_version__Request:
-      properties:
-        conversation_triggers:
-          items:
-            $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
-          type: array
-          maxItems: 50
-          minItems: 1
-          title: Conversation Triggers
-          description: The conversation triggers for the dynamic behavior set version.
-        actions:
-          items:
-            oneOf:
-            - $ref: '#/components/schemas/InjectInstructionAction-Input'
-            - $ref: '#/components/schemas/src__app__endpoints__dynamic_behavior_set__create_dynamic_behavior_set_version__Request__ChangeToolCandidatesAction'
-            discriminator:
-              propertyName: type
-              mapping:
-                change-tool-candidates: '#/components/schemas/src__app__endpoints__dynamic_behavior_set__create_dynamic_behavior_set_version__Request__ChangeToolCandidatesAction'
-                inject-instruction: '#/components/schemas/InjectInstructionAction-Input'
-          type: array
-          title: Actions
-          description: The action to perform when the dynamic behavior set version is activated.
+        initial_version:
+          $ref: '#/components/schemas/src__app__endpoints__dynamic_behavior_set__create_dynamic_behavior_set__Request__InitialVersion'
+          description: The configuration for the initial version of the dynamic behavior set.
       type: object
       required:
-      - conversation_triggers
-      - actions
+      - name
+      - tags
+      - applied_to_services
+      - initial_version
       title: Request
-    amigo_lib__mongo__collections__dynamic_behavior_set_version__DynamicBehaviorSetVersion__UserInfo:
-      properties:
-        org_id:
-          type: string
-          title: Org Id
-        user_id:
-          type: string
-          title: User Id
-      type: object
-      required:
-      - org_id
-      - user_id
-      title: UserInfo
-    src__app__endpoints__dynamic_behavior_set__create_dynamic_behavior_set_version__Request__ChangeToolCandidatesAction:
+    InjectInstructionAction-Output:
       properties:
         type:
           type: string
-          const: change-tool-candidates
+          const: inject-instruction
           title: Type
-        tool_call_specs:
-          items:
-            $ref: '#/components/schemas/src__app__endpoints__dynamic_behavior_set__create_dynamic_behavior_set_version__Request__ChangeToolCandidatesAction__ToolCallSpec'
-          type: array
-          title: Tool Call Specs
-        overrides_existing_tool_call_specs:
+        instruction:
+          type: string
+          title: Instruction
+        overrides_instructions:
           type: boolean
-          title: Overrides Existing Tool Call Specs
-          description: During injection, whether the existing tool call specs are overriden with these new specs.
+          title: Overrides Instructions
+          description: During injection, whether the original instruction of the state is overriden with this instruction.
       type: object
       required:
       - type
-      - tool_call_specs
-      - overrides_existing_tool_call_specs
-      title: ChangeToolCandidatesAction
-    amigo_lib__pydantic__base_model__StrippedNonemptyString__1:
+      - instruction
+      - overrides_instructions
+      title: InjectInstructionAction
+    StrippedNonemptyString___w__s_____:
       type: string
       minLength: 1
+      pattern: ^[\w\s]+$
     ? src__app__endpoints__dynamic_behavior_set__create_dynamic_behavior_set__Request__InitialVersion__ChangeToolCandidatesAction__ToolCallSpec
     : properties:
         tool_id:
@@ -1041,6 +914,327 @@ components:
       - result_persistence
       - tool_name
       title: ToolCallSpec
+    ResultPersistence:
+      type: string
+      enum:
+      - ephemeral
+      - persisted-preferred
+      - persisted
+    src__app__endpoints__dynamic_behavior_set__get_dynamic_behavior_sets__Response__FilterValues:
+      properties:
+        applied_to_services_ids:
+          items:
+            type: string
+          type: array
+          title: Applied To Services Ids
+          description: A set of service IDs that have dynamic behavior sets applied to the service.
+        creators:
+          items:
+            $ref: '#/components/schemas/amigo_lib__mongo__collections__dynamic_behavior_set__DynamicBehaviorSet__UserInfo'
+          type: array
+          title: Creators
+          description: A set of creator infos that created the dynamic behavior sets under the current filters.
+        tags:
+          items:
+            type: string
+          type: array
+          title: Tags
+          description: A set of tag keys that exist in the dynamic behavior sets under the current filters.
+      type: object
+      required:
+      - applied_to_services_ids
+      - creators
+      - tags
+      title: FilterValues
+    src__app__endpoints__dynamic_behavior_set__get_dynamic_behavior_sets__Response:
+      properties:
+        dynamic_behavior_sets:
+          items:
+            $ref: '#/components/schemas/DynamicBehaviorSetInstance'
+          type: array
+          title: Dynamic Behavior Sets
+          description: The retrieved dynamic behavior sets.
+        has_more:
+          type: boolean
+          title: Has More
+          description: Whether there are more dynamic behavior sets to retrieve.
+        continuation_token:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Continuation Token
+          description: The continuation token to use to retrieve the next set of dynamic behavior sets.
+        filter_values:
+          anyOf:
+          - $ref: '#/components/schemas/src__app__endpoints__dynamic_behavior_set__get_dynamic_behavior_sets__Response__FilterValues'
+          - type: 'null'
+          description: 'For each filter that this endpoint supports that can take on dynamic values, this field includes what these values are. This is only provided for the first page in the pagination results.
+
+
+            Note that the values are counted assuming the authenticated user has access to all the dynamic behavior sets, so they might differ from how many sets are actually
+
+            retrieved.'
+      type: object
+      required:
+      - dynamic_behavior_sets
+      - has_more
+      - continuation_token
+      - filter_values
+      title: Response
+    src__app__endpoints__dynamic_behavior_set__create_dynamic_behavior_set__Response:
+      properties:
+        dynamic_behavior_set_id:
+          type: string
+          title: Dynamic Behavior Set Id
+          description: The ID of the newly created dynamic behavior set.
+      type: object
+      required:
+      - dynamic_behavior_set_id
+      title: Response
+    DynamicBehaviorSetInstance:
+      properties:
+        id:
+          type: string
+          title: Id
+        name:
+          type: string
+          title: Name
+        is_active:
+          type: boolean
+          title: Is Active
+        applied_to_services:
+          items:
+            type: string
+          type: array
+          title: Applied To Services
+        tags:
+          additionalProperties:
+            anyOf:
+            - type: string
+            - type: 'null'
+          type: object
+          title: Tags
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        creator:
+          $ref: '#/components/schemas/amigo_lib__mongo__collections__dynamic_behavior_set__DynamicBehaviorSet__UserInfo'
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+        updated_by:
+          $ref: '#/components/schemas/amigo_lib__mongo__collections__dynamic_behavior_set__DynamicBehaviorSet__UserInfo'
+      type: object
+      required:
+      - id
+      - name
+      - is_active
+      - applied_to_services
+      - tags
+      - created_at
+      - creator
+      - updated_at
+      - updated_by
+      title: DynamicBehaviorSetInstance
+    InjectInstructionAction-Input:
+      properties:
+        type:
+          type: string
+          const: inject-instruction
+          title: Type
+        instruction:
+          $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
+        overrides_instructions:
+          type: boolean
+          title: Overrides Instructions
+          description: During injection, whether the original instruction of the state is overriden with this instruction.
+      type: object
+      required:
+      - type
+      - instruction
+      - overrides_instructions
+      title: InjectInstructionAction
+    src__app__endpoints__dynamic_behavior_set__create_dynamic_behavior_set_version__Request__ChangeToolCandidatesAction:
+      properties:
+        type:
+          type: string
+          const: change-tool-candidates
+          title: Type
+        tool_call_specs:
+          items:
+            $ref: '#/components/schemas/src__app__endpoints__dynamic_behavior_set__create_dynamic_behavior_set_version__Request__ChangeToolCandidatesAction__ToolCallSpec'
+          type: array
+          title: Tool Call Specs
+        overrides_existing_tool_call_specs:
+          type: boolean
+          title: Overrides Existing Tool Call Specs
+          description: During injection, whether the existing tool call specs are overriden with these new specs.
+      type: object
+      required:
+      - type
+      - tool_call_specs
+      - overrides_existing_tool_call_specs
+      title: ChangeToolCandidatesAction
+    ? src__app__endpoints__dynamic_behavior_set__create_dynamic_behavior_set__Request__InitialVersion__ChangeToolCandidatesAction
+    : properties:
+        type:
+          type: string
+          const: change-tool-candidates
+          title: Type
+        tool_call_specs:
+          items:
+            $ref: '#/components/schemas/src__app__endpoints__dynamic_behavior_set__create_dynamic_behavior_set__Request__InitialVersion__ChangeToolCandidatesAction__ToolCallSpec'
+          type: array
+          title: Tool Call Specs
+        overrides_existing_tool_call_specs:
+          type: boolean
+          title: Overrides Existing Tool Call Specs
+          description: During injection, whether the existing tool call specs are overriden with these new specs.
+      type: object
+      required:
+      - type
+      - tool_call_specs
+      - overrides_existing_tool_call_specs
+      title: ChangeToolCandidatesAction
+    src__app__endpoints__dynamic_behavior_set__get_dynamic_behavior_invocations__Response:
+      properties:
+        dynamic_behavior_invocations:
+          items:
+            $ref: '#/components/schemas/DynamicBehaviorInvocation'
+          type: array
+          title: Dynamic Behavior Invocations
+          description: The retrieved dynamic behavior invocations.
+        has_more:
+          type: boolean
+          title: Has More
+          description: Whether there are more dynamic behavior invocations to retrieve.
+        continuation_token:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Continuation Token
+          description: A token to supply to the next request to retrieve the next page of dynamic behavior invocations. Only populated if `has_more` is `True`.
+      type: object
+      required:
+      - dynamic_behavior_invocations
+      - has_more
+      - continuation_token
+      title: Response
+    amigo_lib__mongo__collections__dynamic_behavior_set_version__Action:
+      oneOf:
+      - $ref: '#/components/schemas/InjectInstructionAction-Output'
+      - $ref: '#/components/schemas/ChangeToolCandidatesAction-Output'
+      discriminator:
+        propertyName: type
+        mapping:
+          change-tool-candidates: '#/components/schemas/ChangeToolCandidatesAction-Output'
+          inject-instruction: '#/components/schemas/InjectInstructionAction-Output'
+    amigo_lib__mongo__collections__dynamic_behavior_set__DynamicBehaviorSet__UserInfo:
+      properties:
+        org_id:
+          type: string
+          title: Org Id
+        user_id:
+          type: string
+          title: User Id
+      type: object
+      required:
+      - org_id
+      - user_id
+      title: UserInfo
+    ? amigo_lib__mongo__collections__dynamic_behavior_set_version__DynamicBehaviorSetVersion__ChangeToolCandidatesAction__ToolCallSpec
+    : properties:
+        tool_id:
+          type: string
+          title: Tool Id
+          description: The ID of the tool.
+        version_constraint:
+          type: string
+          title: Version Constraint
+          description: A [Python packaging version constraint](https://packaging.python.org/en/latest/specifications/version-specifiers/#id5) of the tool.
+        additional_instruction:
+          type: string
+          title: Additional Instruction
+          description: Additional instruction to be supplied to the LLM in addition to the tool's description.
+        audio_fillers:
+          items:
+            type: string
+          type: array
+          title: Audio Fillers
+          description: A list of audio fillers to play in audio mode if the tool is taking a long time.
+        audio_filler_triggered_after:
+          type: number
+          title: Audio Filler Triggered After
+          description: The number of seconds to wait before playing an audio filler.
+        result_persistence:
+          $ref: '#/components/schemas/ResultPersistence'
+          description: 'The type of result persistence for this tool call.
+
+
+            - If `ephemeral`, the result of the tool call is only provided to the current LLM interaction. Any future LLM interactions will not see this tool result.
+
+            - If `persisted-preferred`, the result of the tool call is reflected in all future LLM interactions if it''s less than 5000 characters long. Otherwise, it''s only visible in the current LLM interaction.
+
+            - If `persisted`, the result of the tool call is reflected in all future LLM interactions, unless it''s more than 5000 characters long, in which case an error is thrown.'
+        tool_name:
+          type: string
+          title: Tool Name
+          description: 'An identifier of the tool that will be displayed in the description of this dynamic behavior set. This could be simply the name of the tool, or one augmented with
+
+            the context of the dynamic behavior.'
+      type: object
+      required:
+      - tool_id
+      - version_constraint
+      - additional_instruction
+      - audio_fillers
+      - audio_filler_triggered_after
+      - result_persistence
+      - tool_name
+      title: ToolCallSpec
+    amigo_lib__mongo__collections__dynamic_behavior_set_version__DynamicBehaviorSetVersion__UserInfo:
+      properties:
+        org_id:
+          type: string
+          title: Org Id
+        user_id:
+          type: string
+          title: User Id
+      type: object
+      required:
+      - org_id
+      - user_id
+      title: UserInfo
+    src__app__endpoints__dynamic_behavior_set__create_dynamic_behavior_set_version__Request:
+      properties:
+        conversation_triggers:
+          items:
+            $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
+          type: array
+          maxItems: 50
+          minItems: 1
+          title: Conversation Triggers
+          description: The conversation triggers for the dynamic behavior set version.
+        actions:
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/InjectInstructionAction-Input'
+            - $ref: '#/components/schemas/src__app__endpoints__dynamic_behavior_set__create_dynamic_behavior_set_version__Request__ChangeToolCandidatesAction'
+            discriminator:
+              propertyName: type
+              mapping:
+                change-tool-candidates: '#/components/schemas/src__app__endpoints__dynamic_behavior_set__create_dynamic_behavior_set_version__Request__ChangeToolCandidatesAction'
+                inject-instruction: '#/components/schemas/InjectInstructionAction-Input'
+          type: array
+          title: Actions
+          description: The action to perform when the dynamic behavior set version is activated.
+      type: object
+      required:
+      - conversation_triggers
+      - actions
+      title: Request
     DynamicBehaviorSetVersion:
       properties:
         _id:
@@ -1088,45 +1282,199 @@ components:
       - actions
       - creator
       title: DynamicBehaviorSetVersion
-    src__app__endpoints__dynamic_behavior_set__get_dynamic_behavior_sets__Response__FilterValues:
+    ? src__app__endpoints__dynamic_behavior_set__create_dynamic_behavior_set_version__Request__ChangeToolCandidatesAction__ToolCallSpec
+    : properties:
+        tool_id:
+          type: string
+          pattern: ^[a-f0-9]{24}$
+          title: Tool Id
+          description: The ID of the tool.
+        version_constraint:
+          type: string
+          title: Version Constraint
+          description: A [Python packaging version constraint](https://packaging.python.org/en/latest/specifications/version-specifiers/#id5) of the tool.
+        additional_instruction:
+          $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
+          description: Additional instruction to be supplied to the LLM in addition to the tool's description.
+        audio_fillers:
+          items:
+            $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
+          type: array
+          maxItems: 5
+          title: Audio Fillers
+          description: A list of audio fillers to play in audio mode if the tool is taking a long time.
+        audio_filler_triggered_after:
+          type: number
+          maximum: 10.0
+          exclusiveMinimum: 0.0
+          title: Audio Filler Triggered After
+          description: The number of seconds to wait before playing an audio filler.
+        result_persistence:
+          $ref: '#/components/schemas/ResultPersistence'
+          description: 'The type of result persistence for this tool call.
+
+
+            - If `ephemeral`, the result of the tool call is only provided to the current LLM interaction. Any future LLM interactions will not see this tool result.
+
+            - If `persisted-preferred`, the result of the tool call is reflected in all future LLM interactions if it''s less than 5000 characters long. Otherwise, it''s only visible in the current LLM interaction.
+
+            - If `persisted`, the result of the tool call is reflected in all future LLM interactions, unless it''s more than 5000 characters long, in which case an error is thrown.'
+        tool_name:
+          $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
+          description: 'An identifier of the tool that will be displayed in the description of this dynamic behavior set. This could be simply the name of the tool, or one augmented with
+
+            the context of the dynamic behavior.'
+      type: object
+      required:
+      - tool_id
+      - version_constraint
+      - additional_instruction
+      - audio_fillers
+      - audio_filler_triggered_after
+      - result_persistence
+      - tool_name
+      title: ToolCallSpec
+    src__app__endpoints__dynamic_behavior_set__search_dynamic_behavior_sets__Response:
       properties:
-        applied_to_services_ids:
+        dynamic_behavior_sets:
           items:
-            type: string
+            $ref: '#/components/schemas/DynamicBehaviorSetInstance'
           type: array
-          title: Applied To Services Ids
-          description: A set of service IDs that have dynamic behavior sets applied to the service.
-        creators:
+          title: Dynamic Behavior Sets
+          description: The retrieved dynamic behavior sets.
+      type: object
+      required:
+      - dynamic_behavior_sets
+      title: Response
+    src__app__endpoints__dynamic_behavior_set__create_dynamic_behavior_set_version__Response:
+      properties:
+        new_version_number:
+          type: integer
+          title: New Version Number
+          description: The version number of the new version.
+      type: object
+      required:
+      - new_version_number
+      title: Response
+    ChangeToolCandidatesAction-Output:
+      properties:
+        type:
+          type: string
+          const: change-tool-candidates
+          title: Type
+        tool_call_specs:
           items:
-            $ref: '#/components/schemas/amigo_lib__mongo__collections__dynamic_behavior_set__DynamicBehaviorSet__UserInfo'
+            $ref: '#/components/schemas/amigo_lib__mongo__collections__dynamic_behavior_set_version__DynamicBehaviorSetVersion__ChangeToolCandidatesAction__ToolCallSpec'
           type: array
-          title: Creators
-          description: A set of creator infos that created the dynamic behavior sets under the current filters.
+          title: Tool Call Specs
+          description: Additional tool call specs that will be made available to LLMs.
+        overrides_existing_tool_call_specs:
+          type: boolean
+          title: Overrides Existing Tool Call Specs
+          description: During injection, whether the existing tool call specs are overriden with these new specs.
+      type: object
+      required:
+      - type
+      - tool_call_specs
+      - overrides_existing_tool_call_specs
+      title: ChangeToolCandidatesAction
+    src__app__endpoints__dynamic_behavior_set__create_dynamic_behavior_set__Request__InitialVersion:
+      properties:
+        is_active:
+          type: boolean
+          title: Is Active
+          description: After adding this initial version, whether the dynamic behavior set should be activated.
+        conversation_triggers:
+          items:
+            $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
+          type: array
+          maxItems: 50
+          minItems: 1
+          title: Conversation Triggers
+          description: The conversation triggers for the dynamic behavior set version.
+        actions:
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/InjectInstructionAction-Input'
+            - $ref: '#/components/schemas/src__app__endpoints__dynamic_behavior_set__create_dynamic_behavior_set__Request__InitialVersion__ChangeToolCandidatesAction'
+            discriminator:
+              propertyName: type
+              mapping:
+                change-tool-candidates: '#/components/schemas/src__app__endpoints__dynamic_behavior_set__create_dynamic_behavior_set__Request__InitialVersion__ChangeToolCandidatesAction'
+                inject-instruction: '#/components/schemas/InjectInstructionAction-Input'
+          type: array
+          title: Actions
+          description: The action to perform when the dynamic behavior set version is activated.
+      type: object
+      required:
+      - is_active
+      - conversation_triggers
+      - actions
+      title: InitialVersion
+    src__app__endpoints__dynamic_behavior_set__get_dynamic_behavior_set_versions__Response:
+      properties:
+        dynamic_behavior_set_versions:
+          items:
+            $ref: '#/components/schemas/DynamicBehaviorSetVersion'
+          type: array
+          title: Dynamic Behavior Set Versions
+          description: The retrieved dynamic behavior set versions.
+        has_more:
+          type: boolean
+          title: Has More
+          description: Whether there are more dynamic behavior set versions to retrieve.
+        continuation_token:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Continuation Token
+          description: A token to supply to the next request to retrieve the next page of dynamic behavior set versions. Only populated if `has_more` is `True`.
+      type: object
+      required:
+      - dynamic_behavior_set_versions
+      - has_more
+      - continuation_token
+      title: Response
+    amigo_lib__pydantic__base_model__StrippedNonemptyString__1:
+      type: string
+      minLength: 1
+    src__app__endpoints__dynamic_behavior_set__update_dynamic_behavior_set__Request:
+      properties:
+        name:
+          anyOf:
+          - $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
+          - type: 'null'
+          description: The name of the dynamic behavior set.
         tags:
-          items:
-            type: string
-          type: array
+          anyOf:
+          - additionalProperties:
+              anyOf:
+              - $ref: '#/components/schemas/StrippedNonemptyString___w__s_____'
+              - type: 'null'
+            propertyNames:
+              $ref: '#/components/schemas/StrippedNonemptyString___w__s_____'
+            type: object
+            maxProperties: 20
+          - type: 'null'
           title: Tags
-          description: A set of tag keys that exist in the dynamic behavior sets under the current filters.
+          description: The tags of the dynamic behavior set. Both the key and the value can only contain alphanumeric characters, underscores, or spaces.
+        applied_to_services:
+          anyOf:
+          - items:
+              type: string
+              pattern: ^[a-f0-9]{24}$
+            type: array
+          - type: 'null'
+          title: Applied To Services
+          description: The services that the dynamic behavior set should be applied to.
+        is_active:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Active
+          description: Whether the dynamic behavior set is active.
       type: object
-      required:
-      - applied_to_services_ids
-      - creators
-      - tags
-      title: FilterValues
-    amigo_lib__mongo__collections__dynamic_behavior_set__DynamicBehaviorSet__UserInfo:
-      properties:
-        org_id:
-          type: string
-          title: Org Id
-        user_id:
-          type: string
-          title: User Id
-      type: object
-      required:
-      - org_id
-      - user_id
-      title: UserInfo
+      title: Request
     DynamicBehaviorInvocation:
       properties:
         _id:
@@ -1207,354 +1555,6 @@ components:
       - dynamic_behavior_set_version_info
       - invoked_at
       title: DynamicBehaviorInvocation
-    InjectInstructionAction-Input:
-      properties:
-        type:
-          type: string
-          const: inject-instruction
-          title: Type
-        instruction:
-          $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
-        overrides_instructions:
-          type: boolean
-          title: Overrides Instructions
-          description: During injection, whether the original instruction of the state is overriden with this instruction.
-      type: object
-      required:
-      - type
-      - instruction
-      - overrides_instructions
-      title: InjectInstructionAction
-    ChangeToolCandidatesAction-Output:
-      properties:
-        type:
-          type: string
-          const: change-tool-candidates
-          title: Type
-        tool_call_specs:
-          items:
-            $ref: '#/components/schemas/amigo_lib__mongo__collections__dynamic_behavior_set_version__DynamicBehaviorSetVersion__ChangeToolCandidatesAction__ToolCallSpec'
-          type: array
-          title: Tool Call Specs
-          description: Additional tool call specs that will be made available to LLMs.
-        overrides_existing_tool_call_specs:
-          type: boolean
-          title: Overrides Existing Tool Call Specs
-          description: During injection, whether the existing tool call specs are overriden with these new specs.
-      type: object
-      required:
-      - type
-      - tool_call_specs
-      - overrides_existing_tool_call_specs
-      title: ChangeToolCandidatesAction
-    src__app__endpoints__dynamic_behavior_set__search_dynamic_behavior_sets__Response:
-      properties:
-        dynamic_behavior_sets:
-          items:
-            $ref: '#/components/schemas/DynamicBehaviorSetInstance'
-          type: array
-          title: Dynamic Behavior Sets
-          description: The retrieved dynamic behavior sets.
-      type: object
-      required:
-      - dynamic_behavior_sets
-      title: Response
-    amigo_lib__mongo__collections__dynamic_behavior_set_version__Action:
-      oneOf:
-      - $ref: '#/components/schemas/InjectInstructionAction-Output'
-      - $ref: '#/components/schemas/ChangeToolCandidatesAction-Output'
-      discriminator:
-        propertyName: type
-        mapping:
-          change-tool-candidates: '#/components/schemas/ChangeToolCandidatesAction-Output'
-          inject-instruction: '#/components/schemas/InjectInstructionAction-Output'
-    ? src__app__endpoints__dynamic_behavior_set__create_dynamic_behavior_set_version__Request__ChangeToolCandidatesAction__ToolCallSpec
-    : properties:
-        tool_id:
-          type: string
-          pattern: ^[a-f0-9]{24}$
-          title: Tool Id
-          description: The ID of the tool.
-        version_constraint:
-          type: string
-          title: Version Constraint
-          description: A [Python packaging version constraint](https://packaging.python.org/en/latest/specifications/version-specifiers/#id5) of the tool.
-        additional_instruction:
-          $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
-          description: Additional instruction to be supplied to the LLM in addition to the tool's description.
-        audio_fillers:
-          items:
-            $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
-          type: array
-          maxItems: 5
-          title: Audio Fillers
-          description: A list of audio fillers to play in audio mode if the tool is taking a long time.
-        audio_filler_triggered_after:
-          type: number
-          maximum: 10.0
-          exclusiveMinimum: 0.0
-          title: Audio Filler Triggered After
-          description: The number of seconds to wait before playing an audio filler.
-        result_persistence:
-          $ref: '#/components/schemas/ResultPersistence'
-          description: 'The type of result persistence for this tool call.
-
-
-            - If `ephemeral`, the result of the tool call is only provided to the current LLM interaction. Any future LLM interactions will not see this tool result.
-
-            - If `persisted-preferred`, the result of the tool call is reflected in all future LLM interactions if it''s less than 5000 characters long. Otherwise, it''s only visible in the current LLM interaction.
-
-            - If `persisted`, the result of the tool call is reflected in all future LLM interactions, unless it''s more than 5000 characters long, in which case an error is thrown.'
-        tool_name:
-          $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
-          description: 'An identifier of the tool that will be displayed in the description of this dynamic behavior set. This could be simply the name of the tool, or one augmented with
-
-            the context of the dynamic behavior.'
-      type: object
-      required:
-      - tool_id
-      - version_constraint
-      - additional_instruction
-      - audio_fillers
-      - audio_filler_triggered_after
-      - result_persistence
-      - tool_name
-      title: ToolCallSpec
-    StrippedNonemptyString___w__s_____:
-      type: string
-      minLength: 1
-      pattern: ^[\w\s]+$
-    InjectInstructionAction-Output:
-      properties:
-        type:
-          type: string
-          const: inject-instruction
-          title: Type
-        instruction:
-          type: string
-          title: Instruction
-        overrides_instructions:
-          type: boolean
-          title: Overrides Instructions
-          description: During injection, whether the original instruction of the state is overriden with this instruction.
-      type: object
-      required:
-      - type
-      - instruction
-      - overrides_instructions
-      title: InjectInstructionAction
-    ? src__app__endpoints__dynamic_behavior_set__create_dynamic_behavior_set__Request__InitialVersion__ChangeToolCandidatesAction
-    : properties:
-        type:
-          type: string
-          const: change-tool-candidates
-          title: Type
-        tool_call_specs:
-          items:
-            $ref: '#/components/schemas/src__app__endpoints__dynamic_behavior_set__create_dynamic_behavior_set__Request__InitialVersion__ChangeToolCandidatesAction__ToolCallSpec'
-          type: array
-          title: Tool Call Specs
-        overrides_existing_tool_call_specs:
-          type: boolean
-          title: Overrides Existing Tool Call Specs
-          description: During injection, whether the existing tool call specs are overriden with these new specs.
-      type: object
-      required:
-      - type
-      - tool_call_specs
-      - overrides_existing_tool_call_specs
-      title: ChangeToolCandidatesAction
-    src__app__endpoints__dynamic_behavior_set__create_dynamic_behavior_set__Request__InitialVersion:
-      properties:
-        is_active:
-          type: boolean
-          title: Is Active
-          description: After adding this initial version, whether the dynamic behavior set should be activated.
-        conversation_triggers:
-          items:
-            $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
-          type: array
-          maxItems: 50
-          minItems: 1
-          title: Conversation Triggers
-          description: The conversation triggers for the dynamic behavior set version.
-        actions:
-          items:
-            oneOf:
-            - $ref: '#/components/schemas/InjectInstructionAction-Input'
-            - $ref: '#/components/schemas/src__app__endpoints__dynamic_behavior_set__create_dynamic_behavior_set__Request__InitialVersion__ChangeToolCandidatesAction'
-            discriminator:
-              propertyName: type
-              mapping:
-                change-tool-candidates: '#/components/schemas/src__app__endpoints__dynamic_behavior_set__create_dynamic_behavior_set__Request__InitialVersion__ChangeToolCandidatesAction'
-                inject-instruction: '#/components/schemas/InjectInstructionAction-Input'
-          type: array
-          title: Actions
-          description: The action to perform when the dynamic behavior set version is activated.
-      type: object
-      required:
-      - is_active
-      - conversation_triggers
-      - actions
-      title: InitialVersion
-    src__app__endpoints__dynamic_behavior_set__create_dynamic_behavior_set__Response:
-      properties:
-        dynamic_behavior_set_id:
-          type: string
-          title: Dynamic Behavior Set Id
-          description: The ID of the newly created dynamic behavior set.
-      type: object
-      required:
-      - dynamic_behavior_set_id
-      title: Response
-    ? amigo_lib__mongo__collections__dynamic_behavior_set_version__DynamicBehaviorSetVersion__ChangeToolCandidatesAction__ToolCallSpec
-    : properties:
-        tool_id:
-          type: string
-          title: Tool Id
-          description: The ID of the tool.
-        version_constraint:
-          type: string
-          title: Version Constraint
-          description: A [Python packaging version constraint](https://packaging.python.org/en/latest/specifications/version-specifiers/#id5) of the tool.
-        additional_instruction:
-          type: string
-          title: Additional Instruction
-          description: Additional instruction to be supplied to the LLM in addition to the tool's description.
-        audio_fillers:
-          items:
-            type: string
-          type: array
-          title: Audio Fillers
-          description: A list of audio fillers to play in audio mode if the tool is taking a long time.
-        audio_filler_triggered_after:
-          type: number
-          title: Audio Filler Triggered After
-          description: The number of seconds to wait before playing an audio filler.
-        result_persistence:
-          $ref: '#/components/schemas/ResultPersistence'
-          description: 'The type of result persistence for this tool call.
-
-
-            - If `ephemeral`, the result of the tool call is only provided to the current LLM interaction. Any future LLM interactions will not see this tool result.
-
-            - If `persisted-preferred`, the result of the tool call is reflected in all future LLM interactions if it''s less than 5000 characters long. Otherwise, it''s only visible in the current LLM interaction.
-
-            - If `persisted`, the result of the tool call is reflected in all future LLM interactions, unless it''s more than 5000 characters long, in which case an error is thrown.'
-        tool_name:
-          type: string
-          title: Tool Name
-          description: 'An identifier of the tool that will be displayed in the description of this dynamic behavior set. This could be simply the name of the tool, or one augmented with
-
-            the context of the dynamic behavior.'
-      type: object
-      required:
-      - tool_id
-      - version_constraint
-      - additional_instruction
-      - audio_fillers
-      - audio_filler_triggered_after
-      - result_persistence
-      - tool_name
-      title: ToolCallSpec
-    ResultPersistence:
-      type: string
-      enum:
-      - ephemeral
-      - persisted-preferred
-      - persisted
-    src__app__endpoints__dynamic_behavior_set__get_dynamic_behavior_sets__Response:
-      properties:
-        dynamic_behavior_sets:
-          items:
-            $ref: '#/components/schemas/DynamicBehaviorSetInstance'
-          type: array
-          title: Dynamic Behavior Sets
-          description: The retrieved dynamic behavior sets.
-        has_more:
-          type: boolean
-          title: Has More
-          description: Whether there are more dynamic behavior sets to retrieve.
-        continuation_token:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Continuation Token
-          description: The continuation token to use to retrieve the next set of dynamic behavior sets.
-        filter_values:
-          anyOf:
-          - $ref: '#/components/schemas/src__app__endpoints__dynamic_behavior_set__get_dynamic_behavior_sets__Response__FilterValues'
-          - type: 'null'
-          description: 'For each filter that this endpoint supports that can take on dynamic values, this field includes what these values are. This is only provided for the first page in the pagination results.
-
-
-            Note that the values are counted assuming the authenticated user has access to all the dynamic behavior sets, so they might differ from how many sets are actually
-
-            retrieved.'
-      type: object
-      required:
-      - dynamic_behavior_sets
-      - has_more
-      - continuation_token
-      - filter_values
-      title: Response
-    src__app__endpoints__dynamic_behavior_set__create_dynamic_behavior_set__Request:
-      properties:
-        name:
-          $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
-          description: The name of the dynamic behavior set.
-        tags:
-          additionalProperties:
-            anyOf:
-            - $ref: '#/components/schemas/StrippedNonemptyString___w__s_____'
-            - type: 'null'
-          propertyNames:
-            $ref: '#/components/schemas/StrippedNonemptyString___w__s_____'
-          type: object
-          maxProperties: 20
-          title: Tags
-          description: The tags of the dynamic behavior set. Both the key and the value can only contain alphanumeric characters, underscores, or spaces.
-        applied_to_services:
-          items:
-            type: string
-            pattern: ^[a-f0-9]{24}$
-          type: array
-          title: Applied To Services
-          description: The services that the dynamic behavior set should be applied to.
-        initial_version:
-          $ref: '#/components/schemas/src__app__endpoints__dynamic_behavior_set__create_dynamic_behavior_set__Request__InitialVersion'
-          description: The configuration for the initial version of the dynamic behavior set.
-      type: object
-      required:
-      - name
-      - tags
-      - applied_to_services
-      - initial_version
-      title: Request
-    src__app__endpoints__dynamic_behavior_set__get_dynamic_behavior_set_versions__Response:
-      properties:
-        dynamic_behavior_set_versions:
-          items:
-            $ref: '#/components/schemas/DynamicBehaviorSetVersion'
-          type: array
-          title: Dynamic Behavior Set Versions
-          description: The retrieved dynamic behavior set versions.
-        has_more:
-          type: boolean
-          title: Has More
-          description: Whether there are more dynamic behavior set versions to retrieve.
-        continuation_token:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Continuation Token
-          description: A token to supply to the next request to retrieve the next page of dynamic behavior set versions. Only populated if `has_more` is `True`.
-      type: object
-      required:
-      - dynamic_behavior_set_versions
-      - has_more
-      - continuation_token
-      title: Response
   securitySchemes:
     Bearer-Authorization:
       type: http

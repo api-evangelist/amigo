@@ -369,21 +369,11 @@ paths:
           title: Workspace Id
 components:
   schemas:
-    StrippedNonemptyString:
+    SlugString:
       type: string
-      minLength: 1
-    TestCallerNumbersRequest:
-      properties:
-        numbers:
-          items:
-            type: string
-          type: array
-          maxItems: 100
-          title: Numbers
-      type: object
-      required:
-      - numbers
-      title: TestCallerNumbersRequest
+      maxLength: 63
+      minLength: 2
+      pattern: ^[a-z0-9][a-z0-9-]*[a-z0-9]$
     ValidationError:
       properties:
         loc:
@@ -410,6 +400,9 @@ components:
       - msg
       - type
       title: ValidationError
+    StrippedNonemptyString:
+      type: string
+      minLength: 1
     UpdateWorkspaceRequest:
       properties:
         name:
@@ -451,6 +444,62 @@ components:
           title: Connector Type
       type: object
       title: UpdateWorkspaceRequest
+    ArchiveWorkspaceRequest:
+      properties:
+        slug:
+          $ref: '#/components/schemas/SlugString'
+      type: object
+      required:
+      - slug
+      title: ArchiveWorkspaceRequest
+    PaginatedResponse_WorkspaceResponse_:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/WorkspaceResponse'
+          type: array
+          title: Items
+        has_more:
+          type: boolean
+          title: Has More
+        continuation_token:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Continuation Token
+        total:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Total
+      type: object
+      required:
+      - items
+      - has_more
+      title: PaginatedResponse[WorkspaceResponse]
+    TestCallerNumbersResponse:
+      properties:
+        numbers:
+          items:
+            type: string
+          type: array
+          title: Numbers
+      type: object
+      required:
+      - numbers
+      title: TestCallerNumbersResponse
+    TestCredentialIdsResponse:
+      properties:
+        credential_ids:
+          items:
+            type: string
+            format: uuid
+          type: array
+          title: Credential Ids
+      type: object
+      required:
+      - credential_ids
+      title: TestCredentialIdsResponse
     HTTPValidationError:
       properties:
         detail:
@@ -475,6 +524,27 @@ components:
       - target
       - confirm_slug
       title: ConvertEnvironmentRequest
+    TestCredentialIdsRequest:
+      properties:
+        credential_ids:
+          items:
+            type: string
+            format: uuid
+          type: array
+          maxItems: 100
+          title: Credential Ids
+      type: object
+      required:
+      - credential_ids
+      title: TestCredentialIdsRequest
+    ProvisionResponse:
+      properties:
+        workspace:
+          $ref: '#/components/schemas/WorkspaceResponse'
+      type: object
+      required:
+      - workspace
+      title: ProvisionResponse
     WorkspaceResponse:
       properties:
         id:
@@ -530,48 +600,18 @@ components:
       - created_at
       - updated_at
       title: WorkspaceResponse
-    SlugString:
-      type: string
-      maxLength: 63
-      minLength: 2
-      pattern: ^[a-z0-9][a-z0-9-]*[a-z0-9]$
-    PaginatedResponse_WorkspaceResponse_:
+    TestCallerNumbersRequest:
       properties:
-        items:
-          items:
-            $ref: '#/components/schemas/WorkspaceResponse'
-          type: array
-          title: Items
-        has_more:
-          type: boolean
-          title: Has More
-        continuation_token:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Continuation Token
-        total:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Total
-      type: object
-      required:
-      - items
-      - has_more
-      title: PaginatedResponse[WorkspaceResponse]
-    TestCredentialIdsResponse:
-      properties:
-        credential_ids:
+        numbers:
           items:
             type: string
-            format: uuid
           type: array
-          title: Credential Ids
+          maxItems: 100
+          title: Numbers
       type: object
       required:
-      - credential_ids
-      title: TestCredentialIdsResponse
+      - numbers
+      title: TestCallerNumbersRequest
     EnvironmentCheckResponse:
       properties:
         current:
@@ -591,46 +631,6 @@ components:
       - target
       - warnings
       title: EnvironmentCheckResponse
-    ArchiveWorkspaceRequest:
-      properties:
-        slug:
-          $ref: '#/components/schemas/SlugString'
-      type: object
-      required:
-      - slug
-      title: ArchiveWorkspaceRequest
-    ProvisionResponse:
-      properties:
-        workspace:
-          $ref: '#/components/schemas/WorkspaceResponse'
-      type: object
-      required:
-      - workspace
-      title: ProvisionResponse
-    TestCredentialIdsRequest:
-      properties:
-        credential_ids:
-          items:
-            type: string
-            format: uuid
-          type: array
-          maxItems: 100
-          title: Credential Ids
-      type: object
-      required:
-      - credential_ids
-      title: TestCredentialIdsRequest
-    TestCallerNumbersResponse:
-      properties:
-        numbers:
-          items:
-            type: string
-          type: array
-          title: Numbers
-      type: object
-      required:
-      - numbers
-      title: TestCallerNumbersResponse
   securitySchemes:
     BearerAuth:
       type: http

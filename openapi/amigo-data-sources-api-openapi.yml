@@ -381,78 +381,6 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
-    DataSourceSyncHistoryResponse:
-      properties:
-        data_source_id:
-          type: string
-          format: uuid
-          title: Data Source Id
-        name:
-          type: string
-          title: Name
-        timeline:
-          items:
-            $ref: '#/components/schemas/SyncHistoryEntry'
-          type: array
-          title: Timeline
-        recent_failures:
-          items:
-            $ref: '#/components/schemas/SyncFailureEntry'
-          type: array
-          title: Recent Failures
-      type: object
-      required:
-      - data_source_id
-      - name
-      - timeline
-      - recent_failures
-      title: DataSourceSyncHistoryResponse
-    TriggerSyncResponse:
-      properties:
-        status:
-          type: string
-          const: started
-          title: Status
-        data_source_id:
-          type: string
-          format: uuid
-          title: Data Source Id
-        triggered_at:
-          type: string
-          format: date-time
-          title: Triggered At
-      type: object
-      required:
-      - status
-      - data_source_id
-      - triggered_at
-      title: TriggerSyncResponse
-    ValidationError:
-      properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-        input:
-          title: Input
-        ctx:
-          type: object
-          title: Context
-      type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
     SyncFailureEntry:
       properties:
         event_id:
@@ -491,20 +419,103 @@ components:
       - sync_error
       - created_at
       title: SyncFailureEntry
-    HTTPValidationError:
+    ValidationError:
       properties:
-        detail:
+        loc:
           items:
-            $ref: '#/components/schemas/ValidationError'
+            anyOf:
+            - type: string
+            - type: integer
           type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
-    SyncHistoryEntry:
-      properties:
-        date:
+          title: Location
+        msg:
           type: string
-          title: Date
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    TriggerSyncConflictDetails:
+      properties:
+        last_poll_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Last Poll At
+        last_poll_duration_ms:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Last Poll Duration Ms
+      type: object
+      title: TriggerSyncConflictDetails
+      description: 'Operational fields included in a 409 to power UI affordances like
+
+        "syncing for 30s" — strict allowlist, never the whole status entry.'
+    TriggerSyncConflictResponse:
+      properties:
+        message:
+          type: string
+          title: Message
+        details:
+          $ref: '#/components/schemas/TriggerSyncConflictDetails'
+      type: object
+      required:
+      - message
+      - details
+      title: TriggerSyncConflictResponse
+      description: 'Body shape for the 409 returned by POST /sync when the source is
+
+        already mid-poll. Documented in OpenAPI so SDK consumers get a typed
+
+        AlreadySyncing error instead of an opaque blob.'
+    DataSourceStatusResponse:
+      properties:
+        data_source_id:
+          type: string
+          format: uuid
+          title: Data Source Id
+        name:
+          type: string
+          title: Name
+        is_active:
+          type: boolean
+          title: Is Active
+        health_status:
+          type: string
+          enum:
+          - unknown
+          - healthy
+          - degraded
+          title: Health Status
+        last_sync_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Last Sync At
+        last_sync_status:
+          anyOf:
+          - type: string
+            enum:
+            - success
+            - error
+          - type: 'null'
+          title: Last Sync Status
+        last_sync_event_count:
+          type: integer
+          title: Last Sync Event Count
         event_count:
           type: integer
           title: Event Count
@@ -516,11 +527,135 @@ components:
           title: Failed Count
       type: object
       required:
-      - date
+      - data_source_id
+      - name
+      - is_active
+      - health_status
+      - last_sync_at
+      - last_sync_status
+      - last_sync_event_count
       - event_count
       - synced_count
       - failed_count
-      title: SyncHistoryEntry
+      title: DataSourceStatusResponse
+    NameString:
+      type: string
+      maxLength: 256
+      minLength: 1
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    CreateDataSourceRequest:
+      properties:
+        name:
+          $ref: '#/components/schemas/NameString'
+        display_name:
+          anyOf:
+          - $ref: '#/components/schemas/NameString'
+          - type: 'null'
+        source_type:
+          type: string
+          enum:
+          - rest_api
+          - webhook
+          - file_drop
+          - fhir_store
+          - ehr
+          - database
+          - custom
+          - smart_fhir
+          - customer_intake
+          - lakebase_schema
+          - crm
+          title: Source Type
+        connection_config:
+          additionalProperties: true
+          type: object
+          title: Connection Config
+        entity_types:
+          items:
+            type: string
+            maxLength: 64
+            minLength: 1
+          type: array
+          maxItems: 100
+          title: Entity Types
+        field_mappings:
+          additionalProperties: true
+          type: object
+          title: Field Mappings
+        sync_strategy:
+          type: string
+          enum:
+          - manual
+          - scheduled
+          - webhook
+          - continuous
+          title: Sync Strategy
+          default: manual
+        sync_schedule:
+          anyOf:
+          - type: string
+            maxLength: 256
+          - type: 'null'
+          title: Sync Schedule
+      type: object
+      required:
+      - name
+      - source_type
+      title: CreateDataSourceRequest
+    TriggerSyncResponse:
+      properties:
+        status:
+          type: string
+          const: started
+          title: Status
+        data_source_id:
+          type: string
+          format: uuid
+          title: Data Source Id
+        triggered_at:
+          type: string
+          format: date-time
+          title: Triggered At
+      type: object
+      required:
+      - status
+      - data_source_id
+      - triggered_at
+      title: TriggerSyncResponse
+    DataSourceSyncHistoryResponse:
+      properties:
+        data_source_id:
+          type: string
+          format: uuid
+          title: Data Source Id
+        name:
+          type: string
+          title: Name
+        timeline:
+          items:
+            $ref: '#/components/schemas/SyncHistoryEntry'
+          type: array
+          title: Timeline
+        recent_failures:
+          items:
+            $ref: '#/components/schemas/SyncFailureEntry'
+          type: array
+          title: Recent Failures
+      type: object
+      required:
+      - data_source_id
+      - name
+      - timeline
+      - recent_failures
+      title: DataSourceSyncHistoryResponse
     DataSourceResponse:
       properties:
         id:
@@ -641,124 +776,6 @@ components:
       - created_at
       - updated_at
       title: DataSourceResponse
-    TriggerSyncConflictResponse:
-      properties:
-        message:
-          type: string
-          title: Message
-        details:
-          $ref: '#/components/schemas/TriggerSyncConflictDetails'
-      type: object
-      required:
-      - message
-      - details
-      title: TriggerSyncConflictResponse
-      description: 'Body shape for the 409 returned by POST /sync when the source is
-
-        already mid-poll. Documented in OpenAPI so SDK consumers get a typed
-
-        AlreadySyncing error instead of an opaque blob.'
-    PaginatedResponse_DataSourceResponse_:
-      properties:
-        items:
-          items:
-            $ref: '#/components/schemas/DataSourceResponse'
-          type: array
-          title: Items
-        has_more:
-          type: boolean
-          title: Has More
-        continuation_token:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Continuation Token
-        total:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Total
-      type: object
-      required:
-      - items
-      - has_more
-      title: PaginatedResponse[DataSourceResponse]
-    DataSourceStatusResponse:
-      properties:
-        data_source_id:
-          type: string
-          format: uuid
-          title: Data Source Id
-        name:
-          type: string
-          title: Name
-        is_active:
-          type: boolean
-          title: Is Active
-        health_status:
-          type: string
-          enum:
-          - unknown
-          - healthy
-          - degraded
-          title: Health Status
-        last_sync_at:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Last Sync At
-        last_sync_status:
-          anyOf:
-          - type: string
-            enum:
-            - success
-            - error
-          - type: 'null'
-          title: Last Sync Status
-        last_sync_event_count:
-          type: integer
-          title: Last Sync Event Count
-        event_count:
-          type: integer
-          title: Event Count
-        synced_count:
-          type: integer
-          title: Synced Count
-        failed_count:
-          type: integer
-          title: Failed Count
-      type: object
-      required:
-      - data_source_id
-      - name
-      - is_active
-      - health_status
-      - last_sync_at
-      - last_sync_status
-      - last_sync_event_count
-      - event_count
-      - synced_count
-      - failed_count
-      title: DataSourceStatusResponse
-    TriggerSyncConflictDetails:
-      properties:
-        last_poll_at:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Last Poll At
-        last_poll_duration_ms:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Last Poll Duration Ms
-      type: object
-      title: TriggerSyncConflictDetails
-      description: 'Operational fields included in a 409 to power UI affordances like
-
-        "syncing for 30s" — strict allowlist, never the whole status entry.'
     UpdateDataSourceRequest:
       properties:
         display_name:
@@ -810,69 +827,52 @@ components:
           title: Is Active
       type: object
       title: UpdateDataSourceRequest
-    NameString:
-      type: string
-      maxLength: 256
-      minLength: 1
-    CreateDataSourceRequest:
+    PaginatedResponse_DataSourceResponse_:
       properties:
-        name:
-          $ref: '#/components/schemas/NameString'
-        display_name:
-          anyOf:
-          - $ref: '#/components/schemas/NameString'
-          - type: 'null'
-        source_type:
-          type: string
-          enum:
-          - rest_api
-          - webhook
-          - file_drop
-          - fhir_store
-          - ehr
-          - database
-          - custom
-          - smart_fhir
-          - customer_intake
-          - lakebase_schema
-          - crm
-          title: Source Type
-        connection_config:
-          additionalProperties: true
-          type: object
-          title: Connection Config
-        entity_types:
+        items:
           items:
-            type: string
-            maxLength: 64
-            minLength: 1
+            $ref: '#/components/schemas/DataSourceResponse'
           type: array
-          maxItems: 100
-          title: Entity Types
-        field_mappings:
-          additionalProperties: true
-          type: object
-          title: Field Mappings
-        sync_strategy:
-          type: string
-          enum:
-          - manual
-          - scheduled
-          - webhook
-          - continuous
-          title: Sync Strategy
-          default: manual
-        sync_schedule:
+          title: Items
+        has_more:
+          type: boolean
+          title: Has More
+        continuation_token:
           anyOf:
-          - type: string
-            maxLength: 256
+          - type: integer
           - type: 'null'
-          title: Sync Schedule
+          title: Continuation Token
+        total:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Total
       type: object
       required:
-      - name
-      - source_type
-      title: CreateDataSourceRequest
+      - items
+      - has_more
+      title: PaginatedResponse[DataSourceResponse]
+    SyncHistoryEntry:
+      properties:
+        date:
+          type: string
+          title: Date
+        event_count:
+          type: integer
+          title: Event Count
+        synced_count:
+          type: integer
+          title: Synced Count
+        failed_count:
+          type: integer
+          title: Failed Count
+      type: object
+      required:
+      - date
+      - event_count
+      - synced_count
+      - failed_count
+      title: SyncHistoryEntry
   securitySchemes:
     BearerAuth:
       type: http

@@ -1494,17 +1494,190 @@ paths:
           description: The user has exceeded the rate limit of 20 requests per minute for this endpoint.
 components:
   schemas:
-    src__app__endpoints__organization__create_service_hierarchical_state_machine_version__Response:
+    src__app__endpoints__organization__create_api_key__Request:
+      properties:
+        name:
+          anyOf:
+          - $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
+          - type: 'null'
+          description: An optional name for the API key for easier identification by users.
+        duration:
+          type: string
+          format: duration
+          title: Duration
+          description: The valid duration of the API key. Should be supplied in the [ISO8601 format](https://en.wikipedia.org/wiki/ISO_8601#Durations). Must be between 1 to 90 days.
+        role_name:
+          type: string
+          title: Role Name
+          description: 'The name of the role associated with the key. When using this API key to authenticate, it can only authenticate for users with roles that are less permissive
+
+            than this role.'
+          default: DefaultAdministratorRole
+      type: object
+      required:
+      - name
+      - duration
+      title: Request
+    src__app__endpoints__organization__create_service_hierarchical_state_machine_version__Request:
+      properties:
+        description:
+          $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
+          description: A description of the service hierarchical state machine.
+        states:
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/ActionState-Input'
+            - $ref: '#/components/schemas/DecisionState-Input'
+            - $ref: '#/components/schemas/RecallState-Input'
+            - $ref: '#/components/schemas/AnnotationState-Input'
+            - $ref: '#/components/schemas/ReflectionState-Input'
+            - $ref: '#/components/schemas/ToolCallState-Input'
+            discriminator:
+              propertyName: type
+              mapping:
+                action: '#/components/schemas/ActionState-Input'
+                annotation: '#/components/schemas/AnnotationState-Input'
+                decision: '#/components/schemas/DecisionState-Input'
+                recall: '#/components/schemas/RecallState-Input'
+                reflection: '#/components/schemas/ReflectionState-Input'
+                tool-call: '#/components/schemas/ToolCallState-Input'
+          type: array
+          title: States
+          description: The internal states in this service hierarchical state machine.
+        new_user_initial_state:
+          $ref: '#/components/schemas/StateOrRefName'
+          description: The state a new user will be in when a session starts. This must be an action state, and must be an internal state.
+        returning_user_initial_state:
+          $ref: '#/components/schemas/StateOrRefName'
+          description: The state a returning user will be in when a session starts. This must be an action state, and must be an internal state.
+        terminal_state:
+          $ref: '#/components/schemas/StateOrRefName'
+          description: The state the user will be in when the session ends. This must be an action state, and must be an internal state.
+        references:
+          additionalProperties:
+            prefixItems:
+            - type: string
+              pattern: ^[a-f0-9]{24}$
+            - type: integer
+            type: array
+            maxItems: 2
+            minItems: 2
+          propertyNames:
+            $ref: '#/components/schemas/StateOrRefName'
+          type: object
+          title: References
+          description: A dictionary of other service hierarchical state machines that this references to. This field is a map of the reference name to the machine's ID and its version number.
+        global_intra_state_navigation_guidelines:
+          items:
+            $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
+          type: array
+          title: Global Intra State Navigation Guidelines
+          description: A list of guidelines for how the agent will navigate between subgoals and exit conditions within this state. This is injected into the `intra_state_navigation_guidelines` field of every action state.
+        global_action_guidelines:
+          items:
+            $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
+          type: array
+          title: Global Action Guidelines
+          description: A list of guidelines for how the agent will behave when engaging with user. This is injected into the `action_guidelines` field of every action state.
+        global_boundary_constraints:
+          items:
+            $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
+          type: array
+          title: Global Boundary Constraints
+          description: A list of guidelines for how the agent will not behave when engaging with user. This is injected into the `boundary_constraints` field of every action state.
+      type: object
+      required:
+      - description
+      - states
+      - new_user_initial_state
+      - returning_user_initial_state
+      - terminal_state
+      - references
+      - global_intra_state_navigation_guidelines
+      - global_action_guidelines
+      - global_boundary_constraints
+      title: Request
+    src__app__endpoints__organization__get_service_hierarchical_state_machines__Response:
+      properties:
+        service_hierarchical_state_machines:
+          items:
+            $ref: '#/components/schemas/StateMachineInstance'
+          type: array
+          title: Service Hierarchical State Machines
+          description: The state machines for this organization.
+        has_more:
+          type: boolean
+          title: Has More
+          description: Whether there are more state machines to fetch.
+        continuation_token:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Continuation Token
+          description: A token to supply to the next request to retrieve the next page of state machines. Only populated if `has_more` is `True`.
+      type: object
+      required:
+      - service_hierarchical_state_machines
+      - has_more
+      - continuation_token
+      title: Response
+    src__app__endpoints__organization__create_service_hierarchical_state_machine_version__Request__ToolCallSpec:
+      properties:
+        tool_id:
+          type: string
+          pattern: ^[a-f0-9]{24}$
+          title: Tool Id
+          description: The ID of the tool.
+        version_constraint:
+          type: string
+          title: Version Constraint
+          description: A [Python packaging version constraint](https://packaging.python.org/en/latest/specifications/version-specifiers/#id5) of the tool.
+        additional_instruction:
+          $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
+          description: Additional instruction to be supplied to the LLM in addition to the tool's description.
+        audio_fillers:
+          items:
+            $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
+          type: array
+          maxItems: 5
+          title: Audio Fillers
+          description: A list of audio fillers to play in audio mode if the tool is taking a long time.
+        audio_filler_triggered_after:
+          type: number
+          maximum: 10.0
+          exclusiveMinimum: 0.0
+          title: Audio Filler Triggered After
+          description: The number of seconds to wait before playing an audio filler.
+        result_persistence:
+          $ref: '#/components/schemas/ResultPersistence'
+          description: 'The type of result persistence for this tool call.
+
+
+            - If `ephemeral`, the result of the tool call is only provided to the current LLM interaction. Any future LLM interactions will not see this tool result.
+
+            - If `persisted-preferred`, the result of the tool call is reflected in all future LLM interactions if it''s less than 5000 characters long. Otherwise, it''s only visible in the current LLM interaction.
+
+            - If `persisted`, the result of the tool call is reflected in all future LLM interactions, unless it''s more than 5000 characters long, in which case an error is thrown.'
+      type: object
+      required:
+      - tool_id
+      - version_constraint
+      - additional_instruction
+      - audio_fillers
+      - audio_filler_triggered_after
+      - result_persistence
+      title: ToolCallSpec
+    src__app__endpoints__organization__create_agent_version__Response:
       properties:
         version:
           type: integer
           title: Version
-          description: 'Numerical version ID that describes how many iterations of this service hierarchical state machine occurred before this version. Note that this is for reference only.
+          description: 'Numerical version ID that describes how many iterations of this agent occurred before this version. Note that this is for reference only.
 
-            Any identification of a service hierarchical state machine version in Amigo APIs use the `id` field.
+            Any identification of an agent version in Amigo APIs use the `id` field.
 
 
-            For the initial version of a service hierarchical state machine, this field will be 1.'
+            For initial version of an agent, this field will be 1.'
         created_at:
           type: string
           format: date-time
@@ -1515,142 +1688,32 @@ components:
       - version
       - created_at
       title: Response
-    src__app__endpoints__organization__create_agent__Request:
+    ExitCondition-Output:
       properties:
-        agent_name:
-          $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__2'
-          description: The name of the new agent.
-      type: object
-      required:
-      - agent_name
-      title: Request
-    src__app__endpoints__organization__get_service_hierarchical_state_machine_versions__Response:
-      properties:
-        state_machine_versions:
-          items:
-            $ref: '#/components/schemas/ServiceHierarchicalStateMachineInstance'
-          type: array
-          title: State Machine Versions
-          description: The returned state machine versions.
-        has_more:
-          type: boolean
-          title: Has More
-          description: Whether there are more state machine versions to retrieve.
-        continuation_token:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Continuation Token
-          description: A token to supply to the next request to retrieve the next page of state machine versions. Only populated if `has_more` is `True`.
-      type: object
-      required:
-      - state_machine_versions
-      - has_more
-      - continuation_token
-      title: Response
-    src__app__endpoints__organization__modify_organization__Request:
-      properties:
-        logo:
+        description:
+          type: string
+          title: Description
+          description: A description of this exit condition.
+        next_state:
           anyOf:
           - type: string
-            format: base64
-          - type: 'null'
-          title: Logo
-          description: 'A logo for the organization that will be displayed on the Amigo frontend for this organization, as well as all Amigo communications to users on behalf of the organization.
-
-            Must be provided as base64 encoded bytes of a PNG image of aspect ratio 5:2 with minimum size 400 * 160 pixels. Only updated if not null.'
-        square_logo:
-          anyOf:
-          - type: string
-            format: base64
-          - type: 'null'
-          title: Square Logo
-          description: A square logo of the organization. Must be provided as base64 encoded bytes of a square PNG image of size at least 40 * 40 pixels. Only updated if not null.
-        favicon:
-          anyOf:
-          - type: string
-            format: base64
-          - type: 'null'
-          title: Favicon
-          description: Favicon for the Amigo frontend for this organization. Must be provided as base64 encoded bytes of a square ICO image that's of size at least 40 * 40 pixels. Only updated if not null.
-        user_dimensions:
-          anyOf:
-          - items:
-              $ref: '#/components/schemas/UserDimension-Input'
+          - prefixItems:
+            - type: string
+            - type: string
             type: array
-            minItems: 1
-          - type: 'null'
-          title: User Dimensions
-          description: User dimensions for the organization. If not set or `null`, this field is not updated.
-        default_user_preferences:
-          anyOf:
-          - $ref: '#/components/schemas/src__app__endpoints__organization__modify_organization__Request__Preferences'
-          - type: 'null'
-          description: The default user preferences for the organization. If `null`, this field is not updated.
-      type: object
-      title: Request
-    src__app__endpoints__organization__get_agents__Response:
-      properties:
-        agents:
-          items:
-            $ref: '#/components/schemas/src__app__endpoints__organization__get_agents__Response__AgentInstance'
-          type: array
-          title: Agents
-          description: The agents for this organization.
-        has_more:
-          type: boolean
-          title: Has More
-          description: Whether there are more agents to retrieve.
-        continuation_token:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Continuation Token
-          description: A token to supply to the next request to retrieve the next page of agents. Only populated if `has_more` is `True`.
-      type: object
-      required:
-      - agents
-      - has_more
-      - continuation_token
-      title: Response
-    src__app__endpoints__organization__get_organization__Response:
-      properties:
-        org_id:
-          type: string
-          title: Org Id
-          description: Unique identifier of the organization.
-        org_name:
-          type: string
-          title: Org Name
-          description: A human friendly name of the organization.
-        default_user_preferences:
-          anyOf:
-          - $ref: '#/components/schemas/Preferences-Output'
-          - type: 'null'
-          description: 'Default user preferences for new users in this organization. This field is only populated if this endpoint is called with user authentication credentials,
+            maxItems: 2
+            minItems: 2
+          title: Next State
+          description: 'The state to transition to if this exit condition is met. If it''s a string, the session will transition to a state within this contextual graph. If it''s a tuple, the first element
 
-            and the authenticated user has the `Organization:GetOrganizationDetails` permission.'
-        tenant_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Tenant Id
-          description: The tenant ID of the organization. This field is only populated if the authenticated user has the `Organization:GetOrganizationDetails` permission.
+            must be of the form `{external_contextual_graph_reference_name}.{state_name}` and represents a state in another contextual graph that the session will transition to, and the second element must be a state
+
+            in this contextual graph that the session will transition to after reaching the terminal state of the external graph.'
       type: object
       required:
-      - org_id
-      - org_name
-      - default_user_preferences
-      - tenant_id
-      title: Response
-    VoiceConfig:
-      properties:
-        voice_id:
-          $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
-      type: object
-      required:
-      - voice_id
-      title: VoiceConfig
+      - description
+      - next_state
+      title: ExitCondition
     src__app__endpoints__organization__get_agent_versions__Response:
       properties:
         agent_versions:
@@ -1675,183 +1738,220 @@ components:
       - has_more
       - continuation_token
       title: Response
-    src__app__endpoints__organization__get_agents__Response__AgentInstance:
+    APIKeyInstance:
       properties:
-        id:
+        _id:
           type: string
           title: Id
-          description: The ID of the agent.
         name:
-          type: string
-          title: Name
-          description: The name of the agent.
-        deprecated:
-          type: boolean
-          title: Deprecated
-          description: Whether the agent has been deprecated.
-        latest_version:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Latest Version
-          description: The latest version of the agent. If `None`, no version for the agent exists.
-      type: object
-      required:
-      - id
-      - name
-      - deprecated
-      - latest_version
-      title: AgentInstance
-    AnnotationState-Output:
-      properties:
-        type:
-          type: string
-          const: annotation
-          title: Type
-        name:
-          type: string
-          title: Name
-          description: The name of this state.
-        inner_thought:
-          type: string
-          title: Inner Thought
-          description: The inner thought to add to the conversation.
-        next_state:
           anyOf:
           - type: string
-          - prefixItems:
-            - type: string
-            - type: string
-            type: array
-            maxItems: 2
-            minItems: 2
-          title: Next State
-          description: 'The state to transition to after the inner thought message is generated. If it''s a string, the session will transition to a state within this contextual graph. If it''s a tuple, the first element
-
-            must be of the form `{external_contextual_graph_reference_name}.{state_name}` and represents a state in another contextual graph that the session will transition to, and the second element must be a state
-
-            in this contextual graph that the session will transition to after reaching the terminal state of the external graph.'
-      type: object
-      required:
-      - type
-      - name
-      - inner_thought
-      - next_state
-      title: AnnotationState
-      description: A passthrough state in which the agent adds a pre-determined inner thought message before continuing.
-    amigo_lib__mongo__collections__api_key__APIKey__UserInfo:
-      properties:
-        user_id:
-          type: string
-          title: User Id
-          description: The user ID of the creator of this key.
+          - type: 'null'
+          title: Name
+          description: The name of the API key.
         org_id:
           type: string
           title: Org Id
-          description: The organization ID of the creator of this key.
-      type: object
-      required:
-      - user_id
-      - org_id
-      title: UserInfo
-    ActionState-Input:
-      properties:
-        type:
+          description: The ID of the organization.
+        created_at:
           type: string
-          const: action
-          title: Type
-        name:
-          $ref: '#/components/schemas/StateOrRefName'
-        objective:
-          $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
-        actions:
-          items:
-            $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
-          type: array
-          minItems: 1
-          title: Actions
-        intra_state_navigation_guidelines:
-          items:
-            $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
-          type: array
-          title: Intra State Navigation Guidelines
-        action_guidelines:
-          items:
-            $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
-          type: array
-          title: Action Guidelines
-        boundary_constraints:
-          items:
-            $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
-          type: array
-          title: Boundary Constraints
-        exit_conditions:
-          items:
-            $ref: '#/components/schemas/ExitCondition-Input'
-          type: array
-          title: Exit Conditions
-        action_tool_call_specs:
-          items:
-            $ref: '#/components/schemas/src__app__endpoints__organization__create_service_hierarchical_state_machine_version__Request__ToolCallSpec'
-          type: array
-          title: Action Tool Call Specs
-        exit_condition_tool_call_specs:
-          items:
-            $ref: '#/components/schemas/src__app__endpoints__organization__create_service_hierarchical_state_machine_version__Request__ToolCallSpec'
-          type: array
-          title: Exit Condition Tool Call Specs
-        skip_active_memory_retrieval:
-          type: boolean
-          title: Skip Active Memory Retrieval
-          description: If `True`, the agent will not perform active memory retrieval at the start of an interaction in this state.
+          format: date-time
+          title: Created At
+          description: The UTC time at which this key was created.
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+          description: The UTC time at which this key was last updated.
+        key_id:
+          type: string
+          title: Key Id
+          description: The ID of the API key. Instead of the key's Mongo ID, this UUID is used as the identifier for the key for backwards compatibility reasons.
+        expires_at:
+          type: string
+          format: date-time
+          title: Expires At
+          description: The UTC time at which this key will expire.
+        creator:
+          $ref: '#/components/schemas/amigo_lib__mongo__collections__api_key__APIKey__UserInfo'
+          description: The user who created this key.
+        role_id:
+          type: string
+          title: Role Id
+          description: The role ID of the creator of this key.
       type: object
       required:
-      - type
+      - _id
       - name
-      - objective
-      - actions
-      - intra_state_navigation_guidelines
-      - action_guidelines
-      - boundary_constraints
-      - exit_conditions
-      - action_tool_call_specs
-      - exit_condition_tool_call_specs
-      - skip_active_memory_retrieval
-      title: ActionState
-    VoiceConfigInstance:
+      - org_id
+      - created_at
+      - updated_at
+      - key_id
+      - expires_at
+      - creator
+      - role_id
+      title: APIKeyInstance
+    VoiceConfig:
       properties:
         voice_id:
-          type: string
-          title: Voice Id
-          description: The Cartesia voice ID for this agent.
-        stability:
-          type: number
-          title: Stability
-          default: 0
-        similarity_boost:
-          type: number
-          title: Similarity Boost
-          default: 0
-        style:
-          type: number
-          title: Style
-          default: 0
+          $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
       type: object
       required:
       - voice_id
-      title: VoiceConfigInstance
-    src__app__endpoints__organization__get_user_dimensions__Response:
+      title: VoiceConfig
+    amigo_lib__mongo__collections__agent__Agent__UserInfo:
       properties:
-        user_dimensions:
-          items:
-            $ref: '#/components/schemas/UserDimension-Output'
-          type: array
-          title: User Dimensions
-          description: The list of user dimensions for the organization.
+        org_id:
+          type: string
+          title: Org Id
+        user_id:
+          type: string
+          title: User Id
       type: object
       required:
+      - org_id
+      - user_id
+      title: UserInfo
+    ServiceHierarchicalStateMachineInstance:
+      properties:
+        org_id:
+          type: string
+          title: Org Id
+          description: The ID of the organization of this state machine.
+        service_hierarchical_state_machine_id:
+          type: string
+          title: Service Hierarchical State Machine Id
+          description: The ID of the state machine that this document is a version for.
+        version:
+          type: integer
+          title: Version
+          description: Numerical version ID that describes how many iterations of this state machine occurred before this version.
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+          description: The time at which this version was created.
+        creator:
+          $ref: '#/components/schemas/amigo_lib__mongo__collections__service_hierarchical_state_machine__ServiceHierarchicalStateMachine__UserInfo'
+          description: The user who created this version of the state machine.
+        description:
+          type: string
+          title: Description
+          description: A description of the state machine.
+        states:
+          items:
+            $ref: '#/components/schemas/State'
+          type: array
+          title: States
+          description: The states in this state machine.
+        new_user_initial_state:
+          type: string
+          title: New User Initial State
+          description: The state a new user will be in when a session starts. This must be an action state.
+        returning_user_initial_state:
+          type: string
+          title: Returning User Initial State
+          description: The state a returning user will be in when a session starts. This must be an action state.
+        terminal_state:
+          type: string
+          title: Terminal State
+          description: The state the user will be in when the session ends. This must be an action state.
+        references:
+          additionalProperties:
+            prefixItems:
+            - type: string
+            - type: integer
+            type: array
+            maxItems: 2
+            minItems: 2
+          type: object
+          title: References
+          description: A dictionary of other service hierarchical state machine versions that this references to. This field is a map of the reference name to the machine's ID and its version number.
+        global_intra_state_navigation_guidelines:
+          items:
+            type: string
+          type: array
+          title: Global Intra State Navigation Guidelines
+          description: A list of guidelines for how the agent will navigate between subgoals and exit conditions within this state. This is injected into the `intra_state_navigation_guidelines` field of every action state.
+        global_action_guidelines:
+          items:
+            type: string
+          type: array
+          title: Global Action Guidelines
+          description: A list of guidelines for how the agent will behave when engaging with user. This is injected into the `action_guidelines` field of every action state.
+        global_boundary_constraints:
+          items:
+            type: string
+          type: array
+          title: Global Boundary Constraints
+          description: A list of guidelines for how the agent will not behave when engaging with user. This is injected into the `boundary_constraints` field of every action state.
+      type: object
+      required:
+      - org_id
+      - service_hierarchical_state_machine_id
+      - version
+      - created_at
+      - creator
+      - description
+      - states
+      - new_user_initial_state
+      - returning_user_initial_state
+      - terminal_state
+      - references
+      - global_intra_state_navigation_guidelines
+      - global_action_guidelines
+      - global_boundary_constraints
+      title: ServiceHierarchicalStateMachineInstance
+    src__app__endpoints__organization__create_organization__Request:
+      properties:
+        org_name:
+          $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
+          description: A human friendly name of the organization.
+        user_dimensions:
+          items:
+            $ref: '#/components/schemas/UserDimension-Input'
+          type: array
+          title: User Dimensions
+          description: User dimensions for the organization.
+        logo:
+          type: string
+          format: base64
+          title: Logo
+          description: 'A logo for the organization that will be displayed on the Amigo frontend for this organization, as well as all Amigo communications to users on behalf of the organization.
+
+            Must be provided as base64 encoded bytes of a PNG image of aspect ratio 5:2 with minimum size 400 * 160 pixels.'
+        square_logo:
+          type: string
+          format: base64
+          title: Square Logo
+          description: A square logo of the organization. Must be provided as base64 encoded bytes of a square PNG image of size at least 40 * 40 pixels.
+        favicon:
+          type: string
+          format: base64
+          title: Favicon
+          description: Favicon for the Amigo frontend for this organization. Must be provided as base64 encoded bytes of a square ICO image that's of size at least 40 * 40 pixels.
+        default_user_preferences:
+          $ref: '#/components/schemas/src__app__endpoints__organization__create_organization__Request__Preferences'
+          description: Default user preferences for users in this organization.
+          default:
+            enable_response_recommendation: false
+            conversations_visible_to_admins: true
+            user_model_visible_to_admins: true
+            audio_keyterms: []
+        azure_devops_team_name:
+          $ref: '#/components/schemas/StrippedNonemptyString_a-z-______'
+          description: 'The name of the Azure DevOps team to create (if it doesn''t exist) for this organization. All orgs with the same Azure DevOps team name will share access to the same Azure DevOps resources, namely
+
+            the source code for tools.'
+      type: object
+      required:
+      - org_name
       - user_dimensions
-      title: Response
+      - logo
+      - square_logo
+      - favicon
+      - azure_devops_team_name
+      title: Request
     src__app__endpoints__organization__create_organization__Request__Preferences:
       properties:
         enable_response_recommendation:
@@ -10407,108 +10507,6 @@ components:
       maxLength: 20
       minLength: 1
       pattern: ^[a-z-]+$
-    amigo_lib__pydantic__base_model__StrippedNonemptyString__2:
-      type: string
-      maxLength: 256
-      minLength: 1
-    src__app__endpoints__organization__create_organization__Response:
-      properties:
-        org_id:
-          type: string
-          title: Org Id
-          description: ID of the newly created organization. This is used to identify the organization that a resource belongs to in all Amigo endpoints.
-      type: object
-      required:
-      - org_id
-      title: Response
-    src__app__endpoints__organization__create_organization__Request:
-      properties:
-        org_name:
-          $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
-          description: A human friendly name of the organization.
-        user_dimensions:
-          items:
-            $ref: '#/components/schemas/UserDimension-Input'
-          type: array
-          title: User Dimensions
-          description: User dimensions for the organization.
-        logo:
-          type: string
-          format: base64
-          title: Logo
-          description: 'A logo for the organization that will be displayed on the Amigo frontend for this organization, as well as all Amigo communications to users on behalf of the organization.
-
-            Must be provided as base64 encoded bytes of a PNG image of aspect ratio 5:2 with minimum size 400 * 160 pixels.'
-        square_logo:
-          type: string
-          format: base64
-          title: Square Logo
-          description: A square logo of the organization. Must be provided as base64 encoded bytes of a square PNG image of size at least 40 * 40 pixels.
-        favicon:
-          type: string
-          format: base64
-          title: Favicon
-          description: Favicon for the Amigo frontend for this organization. Must be provided as base64 encoded bytes of a square ICO image that's of size at least 40 * 40 pixels.
-        default_user_preferences:
-          $ref: '#/components/schemas/src__app__endpoints__organization__create_organization__Request__Preferences'
-          description: Default user preferences for users in this organization.
-          default:
-            enable_response_recommendation: false
-            conversations_visible_to_admins: true
-            user_model_visible_to_admins: true
-            audio_keyterms: []
-        azure_devops_team_name:
-          $ref: '#/components/schemas/StrippedNonemptyString_a-z-______'
-          description: 'The name of the Azure DevOps team to create (if it doesn''t exist) for this organization. All orgs with the same Azure DevOps team name will share access to the same Azure DevOps resources, namely
-
-            the source code for tools.'
-      type: object
-      required:
-      - org_name
-      - user_dimensions
-      - logo
-      - square_logo
-      - favicon
-      - azure_devops_team_name
-      title: Request
-    RecallState-Input:
-      properties:
-        type:
-          type: string
-          const: recall
-          title: Type
-        name:
-          $ref: '#/components/schemas/StateOrRefName'
-        queries:
-          anyOf:
-          - items:
-              type: string
-            type: array
-            minItems: 1
-          - type: 'null'
-          title: Queries
-        requested_information:
-          anyOf:
-          - $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
-          - type: 'null'
-        next_state:
-          anyOf:
-          - $ref: '#/components/schemas/StateOrRefName'
-          - prefixItems:
-            - $ref: '#/components/schemas/ExternalStateName'
-            - $ref: '#/components/schemas/StateOrRefName'
-            type: array
-            maxItems: 2
-            minItems: 2
-          title: Next State
-      type: object
-      required:
-      - type
-      - name
-      - queries
-      - requested_information
-      - next_state
-      title: RecallState
     ReflectionState-Output:
       properties:
         type:
@@ -10570,102 +10568,6 @@ components:
       - audio_filler_triggered_after
       title: ReflectionState
       description: A passthrough state in which the agent reflects on the conversation so far and adds an inner thought message before continuing.
-    RelationshipToDeveloper-Input:
-      properties:
-        ownership:
-          $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
-        type:
-          $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
-        conversation_visibility:
-          $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
-        thought_visibility:
-          $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
-      type: object
-      required:
-      - ownership
-      - type
-      - conversation_visibility
-      - thought_visibility
-      title: RelationshipToDeveloper
-    ActionState-Output:
-      properties:
-        type:
-          type: string
-          const: action
-          title: Type
-        name:
-          type: string
-          title: Name
-          description: The name of this state.
-        objective:
-          type: string
-          title: Objective
-          description: The objective that the `Agent` works towards when in this state.
-        actions:
-          items:
-            type: string
-          type: array
-          title: Actions
-          description: A list of specific actions that the `Agent` performs in this state.
-        intra_state_navigation_guidelines:
-          items:
-            type: string
-          type: array
-          title: Intra State Navigation Guidelines
-          description: A list of guidelines for how the agent will navigate between subgoals and exit conditions within this state.
-        action_guidelines:
-          items:
-            type: string
-          type: array
-          title: Action Guidelines
-          description: A list of guidelines for how the agent will behave when engaging with user.
-        boundary_constraints:
-          items:
-            type: string
-          type: array
-          title: Boundary Constraints
-          description: A list of guidelines for how the agent will not behave when engaging with user.
-        exit_conditions:
-          items:
-            $ref: '#/components/schemas/ExitCondition-Output'
-          type: array
-          title: Exit Conditions
-          description: A list of exit conditions for this state that describes under what condition would the session be allowed to transition to another state.
-        action_tool_call_specs:
-          items:
-            $ref: '#/components/schemas/amigo_lib__mongo__collections__service_hierarchical_state_machine__ServiceHierarchicalStateMachine__ToolCallSpec'
-          type: array
-          title: Action Tool Call Specs
-          description: A list of tool calls that the agent can make in this state when executing an action.
-        exit_condition_tool_call_specs:
-          items:
-            $ref: '#/components/schemas/amigo_lib__mongo__collections__service_hierarchical_state_machine__ServiceHierarchicalStateMachine__ToolCallSpec'
-          type: array
-          title: Exit Condition Tool Call Specs
-          description: A list of tool calls that the agent can make in this state when evaluating exit conditions.
-        skip_active_memory_retrieval:
-          type: boolean
-          title: Skip Active Memory Retrieval
-          description: If `True`, the agent will not perform active memory retrieval at the start of an interaction in this state.
-      type: object
-      required:
-      - type
-      - name
-      - objective
-      - actions
-      - intra_state_navigation_guidelines
-      - action_guidelines
-      - boundary_constraints
-      - exit_conditions
-      - action_tool_call_specs
-      - exit_condition_tool_call_specs
-      - skip_active_memory_retrieval
-      title: ActionState
-      description: 'A state associated with an objective and a list of actions. The `Agent` will perform these actions towards achieving the objective. The session
-
-        may transition to a different state if any of the exit conditions are met, in which case the session proceeds to the next state specified in the
-
-        exit condition. If no exit conditions are met, the session remains in this state.'
     Identity-Input:
       properties:
         name:
@@ -18600,41 +18502,12 @@ components:
       - default_spoken_language
       - relationship_to_developer
       title: Identity
-    amigo_lib__pydantic__base_model__StrippedNonemptyString__1:
+    ResultPersistence:
       type: string
-      minLength: 1
-    amigo_lib__mongo__collections__service_hierarchical_state_machine__ServiceHierarchicalStateMachine__UserInfo:
-      properties:
-        org_id:
-          type: string
-          title: Org Id
-        user_id:
-          type: string
-          title: User Id
-      type: object
-      required:
-      - org_id
-      - user_id
-      title: UserInfo
-    src__app__endpoints__organization__delete_api_key__Response:
-      properties:
-        deleted_key_id:
-          type: string
-          title: Deleted Key Id
-          description: ID of the successfully deleted API key.
-      type: object
-      required:
-      - deleted_key_id
-      title: Response
-    src__app__endpoints__organization__create_service_hierarchical_state_machine__Request:
-      properties:
-        state_machine_name:
-          $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__2'
-          description: The name of the new state machine.
-      type: object
-      required:
-      - state_machine_name
-      title: Request
+      enum:
+      - ephemeral
+      - persisted-preferred
+      - persisted
     src__app__endpoints__organization__create_service_hierarchical_state_machine__Response:
       properties:
         id:
@@ -18645,27 +18518,200 @@ components:
       required:
       - id
       title: Response
-    src__app__endpoints__organization__create_agent_version__Response:
+    StateMachineInstance:
       properties:
-        version:
-          type: integer
-          title: Version
-          description: 'Numerical version ID that describes how many iterations of this agent occurred before this version. Note that this is for reference only.
-
-            Any identification of an agent version in Amigo APIs use the `id` field.
-
-
-            For initial version of an agent, this field will be 1.'
-        created_at:
+        id:
           type: string
-          format: date-time
-          title: Created At
-          description: The time at which this version was created.
+          title: Id
+          description: The ID of the state machine.
+        name:
+          type: string
+          title: Name
+          description: The name of the state machine.
+        deprecated:
+          type: boolean
+          title: Deprecated
+          description: Whether the state machine has been deprecated.
+        latest_version:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Latest Version
+          description: The latest version of the state machine. If `None`, no version for the state machine exists.
       type: object
       required:
-      - version
-      - created_at
+      - id
+      - name
+      - deprecated
+      - latest_version
+      title: StateMachineInstance
+    RelationshipToDeveloper-Input:
+      properties:
+        ownership:
+          $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
+        type:
+          $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
+        conversation_visibility:
+          $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
+        thought_visibility:
+          $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
+      type: object
+      required:
+      - ownership
+      - type
+      - conversation_visibility
+      - thought_visibility
+      title: RelationshipToDeveloper
+    DecisionState-Output:
+      properties:
+        type:
+          type: string
+          const: decision
+          title: Type
+        name:
+          type: string
+          title: Name
+          description: The name of this state.
+        exit_conditions:
+          items:
+            $ref: '#/components/schemas/ExitCondition-Output'
+          type: array
+          title: Exit Conditions
+          description: A list of exit conditions for this state that describes under what condition would the session be allowed to transition to another state.
+        decision_guidelines:
+          items:
+            type: string
+          type: array
+          title: Decision Guidelines
+          description: A list of action guidelines that the `Agent` follows when in this state for making a decision.
+        objective:
+          type: string
+          title: Objective
+          description: The objective that the `Agent` works towards when in this state.
+        tool_call_specs:
+          items:
+            $ref: '#/components/schemas/amigo_lib__mongo__collections__service_hierarchical_state_machine__ServiceHierarchicalStateMachine__ToolCallSpec'
+          type: array
+          title: Tool Call Specs
+          description: A list of tool calls that the agent can make in this state.
+        audio_fillers:
+          items:
+            type: string
+          type: array
+          title: Audio Fillers
+          description: A list of audio fillers to play in the audio mode if the `select-next-state-for-decision-state` prompt is taking too long to process.
+        audio_filler_triggered_after:
+          type: number
+          title: Audio Filler Triggered After
+          description: The number of seconds to wait before playing an audio filler.
+      type: object
+      required:
+      - type
+      - name
+      - exit_conditions
+      - decision_guidelines
+      - objective
+      - tool_call_specs
+      - audio_fillers
+      - audio_filler_triggered_after
+      title: DecisionState
+      description: 'A passthrough state in which the `Agent` must decide, among a list of exit conditions, one that the session has satisfied, and transitions to the next
+
+        state associated with that exit condition. This is different from an `ActionState` in that there''s no actions to perform, and the session must transition
+
+        to another state.'
+    src__app__endpoints__organization__get_agents__Response:
+      properties:
+        agents:
+          items:
+            $ref: '#/components/schemas/src__app__endpoints__organization__get_agents__Response__AgentInstance'
+          type: array
+          title: Agents
+          description: The agents for this organization.
+        has_more:
+          type: boolean
+          title: Has More
+          description: Whether there are more agents to retrieve.
+        continuation_token:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Continuation Token
+          description: A token to supply to the next request to retrieve the next page of agents. Only populated if `has_more` is `True`.
+      type: object
+      required:
+      - agents
+      - has_more
+      - continuation_token
       title: Response
+    AnnotationState-Input:
+      properties:
+        type:
+          type: string
+          const: annotation
+          title: Type
+        name:
+          $ref: '#/components/schemas/StateOrRefName'
+        inner_thought:
+          $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
+        next_state:
+          anyOf:
+          - $ref: '#/components/schemas/StateOrRefName'
+          - prefixItems:
+            - $ref: '#/components/schemas/ExternalStateName'
+            - $ref: '#/components/schemas/StateOrRefName'
+            type: array
+            maxItems: 2
+            minItems: 2
+          title: Next State
+      type: object
+      required:
+      - type
+      - name
+      - inner_thought
+      - next_state
+      title: AnnotationState
+    RecallState-Input:
+      properties:
+        type:
+          type: string
+          const: recall
+          title: Type
+        name:
+          $ref: '#/components/schemas/StateOrRefName'
+        queries:
+          anyOf:
+          - items:
+              type: string
+            type: array
+            minItems: 1
+          - type: 'null'
+          title: Queries
+        requested_information:
+          anyOf:
+          - $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
+          - type: 'null'
+        next_state:
+          anyOf:
+          - $ref: '#/components/schemas/StateOrRefName'
+          - prefixItems:
+            - $ref: '#/components/schemas/ExternalStateName'
+            - $ref: '#/components/schemas/StateOrRefName'
+            type: array
+            maxItems: 2
+            minItems: 2
+          title: Next State
+      type: object
+      required:
+      - type
+      - name
+      - queries
+      - requested_information
+      - next_state
+      title: RecallState
+    StateOrRefName:
+      type: string
+      pattern: ^[A-Za-z0-9_]+$
     ToolCallState-Output:
       properties:
         type:
@@ -18753,95 +18799,212 @@ components:
       - tool_call_specs
       title: ToolCallState
       description: A state that executes a tool call.
-    Preferences-Output:
+    src__app__endpoints__organization__get_service_hierarchical_state_machine_versions__Response:
       properties:
-        enable_response_recommendation:
+        state_machine_versions:
+          items:
+            $ref: '#/components/schemas/ServiceHierarchicalStateMachineInstance'
+          type: array
+          title: State Machine Versions
+          description: The returned state machine versions.
+        has_more:
           type: boolean
-          title: Enable Response Recommendation
-          description: Whether to automatically recommend responses to the user if the user hasn't replied to the coach for a while.
-          default: false
-        preferred_language:
+          title: Has More
+          description: Whether there are more state machine versions to retrieve.
+        continuation_token:
           anyOf:
-          - type: string
+          - type: integer
           - type: 'null'
-          title: Preferred Language
-          description: 'The preferred language to use for the user. This field must be in the ISO 639-3 format. The agent will attempt to converse
-
-            with the user in this language. If not set, the agent''s default spoken language is used.'
-        conversations_visible_to_admins:
-          type: boolean
-          title: Conversations Visible To Admins
-          description: Whether the user's conversations are visible to the admins.
-          default: true
-        user_model_visible_to_admins:
-          type: boolean
-          title: User Model Visible To Admins
-          description: Whether the user's user model is visible to the admins.
-          default: true
-        timezone:
+          title: Continuation Token
+          description: A token to supply to the next request to retrieve the next page of state machine versions. Only populated if `has_more` is `True`.
+      type: object
+      required:
+      - state_machine_versions
+      - has_more
+      - continuation_token
+      title: Response
+    src__app__endpoints__organization__get_agent_versions__Response__AgentInstance:
+      properties:
+        org_id:
+          type: string
+          title: Org Id
+          description: The ID of the organization of this agent.
+        agent_id:
+          type: string
+          title: Agent Id
+          description: The ID of this agent.
+        version:
+          type: integer
+          title: Version
+          description: The version of the agent.
+        voice_config:
           anyOf:
-          - type: string
+          - $ref: '#/components/schemas/VoiceConfigInstance'
           - type: 'null'
-          title: Timezone
-          description: The user's timezone in the IANA tz database format for all users in this organization. If not specified, UTC is used.
-        audio_keyterms:
+          description: The voice configuration of the agent.
+        initials:
+          type: string
+          title: Initials
+          description: The initials of the agent.
+        identity:
+          $ref: '#/components/schemas/Identity-Output'
+          description: The identity of the agent.
+        background:
+          type: string
+          title: Background
+          description: A description of the `Agent`'s background.
+        behaviors:
           items:
             type: string
           type: array
-          title: Audio Keyterms
-          description: A list of keyterms that are easy to get wrong during audio transcriptions that tend to occur commonly in audio sessions for this user.
-          default: []
-      type: object
-      title: Preferences
-      description: Preferences that the user can set to customize their experience.
-    src__app__endpoints__organization__create_api_key__Response:
-      properties:
-        api_key_id:
-          type: string
-          title: Api Key Id
-          description: An identifier for this API key. You must present this along with the API key to authenticate.
-        api_key:
-          type: string
-          title: Api Key
-          description: The API key. This is only visible once and is not retrievable later. Please store safely.
-        expires_at:
+          title: Behaviors
+          description: A list of behavioral guidelines that this `Agent` follows.
+        communication_patterns:
+          items:
+            type: string
+          type: array
+          title: Communication Patterns
+          description: A list of descriptions that illustrate the communication styles of this `Agent`.
+        created_at:
           type: string
           format: date-time
-          title: Expires At
-          description: Expiration time of the API key in UTC.
+          title: Created At
+          description: The time at which this version was created.
+        creator:
+          $ref: '#/components/schemas/amigo_lib__mongo__collections__agent__Agent__UserInfo'
+          description: The user who created this version of the agent.
       type: object
       required:
-      - api_key_id
-      - api_key
-      - expires_at
-      title: Response
-    src__app__endpoints__organization__get_api_keys__Response:
+      - org_id
+      - agent_id
+      - version
+      - voice_config
+      - initials
+      - identity
+      - background
+      - behaviors
+      - communication_patterns
+      - created_at
+      - creator
+      title: AgentInstance
+    Identity-Output:
       properties:
-        api_keys:
-          items:
-            $ref: '#/components/schemas/APIKeyInstance'
-          type: array
-          title: Api Keys
-          description: The list of API keys for the organization.
-      type: object
-      required:
-      - api_keys
-      title: Response
-    UserDimension-Output:
-      properties:
-        description:
+        name:
           type: string
-          title: Description
-        tags:
-          items:
-            type: string
-          type: array
-          title: Tags
+          title: Name
+          description: A human friendly name of the agent.
+        role:
+          type: string
+          title: Role
+          description: The agent's role within the organization.
+        developed_by:
+          type: string
+          title: Developed By
+          description: A human-friendly name of the organization that developed this agent.
+        default_spoken_language:
+          type: string
+          title: Default Spoken Language
+          description: The agent's primary language. This must be specified in the ISO 639-3 format.
+        relationship_to_developer:
+          $ref: '#/components/schemas/RelationshipToDeveloper-Output'
+          description: Relationship of the agent to its developer.
       type: object
       required:
-      - description
-      - tags
-      title: UserDimension
+      - name
+      - role
+      - developed_by
+      - default_spoken_language
+      - relationship_to_developer
+      title: Identity
+    DecisionState-Input:
+      properties:
+        type:
+          type: string
+          const: decision
+          title: Type
+        name:
+          $ref: '#/components/schemas/StateOrRefName'
+        exit_conditions:
+          items:
+            $ref: '#/components/schemas/ExitCondition-Input'
+          type: array
+          title: Exit Conditions
+        decision_guidelines:
+          items:
+            $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
+          type: array
+          title: Decision Guidelines
+        objective:
+          $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
+        tool_call_specs:
+          items:
+            $ref: '#/components/schemas/src__app__endpoints__organization__create_service_hierarchical_state_machine_version__Request__ToolCallSpec'
+          type: array
+          title: Tool Call Specs
+        audio_fillers:
+          items:
+            $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
+          type: array
+          maxItems: 5
+          title: Audio Fillers
+          description: A list of audio fillers to play in audio mode if the `select-next-state-for-decision-state` prompt is taking too long to process.
+        audio_filler_triggered_after:
+          type: number
+          maximum: 10.0
+          exclusiveMinimum: 0.0
+          title: Audio Filler Triggered After
+          description: The number of seconds to wait before playing an audio filler.
+      type: object
+      required:
+      - type
+      - name
+      - exit_conditions
+      - decision_guidelines
+      - objective
+      - tool_call_specs
+      - audio_fillers
+      - audio_filler_triggered_after
+      title: DecisionState
+    amigo_lib__mongo__collections__service_hierarchical_state_machine__ServiceHierarchicalStateMachine__UserInfo:
+      properties:
+        org_id:
+          type: string
+          title: Org Id
+        user_id:
+          type: string
+          title: User Id
+      type: object
+      required:
+      - org_id
+      - user_id
+      title: UserInfo
+    src__app__endpoints__organization__get_agents__Response__AgentInstance:
+      properties:
+        id:
+          type: string
+          title: Id
+          description: The ID of the agent.
+        name:
+          type: string
+          title: Name
+          description: The name of the agent.
+        deprecated:
+          type: boolean
+          title: Deprecated
+          description: Whether the agent has been deprecated.
+        latest_version:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Latest Version
+          description: The latest version of the agent. If `None`, no version for the agent exists.
+      type: object
+      required:
+      - id
+      - name
+      - deprecated
+      - latest_version
+      title: AgentInstance
     amigo_lib__mongo__collections__service_hierarchical_state_machine__ServiceHierarchicalStateMachine__ToolCallSpec:
       properties:
         tool_id:
@@ -18886,6 +19049,393 @@ components:
       - result_persistence
       title: ToolCallSpec
       description: A description of a tool call that the agent can make in this state.
+    VoiceConfigInstance:
+      properties:
+        voice_id:
+          type: string
+          title: Voice Id
+          description: The Cartesia voice ID for this agent.
+        stability:
+          type: number
+          title: Stability
+          default: 0
+        similarity_boost:
+          type: number
+          title: Similarity Boost
+          default: 0
+        style:
+          type: number
+          title: Style
+          default: 0
+      type: object
+      required:
+      - voice_id
+      title: VoiceConfigInstance
+    src__app__endpoints__organization__create_agent_version__Request:
+      properties:
+        initials:
+          anyOf:
+          - $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__3'
+          - type: 'null'
+          description: The agent's initials.
+        identity:
+          anyOf:
+          - $ref: '#/components/schemas/Identity-Input'
+          - type: 'null'
+          description: Information about the agent's identity.
+        background:
+          anyOf:
+          - $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
+          - type: 'null'
+          description: A description of the agent's background.
+        behaviors:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
+            type: array
+          - type: 'null'
+          title: Behaviors
+          description: A list of behavioral guidelines that this agent follows.
+        communication_patterns:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
+            type: array
+          - type: 'null'
+          title: Communication Patterns
+          description: A list of descriptions that illustrate the communication styles of this agent.
+        voice_config:
+          anyOf:
+          - $ref: '#/components/schemas/VoiceConfig'
+          - type: 'null'
+          description: The Cartesia voice config for the agent. If set to null, it is not updated.
+      type: object
+      title: Request
+    src__app__endpoints__organization__create_organization__Response:
+      properties:
+        org_id:
+          type: string
+          title: Org Id
+          description: ID of the newly created organization. This is used to identify the organization that a resource belongs to in all Amigo endpoints.
+      type: object
+      required:
+      - org_id
+      title: Response
+    src__app__endpoints__organization__create_api_key__Response:
+      properties:
+        api_key_id:
+          type: string
+          title: Api Key Id
+          description: An identifier for this API key. You must present this along with the API key to authenticate.
+        api_key:
+          type: string
+          title: Api Key
+          description: The API key. This is only visible once and is not retrievable later. Please store safely.
+        expires_at:
+          type: string
+          format: date-time
+          title: Expires At
+          description: Expiration time of the API key in UTC.
+      type: object
+      required:
+      - api_key_id
+      - api_key
+      - expires_at
+      title: Response
+    amigo_lib__pydantic__base_model__StrippedNonemptyString__2:
+      type: string
+      maxLength: 256
+      minLength: 1
+    Preferences-Output:
+      properties:
+        enable_response_recommendation:
+          type: boolean
+          title: Enable Response Recommendation
+          description: Whether to automatically recommend responses to the user if the user hasn't replied to the coach for a while.
+          default: false
+        preferred_language:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Preferred Language
+          description: 'The preferred language to use for the user. This field must be in the ISO 639-3 format. The agent will attempt to converse
+
+            with the user in this language. If not set, the agent''s default spoken language is used.'
+        conversations_visible_to_admins:
+          type: boolean
+          title: Conversations Visible To Admins
+          description: Whether the user's conversations are visible to the admins.
+          default: true
+        user_model_visible_to_admins:
+          type: boolean
+          title: User Model Visible To Admins
+          description: Whether the user's user model is visible to the admins.
+          default: true
+        timezone:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Timezone
+          description: The user's timezone in the IANA tz database format for all users in this organization. If not specified, UTC is used.
+        audio_keyterms:
+          items:
+            type: string
+          type: array
+          title: Audio Keyterms
+          description: A list of keyterms that are easy to get wrong during audio transcriptions that tend to occur commonly in audio sessions for this user.
+          default: []
+      type: object
+      title: Preferences
+      description: Preferences that the user can set to customize their experience.
+    ToolCallState-Input:
+      properties:
+        type:
+          type: string
+          const: tool-call
+          title: Type
+        name:
+          $ref: '#/components/schemas/StateOrRefName'
+        next_state:
+          anyOf:
+          - $ref: '#/components/schemas/StateOrRefName'
+          - prefixItems:
+            - $ref: '#/components/schemas/ExternalStateName'
+            - $ref: '#/components/schemas/StateOrRefName'
+            type: array
+            maxItems: 2
+            minItems: 2
+          title: Next State
+        designated_tool:
+          $ref: '#/components/schemas/src__app__endpoints__organization__create_service_hierarchical_state_machine_version__Request__ToolCallSpec'
+        designated_tool_call_params_generation_audio_fillers:
+          items:
+            $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
+          type: array
+          maxItems: 5
+          title: Designated Tool Call Params Generation Audio Fillers
+        designated_tool_call_params_generation_audio_filler_triggered_after:
+          type: number
+          maximum: 10.0
+          exclusiveMinimum: 0.0
+          title: Designated Tool Call Params Generation Audio Filler Triggered After
+        designated_tool_call_objective:
+          $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
+        designated_tool_call_context:
+          $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
+        designated_tool_call_guidances:
+          items:
+            $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
+          type: array
+          title: Designated Tool Call Guidances
+        designated_tool_call_validations:
+          items:
+            $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
+          type: array
+          title: Designated Tool Call Validations
+        tool_call_specs:
+          items:
+            $ref: '#/components/schemas/src__app__endpoints__organization__create_service_hierarchical_state_machine_version__Request__ToolCallSpec'
+          type: array
+          title: Tool Call Specs
+      type: object
+      required:
+      - type
+      - name
+      - next_state
+      - designated_tool
+      - designated_tool_call_params_generation_audio_fillers
+      - designated_tool_call_params_generation_audio_filler_triggered_after
+      - designated_tool_call_objective
+      - designated_tool_call_context
+      - designated_tool_call_guidances
+      - designated_tool_call_validations
+      - tool_call_specs
+      title: ToolCallState
+    RecallState-Output:
+      properties:
+        type:
+          type: string
+          const: recall
+          title: Type
+        name:
+          type: string
+          title: Name
+          description: The name of this state.
+        queries:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          title: Queries
+          description: A list of queries to perform active memory extraction for. If this field is defined, `requested_information` must be `None`.
+        requested_information:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Requested Information
+          description: A piece of query to run active memory query generation for. Active memory extraction will be performed for the generated queries. If this field is defined, `queries` must be `None`.
+        next_state:
+          anyOf:
+          - type: string
+          - prefixItems:
+            - type: string
+            - type: string
+            type: array
+            maxItems: 2
+            minItems: 2
+          title: Next State
+          description: 'The state to transition to after the active memory extraction is performed. If it''s a string, the session will transition to a state within this contextual graph. If it''s a tuple, the first element
+
+            must be of the form `{external_contextual_graph_reference_name}.{state_name}` and represents a state in another contextual graph that the session will transition to, and the second element must be a state
+
+            in this contextual graph that the session will transition to after reaching the terminal state of the external graph.'
+      type: object
+      required:
+      - type
+      - name
+      - queries
+      - requested_information
+      - next_state
+      title: RecallState
+      description: 'A passthrough state in which an active memory extraction for the provided queries is performed, and the result added to the working memory, before proceeding
+
+        to another state.'
+    src__app__endpoints__organization__get_api_keys__Response:
+      properties:
+        api_keys:
+          items:
+            $ref: '#/components/schemas/APIKeyInstance'
+          type: array
+          title: Api Keys
+          description: The list of API keys for the organization.
+      type: object
+      required:
+      - api_keys
+      title: Response
+    src__app__endpoints__organization__create_agent__Response:
+      properties:
+        id:
+          type: string
+          title: Id
+          description: The ID of the newly created agent.
+      type: object
+      required:
+      - id
+      title: Response
+    amigo_lib__pydantic__base_model__StrippedNonemptyString__3:
+      type: string
+      maxLength: 3
+      minLength: 1
+    AnnotationState-Output:
+      properties:
+        type:
+          type: string
+          const: annotation
+          title: Type
+        name:
+          type: string
+          title: Name
+          description: The name of this state.
+        inner_thought:
+          type: string
+          title: Inner Thought
+          description: The inner thought to add to the conversation.
+        next_state:
+          anyOf:
+          - type: string
+          - prefixItems:
+            - type: string
+            - type: string
+            type: array
+            maxItems: 2
+            minItems: 2
+          title: Next State
+          description: 'The state to transition to after the inner thought message is generated. If it''s a string, the session will transition to a state within this contextual graph. If it''s a tuple, the first element
+
+            must be of the form `{external_contextual_graph_reference_name}.{state_name}` and represents a state in another contextual graph that the session will transition to, and the second element must be a state
+
+            in this contextual graph that the session will transition to after reaching the terminal state of the external graph.'
+      type: object
+      required:
+      - type
+      - name
+      - inner_thought
+      - next_state
+      title: AnnotationState
+      description: A passthrough state in which the agent adds a pre-determined inner thought message before continuing.
+    ExitCondition-Input:
+      properties:
+        description:
+          $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
+        next_state:
+          anyOf:
+          - $ref: '#/components/schemas/StateOrRefName'
+          - prefixItems:
+            - $ref: '#/components/schemas/ExternalStateName'
+            - $ref: '#/components/schemas/StateOrRefName'
+            type: array
+            maxItems: 2
+            minItems: 2
+          title: Next State
+      type: object
+      required:
+      - description
+      - next_state
+      title: ExitCondition
+    UserDimension-Input:
+      properties:
+        description:
+          $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
+        tags:
+          items:
+            $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
+          type: array
+          title: Tags
+      type: object
+      required:
+      - description
+      - tags
+      title: UserDimension
+    src__app__endpoints__organization__create_agent__Request:
+      properties:
+        agent_name:
+          $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__2'
+          description: The name of the new agent.
+      type: object
+      required:
+      - agent_name
+      title: Request
+    src__app__endpoints__organization__get_organization__Response:
+      properties:
+        org_id:
+          type: string
+          title: Org Id
+          description: Unique identifier of the organization.
+        org_name:
+          type: string
+          title: Org Name
+          description: A human friendly name of the organization.
+        default_user_preferences:
+          anyOf:
+          - $ref: '#/components/schemas/Preferences-Output'
+          - type: 'null'
+          description: 'Default user preferences for new users in this organization. This field is only populated if this endpoint is called with user authentication credentials,
+
+            and the authenticated user has the `Organization:GetOrganizationDetails` permission.'
+        tenant_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Tenant Id
+          description: The tenant ID of the organization. This field is only populated if the authenticated user has the `Organization:GetOrganizationDetails` permission.
+      type: object
+      required:
+      - org_id
+      - org_name
+      - default_user_preferences
+      - tenant_id
+      title: Response
     src__app__endpoints__organization__modify_organization__Request__Preferences:
       properties:
         enable_response_recommendation:
@@ -27436,381 +27986,21 @@ components:
           default: []
       type: object
       title: Preferences
-    src__app__endpoints__organization__get_service_hierarchical_state_machines__Response:
+    amigo_lib__mongo__collections__api_key__APIKey__UserInfo:
       properties:
-        service_hierarchical_state_machines:
-          items:
-            $ref: '#/components/schemas/StateMachineInstance'
-          type: array
-          title: Service Hierarchical State Machines
-          description: The state machines for this organization.
-        has_more:
-          type: boolean
-          title: Has More
-          description: Whether there are more state machines to fetch.
-        continuation_token:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Continuation Token
-          description: A token to supply to the next request to retrieve the next page of state machines. Only populated if `has_more` is `True`.
-      type: object
-      required:
-      - service_hierarchical_state_machines
-      - has_more
-      - continuation_token
-      title: Response
-    State:
-      oneOf:
-      - $ref: '#/components/schemas/ActionState-Output'
-      - $ref: '#/components/schemas/DecisionState-Output'
-      - $ref: '#/components/schemas/RecallState-Output'
-      - $ref: '#/components/schemas/AnnotationState-Output'
-      - $ref: '#/components/schemas/ReflectionState-Output'
-      - $ref: '#/components/schemas/ToolCallState-Output'
-      discriminator:
-        propertyName: type
-        mapping:
-          action: '#/components/schemas/ActionState-Output'
-          annotation: '#/components/schemas/AnnotationState-Output'
-          decision: '#/components/schemas/DecisionState-Output'
-          recall: '#/components/schemas/RecallState-Output'
-          reflection: '#/components/schemas/ReflectionState-Output'
-          tool-call: '#/components/schemas/ToolCallState-Output'
-    src__app__endpoints__organization__create_service_hierarchical_state_machine_version__Request:
-      properties:
-        description:
-          $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
-          description: A description of the service hierarchical state machine.
-        states:
-          items:
-            oneOf:
-            - $ref: '#/components/schemas/ActionState-Input'
-            - $ref: '#/components/schemas/DecisionState-Input'
-            - $ref: '#/components/schemas/RecallState-Input'
-            - $ref: '#/components/schemas/AnnotationState-Input'
-            - $ref: '#/components/schemas/ReflectionState-Input'
-            - $ref: '#/components/schemas/ToolCallState-Input'
-            discriminator:
-              propertyName: type
-              mapping:
-                action: '#/components/schemas/ActionState-Input'
-                annotation: '#/components/schemas/AnnotationState-Input'
-                decision: '#/components/schemas/DecisionState-Input'
-                recall: '#/components/schemas/RecallState-Input'
-                reflection: '#/components/schemas/ReflectionState-Input'
-                tool-call: '#/components/schemas/ToolCallState-Input'
-          type: array
-          title: States
-          description: The internal states in this service hierarchical state machine.
-        new_user_initial_state:
-          $ref: '#/components/schemas/StateOrRefName'
-          description: The state a new user will be in when a session starts. This must be an action state, and must be an internal state.
-        returning_user_initial_state:
-          $ref: '#/components/schemas/StateOrRefName'
-          description: The state a returning user will be in when a session starts. This must be an action state, and must be an internal state.
-        terminal_state:
-          $ref: '#/components/schemas/StateOrRefName'
-          description: The state the user will be in when the session ends. This must be an action state, and must be an internal state.
-        references:
-          additionalProperties:
-            prefixItems:
-            - type: string
-              pattern: ^[a-f0-9]{24}$
-            - type: integer
-            type: array
-            maxItems: 2
-            minItems: 2
-          propertyNames:
-            $ref: '#/components/schemas/StateOrRefName'
-          type: object
-          title: References
-          description: A dictionary of other service hierarchical state machines that this references to. This field is a map of the reference name to the machine's ID and its version number.
-        global_intra_state_navigation_guidelines:
-          items:
-            $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
-          type: array
-          title: Global Intra State Navigation Guidelines
-          description: A list of guidelines for how the agent will navigate between subgoals and exit conditions within this state. This is injected into the `intra_state_navigation_guidelines` field of every action state.
-        global_action_guidelines:
-          items:
-            $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
-          type: array
-          title: Global Action Guidelines
-          description: A list of guidelines for how the agent will behave when engaging with user. This is injected into the `action_guidelines` field of every action state.
-        global_boundary_constraints:
-          items:
-            $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
-          type: array
-          title: Global Boundary Constraints
-          description: A list of guidelines for how the agent will not behave when engaging with user. This is injected into the `boundary_constraints` field of every action state.
-      type: object
-      required:
-      - description
-      - states
-      - new_user_initial_state
-      - returning_user_initial_state
-      - terminal_state
-      - references
-      - global_intra_state_navigation_guidelines
-      - global_action_guidelines
-      - global_boundary_constraints
-      title: Request
-    ExitCondition-Input:
-      properties:
-        description:
-          $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
-        next_state:
-          anyOf:
-          - $ref: '#/components/schemas/StateOrRefName'
-          - prefixItems:
-            - $ref: '#/components/schemas/ExternalStateName'
-            - $ref: '#/components/schemas/StateOrRefName'
-            type: array
-            maxItems: 2
-            minItems: 2
-          title: Next State
-      type: object
-      required:
-      - description
-      - next_state
-      title: ExitCondition
-    src__app__endpoints__organization__create_agent_version__Request:
-      properties:
-        initials:
-          anyOf:
-          - $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__3'
-          - type: 'null'
-          description: The agent's initials.
-        identity:
-          anyOf:
-          - $ref: '#/components/schemas/Identity-Input'
-          - type: 'null'
-          description: Information about the agent's identity.
-        background:
-          anyOf:
-          - $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
-          - type: 'null'
-          description: A description of the agent's background.
-        behaviors:
-          anyOf:
-          - items:
-              $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
-            type: array
-          - type: 'null'
-          title: Behaviors
-          description: A list of behavioral guidelines that this agent follows.
-        communication_patterns:
-          anyOf:
-          - items:
-              $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
-            type: array
-          - type: 'null'
-          title: Communication Patterns
-          description: A list of descriptions that illustrate the communication styles of this agent.
-        voice_config:
-          anyOf:
-          - $ref: '#/components/schemas/VoiceConfig'
-          - type: 'null'
-          description: The Cartesia voice config for the agent. If set to null, it is not updated.
-      type: object
-      title: Request
-    ServiceHierarchicalStateMachineInstance:
-      properties:
+        user_id:
+          type: string
+          title: User Id
+          description: The user ID of the creator of this key.
         org_id:
           type: string
           title: Org Id
-          description: The ID of the organization of this state machine.
-        service_hierarchical_state_machine_id:
-          type: string
-          title: Service Hierarchical State Machine Id
-          description: The ID of the state machine that this document is a version for.
-        version:
-          type: integer
-          title: Version
-          description: Numerical version ID that describes how many iterations of this state machine occurred before this version.
-        created_at:
-          type: string
-          format: date-time
-          title: Created At
-          description: The time at which this version was created.
-        creator:
-          $ref: '#/components/schemas/amigo_lib__mongo__collections__service_hierarchical_state_machine__ServiceHierarchicalStateMachine__UserInfo'
-          description: The user who created this version of the state machine.
-        description:
-          type: string
-          title: Description
-          description: A description of the state machine.
-        states:
-          items:
-            $ref: '#/components/schemas/State'
-          type: array
-          title: States
-          description: The states in this state machine.
-        new_user_initial_state:
-          type: string
-          title: New User Initial State
-          description: The state a new user will be in when a session starts. This must be an action state.
-        returning_user_initial_state:
-          type: string
-          title: Returning User Initial State
-          description: The state a returning user will be in when a session starts. This must be an action state.
-        terminal_state:
-          type: string
-          title: Terminal State
-          description: The state the user will be in when the session ends. This must be an action state.
-        references:
-          additionalProperties:
-            prefixItems:
-            - type: string
-            - type: integer
-            type: array
-            maxItems: 2
-            minItems: 2
-          type: object
-          title: References
-          description: A dictionary of other service hierarchical state machine versions that this references to. This field is a map of the reference name to the machine's ID and its version number.
-        global_intra_state_navigation_guidelines:
-          items:
-            type: string
-          type: array
-          title: Global Intra State Navigation Guidelines
-          description: A list of guidelines for how the agent will navigate between subgoals and exit conditions within this state. This is injected into the `intra_state_navigation_guidelines` field of every action state.
-        global_action_guidelines:
-          items:
-            type: string
-          type: array
-          title: Global Action Guidelines
-          description: A list of guidelines for how the agent will behave when engaging with user. This is injected into the `action_guidelines` field of every action state.
-        global_boundary_constraints:
-          items:
-            type: string
-          type: array
-          title: Global Boundary Constraints
-          description: A list of guidelines for how the agent will not behave when engaging with user. This is injected into the `boundary_constraints` field of every action state.
+          description: The organization ID of the creator of this key.
       type: object
       required:
+      - user_id
       - org_id
-      - service_hierarchical_state_machine_id
-      - version
-      - created_at
-      - creator
-      - description
-      - states
-      - new_user_initial_state
-      - returning_user_initial_state
-      - terminal_state
-      - references
-      - global_intra_state_navigation_guidelines
-      - global_action_guidelines
-      - global_boundary_constraints
-      title: ServiceHierarchicalStateMachineInstance
-    ExitCondition-Output:
-      properties:
-        description:
-          type: string
-          title: Description
-          description: A description of this exit condition.
-        next_state:
-          anyOf:
-          - type: string
-          - prefixItems:
-            - type: string
-            - type: string
-            type: array
-            maxItems: 2
-            minItems: 2
-          title: Next State
-          description: 'The state to transition to if this exit condition is met. If it''s a string, the session will transition to a state within this contextual graph. If it''s a tuple, the first element
-
-            must be of the form `{external_contextual_graph_reference_name}.{state_name}` and represents a state in another contextual graph that the session will transition to, and the second element must be a state
-
-            in this contextual graph that the session will transition to after reaching the terminal state of the external graph.'
-      type: object
-      required:
-      - description
-      - next_state
-      title: ExitCondition
-    AnnotationState-Input:
-      properties:
-        type:
-          type: string
-          const: annotation
-          title: Type
-        name:
-          $ref: '#/components/schemas/StateOrRefName'
-        inner_thought:
-          $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
-        next_state:
-          anyOf:
-          - $ref: '#/components/schemas/StateOrRefName'
-          - prefixItems:
-            - $ref: '#/components/schemas/ExternalStateName'
-            - $ref: '#/components/schemas/StateOrRefName'
-            type: array
-            maxItems: 2
-            minItems: 2
-          title: Next State
-      type: object
-      required:
-      - type
-      - name
-      - inner_thought
-      - next_state
-      title: AnnotationState
-    APIKeyInstance:
-      properties:
-        _id:
-          type: string
-          title: Id
-        name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Name
-          description: The name of the API key.
-        org_id:
-          type: string
-          title: Org Id
-          description: The ID of the organization.
-        created_at:
-          type: string
-          format: date-time
-          title: Created At
-          description: The UTC time at which this key was created.
-        updated_at:
-          type: string
-          format: date-time
-          title: Updated At
-          description: The UTC time at which this key was last updated.
-        key_id:
-          type: string
-          title: Key Id
-          description: The ID of the API key. Instead of the key's Mongo ID, this UUID is used as the identifier for the key for backwards compatibility reasons.
-        expires_at:
-          type: string
-          format: date-time
-          title: Expires At
-          description: The UTC time at which this key will expire.
-        creator:
-          $ref: '#/components/schemas/amigo_lib__mongo__collections__api_key__APIKey__UserInfo'
-          description: The user who created this key.
-        role_id:
-          type: string
-          title: Role Id
-          description: The role ID of the creator of this key.
-      type: object
-      required:
-      - _id
-      - name
-      - org_id
-      - created_at
-      - updated_at
-      - key_id
-      - expires_at
-      - creator
-      - role_id
-      title: APIKeyInstance
+      title: UserInfo
     RelationshipToDeveloper-Output:
       properties:
         ownership:
@@ -27836,165 +28026,36 @@ components:
       - conversation_visibility
       - thought_visibility
       title: RelationshipToDeveloper
-    amigo_lib__pydantic__base_model__StrippedNonemptyString__3:
-      type: string
-      maxLength: 3
-      minLength: 1
-    amigo_lib__mongo__collections__agent__Agent__UserInfo:
+    src__app__endpoints__organization__create_service_hierarchical_state_machine_version__Response:
       properties:
-        org_id:
-          type: string
-          title: Org Id
-        user_id:
-          type: string
-          title: User Id
-      type: object
-      required:
-      - org_id
-      - user_id
-      title: UserInfo
-    src__app__endpoints__organization__get_agent_versions__Response__AgentInstance:
-      properties:
-        org_id:
-          type: string
-          title: Org Id
-          description: The ID of the organization of this agent.
-        agent_id:
-          type: string
-          title: Agent Id
-          description: The ID of this agent.
         version:
           type: integer
           title: Version
-          description: The version of the agent.
-        voice_config:
-          anyOf:
-          - $ref: '#/components/schemas/VoiceConfigInstance'
-          - type: 'null'
-          description: The voice configuration of the agent.
-        initials:
-          type: string
-          title: Initials
-          description: The initials of the agent.
-        identity:
-          $ref: '#/components/schemas/Identity-Output'
-          description: The identity of the agent.
-        background:
-          type: string
-          title: Background
-          description: A description of the `Agent`'s background.
-        behaviors:
-          items:
-            type: string
-          type: array
-          title: Behaviors
-          description: A list of behavioral guidelines that this `Agent` follows.
-        communication_patterns:
-          items:
-            type: string
-          type: array
-          title: Communication Patterns
-          description: A list of descriptions that illustrate the communication styles of this `Agent`.
+          description: 'Numerical version ID that describes how many iterations of this service hierarchical state machine occurred before this version. Note that this is for reference only.
+
+            Any identification of a service hierarchical state machine version in Amigo APIs use the `id` field.
+
+
+            For the initial version of a service hierarchical state machine, this field will be 1.'
         created_at:
           type: string
           format: date-time
           title: Created At
           description: The time at which this version was created.
-        creator:
-          $ref: '#/components/schemas/amigo_lib__mongo__collections__agent__Agent__UserInfo'
-          description: The user who created this version of the agent.
       type: object
       required:
-      - org_id
-      - agent_id
       - version
-      - voice_config
-      - initials
-      - identity
-      - background
-      - behaviors
-      - communication_patterns
       - created_at
-      - creator
-      title: AgentInstance
-    DecisionState-Input:
+      title: Response
+    src__app__endpoints__organization__create_service_hierarchical_state_machine__Request:
       properties:
-        type:
-          type: string
-          const: decision
-          title: Type
-        name:
-          $ref: '#/components/schemas/StateOrRefName'
-        exit_conditions:
-          items:
-            $ref: '#/components/schemas/ExitCondition-Input'
-          type: array
-          title: Exit Conditions
-        decision_guidelines:
-          items:
-            $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
-          type: array
-          title: Decision Guidelines
-        objective:
-          $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
-        tool_call_specs:
-          items:
-            $ref: '#/components/schemas/src__app__endpoints__organization__create_service_hierarchical_state_machine_version__Request__ToolCallSpec'
-          type: array
-          title: Tool Call Specs
-        audio_fillers:
-          items:
-            $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
-          type: array
-          maxItems: 5
-          title: Audio Fillers
-          description: A list of audio fillers to play in audio mode if the `select-next-state-for-decision-state` prompt is taking too long to process.
-        audio_filler_triggered_after:
-          type: number
-          maximum: 10.0
-          exclusiveMinimum: 0.0
-          title: Audio Filler Triggered After
-          description: The number of seconds to wait before playing an audio filler.
+        state_machine_name:
+          $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__2'
+          description: The name of the new state machine.
       type: object
       required:
-      - type
-      - name
-      - exit_conditions
-      - decision_guidelines
-      - objective
-      - tool_call_specs
-      - audio_fillers
-      - audio_filler_triggered_after
-      title: DecisionState
-    Identity-Output:
-      properties:
-        name:
-          type: string
-          title: Name
-          description: A human friendly name of the agent.
-        role:
-          type: string
-          title: Role
-          description: The agent's role within the organization.
-        developed_by:
-          type: string
-          title: Developed By
-          description: A human-friendly name of the organization that developed this agent.
-        default_spoken_language:
-          type: string
-          title: Default Spoken Language
-          description: The agent's primary language. This must be specified in the ISO 639-3 format.
-        relationship_to_developer:
-          $ref: '#/components/schemas/RelationshipToDeveloper-Output'
-          description: Relationship of the agent to its developer.
-      type: object
-      required:
-      - name
-      - role
-      - developed_by
-      - default_spoken_language
-      - relationship_to_developer
-      title: Identity
+      - state_machine_name
+      title: Request
     ReflectionState-Input:
       properties:
         type:
@@ -28048,219 +28109,243 @@ components:
       - audio_fillers
       - audio_filler_triggered_after
       title: ReflectionState
-    src__app__endpoints__organization__create_agent__Response:
+    src__app__endpoints__organization__delete_api_key__Response:
       properties:
-        id:
+        deleted_key_id:
           type: string
-          title: Id
-          description: The ID of the newly created agent.
+          title: Deleted Key Id
+          description: ID of the successfully deleted API key.
       type: object
       required:
-      - id
+      - deleted_key_id
       title: Response
-    RecallState-Output:
+    ExternalStateName:
+      type: string
+      pattern: ^[A-Za-z0-9_]+\.[A-Za-z0-9_]+$
+    amigo_lib__pydantic__base_model__StrippedNonemptyString__1:
+      type: string
+      minLength: 1
+    src__app__endpoints__organization__get_user_dimensions__Response:
+      properties:
+        user_dimensions:
+          items:
+            $ref: '#/components/schemas/UserDimension-Output'
+          type: array
+          title: User Dimensions
+          description: The list of user dimensions for the organization.
+      type: object
+      required:
+      - user_dimensions
+      title: Response
+    State:
+      oneOf:
+      - $ref: '#/components/schemas/ActionState-Output'
+      - $ref: '#/components/schemas/DecisionState-Output'
+      - $ref: '#/components/schemas/RecallState-Output'
+      - $ref: '#/components/schemas/AnnotationState-Output'
+      - $ref: '#/components/schemas/ReflectionState-Output'
+      - $ref: '#/components/schemas/ToolCallState-Output'
+      discriminator:
+        propertyName: type
+        mapping:
+          action: '#/components/schemas/ActionState-Output'
+          annotation: '#/components/schemas/AnnotationState-Output'
+          decision: '#/components/schemas/DecisionState-Output'
+          recall: '#/components/schemas/RecallState-Output'
+          reflection: '#/components/schemas/ReflectionState-Output'
+          tool-call: '#/components/schemas/ToolCallState-Output'
+    src__app__endpoints__organization__modify_organization__Request:
+      properties:
+        logo:
+          anyOf:
+          - type: string
+            format: base64
+          - type: 'null'
+          title: Logo
+          description: 'A logo for the organization that will be displayed on the Amigo frontend for this organization, as well as all Amigo communications to users on behalf of the organization.
+
+            Must be provided as base64 encoded bytes of a PNG image of aspect ratio 5:2 with minimum size 400 * 160 pixels. Only updated if not null.'
+        square_logo:
+          anyOf:
+          - type: string
+            format: base64
+          - type: 'null'
+          title: Square Logo
+          description: A square logo of the organization. Must be provided as base64 encoded bytes of a square PNG image of size at least 40 * 40 pixels. Only updated if not null.
+        favicon:
+          anyOf:
+          - type: string
+            format: base64
+          - type: 'null'
+          title: Favicon
+          description: Favicon for the Amigo frontend for this organization. Must be provided as base64 encoded bytes of a square ICO image that's of size at least 40 * 40 pixels. Only updated if not null.
+        user_dimensions:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/UserDimension-Input'
+            type: array
+            minItems: 1
+          - type: 'null'
+          title: User Dimensions
+          description: User dimensions for the organization. If not set or `null`, this field is not updated.
+        default_user_preferences:
+          anyOf:
+          - $ref: '#/components/schemas/src__app__endpoints__organization__modify_organization__Request__Preferences'
+          - type: 'null'
+          description: The default user preferences for the organization. If `null`, this field is not updated.
+      type: object
+      title: Request
+    ActionState-Input:
       properties:
         type:
           type: string
-          const: recall
+          const: action
+          title: Type
+        name:
+          $ref: '#/components/schemas/StateOrRefName'
+        objective:
+          $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
+        actions:
+          items:
+            $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
+          type: array
+          minItems: 1
+          title: Actions
+        intra_state_navigation_guidelines:
+          items:
+            $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
+          type: array
+          title: Intra State Navigation Guidelines
+        action_guidelines:
+          items:
+            $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
+          type: array
+          title: Action Guidelines
+        boundary_constraints:
+          items:
+            $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
+          type: array
+          title: Boundary Constraints
+        exit_conditions:
+          items:
+            $ref: '#/components/schemas/ExitCondition-Input'
+          type: array
+          title: Exit Conditions
+        action_tool_call_specs:
+          items:
+            $ref: '#/components/schemas/src__app__endpoints__organization__create_service_hierarchical_state_machine_version__Request__ToolCallSpec'
+          type: array
+          title: Action Tool Call Specs
+        exit_condition_tool_call_specs:
+          items:
+            $ref: '#/components/schemas/src__app__endpoints__organization__create_service_hierarchical_state_machine_version__Request__ToolCallSpec'
+          type: array
+          title: Exit Condition Tool Call Specs
+        skip_active_memory_retrieval:
+          type: boolean
+          title: Skip Active Memory Retrieval
+          description: If `True`, the agent will not perform active memory retrieval at the start of an interaction in this state.
+      type: object
+      required:
+      - type
+      - name
+      - objective
+      - actions
+      - intra_state_navigation_guidelines
+      - action_guidelines
+      - boundary_constraints
+      - exit_conditions
+      - action_tool_call_specs
+      - exit_condition_tool_call_specs
+      - skip_active_memory_retrieval
+      title: ActionState
+    ActionState-Output:
+      properties:
+        type:
+          type: string
+          const: action
           title: Type
         name:
           type: string
           title: Name
           description: The name of this state.
-        queries:
-          anyOf:
-          - items:
-              type: string
-            type: array
-          - type: 'null'
-          title: Queries
-          description: A list of queries to perform active memory extraction for. If this field is defined, `requested_information` must be `None`.
-        requested_information:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Requested Information
-          description: A piece of query to run active memory query generation for. Active memory extraction will be performed for the generated queries. If this field is defined, `queries` must be `None`.
-        next_state:
-          anyOf:
-          - type: string
-          - prefixItems:
-            - type: string
-            - type: string
-            type: array
-            maxItems: 2
-            minItems: 2
-          title: Next State
-          description: 'The state to transition to after the active memory extraction is performed. If it''s a string, the session will transition to a state within this contextual graph. If it''s a tuple, the first element
-
-            must be of the form `{external_contextual_graph_reference_name}.{state_name}` and represents a state in another contextual graph that the session will transition to, and the second element must be a state
-
-            in this contextual graph that the session will transition to after reaching the terminal state of the external graph.'
+        objective:
+          type: string
+          title: Objective
+          description: The objective that the `Agent` works towards when in this state.
+        actions:
+          items:
+            type: string
+          type: array
+          title: Actions
+          description: A list of specific actions that the `Agent` performs in this state.
+        intra_state_navigation_guidelines:
+          items:
+            type: string
+          type: array
+          title: Intra State Navigation Guidelines
+          description: A list of guidelines for how the agent will navigate between subgoals and exit conditions within this state.
+        action_guidelines:
+          items:
+            type: string
+          type: array
+          title: Action Guidelines
+          description: A list of guidelines for how the agent will behave when engaging with user.
+        boundary_constraints:
+          items:
+            type: string
+          type: array
+          title: Boundary Constraints
+          description: A list of guidelines for how the agent will not behave when engaging with user.
+        exit_conditions:
+          items:
+            $ref: '#/components/schemas/ExitCondition-Output'
+          type: array
+          title: Exit Conditions
+          description: A list of exit conditions for this state that describes under what condition would the session be allowed to transition to another state.
+        action_tool_call_specs:
+          items:
+            $ref: '#/components/schemas/amigo_lib__mongo__collections__service_hierarchical_state_machine__ServiceHierarchicalStateMachine__ToolCallSpec'
+          type: array
+          title: Action Tool Call Specs
+          description: A list of tool calls that the agent can make in this state when executing an action.
+        exit_condition_tool_call_specs:
+          items:
+            $ref: '#/components/schemas/amigo_lib__mongo__collections__service_hierarchical_state_machine__ServiceHierarchicalStateMachine__ToolCallSpec'
+          type: array
+          title: Exit Condition Tool Call Specs
+          description: A list of tool calls that the agent can make in this state when evaluating exit conditions.
+        skip_active_memory_retrieval:
+          type: boolean
+          title: Skip Active Memory Retrieval
+          description: If `True`, the agent will not perform active memory retrieval at the start of an interaction in this state.
       type: object
       required:
       - type
       - name
-      - queries
-      - requested_information
-      - next_state
-      title: RecallState
-      description: 'A passthrough state in which an active memory extraction for the provided queries is performed, and the result added to the working memory, before proceeding
+      - objective
+      - actions
+      - intra_state_navigation_guidelines
+      - action_guidelines
+      - boundary_constraints
+      - exit_conditions
+      - action_tool_call_specs
+      - exit_condition_tool_call_specs
+      - skip_active_memory_retrieval
+      title: ActionState
+      description: 'A state associated with an objective and a list of actions. The `Agent` will perform these actions towards achieving the objective. The session
 
-        to another state.'
-    StateOrRefName:
-      type: string
-      pattern: ^[A-Za-z0-9_]+$
-    ExternalStateName:
-      type: string
-      pattern: ^[A-Za-z0-9_]+\.[A-Za-z0-9_]+$
-    ResultPersistence:
-      type: string
-      enum:
-      - ephemeral
-      - persisted-preferred
-      - persisted
-    src__app__endpoints__organization__create_service_hierarchical_state_machine_version__Request__ToolCallSpec:
-      properties:
-        tool_id:
-          type: string
-          pattern: ^[a-f0-9]{24}$
-          title: Tool Id
-          description: The ID of the tool.
-        version_constraint:
-          type: string
-          title: Version Constraint
-          description: A [Python packaging version constraint](https://packaging.python.org/en/latest/specifications/version-specifiers/#id5) of the tool.
-        additional_instruction:
-          $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
-          description: Additional instruction to be supplied to the LLM in addition to the tool's description.
-        audio_fillers:
-          items:
-            $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
-          type: array
-          maxItems: 5
-          title: Audio Fillers
-          description: A list of audio fillers to play in audio mode if the tool is taking a long time.
-        audio_filler_triggered_after:
-          type: number
-          maximum: 10.0
-          exclusiveMinimum: 0.0
-          title: Audio Filler Triggered After
-          description: The number of seconds to wait before playing an audio filler.
-        result_persistence:
-          $ref: '#/components/schemas/ResultPersistence'
-          description: 'The type of result persistence for this tool call.
+        may transition to a different state if any of the exit conditions are met, in which case the session proceeds to the next state specified in the
 
-
-            - If `ephemeral`, the result of the tool call is only provided to the current LLM interaction. Any future LLM interactions will not see this tool result.
-
-            - If `persisted-preferred`, the result of the tool call is reflected in all future LLM interactions if it''s less than 5000 characters long. Otherwise, it''s only visible in the current LLM interaction.
-
-            - If `persisted`, the result of the tool call is reflected in all future LLM interactions, unless it''s more than 5000 characters long, in which case an error is thrown.'
-      type: object
-      required:
-      - tool_id
-      - version_constraint
-      - additional_instruction
-      - audio_fillers
-      - audio_filler_triggered_after
-      - result_persistence
-      title: ToolCallSpec
-    src__app__endpoints__organization__create_api_key__Request:
-      properties:
-        name:
-          anyOf:
-          - $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
-          - type: 'null'
-          description: An optional name for the API key for easier identification by users.
-        duration:
-          type: string
-          format: duration
-          title: Duration
-          description: The valid duration of the API key. Should be supplied in the [ISO8601 format](https://en.wikipedia.org/wiki/ISO_8601#Durations). Must be between 1 to 90 days.
-        role_name:
-          type: string
-          title: Role Name
-          description: 'The name of the role associated with the key. When using this API key to authenticate, it can only authenticate for users with roles that are less permissive
-
-            than this role.'
-          default: DefaultAdministratorRole
-      type: object
-      required:
-      - name
-      - duration
-      title: Request
-    ToolCallState-Input:
-      properties:
-        type:
-          type: string
-          const: tool-call
-          title: Type
-        name:
-          $ref: '#/components/schemas/StateOrRefName'
-        next_state:
-          anyOf:
-          - $ref: '#/components/schemas/StateOrRefName'
-          - prefixItems:
-            - $ref: '#/components/schemas/ExternalStateName'
-            - $ref: '#/components/schemas/StateOrRefName'
-            type: array
-            maxItems: 2
-            minItems: 2
-          title: Next State
-        designated_tool:
-          $ref: '#/components/schemas/src__app__endpoints__organization__create_service_hierarchical_state_machine_version__Request__ToolCallSpec'
-        designated_tool_call_params_generation_audio_fillers:
-          items:
-            $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
-          type: array
-          maxItems: 5
-          title: Designated Tool Call Params Generation Audio Fillers
-        designated_tool_call_params_generation_audio_filler_triggered_after:
-          type: number
-          maximum: 10.0
-          exclusiveMinimum: 0.0
-          title: Designated Tool Call Params Generation Audio Filler Triggered After
-        designated_tool_call_objective:
-          $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
-        designated_tool_call_context:
-          $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
-        designated_tool_call_guidances:
-          items:
-            $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
-          type: array
-          title: Designated Tool Call Guidances
-        designated_tool_call_validations:
-          items:
-            $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
-          type: array
-          title: Designated Tool Call Validations
-        tool_call_specs:
-          items:
-            $ref: '#/components/schemas/src__app__endpoints__organization__create_service_hierarchical_state_machine_version__Request__ToolCallSpec'
-          type: array
-          title: Tool Call Specs
-      type: object
-      required:
-      - type
-      - name
-      - next_state
-      - designated_tool
-      - designated_tool_call_params_generation_audio_fillers
-      - designated_tool_call_params_generation_audio_filler_triggered_after
-      - designated_tool_call_objective
-      - designated_tool_call_context
-      - designated_tool_call_guidances
-      - designated_tool_call_validations
-      - tool_call_specs
-      title: ToolCallState
-    UserDimension-Input:
+        exit condition. If no exit conditions are met, the session remains in this state.'
+    UserDimension-Output:
       properties:
         description:
-          $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
+          type: string
+          title: Description
         tags:
           items:
-            $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
+            type: string
           type: array
           title: Tags
       type: object
@@ -28268,91 +28353,6 @@ components:
       - description
       - tags
       title: UserDimension
-    StateMachineInstance:
-      properties:
-        id:
-          type: string
-          title: Id
-          description: The ID of the state machine.
-        name:
-          type: string
-          title: Name
-          description: The name of the state machine.
-        deprecated:
-          type: boolean
-          title: Deprecated
-          description: Whether the state machine has been deprecated.
-        latest_version:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Latest Version
-          description: The latest version of the state machine. If `None`, no version for the state machine exists.
-      type: object
-      required:
-      - id
-      - name
-      - deprecated
-      - latest_version
-      title: StateMachineInstance
-    DecisionState-Output:
-      properties:
-        type:
-          type: string
-          const: decision
-          title: Type
-        name:
-          type: string
-          title: Name
-          description: The name of this state.
-        exit_conditions:
-          items:
-            $ref: '#/components/schemas/ExitCondition-Output'
-          type: array
-          title: Exit Conditions
-          description: A list of exit conditions for this state that describes under what condition would the session be allowed to transition to another state.
-        decision_guidelines:
-          items:
-            type: string
-          type: array
-          title: Decision Guidelines
-          description: A list of action guidelines that the `Agent` follows when in this state for making a decision.
-        objective:
-          type: string
-          title: Objective
-          description: The objective that the `Agent` works towards when in this state.
-        tool_call_specs:
-          items:
-            $ref: '#/components/schemas/amigo_lib__mongo__collections__service_hierarchical_state_machine__ServiceHierarchicalStateMachine__ToolCallSpec'
-          type: array
-          title: Tool Call Specs
-          description: A list of tool calls that the agent can make in this state.
-        audio_fillers:
-          items:
-            type: string
-          type: array
-          title: Audio Fillers
-          description: A list of audio fillers to play in the audio mode if the `select-next-state-for-decision-state` prompt is taking too long to process.
-        audio_filler_triggered_after:
-          type: number
-          title: Audio Filler Triggered After
-          description: The number of seconds to wait before playing an audio filler.
-      type: object
-      required:
-      - type
-      - name
-      - exit_conditions
-      - decision_guidelines
-      - objective
-      - tool_call_specs
-      - audio_fillers
-      - audio_filler_triggered_after
-      title: DecisionState
-      description: 'A passthrough state in which the `Agent` must decide, among a list of exit conditions, one that the session has satisfied, and transitions to the next
-
-        state associated with that exit condition. This is different from an `ActionState` in that there''s no actions to perform, and the session must transition
-
-        to another state.'
   securitySchemes:
     Bearer-Authorization:
       type: http

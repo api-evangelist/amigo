@@ -364,113 +364,6 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
-    ExternalIntegrationCredentialRequest:
-      properties:
-        service_ids:
-          items:
-            type: string
-            format: uuid
-          type: array
-          maxItems: 100
-          minItems: 1
-          title: Service Ids
-        name:
-          anyOf:
-          - $ref: '#/components/schemas/NameString'
-          - type: 'null'
-        expires_at:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Expires At
-      type: object
-      required:
-      - service_ids
-      title: ExternalIntegrationCredentialRequest
-    ExternalIntegrationResponse:
-      properties:
-        id:
-          type: string
-          format: uuid
-          title: Id
-        workspace_id:
-          type: string
-          format: uuid
-          title: Workspace Id
-        name:
-          type: string
-          maxLength: 128
-          minLength: 2
-          pattern: ^[a-z0-9][a-z0-9_-]*[a-z0-9]$
-          title: Name
-        display_name:
-          $ref: '#/components/schemas/NameString'
-        description:
-          anyOf:
-          - type: string
-            maxLength: 4096
-          - type: 'null'
-          title: Description
-        is_active:
-          type: boolean
-          title: Is Active
-        created_by_entity_id:
-          type: string
-          format: uuid
-          title: Created By Entity Id
-        created_by_credential_id:
-          anyOf:
-          - type: string
-            format: uuid
-          - type: 'null'
-          title: Created By Credential Id
-        created_at:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Created At
-        updated_at:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Updated At
-      type: object
-      required:
-      - id
-      - workspace_id
-      - name
-      - display_name
-      - is_active
-      - created_by_entity_id
-      title: ExternalIntegrationResponse
-    PaginatedResponse_ExternalIntegrationResponse_:
-      properties:
-        items:
-          items:
-            $ref: '#/components/schemas/ExternalIntegrationResponse'
-          type: array
-          title: Items
-        has_more:
-          type: boolean
-          title: Has More
-        continuation_token:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Continuation Token
-        total:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Total
-      type: object
-      required:
-      - items
-      - has_more
-      title: PaginatedResponse[ExternalIntegrationResponse]
     ValidationError:
       properties:
         loc:
@@ -497,15 +390,34 @@ components:
       - msg
       - type
       title: ValidationError
-    HTTPValidationError:
+    SearchString:
+      type: string
+      maxLength: 200
+      minLength: 1
+    ExternalIntegrationCredentialRequest:
       properties:
-        detail:
+        service_ids:
           items:
-            $ref: '#/components/schemas/ValidationError'
+            type: string
+            format: uuid
           type: array
-          title: Detail
+          maxItems: 100
+          minItems: 1
+          title: Service Ids
+        name:
+          anyOf:
+          - $ref: '#/components/schemas/NameString'
+          - type: 'null'
+        expires_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Expires At
       type: object
-      title: HTTPValidationError
+      required:
+      - service_ids
+      title: ExternalIntegrationCredentialRequest
     ExternalIntegrationRequest:
       properties:
         name:
@@ -527,45 +439,6 @@ components:
       - name
       - display_name
       title: ExternalIntegrationRequest
-    SearchString:
-      type: string
-      maxLength: 200
-      minLength: 1
-    ExternalIntegrationCredentialSecretResponse:
-      properties:
-        credential:
-          $ref: '#/components/schemas/ExternalIntegrationCredentialResponse'
-        client_secret:
-          type: string
-          title: Client Secret
-      type: object
-      required:
-      - credential
-      - client_secret
-      title: ExternalIntegrationCredentialSecretResponse
-    NameString:
-      type: string
-      maxLength: 256
-      minLength: 1
-    ExternalIntegrationUpdateRequest:
-      properties:
-        name:
-          type: string
-          maxLength: 128
-          minLength: 2
-          pattern: ^[a-z0-9][a-z0-9_-]*[a-z0-9]$
-          title: Name
-        display_name:
-          $ref: '#/components/schemas/NameString'
-          title: Display Name
-        description:
-          anyOf:
-          - type: string
-            maxLength: 4096
-          - type: 'null'
-          title: Description
-      type: object
-      title: ExternalIntegrationUpdateRequest
     ExternalIntegrationCredentialResponse:
       properties:
         id:
@@ -636,6 +509,133 @@ components:
       - service_ids
       - is_active
       title: ExternalIntegrationCredentialResponse
+    PaginatedResponse_ExternalIntegrationResponse_:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/ExternalIntegrationResponse'
+          type: array
+          title: Items
+        has_more:
+          type: boolean
+          title: Has More
+        continuation_token:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Continuation Token
+        total:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Total
+      type: object
+      required:
+      - items
+      - has_more
+      title: PaginatedResponse[ExternalIntegrationResponse]
+    NameString:
+      type: string
+      maxLength: 256
+      minLength: 1
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    ExternalIntegrationCredentialSecretResponse:
+      properties:
+        credential:
+          $ref: '#/components/schemas/ExternalIntegrationCredentialResponse'
+        client_secret:
+          type: string
+          title: Client Secret
+      type: object
+      required:
+      - credential
+      - client_secret
+      title: ExternalIntegrationCredentialSecretResponse
+    ExternalIntegrationResponse:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        workspace_id:
+          type: string
+          format: uuid
+          title: Workspace Id
+        name:
+          type: string
+          maxLength: 128
+          minLength: 2
+          pattern: ^[a-z0-9][a-z0-9_-]*[a-z0-9]$
+          title: Name
+        display_name:
+          $ref: '#/components/schemas/NameString'
+        description:
+          anyOf:
+          - type: string
+            maxLength: 4096
+          - type: 'null'
+          title: Description
+        is_active:
+          type: boolean
+          title: Is Active
+        created_by_entity_id:
+          type: string
+          format: uuid
+          title: Created By Entity Id
+        created_by_credential_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Created By Credential Id
+        created_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Created At
+        updated_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Updated At
+      type: object
+      required:
+      - id
+      - workspace_id
+      - name
+      - display_name
+      - is_active
+      - created_by_entity_id
+      title: ExternalIntegrationResponse
+    ExternalIntegrationUpdateRequest:
+      properties:
+        name:
+          type: string
+          maxLength: 128
+          minLength: 2
+          pattern: ^[a-z0-9][a-z0-9_-]*[a-z0-9]$
+          title: Name
+        display_name:
+          $ref: '#/components/schemas/NameString'
+          title: Display Name
+        description:
+          anyOf:
+          - type: string
+            maxLength: 4096
+          - type: 'null'
+          title: Description
+      type: object
+      title: ExternalIntegrationUpdateRequest
   securitySchemes:
     BearerAuth:
       type: http

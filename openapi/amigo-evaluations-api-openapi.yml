@@ -280,6 +280,82 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    CallEvalResultsResponse:
+      properties:
+        conversation_id:
+          type: string
+          format: uuid
+          title: Conversation Id
+        results:
+          items:
+            $ref: '#/components/schemas/CallEvalResult'
+          type: array
+          title: Results
+      type: object
+      required:
+      - conversation_id
+      - results
+      title: CallEvalResultsResponse
+    PaginatedResponse_ProductionEvalDefinition_:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/ProductionEvalDefinition'
+          type: array
+          title: Items
+        has_more:
+          type: boolean
+          title: Has More
+        continuation_token:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Continuation Token
+        total:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Total
+      type: object
+      required:
+      - items
+      - has_more
+      title: PaginatedResponse[ProductionEvalDefinition]
     CallEvalResult:
       properties:
         id:
@@ -437,32 +513,6 @@ components:
       - eval_key
       - eval_type
       title: CreateProductionEvalDefinitionRequest
-    ValidationError:
-      properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-        input:
-          title: Input
-        ctx:
-          type: object
-          title: Context
-      type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
     UpdateProductionEvalDefinitionRequest:
       properties:
         service_id:
@@ -513,56 +563,6 @@ components:
           title: Active
       type: object
       title: UpdateProductionEvalDefinitionRequest
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
-    PaginatedResponse_ProductionEvalDefinition_:
-      properties:
-        items:
-          items:
-            $ref: '#/components/schemas/ProductionEvalDefinition'
-          type: array
-          title: Items
-        has_more:
-          type: boolean
-          title: Has More
-        continuation_token:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Continuation Token
-        total:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Total
-      type: object
-      required:
-      - items
-      - has_more
-      title: PaginatedResponse[ProductionEvalDefinition]
-    CallEvalResultsResponse:
-      properties:
-        conversation_id:
-          type: string
-          format: uuid
-          title: Conversation Id
-        results:
-          items:
-            $ref: '#/components/schemas/CallEvalResult'
-          type: array
-          title: Results
-      type: object
-      required:
-      - conversation_id
-      - results
-      title: CallEvalResultsResponse
     ProductionEvalDefinition:
       properties:
         id:

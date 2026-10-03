@@ -243,44 +243,31 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
-    RegisterAgentDefinitionResponse:
+    AgentDefinitionVersionMeta:
       properties:
-        definition_id:
-          type: string
-          format: uuid
-          title: Definition Id
         version:
           type: integer
           title: Version
-        created:
-          type: boolean
-          title: Created
-          description: False when an identical body was already registered (idempotent push).
-        framework:
+        body_sha256:
           type: string
-          enum:
-          - claude-agent-sdk
-          - openai-agents
-          title: Framework
+          title: Body Sha256
+        validator_rev:
+          type: string
+          title: Validator Rev
         has_write_tools:
           type: boolean
           title: Has Write Tools
         agent_count:
           type: integer
           title: Agent Count
-        body_sha256:
-          type: string
-          title: Body Sha256
       type: object
       required:
-      - definition_id
       - version
-      - created
-      - framework
+      - body_sha256
+      - validator_rev
       - has_write_tools
       - agent_count
-      - body_sha256
-      title: RegisterAgentDefinitionResponse
+      title: AgentDefinitionVersionMeta
     ValidationError:
       properties:
         loc:
@@ -322,112 +309,11 @@ components:
       - name
       - body
       title: RegisterAgentDefinitionRequest
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
     SlugString:
       type: string
       maxLength: 63
       minLength: 2
       pattern: ^[a-z0-9][a-z0-9-]*[a-z0-9]$
-    AgentDefinitionVersionMeta:
-      properties:
-        version:
-          type: integer
-          title: Version
-        body_sha256:
-          type: string
-          title: Body Sha256
-        validator_rev:
-          type: string
-          title: Validator Rev
-        has_write_tools:
-          type: boolean
-          title: Has Write Tools
-        agent_count:
-          type: integer
-          title: Agent Count
-      type: object
-      required:
-      - version
-      - body_sha256
-      - validator_rev
-      - has_write_tools
-      - agent_count
-      title: AgentDefinitionVersionMeta
-    ValidateAgentDefinitionResponse:
-      properties:
-        valid:
-          type: boolean
-          const: true
-          title: Valid
-        framework:
-          type: string
-          enum:
-          - claude-agent-sdk
-          - openai-agents
-          title: Framework
-        has_write_tools:
-          type: boolean
-          title: Has Write Tools
-        agent_count:
-          type: integer
-          title: Agent Count
-      type: object
-      required:
-      - valid
-      - framework
-      - has_write_tools
-      - agent_count
-      title: ValidateAgentDefinitionResponse
-    AgentDefinitionVersionDetail:
-      properties:
-        version:
-          type: integer
-          title: Version
-        body_sha256:
-          type: string
-          title: Body Sha256
-        validator_rev:
-          type: string
-          title: Validator Rev
-        has_write_tools:
-          type: boolean
-          title: Has Write Tools
-        agent_count:
-          type: integer
-          title: Agent Count
-        definition_id:
-          type: string
-          format: uuid
-          title: Definition Id
-        framework:
-          type: string
-          enum:
-          - claude-agent-sdk
-          - openai-agents
-          title: Framework
-        body:
-          additionalProperties: true
-          type: object
-          title: Body
-      type: object
-      required:
-      - version
-      - body_sha256
-      - validator_rev
-      - has_write_tools
-      - agent_count
-      - definition_id
-      - framework
-      - body
-      title: AgentDefinitionVersionDetail
     AgentDefinitionListResponse:
       properties:
         items:
@@ -473,6 +359,15 @@ components:
       - framework
       - status
       title: AgentDefinitionSummary
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
     AgentDefinitionDetail:
       properties:
         definition_id:
@@ -507,6 +402,111 @@ components:
       - status
       - versions
       title: AgentDefinitionDetail
+    AgentDefinitionVersionDetail:
+      properties:
+        version:
+          type: integer
+          title: Version
+        body_sha256:
+          type: string
+          title: Body Sha256
+        validator_rev:
+          type: string
+          title: Validator Rev
+        has_write_tools:
+          type: boolean
+          title: Has Write Tools
+        agent_count:
+          type: integer
+          title: Agent Count
+        definition_id:
+          type: string
+          format: uuid
+          title: Definition Id
+        framework:
+          type: string
+          enum:
+          - claude-agent-sdk
+          - openai-agents
+          title: Framework
+        body:
+          additionalProperties: true
+          type: object
+          title: Body
+      type: object
+      required:
+      - version
+      - body_sha256
+      - validator_rev
+      - has_write_tools
+      - agent_count
+      - definition_id
+      - framework
+      - body
+      title: AgentDefinitionVersionDetail
+    ValidateAgentDefinitionResponse:
+      properties:
+        valid:
+          type: boolean
+          const: true
+          title: Valid
+        framework:
+          type: string
+          enum:
+          - claude-agent-sdk
+          - openai-agents
+          title: Framework
+        has_write_tools:
+          type: boolean
+          title: Has Write Tools
+        agent_count:
+          type: integer
+          title: Agent Count
+      type: object
+      required:
+      - valid
+      - framework
+      - has_write_tools
+      - agent_count
+      title: ValidateAgentDefinitionResponse
+    RegisterAgentDefinitionResponse:
+      properties:
+        definition_id:
+          type: string
+          format: uuid
+          title: Definition Id
+        version:
+          type: integer
+          title: Version
+        created:
+          type: boolean
+          title: Created
+          description: False when an identical body was already registered (idempotent push).
+        framework:
+          type: string
+          enum:
+          - claude-agent-sdk
+          - openai-agents
+          title: Framework
+        has_write_tools:
+          type: boolean
+          title: Has Write Tools
+        agent_count:
+          type: integer
+          title: Agent Count
+        body_sha256:
+          type: string
+          title: Body Sha256
+      type: object
+      required:
+      - definition_id
+      - version
+      - created
+      - framework
+      - has_write_tools
+      - agent_count
+      - body_sha256
+      title: RegisterAgentDefinitionResponse
   securitySchemes:
     BearerAuth:
       type: http

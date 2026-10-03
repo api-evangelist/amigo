@@ -395,404 +395,6 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
-    ContextGraphResponse:
-      properties:
-        id:
-          type: string
-          format: uuid
-          title: Id
-        workspace_id:
-          type: string
-          format: uuid
-          title: Workspace Id
-        name:
-          type: string
-          title: Name
-        description:
-          type: string
-          title: Description
-        latest_version:
-          type: integer
-          title: Latest Version
-          default: 0
-        state_count:
-          type: integer
-          title: State Count
-          default: 0
-        created_at:
-          type: string
-          format: date-time
-          title: Created At
-        updated_at:
-          type: string
-          format: date-time
-          title: Updated At
-      type: object
-      required:
-      - id
-      - workspace_id
-      - name
-      - description
-      - created_at
-      - updated_at
-      title: ContextGraphResponse
-    DataCollectionState-Output:
-      properties:
-        type:
-          type: string
-          const: data_collection
-          title: Type
-        name:
-          type: string
-          title: Name
-        objective:
-          type: string
-          title: Objective
-        fields:
-          items:
-            $ref: '#/components/schemas/CollectionField'
-          type: array
-          title: Fields
-        on_complete:
-          type: string
-          title: On Complete
-        action_guidelines:
-          items:
-            type: string
-          type: array
-          title: Action Guidelines
-          default: []
-        boundary_constraints:
-          items:
-            type: string
-          type: array
-          title: Boundary Constraints
-          default: []
-        surface_fallback:
-          type: boolean
-          title: Surface Fallback
-          default: false
-        surface_fallback_after_turns:
-          type: integer
-          title: Surface Fallback After Turns
-          default: 6
-        max_turns:
-          type: integer
-          title: Max Turns
-          default: 10
-        guardrails:
-          items:
-            $ref: '#/components/schemas/Guardrail'
-          type: array
-          title: Guardrails
-          default: []
-        channel_overrides:
-          additionalProperties:
-            $ref: '#/components/schemas/ChannelOverride'
-          type: object
-          title: Channel Overrides
-        turn_policy:
-          anyOf:
-          - $ref: '#/components/schemas/TurnPolicy'
-          - type: 'null'
-        tool_call_specs:
-          items:
-            $ref: '#/components/schemas/ToolCallSpec'
-          type: array
-          title: Tool Call Specs
-          default: []
-      type: object
-      required:
-      - type
-      - name
-      - objective
-      - fields
-      - on_complete
-      title: DataCollectionState
-      description: 'Structured voice/text data collection with field tracking.
-
-
-        The engine presents fields conversationally, tracks completion, and
-
-        optionally falls back to a Surface form after N turns. Each collected
-
-        field produces a world.event with confidence 0.5.'
-    Guardrail:
-      properties:
-        name:
-          type: string
-          maxLength: 128
-          title: Name
-        description:
-          type: string
-          maxLength: 1000
-          title: Description
-        enforcement:
-          type: string
-          enum:
-          - hard
-          - soft
-          title: Enforcement
-          default: hard
-      type: object
-      required:
-      - name
-      - description
-      title: Guardrail
-      description: Typed safety rule enforced per-state (not just global freetext guidelines).
-    ContextGraphVersionResponse:
-      properties:
-        id:
-          type: string
-          format: uuid
-          title: Id
-        workspace_id:
-          type: string
-          format: uuid
-          title: Workspace Id
-        context_graph_id:
-          type: string
-          format: uuid
-          title: Context Graph Id
-        version:
-          type: integer
-          title: Version
-        description:
-          type: string
-          title: Description
-        states:
-          items:
-            $ref: '#/components/schemas/ContextGraphState-Output'
-          type: array
-          title: States
-        new_user_initial_state:
-          type: string
-          title: New User Initial State
-        returning_user_initial_state:
-          type: string
-          title: Returning User Initial State
-        terminal_state:
-          type: string
-          title: Terminal State
-        global_intra_state_navigation_guidelines:
-          items:
-            type: string
-          type: array
-          title: Global Intra State Navigation Guidelines
-        global_action_guidelines:
-          items:
-            type: string
-          type: array
-          title: Global Action Guidelines
-        global_boundary_constraints:
-          items:
-            type: string
-          type: array
-          title: Global Boundary Constraints
-        topology_description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Topology Description
-        created_at:
-          type: string
-          format: date-time
-          title: Created At
-        updated_at:
-          type: string
-          format: date-time
-          title: Updated At
-      type: object
-      required:
-      - id
-      - workspace_id
-      - context_graph_id
-      - version
-      - description
-      - states
-      - new_user_initial_state
-      - returning_user_initial_state
-      - terminal_state
-      - global_intra_state_navigation_guidelines
-      - global_action_guidelines
-      - global_boundary_constraints
-      - topology_description
-      - created_at
-      - updated_at
-      title: ContextGraphVersionResponse
-    ActionState-Input:
-      properties:
-        type:
-          type: string
-          const: action
-          title: Type
-        name:
-          type: string
-          title: Name
-        objective:
-          type: string
-          title: Objective
-        actions:
-          items:
-            $ref: '#/components/schemas/Action'
-          type: array
-          title: Actions
-        intra_state_navigation_guidelines:
-          items:
-            type: string
-          type: array
-          title: Intra State Navigation Guidelines
-        action_guidelines:
-          items:
-            type: string
-          type: array
-          title: Action Guidelines
-        boundary_constraints:
-          items:
-            type: string
-          type: array
-          title: Boundary Constraints
-        exit_conditions:
-          items:
-            $ref: '#/components/schemas/ExitCondition'
-          type: array
-          title: Exit Conditions
-        action_tool_call_specs:
-          items:
-            $ref: '#/components/schemas/ToolCallSpec'
-          type: array
-          title: Action Tool Call Specs
-          default: []
-        exit_condition_tool_call_specs:
-          items:
-            $ref: '#/components/schemas/ToolCallSpec'
-          type: array
-          title: Exit Condition Tool Call Specs
-          default: []
-        wait_for:
-          anyOf:
-          - type: string
-            enum:
-            - surface_submission
-            - human_approval
-          - type: 'null'
-          title: Wait For
-        guardrails:
-          items:
-            $ref: '#/components/schemas/Guardrail'
-          type: array
-          title: Guardrails
-          default: []
-        channel_overrides:
-          additionalProperties:
-            $ref: '#/components/schemas/ChannelOverride'
-          type: object
-          title: Channel Overrides
-        surface_spec_template:
-          anyOf:
-          - additionalProperties: true
-            type: object
-          - type: 'null'
-          title: Surface Spec Template
-        turn_policy:
-          anyOf:
-          - $ref: '#/components/schemas/TurnPolicy'
-          - type: 'null'
-        preload:
-          items:
-            $ref: '#/components/schemas/PreloadSpec'
-          type: array
-          maxItems: 20
-          title: Preload
-      type: object
-      required:
-      - type
-      - name
-      - objective
-      - actions
-      - intra_state_navigation_guidelines
-      - action_guidelines
-      - boundary_constraints
-      - exit_conditions
-      title: ActionState
-      description: User-facing engagement state with actions and exit conditions.
-    ProgressHint:
-      properties:
-        deterministic:
-          type: boolean
-          title: Deterministic
-          default: false
-        phrases:
-          anyOf:
-          - items:
-              type: string
-            type: array
-            maxItems: 10
-            minItems: 1
-            description: 'Filler phrases. deterministic=true: played verbatim in order. deterministic=false: used as hints for early attempts.'
-          - type: 'null'
-          title: Phrases
-        trigger_delay_ms:
-          anyOf:
-          - type: integer
-            maximum: 30000.0
-            minimum: 0.0
-          - type: 'null'
-          title: Trigger Delay Ms
-        interval_ms:
-          anyOf:
-          - type: integer
-            maximum: 30000.0
-            minimum: 100.0
-          - type: 'null'
-          title: Interval Ms
-        mode:
-          type: string
-          enum:
-          - auto
-          - silent
-          - backchannel
-          - verbal
-          title: Mode
-          default: auto
-        progress_class:
-          anyOf:
-          - type: string
-            enum:
-            - lookup
-            - write
-            - external_call
-            - compute
-            - multi_step
-          - type: 'null'
-          title: Progress Class
-        expected_latency_ms:
-          anyOf:
-          - type: integer
-            maximum: 60000.0
-            minimum: 0.0
-          - type: 'null'
-          title: Expected Latency Ms
-        custom_phrase:
-          anyOf:
-          - type: string
-            maxLength: 500
-            description: 'Legacy: use phrases instead.'
-          - type: 'null'
-          title: Custom Phrase
-      additionalProperties: false
-      type: object
-      title: ProgressHint
-      description: 'How the agent narrates waiting on a tool.
-
-
-        ``deterministic=true``: scripted — ``phrases`` play verbatim in order.
-
-        ``deterministic=false``: engine picks — ``phrases`` are hints.
-
-        ``trigger_delay_ms``: milliseconds before first filler (0 = immediate).
-
-        ``interval_ms``: milliseconds between subsequent fillers.'
     TurnPolicy:
       properties:
         barge_in_enabled:
@@ -955,45 +557,153 @@ components:
       - exit_conditions
       title: ActionState
       description: User-facing engagement state with actions and exit conditions.
-    PreloadSpec:
+    ContextGraphResponse:
       properties:
-        tool_id:
+        id:
           type: string
-          maxLength: 256
-          title: Tool Id
-        params:
-          additionalProperties: true
-          type: object
-          maxProperties: 20
-          title: Params
+          format: uuid
+          title: Id
+        workspace_id:
+          type: string
+          format: uuid
+          title: Workspace Id
+        name:
+          type: string
+          title: Name
+        description:
+          type: string
+          title: Description
+        latest_version:
+          type: integer
+          title: Latest Version
+          default: 0
+        state_count:
+          type: integer
+          title: State Count
+          default: 0
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
       type: object
       required:
-      - tool_id
-      title: PreloadSpec
-      description: 'A tool call executed deterministically by the engine on state entry.
-
-
-        Unlike LLM-driven tool calls, preloads run before any LLM turn —
-
-        the results appear in the interaction log so the engage LLM sees
-
-        them as pre-loaded context.  All preloads in a state execute in
-
-        parallel.  Param values support ``{caller_mrn}`` and ``{entity_id}``
-
-        template variables resolved from the session''s caller context.'
-    UpdateContextGraphRequest:
+      - id
+      - workspace_id
+      - name
+      - description
+      - created_at
+      - updated_at
+      title: ContextGraphResponse
+    DescriptionString:
+      type: string
+      maxLength: 2000
+    ValidationError:
       properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    ContextGraphState-Output:
+      oneOf:
+      - $ref: '#/components/schemas/ActionState-Output'
+      - $ref: '#/components/schemas/DecisionState-Output'
+      - $ref: '#/components/schemas/AnnotationState'
+      - $ref: '#/components/schemas/DataCollectionState-Output'
+      discriminator:
+        propertyName: type
+        mapping:
+          action: '#/components/schemas/ActionState-Output'
+          annotation: '#/components/schemas/AnnotationState'
+          data_collection: '#/components/schemas/DataCollectionState-Output'
+          decision: '#/components/schemas/DecisionState-Output'
+    DecisionState-Output:
+      properties:
+        type:
+          type: string
+          const: decision
+          title: Type
         name:
+          type: string
+          title: Name
+        objective:
+          type: string
+          title: Objective
+        exit_conditions:
+          items:
+            $ref: '#/components/schemas/ExitCondition'
+          type: array
+          title: Exit Conditions
+        decision_guidelines:
+          items:
+            type: string
+          type: array
+          title: Decision Guidelines
+          default: []
+        tool_call_specs:
+          items:
+            $ref: '#/components/schemas/ToolCallSpec'
+          type: array
+          title: Tool Call Specs
+          default: []
+        wait_for:
           anyOf:
-          - $ref: '#/components/schemas/NameString'
+          - type: string
+            enum:
+            - surface_submission
+            - human_approval
           - type: 'null'
-        description:
+          title: Wait For
+        guardrails:
+          items:
+            $ref: '#/components/schemas/Guardrail'
+          type: array
+          title: Guardrails
+          default: []
+        channel_overrides:
+          additionalProperties:
+            $ref: '#/components/schemas/ChannelOverride'
+          type: object
+          title: Channel Overrides
+        turn_policy:
           anyOf:
-          - $ref: '#/components/schemas/DescriptionString'
+          - $ref: '#/components/schemas/TurnPolicy'
           - type: 'null'
       type: object
-      title: UpdateContextGraphRequest
+      required:
+      - type
+      - name
+      - objective
+      - exit_conditions
+      title: DecisionState
+      description: Passthrough routing state — Agent picks an exit condition, no user interaction.
+    NameString:
+      type: string
+      maxLength: 256
+      minLength: 1
     CollectionField:
       properties:
         key:
@@ -1038,10 +748,104 @@ components:
       - label
       title: CollectionField
       description: A single field to collect during a data collection state.
-    SearchString:
-      type: string
-      maxLength: 200
-      minLength: 1
+    Action:
+      properties:
+        description:
+          type: string
+          title: Description
+        filler_hint:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Filler Hint
+      type: object
+      required:
+      - description
+      title: Action
+      description: A single action the agent can take within a state.
+    Guardrail:
+      properties:
+        name:
+          type: string
+          maxLength: 128
+          title: Name
+        description:
+          type: string
+          maxLength: 1000
+          title: Description
+        enforcement:
+          type: string
+          enum:
+          - hard
+          - soft
+          title: Enforcement
+          default: hard
+      type: object
+      required:
+      - name
+      - description
+      title: Guardrail
+      description: Typed safety rule enforced per-state (not just global freetext guidelines).
+    DecisionState-Input:
+      properties:
+        type:
+          type: string
+          const: decision
+          title: Type
+        name:
+          type: string
+          title: Name
+        objective:
+          type: string
+          title: Objective
+        exit_conditions:
+          items:
+            $ref: '#/components/schemas/ExitCondition'
+          type: array
+          title: Exit Conditions
+        decision_guidelines:
+          items:
+            type: string
+          type: array
+          title: Decision Guidelines
+          default: []
+        tool_call_specs:
+          items:
+            $ref: '#/components/schemas/ToolCallSpec'
+          type: array
+          title: Tool Call Specs
+          default: []
+        wait_for:
+          anyOf:
+          - type: string
+            enum:
+            - surface_submission
+            - human_approval
+          - type: 'null'
+          title: Wait For
+        guardrails:
+          items:
+            $ref: '#/components/schemas/Guardrail'
+          type: array
+          title: Guardrails
+          default: []
+        channel_overrides:
+          additionalProperties:
+            $ref: '#/components/schemas/ChannelOverride'
+          type: object
+          title: Channel Overrides
+        turn_policy:
+          anyOf:
+          - $ref: '#/components/schemas/TurnPolicy'
+          - type: 'null'
+      type: object
+      required:
+      - type
+      - name
+      - objective
+      - exit_conditions
+      title: DecisionState
+      description: Passthrough routing state — Agent picks an exit condition, no user interaction.
     ToolCallSpec:
       properties:
         tool_id:
@@ -1124,6 +928,187 @@ components:
       - tool_id
       title: ToolCallSpec
       description: A tool call that the agent can make in a state.
+    ContextGraphVersionResponse:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        workspace_id:
+          type: string
+          format: uuid
+          title: Workspace Id
+        context_graph_id:
+          type: string
+          format: uuid
+          title: Context Graph Id
+        version:
+          type: integer
+          title: Version
+        description:
+          type: string
+          title: Description
+        states:
+          items:
+            $ref: '#/components/schemas/ContextGraphState-Output'
+          type: array
+          title: States
+        new_user_initial_state:
+          type: string
+          title: New User Initial State
+        returning_user_initial_state:
+          type: string
+          title: Returning User Initial State
+        terminal_state:
+          type: string
+          title: Terminal State
+        global_intra_state_navigation_guidelines:
+          items:
+            type: string
+          type: array
+          title: Global Intra State Navigation Guidelines
+        global_action_guidelines:
+          items:
+            type: string
+          type: array
+          title: Global Action Guidelines
+        global_boundary_constraints:
+          items:
+            type: string
+          type: array
+          title: Global Boundary Constraints
+        topology_description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Topology Description
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+      type: object
+      required:
+      - id
+      - workspace_id
+      - context_graph_id
+      - version
+      - description
+      - states
+      - new_user_initial_state
+      - returning_user_initial_state
+      - terminal_state
+      - global_intra_state_navigation_guidelines
+      - global_action_guidelines
+      - global_boundary_constraints
+      - topology_description
+      - created_at
+      - updated_at
+      title: ContextGraphVersionResponse
+    SearchString:
+      type: string
+      maxLength: 200
+      minLength: 1
+    CreateContextGraphRequest:
+      properties:
+        name:
+          $ref: '#/components/schemas/NameString'
+        description:
+          $ref: '#/components/schemas/DescriptionString'
+          default: ''
+      type: object
+      required:
+      - name
+      title: CreateContextGraphRequest
+    ProgressHint:
+      properties:
+        deterministic:
+          type: boolean
+          title: Deterministic
+          default: false
+        phrases:
+          anyOf:
+          - items:
+              type: string
+            type: array
+            maxItems: 10
+            minItems: 1
+            description: 'Filler phrases. deterministic=true: played verbatim in order. deterministic=false: used as hints for early attempts.'
+          - type: 'null'
+          title: Phrases
+        trigger_delay_ms:
+          anyOf:
+          - type: integer
+            maximum: 30000.0
+            minimum: 0.0
+          - type: 'null'
+          title: Trigger Delay Ms
+        interval_ms:
+          anyOf:
+          - type: integer
+            maximum: 30000.0
+            minimum: 100.0
+          - type: 'null'
+          title: Interval Ms
+        mode:
+          type: string
+          enum:
+          - auto
+          - silent
+          - backchannel
+          - verbal
+          title: Mode
+          default: auto
+        progress_class:
+          anyOf:
+          - type: string
+            enum:
+            - lookup
+            - write
+            - external_call
+            - compute
+            - multi_step
+          - type: 'null'
+          title: Progress Class
+        expected_latency_ms:
+          anyOf:
+          - type: integer
+            maximum: 60000.0
+            minimum: 0.0
+          - type: 'null'
+          title: Expected Latency Ms
+        custom_phrase:
+          anyOf:
+          - type: string
+            maxLength: 500
+            description: 'Legacy: use phrases instead.'
+          - type: 'null'
+          title: Custom Phrase
+      additionalProperties: false
+      type: object
+      title: ProgressHint
+      description: 'How the agent narrates waiting on a tool.
+
+
+        ``deterministic=true``: scripted — ``phrases`` play verbatim in order.
+
+        ``deterministic=false``: engine picks — ``phrases`` are hints.
+
+        ``trigger_delay_ms``: milliseconds before first filler (0 = immediate).
+
+        ``interval_ms``: milliseconds between subsequent fillers.'
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
     ExitCondition:
       properties:
         description:
@@ -1142,201 +1127,6 @@ components:
       - description
       - next_state
       title: ExitCondition
-    AnnotationState:
-      properties:
-        type:
-          type: string
-          const: annotation
-          title: Type
-        name:
-          type: string
-          title: Name
-        inner_thought:
-          type: string
-          title: Inner Thought
-        next_state:
-          type: string
-          title: Next State
-      type: object
-      required:
-      - type
-      - name
-      - inner_thought
-      - next_state
-      title: AnnotationState
-      description: Injects a hardcoded inner thought (no LLM call).
-    FailureClass:
-      type: string
-      enum:
-      - timeout
-      - input_rejected
-      - rounds_exhausted
-      - generic
-      title: FailureClass
-      description: 'Why a tool result is a failure — produced by the executor at RUN time.
-
-
-        Unlike ``ResultDelivery`` (a fixed config-time axis), this is a runtime
-
-        classification the executor knows at the moment of failure. It flavors the
-
-        agent-facing failure wording and the world-event / status-tool observability,
-
-        and it is ALSO an optional routing key: a state x tool binding may set
-
-        ``ToolCallSpec.failure_delivery_by_class`` to deliver differently per class
-
-        (e.g. interrupt on timeout, queue on a generic error). With no per-class map
-
-        (the default), failed results route by the ``failure_delivery`` floor,
-
-        unchanged. Add a member only in the same change that wires a producer for it —
-
-        adding one also widens the per-class routing surface, so it must be a
-
-        deliberate, produced class.'
-    Action:
-      properties:
-        description:
-          type: string
-          title: Description
-        filler_hint:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Filler Hint
-      type: object
-      required:
-      - description
-      title: Action
-      description: A single action the agent can take within a state.
-    ValidationError:
-      properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-        input:
-          title: Input
-        ctx:
-          type: object
-          title: Context
-      type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
-    DescriptionString:
-      type: string
-      maxLength: 2000
-    ContextGraphState-Input:
-      oneOf:
-      - $ref: '#/components/schemas/ActionState-Input'
-      - $ref: '#/components/schemas/DecisionState-Input'
-      - $ref: '#/components/schemas/AnnotationState'
-      - $ref: '#/components/schemas/DataCollectionState-Input'
-      discriminator:
-        propertyName: type
-        mapping:
-          action: '#/components/schemas/ActionState-Input'
-          annotation: '#/components/schemas/AnnotationState'
-          data_collection: '#/components/schemas/DataCollectionState-Input'
-          decision: '#/components/schemas/DecisionState-Input'
-    CreateContextGraphVersionRequest:
-      properties:
-        description:
-          $ref: '#/components/schemas/DescriptionString'
-          default: ''
-        states:
-          items:
-            $ref: '#/components/schemas/ContextGraphState-Input'
-          type: array
-          title: States
-        new_user_initial_state:
-          type: string
-          title: New User Initial State
-        returning_user_initial_state:
-          type: string
-          title: Returning User Initial State
-        terminal_state:
-          type: string
-          title: Terminal State
-        global_intra_state_navigation_guidelines:
-          items:
-            type: string
-          type: array
-          title: Global Intra State Navigation Guidelines
-          default: []
-        global_action_guidelines:
-          items:
-            type: string
-          type: array
-          title: Global Action Guidelines
-          default: []
-        global_boundary_constraints:
-          items:
-            type: string
-          type: array
-          title: Global Boundary Constraints
-          default: []
-        topology_description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Topology Description
-      type: object
-      required:
-      - states
-      - new_user_initial_state
-      - returning_user_initial_state
-      - terminal_state
-      title: CreateContextGraphVersionRequest
-    PaginatedResponse_ContextGraphResponse_:
-      properties:
-        items:
-          items:
-            $ref: '#/components/schemas/ContextGraphResponse'
-          type: array
-          title: Items
-        has_more:
-          type: boolean
-          title: Has More
-        continuation_token:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Continuation Token
-        total:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Total
-      type: object
-      required:
-      - items
-      - has_more
-      title: PaginatedResponse[ContextGraphResponse]
-    CreateContextGraphRequest:
-      properties:
-        name:
-          $ref: '#/components/schemas/NameString'
-        description:
-          $ref: '#/components/schemas/DescriptionString'
-          default: ''
-      type: object
-      required:
-      - name
-      title: CreateContextGraphRequest
     PaginatedResponse_ContextGraphVersionResponse_:
       properties:
         items:
@@ -1362,11 +1152,36 @@ components:
       - items
       - has_more
       title: PaginatedResponse[ContextGraphVersionResponse]
-    DecisionState-Input:
+    PaginatedResponse_ContextGraphResponse_:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/ContextGraphResponse'
+          type: array
+          title: Items
+        has_more:
+          type: boolean
+          title: Has More
+        continuation_token:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Continuation Token
+        total:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Total
+      type: object
+      required:
+      - items
+      - has_more
+      title: PaginatedResponse[ContextGraphResponse]
+    DataCollectionState-Output:
       properties:
         type:
           type: string
-          const: decision
+          const: data_collection
           title: Type
         name:
           type: string
@@ -1374,31 +1189,38 @@ components:
         objective:
           type: string
           title: Objective
-        exit_conditions:
+        fields:
           items:
-            $ref: '#/components/schemas/ExitCondition'
+            $ref: '#/components/schemas/CollectionField'
           type: array
-          title: Exit Conditions
-        decision_guidelines:
+          title: Fields
+        on_complete:
+          type: string
+          title: On Complete
+        action_guidelines:
           items:
             type: string
           type: array
-          title: Decision Guidelines
+          title: Action Guidelines
           default: []
-        tool_call_specs:
+        boundary_constraints:
           items:
-            $ref: '#/components/schemas/ToolCallSpec'
+            type: string
           type: array
-          title: Tool Call Specs
+          title: Boundary Constraints
           default: []
-        wait_for:
-          anyOf:
-          - type: string
-            enum:
-            - surface_submission
-            - human_approval
-          - type: 'null'
-          title: Wait For
+        surface_fallback:
+          type: boolean
+          title: Surface Fallback
+          default: false
+        surface_fallback_after_turns:
+          type: integer
+          title: Surface Fallback After Turns
+          default: 6
+        max_turns:
+          type: integer
+          title: Max Turns
+          default: 10
         guardrails:
           items:
             $ref: '#/components/schemas/Guardrail'
@@ -1414,56 +1236,68 @@ components:
           anyOf:
           - $ref: '#/components/schemas/TurnPolicy'
           - type: 'null'
+        tool_call_specs:
+          items:
+            $ref: '#/components/schemas/ToolCallSpec'
+          type: array
+          title: Tool Call Specs
+          default: []
       type: object
       required:
       - type
       - name
       - objective
-      - exit_conditions
-      title: DecisionState
-      description: Passthrough routing state — Agent picks an exit condition, no user interaction.
-    ChannelOverride:
+      - fields
+      - on_complete
+      title: DataCollectionState
+      description: 'Structured voice/text data collection with field tracking.
+
+
+        The engine presents fields conversationally, tracks completion, and
+
+        optionally falls back to a Surface form after N turns. Each collected
+
+        field produces a world.event with confidence 0.5.'
+    PreloadSpec:
       properties:
-        objective:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Objective
-        action_guidelines:
-          items:
-            type: string
-          type: array
-          title: Action Guidelines
-          default: []
-        progress:
-          anyOf:
-          - $ref: '#/components/schemas/ProgressHint'
-          - type: 'null'
+        tool_id:
+          type: string
+          maxLength: 256
+          title: Tool Id
+        params:
+          additionalProperties: true
+          type: object
+          maxProperties: 20
+          title: Params
       type: object
-      title: ChannelOverride
-      description: Per-channel behavior override for a state.
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
-    ContextGraphState-Output:
+      required:
+      - tool_id
+      title: PreloadSpec
+      description: 'A tool call executed deterministically by the engine on state entry.
+
+
+        Unlike LLM-driven tool calls, preloads run before any LLM turn —
+
+        the results appear in the interaction log so the engage LLM sees
+
+        them as pre-loaded context.  All preloads in a state execute in
+
+        parallel.  Param values support ``{caller_mrn}`` and ``{entity_id}``
+
+        template variables resolved from the session''s caller context.'
+    ContextGraphState-Input:
       oneOf:
-      - $ref: '#/components/schemas/ActionState-Output'
-      - $ref: '#/components/schemas/DecisionState-Output'
+      - $ref: '#/components/schemas/ActionState-Input'
+      - $ref: '#/components/schemas/DecisionState-Input'
       - $ref: '#/components/schemas/AnnotationState'
-      - $ref: '#/components/schemas/DataCollectionState-Output'
+      - $ref: '#/components/schemas/DataCollectionState-Input'
       discriminator:
         propertyName: type
         mapping:
-          action: '#/components/schemas/ActionState-Output'
+          action: '#/components/schemas/ActionState-Input'
           annotation: '#/components/schemas/AnnotationState'
-          data_collection: '#/components/schemas/DataCollectionState-Output'
-          decision: '#/components/schemas/DecisionState-Output'
+          data_collection: '#/components/schemas/DataCollectionState-Input'
+          decision: '#/components/schemas/DecisionState-Input'
     DataCollectionState-Input:
       properties:
         type:
@@ -1545,15 +1379,80 @@ components:
         optionally falls back to a Surface form after N turns. Each collected
 
         field produces a world.event with confidence 0.5.'
-    NameString:
-      type: string
-      maxLength: 256
-      minLength: 1
-    DecisionState-Output:
+    CreateContextGraphVersionRequest:
+      properties:
+        description:
+          $ref: '#/components/schemas/DescriptionString'
+          default: ''
+        states:
+          items:
+            $ref: '#/components/schemas/ContextGraphState-Input'
+          type: array
+          title: States
+        new_user_initial_state:
+          type: string
+          title: New User Initial State
+        returning_user_initial_state:
+          type: string
+          title: Returning User Initial State
+        terminal_state:
+          type: string
+          title: Terminal State
+        global_intra_state_navigation_guidelines:
+          items:
+            type: string
+          type: array
+          title: Global Intra State Navigation Guidelines
+          default: []
+        global_action_guidelines:
+          items:
+            type: string
+          type: array
+          title: Global Action Guidelines
+          default: []
+        global_boundary_constraints:
+          items:
+            type: string
+          type: array
+          title: Global Boundary Constraints
+          default: []
+        topology_description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Topology Description
+      type: object
+      required:
+      - states
+      - new_user_initial_state
+      - returning_user_initial_state
+      - terminal_state
+      title: CreateContextGraphVersionRequest
+    ChannelOverride:
+      properties:
+        objective:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Objective
+        action_guidelines:
+          items:
+            type: string
+          type: array
+          title: Action Guidelines
+          default: []
+        progress:
+          anyOf:
+          - $ref: '#/components/schemas/ProgressHint'
+          - type: 'null'
+      type: object
+      title: ChannelOverride
+      description: Per-channel behavior override for a state.
+    ActionState-Input:
       properties:
         type:
           type: string
-          const: decision
+          const: action
           title: Type
         name:
           type: string
@@ -1561,22 +1460,42 @@ components:
         objective:
           type: string
           title: Objective
+        actions:
+          items:
+            $ref: '#/components/schemas/Action'
+          type: array
+          title: Actions
+        intra_state_navigation_guidelines:
+          items:
+            type: string
+          type: array
+          title: Intra State Navigation Guidelines
+        action_guidelines:
+          items:
+            type: string
+          type: array
+          title: Action Guidelines
+        boundary_constraints:
+          items:
+            type: string
+          type: array
+          title: Boundary Constraints
         exit_conditions:
           items:
             $ref: '#/components/schemas/ExitCondition'
           type: array
           title: Exit Conditions
-        decision_guidelines:
-          items:
-            type: string
-          type: array
-          title: Decision Guidelines
-          default: []
-        tool_call_specs:
+        action_tool_call_specs:
           items:
             $ref: '#/components/schemas/ToolCallSpec'
           type: array
-          title: Tool Call Specs
+          title: Action Tool Call Specs
+          default: []
+        exit_condition_tool_call_specs:
+          items:
+            $ref: '#/components/schemas/ToolCallSpec'
+          type: array
+          title: Exit Condition Tool Call Specs
           default: []
         wait_for:
           anyOf:
@@ -1597,18 +1516,99 @@ components:
             $ref: '#/components/schemas/ChannelOverride'
           type: object
           title: Channel Overrides
+        surface_spec_template:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Surface Spec Template
         turn_policy:
           anyOf:
           - $ref: '#/components/schemas/TurnPolicy'
           - type: 'null'
+        preload:
+          items:
+            $ref: '#/components/schemas/PreloadSpec'
+          type: array
+          maxItems: 20
+          title: Preload
       type: object
       required:
       - type
       - name
       - objective
+      - actions
+      - intra_state_navigation_guidelines
+      - action_guidelines
+      - boundary_constraints
       - exit_conditions
-      title: DecisionState
-      description: Passthrough routing state — Agent picks an exit condition, no user interaction.
+      title: ActionState
+      description: User-facing engagement state with actions and exit conditions.
+    AnnotationState:
+      properties:
+        type:
+          type: string
+          const: annotation
+          title: Type
+        name:
+          type: string
+          title: Name
+        inner_thought:
+          type: string
+          title: Inner Thought
+        next_state:
+          type: string
+          title: Next State
+      type: object
+      required:
+      - type
+      - name
+      - inner_thought
+      - next_state
+      title: AnnotationState
+      description: Injects a hardcoded inner thought (no LLM call).
+    FailureClass:
+      type: string
+      enum:
+      - timeout
+      - input_rejected
+      - rounds_exhausted
+      - generic
+      title: FailureClass
+      description: 'Why a tool result is a failure — produced by the executor at RUN time.
+
+
+        Unlike ``ResultDelivery`` (a fixed config-time axis), this is a runtime
+
+        classification the executor knows at the moment of failure. It flavors the
+
+        agent-facing failure wording and the world-event / status-tool observability,
+
+        and it is ALSO an optional routing key: a state x tool binding may set
+
+        ``ToolCallSpec.failure_delivery_by_class`` to deliver differently per class
+
+        (e.g. interrupt on timeout, queue on a generic error). With no per-class map
+
+        (the default), failed results route by the ``failure_delivery`` floor,
+
+        unchanged. Add a member only in the same change that wires a producer for it —
+
+        adding one also widens the per-class routing surface, so it must be a
+
+        deliberate, produced class.'
+    UpdateContextGraphRequest:
+      properties:
+        name:
+          anyOf:
+          - $ref: '#/components/schemas/NameString'
+          - type: 'null'
+        description:
+          anyOf:
+          - $ref: '#/components/schemas/DescriptionString'
+          - type: 'null'
+      type: object
+      title: UpdateContextGraphRequest
   securitySchemes:
     BearerAuth:
       type: http

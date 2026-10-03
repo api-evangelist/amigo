@@ -164,31 +164,6 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
-    src__routes__external_roles__CreateRequest:
-      properties:
-        name:
-          type: string
-          maxLength: 64
-          minLength: 1
-          pattern: ^[a-z][a-z0-9_]{0,63}$
-          title: Name
-        external_name:
-          type: string
-          maxLength: 256
-          minLength: 1
-          title: External Name
-        description:
-          anyOf:
-          - type: string
-            maxLength: 2048
-          - type: 'null'
-          title: Description
-      additionalProperties: false
-      type: object
-      required:
-      - name
-      - external_name
-      title: CreateRequest
     ValidationError:
       properties:
         loc:
@@ -215,15 +190,6 @@ components:
       - msg
       - type
       title: ValidationError
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
     ExternalRoleItem:
       properties:
         id:
@@ -258,6 +224,40 @@ components:
       - updated_at
       title: ExternalRoleItem
       description: Wire shape for read + create responses.
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    src__routes__external_roles__CreateRequest:
+      properties:
+        name:
+          type: string
+          maxLength: 64
+          minLength: 1
+          pattern: ^[a-z][a-z0-9_]{0,63}$
+          title: Name
+        external_name:
+          type: string
+          maxLength: 256
+          minLength: 1
+          title: External Name
+        description:
+          anyOf:
+          - type: string
+            maxLength: 2048
+          - type: 'null'
+          title: Description
+      additionalProperties: false
+      type: object
+      required:
+      - name
+      - external_name
+      title: CreateRequest
     src__routes__external_roles__ListResponse:
       properties:
         items:

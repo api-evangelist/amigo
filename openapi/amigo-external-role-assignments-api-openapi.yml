@@ -197,61 +197,6 @@ components:
           title: Detail
       type: object
       title: HTTPValidationError
-    UpsertRequest:
-      properties:
-        source:
-          type: string
-          maxLength: 128
-          minLength: 1
-          title: Source
-        external_subject_key:
-          type: string
-          maxLength: 512
-          minLength: 1
-          title: External Subject Key
-        external_subject_id:
-          anyOf:
-          - type: string
-            maxLength: 512
-          - type: 'null'
-          title: External Subject Id
-        entity_id:
-          type: string
-          format: uuid
-          title: Entity Id
-        display_name:
-          anyOf:
-          - type: string
-            maxLength: 512
-          - type: 'null'
-          title: Display Name
-        roles:
-          items:
-            type: string
-            maxLength: 64
-            minLength: 1
-            pattern: ^[a-z][a-z0-9_]{0,63}$
-          type: array
-          maxItems: 64
-          title: Roles
-        roles_verified:
-          type: boolean
-          title: Roles Verified
-          default: false
-        provisioned_via:
-          type: string
-          enum:
-          - roster_sync
-          - jit
-          title: Provisioned Via
-      additionalProperties: false
-      type: object
-      required:
-      - source
-      - external_subject_key
-      - entity_id
-      - provisioned_via
-      title: UpsertRequest
     ExternalRoleAssignmentItem:
       properties:
         id:
@@ -343,6 +288,61 @@ components:
       - items
       - has_more
       title: ListResponse
+    UpsertRequest:
+      properties:
+        source:
+          type: string
+          maxLength: 128
+          minLength: 1
+          title: Source
+        external_subject_key:
+          type: string
+          maxLength: 512
+          minLength: 1
+          title: External Subject Key
+        external_subject_id:
+          anyOf:
+          - type: string
+            maxLength: 512
+          - type: 'null'
+          title: External Subject Id
+        entity_id:
+          type: string
+          format: uuid
+          title: Entity Id
+        display_name:
+          anyOf:
+          - type: string
+            maxLength: 512
+          - type: 'null'
+          title: Display Name
+        roles:
+          items:
+            type: string
+            maxLength: 64
+            minLength: 1
+            pattern: ^[a-z][a-z0-9_]{0,63}$
+          type: array
+          maxItems: 64
+          title: Roles
+        roles_verified:
+          type: boolean
+          title: Roles Verified
+          default: false
+        provisioned_via:
+          type: string
+          enum:
+          - roster_sync
+          - jit
+          title: Provisioned Via
+      additionalProperties: false
+      type: object
+      required:
+      - source
+      - external_subject_key
+      - entity_id
+      - provisioned_via
+      title: UpsertRequest
   securitySchemes:
     BearerAuth:
       type: http

@@ -441,49 +441,6 @@ components:
       - msg
       - type
       title: ValidationError
-    MetricListResponse:
-      properties:
-        metrics:
-          items:
-            oneOf:
-            - $ref: '#/components/schemas/NumericalMetricValueResponse'
-            - $ref: '#/components/schemas/CategoricalMetricValueResponse'
-            - $ref: '#/components/schemas/BooleanMetricValueResponse'
-            discriminator:
-              propertyName: metric_type
-              mapping:
-                boolean: '#/components/schemas/BooleanMetricValueResponse'
-                categorical: '#/components/schemas/CategoricalMetricValueResponse'
-                numerical: '#/components/schemas/NumericalMetricValueResponse'
-          type: array
-          title: Metrics
-      type: object
-      required:
-      - metrics
-      title: MetricListResponse
-    DescriptionString:
-      type: string
-      maxLength: 2000
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
-    MetricCatalogResponse:
-      properties:
-        metrics:
-          items:
-            $ref: '#/components/schemas/MetricCatalogEntry'
-          type: array
-          title: Metrics
-      type: object
-      required:
-      - metrics
-      title: MetricCatalogResponse
     CategoricalMetricValueResponse:
       properties:
         metric_key:
@@ -564,10 +521,6 @@ components:
       - metric_type
       - value
       title: CategoricalMetricValueResponse
-    NameString:
-      type: string
-      maxLength: 256
-      minLength: 1
     MetricCatalogEntry:
       properties:
         key:
@@ -672,86 +625,30 @@ components:
       - source
       - builtin
       title: MetricCatalogEntry
-    BooleanMetricValueResponse:
+    MetricCatalogResponse:
       properties:
-        metric_key:
-          type: string
-          title: Metric Key
-        source:
-          type: string
-          title: Source
-          default: production
-        entity_type:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Entity Type
-        entity_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Entity Id
-        service_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Service Id
-        run_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Run Id
-        session_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Session Id
-        period_start:
-          type: string
-          format: date-time
-          title: Period Start
-        period_end:
-          type: string
-          format: date-time
-          title: Period End
-        event_count:
-          type: integer
-          title: Event Count
-        avg_confidence:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Avg Confidence
-        unit:
-          anyOf:
-          - type: string
-            maxLength: 32
-          - type: 'null'
-          title: Unit
-        computed_at:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Computed At
-        metric_type:
-          type: string
-          const: boolean
-          title: Metric Type
-        value:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          title: Value
+        metrics:
+          items:
+            $ref: '#/components/schemas/MetricCatalogEntry'
+          type: array
+          title: Metrics
       type: object
       required:
-      - metric_key
-      - period_start
-      - period_end
-      - event_count
-      - metric_type
-      - value
-      title: BooleanMetricValueResponse
+      - metrics
+      title: MetricCatalogResponse
+    NameString:
+      type: string
+      maxLength: 256
+      minLength: 1
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
     NumericalMetricValueResponse:
       properties:
         metric_key:
@@ -832,6 +729,109 @@ components:
       - metric_type
       - value
       title: NumericalMetricValueResponse
+    MetricListResponse:
+      properties:
+        metrics:
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/NumericalMetricValueResponse'
+            - $ref: '#/components/schemas/CategoricalMetricValueResponse'
+            - $ref: '#/components/schemas/BooleanMetricValueResponse'
+            discriminator:
+              propertyName: metric_type
+              mapping:
+                boolean: '#/components/schemas/BooleanMetricValueResponse'
+                categorical: '#/components/schemas/CategoricalMetricValueResponse'
+                numerical: '#/components/schemas/NumericalMetricValueResponse'
+          type: array
+          title: Metrics
+      type: object
+      required:
+      - metrics
+      title: MetricListResponse
+    BooleanMetricValueResponse:
+      properties:
+        metric_key:
+          type: string
+          title: Metric Key
+        source:
+          type: string
+          title: Source
+          default: production
+        entity_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Entity Type
+        entity_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Entity Id
+        service_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Service Id
+        run_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Run Id
+        session_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Session Id
+        period_start:
+          type: string
+          format: date-time
+          title: Period Start
+        period_end:
+          type: string
+          format: date-time
+          title: Period End
+        event_count:
+          type: integer
+          title: Event Count
+        avg_confidence:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Avg Confidence
+        unit:
+          anyOf:
+          - type: string
+            maxLength: 32
+          - type: 'null'
+          title: Unit
+        computed_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Computed At
+        metric_type:
+          type: string
+          const: boolean
+          title: Metric Type
+        value:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Value
+      type: object
+      required:
+      - metric_key
+      - period_start
+      - period_end
+      - event_count
+      - metric_type
+      - value
+      title: BooleanMetricValueResponse
+    DescriptionString:
+      type: string
+      maxLength: 2000
   securitySchemes:
     BearerAuth:
       type: http

@@ -40,30 +40,221 @@ paths:
           title: Workspace Id
 components:
   schemas:
-    OperatorLeftCallEvent:
+    SurfaceReviewApprovedEvent:
       properties:
         event_type:
-          const: operator.left_call
-          default: operator.left_call
+          const: surface.review_approved
+          default: surface.review_approved
           title: Event Type
           type: string
-        call_sid:
-          title: Call Sid
+        surface_id:
+          format: uuid
+          title: Surface Id
+          type: string
+      required:
+      - surface_id
+      title: SurfaceReviewApprovedEvent
+      type: object
+    WorkspaceInvitationSentEvent:
+      properties:
+        event_type:
+          const: workspace.invitation_sent
+          default: workspace.invitation_sent
+          title: Event Type
+          type: string
+        invitation_id:
+          title: Invitation Id
+          type: string
+        role:
+          title: Role
+          type: string
+        resent:
+          default: false
+          title: Resent
+          type: boolean
+      required:
+      - invitation_id
+      - role
+      title: WorkspaceInvitationSentEvent
+      type: object
+    TextStartedEvent:
+      properties:
+        event_type:
+          const: text.started
+          default: text.started
+          title: Event Type
+          type: string
+        session_id:
+          title: Session Id
+          type: string
+        service_id:
+          format: uuid
+          title: Service Id
+          type: string
+        channel_kind:
+          title: Channel Kind
+          type: string
+        entity_id:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          default: null
+          title: Entity Id
+      required:
+      - session_id
+      - service_id
+      - channel_kind
+      title: TextStartedEvent
+      type: object
+    SurfaceSubmittedEvent:
+      properties:
+        event_type:
+          const: surface.submitted
+          default: surface.submitted
+          title: Event Type
+          type: string
+        surface_id:
+          format: uuid
+          title: Surface Id
+          type: string
+        entity_id:
+          format: uuid
+          title: Entity Id
+          type: string
+        submitted_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: null
+          title: Submitted At
+        fields_submitted:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          default: null
+          title: Fields Submitted
+      required:
+      - surface_id
+      - entity_id
+      title: SurfaceSubmittedEvent
+      type: object
+    SimulationTurnStoredEvent:
+      properties:
+        event_type:
+          const: simulation.turn_stored
+          default: simulation.turn_stored
+          title: Event Type
+          type: string
+        service_id:
+          format: uuid
+          title: Service Id
+          type: string
+        run_id:
+          title: Run Id
+          type: string
+        session_id:
+          title: Session Id
+          type: string
+        turn_index:
+          title: Turn Index
+          type: integer
+        state_before:
+          title: State Before
+          type: string
+        state_after:
+          title: State After
+          type: string
+        is_terminal:
+          title: Is Terminal
+          type: boolean
+      required:
+      - service_id
+      - run_id
+      - session_id
+      - turn_index
+      - state_before
+      - state_after
+      - is_terminal
+      title: SimulationTurnStoredEvent
+      type: object
+    SurfaceCreatedEvent:
+      properties:
+        event_type:
+          const: surface.created
+          default: surface.created
+          title: Event Type
+          type: string
+        surface_id:
+          format: uuid
+          title: Surface Id
+          type: string
+        entity_id:
+          format: uuid
+          title: Entity Id
+          type: string
+        channel:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: null
+          title: Channel
+        fields_count:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          default: null
+          title: Fields Count
+        source:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: null
+          title: Source
+        form_template_id:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          default: null
+          title: Form Template Id
+        review_required:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          default: null
+          title: Review Required
+      required:
+      - surface_id
+      - entity_id
+      title: SurfaceCreatedEvent
+      type: object
+    OperatorProfileUpdatedEvent:
+      properties:
+        event_type:
+          const: operator.profile_updated
+          default: operator.profile_updated
+          title: Event Type
           type: string
         operator_id:
           format: uuid
           title: Operator Id
           type: string
-        human_segment_turn_count:
+        changes:
           anyOf:
-          - type: integer
+          - additionalProperties:
+              anyOf:
+              - type: string
+              - type: 'null'
+            type: object
           - type: 'null'
           default: null
-          title: Human Segment Turn Count
+          title: Changes
       required:
-      - call_sid
       - operator_id
-      title: OperatorLeftCallEvent
+      title: OperatorProfileUpdatedEvent
       type: object
     ChannelVoicemailStatusEvent:
       description: 'Ringless voicemail status callback projected from VoiceDrop. ``status``
@@ -101,101 +292,92 @@ components:
       - recipient_phone_number
       title: ChannelVoicemailStatusEvent
       type: object
-    SurfacePendingReviewEvent:
+    SurfaceUpdatedEvent:
       properties:
         event_type:
-          const: surface.pending_review
-          default: surface.pending_review
+          const: surface.updated
+          default: surface.updated
           title: Event Type
           type: string
         surface_id:
           format: uuid
           title: Surface Id
           type: string
+      required:
+      - surface_id
+      title: SurfaceUpdatedEvent
+      type: object
+    TriggerFailedEvent:
+      properties:
+        event_type:
+          const: trigger.failed
+          default: trigger.failed
+          title: Event Type
+          type: string
+        trigger_id:
+          format: uuid
+          title: Trigger Id
+          type: string
+        trigger_name:
+          title: Trigger Name
+          type: string
+        status:
+          title: Status
+          type: string
+      required:
+      - trigger_id
+      - trigger_name
+      - status
+      title: TriggerFailedEvent
+      type: object
+    CallEscalatedEvent:
+      properties:
+        event_type:
+          const: call.escalated
+          default: call.escalated
+          title: Event Type
+          type: string
+        call_sid:
+          title: Call Sid
+          type: string
+        escalation_id:
+          title: Escalation Id
+          type: string
+        trigger:
+          enum:
+          - caller
+          - ai
+          - operator
+          title: Trigger
+          type: string
+        reason:
+          title: Reason
+          type: string
+      required:
+      - call_sid
+      - escalation_id
+      - trigger
+      - reason
+      title: CallEscalatedEvent
+      type: object
+    WorkspaceMemberAddedEvent:
+      properties:
+        event_type:
+          const: workspace.member_added
+          default: workspace.member_added
+          title: Event Type
+          type: string
         entity_id:
           format: uuid
           title: Entity Id
           type: string
-        source:
-          anyOf:
-          - type: string
-          - type: 'null'
-          default: null
-          title: Source
-        form_template_id:
-          anyOf:
-          - format: uuid
-            type: string
-          - type: 'null'
-          default: null
-          title: Form Template Id
-        review_required:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          default: null
-          title: Review Required
+        role:
+          title: Role
+          type: string
       required:
-      - surface_id
       - entity_id
-      title: SurfacePendingReviewEvent
-      type: object
-    TextBackgroundResultEvent:
-      description: 'A background (``execution="background"``) tool finished for a web text
-
-        conversation. Pushed live the instant the completion lands so a subscribed
-
-        client renders the result without polling or sending another message.
-
-
-        ``call_id`` is ``bg:<task_id>`` to match the card identity the next-turn drain
-
-        surfaces (``build_background_completion_effect``), so a client that receives
-
-        both the live push and the eventual drained card sees one consistent card.
-
-        Web-only: ``conversation_id`` is the durable conversation UUID (non-web
-
-        channels route by a composite key and deliver via their own transport).'
-      properties:
-        event_type:
-          const: text.background_result
-          default: text.background_result
-          title: Event Type
-          type: string
-        conversation_id:
-          format: uuid
-          title: Conversation Id
-          type: string
-        tool_name:
-          title: Tool Name
-          type: string
-        call_id:
-          title: Call Id
-          type: string
-        succeeded:
-          title: Succeeded
-          type: boolean
-        result:
-          title: Result
-          type: string
-        depth:
-          title: Depth
-          type: integer
-        duration_ms:
-          anyOf:
-          - type: number
-          - type: 'null'
-          default: null
-          title: Duration Ms
-      required:
-      - conversation_id
-      - tool_name
-      - call_id
-      - succeeded
-      - result
-      - depth
-      title: TextBackgroundResultEvent
+      - role
+      title: WorkspaceMemberAddedEvent
       type: object
     ChannelEmailRejectedEvent:
       properties:
@@ -220,87 +402,6 @@ components:
       - from_address
       title: ChannelEmailRejectedEvent
       type: object
-    ChannelEmailDelayedEvent:
-      properties:
-        event_type:
-          const: channel.email_delayed
-          default: channel.email_delayed
-          title: Event Type
-          type: string
-        email_id:
-          title: Email Id
-          type: string
-        to_address:
-          title: To Address
-          type: string
-          x-phi: true
-        from_address:
-          title: From Address
-          type: string
-      required:
-      - email_id
-      - to_address
-      - from_address
-      title: ChannelEmailDelayedEvent
-      type: object
-    SurfaceReshapedEvent:
-      properties:
-        event_type:
-          const: surface.reshaped
-          default: surface.reshaped
-          title: Event Type
-          type: string
-        surface_id:
-          format: uuid
-          title: Surface Id
-          type: string
-        original_surface_id:
-          format: uuid
-          title: Original Surface Id
-          type: string
-      required:
-      - surface_id
-      - original_surface_id
-      title: SurfaceReshapedEvent
-      type: object
-    WorkspaceMemberAddedEvent:
-      properties:
-        event_type:
-          const: workspace.member_added
-          default: workspace.member_added
-          title: Event Type
-          type: string
-        entity_id:
-          format: uuid
-          title: Entity Id
-          type: string
-        role:
-          title: Role
-          type: string
-      required:
-      - entity_id
-      - role
-      title: WorkspaceMemberAddedEvent
-      type: object
-    EncounterUpdatedEvent:
-      properties:
-        event_type:
-          const: encounter.updated
-          default: encounter.updated
-          title: Event Type
-          type: string
-        encounter_entity_id:
-          format: uuid
-          title: Encounter Entity Id
-          type: string
-        session_id:
-          title: Session Id
-          type: string
-      required:
-      - encounter_entity_id
-      - session_id
-      title: EncounterUpdatedEvent
-      type: object
     OperatorWrapUpEvent:
       properties:
         event_type:
@@ -321,11 +422,108 @@ components:
       - call_sid
       title: OperatorWrapUpEvent
       type: object
-    OperatorModeChangedEvent:
+    OperatorRegisteredEvent:
       properties:
         event_type:
-          const: operator.mode_changed
-          default: operator.mode_changed
+          const: operator.registered
+          default: operator.registered
+          title: Event Type
+          type: string
+        operator_id:
+          format: uuid
+          title: Operator Id
+          type: string
+        timestamp:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: null
+          title: Timestamp
+      required:
+      - operator_id
+      title: OperatorRegisteredEvent
+      type: object
+    ChannelEmailReceivedEvent:
+      description: 'Inbound email persisted to channel.inbound_emails as a reply to one of
+
+        our outbound sends. ``in_reply_to_email_id`` is the outbound row this
+
+        inbound threads against.'
+      properties:
+        event_type:
+          const: channel.email_received
+          default: channel.email_received
+          title: Event Type
+          type: string
+        inbound_email_id:
+          title: Inbound Email Id
+          type: string
+        in_reply_to_email_id:
+          title: In Reply To Email Id
+          type: string
+        from_address:
+          title: From Address
+          type: string
+          x-phi: true
+        to_address:
+          title: To Address
+          type: string
+          x-phi: true
+        subject:
+          title: Subject
+          type: string
+      required:
+      - inbound_email_id
+      - in_reply_to_email_id
+      - from_address
+      - to_address
+      - subject
+      title: ChannelEmailReceivedEvent
+      type: object
+    SurfaceOpenedEvent:
+      properties:
+        event_type:
+          const: surface.opened
+          default: surface.opened
+          title: Event Type
+          type: string
+        surface_id:
+          format: uuid
+          title: Surface Id
+          type: string
+        entity_id:
+          format: uuid
+          title: Entity Id
+          type: string
+      required:
+      - surface_id
+      - entity_id
+      title: SurfaceOpenedEvent
+      type: object
+    PipelineErrorEvent:
+      properties:
+        event_type:
+          const: pipeline.error
+          default: pipeline.error
+          title: Event Type
+          type: string
+        data_source_id:
+          format: uuid
+          title: Data Source Id
+          type: string
+        error:
+          title: Error
+          type: string
+      required:
+      - data_source_id
+      - error
+      title: PipelineErrorEvent
+      type: object
+    OperatorJoinedCallEvent:
+      properties:
+        event_type:
+          const: operator.joined_call
+          default: operator.joined_call
           title: Event Type
           type: string
         call_sid:
@@ -345,7 +543,293 @@ components:
       - call_sid
       - operator_id
       - mode
-      title: OperatorModeChangedEvent
+      title: OperatorJoinedCallEvent
+      type: object
+    SurfaceArchivedEvent:
+      properties:
+        event_type:
+          const: surface.archived
+          default: surface.archived
+          title: Event Type
+          type: string
+        surface_id:
+          format: uuid
+          title: Surface Id
+          type: string
+      required:
+      - surface_id
+      title: SurfaceArchivedEvent
+      type: object
+    TriggerFiredEvent:
+      properties:
+        event_type:
+          const: trigger.fired
+          default: trigger.fired
+          title: Event Type
+          type: string
+        trigger_id:
+          format: uuid
+          title: Trigger Id
+          type: string
+        trigger_name:
+          title: Trigger Name
+          type: string
+        manual:
+          default: false
+          title: Manual
+          type: boolean
+      required:
+      - trigger_id
+      - trigger_name
+      title: TriggerFiredEvent
+      type: object
+    NarrativeUpdatedEvent:
+      properties:
+        event_type:
+          const: self_image.brief_generated
+          default: self_image.brief_generated
+          title: Event Type
+          type: string
+        target_entity_id:
+          format: uuid
+          title: Target Entity Id
+          type: string
+        target_entity_type:
+          title: Target Entity Type
+          type: string
+        event_id:
+          format: uuid
+          title: Event Id
+          type: string
+        version:
+          title: Version
+          type: string
+        confidence:
+          title: Confidence
+          type: number
+        event_count:
+          title: Event Count
+          type: integer
+      required:
+      - target_entity_id
+      - target_entity_type
+      - event_id
+      - version
+      - confidence
+      - event_count
+      title: NarrativeUpdatedEvent
+      type: object
+    WorkspaceInvitationAcceptedEvent:
+      properties:
+        event_type:
+          const: workspace.invitation_accepted
+          default: workspace.invitation_accepted
+          title: Event Type
+          type: string
+        entity_id:
+          format: uuid
+          title: Entity Id
+          type: string
+        role:
+          title: Role
+          type: string
+      required:
+      - entity_id
+      - role
+      title: WorkspaceInvitationAcceptedEvent
+      type: object
+    ReviewSubmittedEvent:
+      properties:
+        event_type:
+          const: review.submitted
+          default: review.submitted
+          title: Event Type
+          type: string
+        action:
+          enum:
+          - approve
+          - reject
+          - correct
+          - batch_approve
+          - batch_reject
+          title: Action
+          type: string
+        item_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: null
+          title: Item Id
+        entity_id:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          default: null
+          title: Entity Id
+        entity_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: null
+          title: Entity Type
+        count:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          default: null
+          title: Count
+      required:
+      - action
+      title: ReviewSubmittedEvent
+      type: object
+    TextAgentMessageEvent:
+      description: 'An agent text turn pushed live over workspace SSE — the outbox of the
+
+        durable text-conversation actor (text-conversation-actor Stage A).
+
+
+        Where ``TextBackgroundResultEvent`` surfaces the raw tool card,
+
+        this carries the agent''s *narrated* response (the turn the actor produces after
+
+        re-entering on a background completion or other off-request signal), so a
+
+        subscribed web client renders it as a normal agent message with no polling and
+
+        no user turn. ``conversation_id`` is the durable conversation UUID (web-only).'
+      properties:
+        event_type:
+          const: text.agent_message
+          default: text.agent_message
+          title: Event Type
+          type: string
+        conversation_id:
+          format: uuid
+          title: Conversation Id
+          type: string
+        text:
+          title: Text
+          type: string
+        delivery_id:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          default: null
+          title: Delivery Id
+      required:
+      - conversation_id
+      - text
+      title: TextAgentMessageEvent
+      type: object
+    EncounterUpdatedEvent:
+      properties:
+        event_type:
+          const: encounter.updated
+          default: encounter.updated
+          title: Event Type
+          type: string
+        encounter_entity_id:
+          format: uuid
+          title: Encounter Entity Id
+          type: string
+        session_id:
+          title: Session Id
+          type: string
+      required:
+      - encounter_entity_id
+      - session_id
+      title: EncounterUpdatedEvent
+      type: object
+    PipelineSyncCompletedEvent:
+      properties:
+        event_type:
+          const: pipeline.sync_completed
+          default: pipeline.sync_completed
+          title: Event Type
+          type: string
+        data_source_id:
+          format: uuid
+          title: Data Source Id
+          type: string
+        event_count:
+          title: Event Count
+          type: integer
+        duration_ms:
+          title: Duration Ms
+          type: integer
+      required:
+      - data_source_id
+      - event_count
+      - duration_ms
+      title: PipelineSyncCompletedEvent
+      type: object
+    OperatorStatusChangedEvent:
+      properties:
+        event_type:
+          const: operator.status_changed
+          default: operator.status_changed
+          title: Event Type
+          type: string
+        operator_id:
+          format: uuid
+          title: Operator Id
+          type: string
+        status:
+          enum:
+          - online
+          - busy
+          - offline
+          title: Status
+          type: string
+      required:
+      - operator_id
+      - status
+      title: OperatorStatusChangedEvent
+      type: object
+    ChannelEmailComplainedEvent:
+      properties:
+        event_type:
+          const: channel.email_complained
+          default: channel.email_complained
+          title: Event Type
+          type: string
+        email_id:
+          title: Email Id
+          type: string
+        to_address:
+          title: To Address
+          type: string
+          x-phi: true
+        from_address:
+          title: From Address
+          type: string
+      required:
+      - email_id
+      - to_address
+      - from_address
+      title: ChannelEmailComplainedEvent
+      type: object
+    SurfaceReshapedEvent:
+      properties:
+        event_type:
+          const: surface.reshaped
+          default: surface.reshaped
+          title: Event Type
+          type: string
+        surface_id:
+          format: uuid
+          title: Surface Id
+          type: string
+        original_surface_id:
+          format: uuid
+          title: Original Surface Id
+          type: string
+      required:
+      - surface_id
+      - original_surface_id
+      title: SurfaceReshapedEvent
       type: object
     SurfaceDeliveredEvent:
       properties:
@@ -395,294 +879,6 @@ components:
       - entity_id
       - channel
       title: SurfaceDeliveredEvent
-      type: object
-    SurfaceUpdatedEvent:
-      properties:
-        event_type:
-          const: surface.updated
-          default: surface.updated
-          title: Event Type
-          type: string
-        surface_id:
-          format: uuid
-          title: Surface Id
-          type: string
-      required:
-      - surface_id
-      title: SurfaceUpdatedEvent
-      type: object
-    SurfaceReviewRejectedEvent:
-      properties:
-        event_type:
-          const: surface.review_rejected
-          default: surface.review_rejected
-          title: Event Type
-          type: string
-        surface_id:
-          format: uuid
-          title: Surface Id
-          type: string
-        reason:
-          anyOf:
-          - type: string
-          - type: 'null'
-          default: null
-          title: Reason
-      required:
-      - surface_id
-      title: SurfaceReviewRejectedEvent
-      type: object
-    TextCompletedEvent:
-      properties:
-        event_type:
-          const: text.completed
-          default: text.completed
-          title: Event Type
-          type: string
-        session_id:
-          title: Session Id
-          type: string
-        duration_seconds:
-          title: Duration Seconds
-          type: number
-        turn_count:
-          title: Turn Count
-          type: integer
-        completion_reason:
-          anyOf:
-          - type: string
-          - type: 'null'
-          default: null
-          title: Completion Reason
-        final_state:
-          title: Final State
-          type: string
-        channel_kind:
-          title: Channel Kind
-          type: string
-      required:
-      - session_id
-      - duration_seconds
-      - turn_count
-      - final_state
-      - channel_kind
-      title: TextCompletedEvent
-      type: object
-    ChannelEmailDeliveredEvent:
-      properties:
-        event_type:
-          const: channel.email_delivered
-          default: channel.email_delivered
-          title: Event Type
-          type: string
-        email_id:
-          title: Email Id
-          type: string
-        to_address:
-          title: To Address
-          type: string
-          x-phi: true
-        from_address:
-          title: From Address
-          type: string
-      required:
-      - email_id
-      - to_address
-      - from_address
-      title: ChannelEmailDeliveredEvent
-      type: object
-    OperatorRegisteredEvent:
-      properties:
-        event_type:
-          const: operator.registered
-          default: operator.registered
-          title: Event Type
-          type: string
-        operator_id:
-          format: uuid
-          title: Operator Id
-          type: string
-        timestamp:
-          anyOf:
-          - type: string
-          - type: 'null'
-          default: null
-          title: Timestamp
-      required:
-      - operator_id
-      title: OperatorRegisteredEvent
-      type: object
-    ChannelEmailOpenedEvent:
-      properties:
-        event_type:
-          const: channel.email_opened
-          default: channel.email_opened
-          title: Event Type
-          type: string
-        email_id:
-          title: Email Id
-          type: string
-        to_address:
-          title: To Address
-          type: string
-          x-phi: true
-      required:
-      - email_id
-      - to_address
-      title: ChannelEmailOpenedEvent
-      type: object
-    WorkspaceInvitationAcceptedEvent:
-      properties:
-        event_type:
-          const: workspace.invitation_accepted
-          default: workspace.invitation_accepted
-          title: Event Type
-          type: string
-        entity_id:
-          format: uuid
-          title: Entity Id
-          type: string
-        role:
-          title: Role
-          type: string
-      required:
-      - entity_id
-      - role
-      title: WorkspaceInvitationAcceptedEvent
-      type: object
-    WorkspaceInvitationSentEvent:
-      properties:
-        event_type:
-          const: workspace.invitation_sent
-          default: workspace.invitation_sent
-          title: Event Type
-          type: string
-        invitation_id:
-          title: Invitation Id
-          type: string
-        role:
-          title: Role
-          type: string
-        resent:
-          default: false
-          title: Resent
-          type: boolean
-      required:
-      - invitation_id
-      - role
-      title: WorkspaceInvitationSentEvent
-      type: object
-    CallEscalatedEvent:
-      properties:
-        event_type:
-          const: call.escalated
-          default: call.escalated
-          title: Event Type
-          type: string
-        call_sid:
-          title: Call Sid
-          type: string
-        escalation_id:
-          title: Escalation Id
-          type: string
-        trigger:
-          enum:
-          - caller
-          - ai
-          - operator
-          title: Trigger
-          type: string
-        reason:
-          title: Reason
-          type: string
-      required:
-      - call_sid
-      - escalation_id
-      - trigger
-      - reason
-      title: CallEscalatedEvent
-      type: object
-    OperatorProfileUpdatedEvent:
-      properties:
-        event_type:
-          const: operator.profile_updated
-          default: operator.profile_updated
-          title: Event Type
-          type: string
-        operator_id:
-          format: uuid
-          title: Operator Id
-          type: string
-        changes:
-          anyOf:
-          - additionalProperties:
-              anyOf:
-              - type: string
-              - type: 'null'
-            type: object
-          - type: 'null'
-          default: null
-          title: Changes
-      required:
-      - operator_id
-      title: OperatorProfileUpdatedEvent
-      type: object
-    ChannelEmailClickedEvent:
-      properties:
-        event_type:
-          const: channel.email_clicked
-          default: channel.email_clicked
-          title: Event Type
-          type: string
-        email_id:
-          title: Email Id
-          type: string
-        to_address:
-          title: To Address
-          type: string
-          x-phi: true
-      required:
-      - email_id
-      - to_address
-      title: ChannelEmailClickedEvent
-      type: object
-    TriggerFiredEvent:
-      properties:
-        event_type:
-          const: trigger.fired
-          default: trigger.fired
-          title: Event Type
-          type: string
-        trigger_id:
-          format: uuid
-          title: Trigger Id
-          type: string
-        trigger_name:
-          title: Trigger Name
-          type: string
-        manual:
-          default: false
-          title: Manual
-          type: boolean
-      required:
-      - trigger_id
-      - trigger_name
-      title: TriggerFiredEvent
-      type: object
-    SurfaceArchivedEvent:
-      properties:
-        event_type:
-          const: surface.archived
-          default: surface.archived
-          title: Event Type
-          type: string
-        surface_id:
-          format: uuid
-          title: Surface Id
-          type: string
-      required:
-      - surface_id
-      title: SurfaceArchivedEvent
       type: object
     WorkspaceSSEEvent:
       discriminator:
@@ -789,11 +985,11 @@ components:
       - $ref: '#/components/schemas/ChannelEmailClickedEvent'
       - $ref: '#/components/schemas/ChannelEmailReceivedEvent'
       - $ref: '#/components/schemas/ChannelVoicemailStatusEvent'
-    ChannelEmailComplainedEvent:
+    ChannelEmailDeliveredEvent:
       properties:
         event_type:
-          const: channel.email_complained
-          default: channel.email_complained
+          const: channel.email_delivered
+          default: channel.email_delivered
           title: Event Type
           type: string
         email_id:
@@ -810,150 +1006,7 @@ components:
       - email_id
       - to_address
       - from_address
-      title: ChannelEmailComplainedEvent
-      type: object
-    OperatorStatusChangedEvent:
-      properties:
-        event_type:
-          const: operator.status_changed
-          default: operator.status_changed
-          title: Event Type
-          type: string
-        operator_id:
-          format: uuid
-          title: Operator Id
-          type: string
-        status:
-          enum:
-          - online
-          - busy
-          - offline
-          title: Status
-          type: string
-      required:
-      - operator_id
-      - status
-      title: OperatorStatusChangedEvent
-      type: object
-    SurfaceFieldSavedEvent:
-      properties:
-        event_type:
-          const: surface.field_saved
-          default: surface.field_saved
-          title: Event Type
-          type: string
-        surface_id:
-          format: uuid
-          title: Surface Id
-          type: string
-        entity_id:
-          format: uuid
-          title: Entity Id
-          type: string
-        field_key:
-          title: Field Key
-          type: string
-      required:
-      - surface_id
-      - entity_id
-      - field_key
-      title: SurfaceFieldSavedEvent
-      type: object
-    SurfaceSubmittedEvent:
-      properties:
-        event_type:
-          const: surface.submitted
-          default: surface.submitted
-          title: Event Type
-          type: string
-        surface_id:
-          format: uuid
-          title: Surface Id
-          type: string
-        entity_id:
-          format: uuid
-          title: Entity Id
-          type: string
-        submitted_at:
-          anyOf:
-          - type: string
-          - type: 'null'
-          default: null
-          title: Submitted At
-        fields_submitted:
-          anyOf:
-          - items:
-              type: string
-            type: array
-          - type: 'null'
-          default: null
-          title: Fields Submitted
-      required:
-      - surface_id
-      - entity_id
-      title: SurfaceSubmittedEvent
-      type: object
-    CallStartedEvent:
-      properties:
-        event_type:
-          const: call.started
-          default: call.started
-          title: Event Type
-          type: string
-        call_sid:
-          title: Call Sid
-          type: string
-        direction:
-          enum:
-          - inbound
-          - outbound
-          - playground
-          - simulated
-          - test
-          title: Direction
-          type: string
-        service_id:
-          format: uuid
-          title: Service Id
-          type: string
-        caller_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          default: null
-          title: Caller Id
-          x-phi: true
-      required:
-      - call_sid
-      - direction
-      - service_id
-      title: CallStartedEvent
-      type: object
-    OperatorJoinedCallEvent:
-      properties:
-        event_type:
-          const: operator.joined_call
-          default: operator.joined_call
-          title: Event Type
-          type: string
-        call_sid:
-          title: Call Sid
-          type: string
-        operator_id:
-          format: uuid
-          title: Operator Id
-          type: string
-        mode:
-          enum:
-          - listen
-          - takeover
-          title: Mode
-          type: string
-      required:
-      - call_sid
-      - operator_id
-      - mode
-      title: OperatorJoinedCallEvent
+      title: ChannelEmailDeliveredEvent
       type: object
     CallEndedEvent:
       properties:
@@ -1006,273 +1059,6 @@ components:
       - completion_reason
       title: CallEndedEvent
       type: object
-    SimulationTurnStoredEvent:
-      properties:
-        event_type:
-          const: simulation.turn_stored
-          default: simulation.turn_stored
-          title: Event Type
-          type: string
-        service_id:
-          format: uuid
-          title: Service Id
-          type: string
-        run_id:
-          title: Run Id
-          type: string
-        session_id:
-          title: Session Id
-          type: string
-        turn_index:
-          title: Turn Index
-          type: integer
-        state_before:
-          title: State Before
-          type: string
-        state_after:
-          title: State After
-          type: string
-        is_terminal:
-          title: Is Terminal
-          type: boolean
-      required:
-      - service_id
-      - run_id
-      - session_id
-      - turn_index
-      - state_before
-      - state_after
-      - is_terminal
-      title: SimulationTurnStoredEvent
-      type: object
-    SurfaceCreatedEvent:
-      properties:
-        event_type:
-          const: surface.created
-          default: surface.created
-          title: Event Type
-          type: string
-        surface_id:
-          format: uuid
-          title: Surface Id
-          type: string
-        entity_id:
-          format: uuid
-          title: Entity Id
-          type: string
-        channel:
-          anyOf:
-          - type: string
-          - type: 'null'
-          default: null
-          title: Channel
-        fields_count:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          default: null
-          title: Fields Count
-        source:
-          anyOf:
-          - type: string
-          - type: 'null'
-          default: null
-          title: Source
-        form_template_id:
-          anyOf:
-          - format: uuid
-            type: string
-          - type: 'null'
-          default: null
-          title: Form Template Id
-        review_required:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          default: null
-          title: Review Required
-      required:
-      - surface_id
-      - entity_id
-      title: SurfaceCreatedEvent
-      type: object
-    PipelineErrorEvent:
-      properties:
-        event_type:
-          const: pipeline.error
-          default: pipeline.error
-          title: Event Type
-          type: string
-        data_source_id:
-          format: uuid
-          title: Data Source Id
-          type: string
-        error:
-          title: Error
-          type: string
-      required:
-      - data_source_id
-      - error
-      title: PipelineErrorEvent
-      type: object
-    ChannelEmailReceivedEvent:
-      description: 'Inbound email persisted to channel.inbound_emails as a reply to one of
-
-        our outbound sends. ``in_reply_to_email_id`` is the outbound row this
-
-        inbound threads against.'
-      properties:
-        event_type:
-          const: channel.email_received
-          default: channel.email_received
-          title: Event Type
-          type: string
-        inbound_email_id:
-          title: Inbound Email Id
-          type: string
-        in_reply_to_email_id:
-          title: In Reply To Email Id
-          type: string
-        from_address:
-          title: From Address
-          type: string
-          x-phi: true
-        to_address:
-          title: To Address
-          type: string
-          x-phi: true
-        subject:
-          title: Subject
-          type: string
-      required:
-      - inbound_email_id
-      - in_reply_to_email_id
-      - from_address
-      - to_address
-      - subject
-      title: ChannelEmailReceivedEvent
-      type: object
-    ChannelEmailBouncedEvent:
-      properties:
-        event_type:
-          const: channel.email_bounced
-          default: channel.email_bounced
-          title: Event Type
-          type: string
-        email_id:
-          title: Email Id
-          type: string
-        to_address:
-          title: To Address
-          type: string
-          x-phi: true
-        from_address:
-          title: From Address
-          type: string
-        bounce_type:
-          anyOf:
-          - type: string
-          - type: 'null'
-          default: null
-          title: Bounce Type
-        bounce_subtype:
-          anyOf:
-          - type: string
-          - type: 'null'
-          default: null
-          title: Bounce Subtype
-      required:
-      - email_id
-      - to_address
-      - from_address
-      title: ChannelEmailBouncedEvent
-      type: object
-    TextAgentMessageEvent:
-      description: 'An agent text turn pushed live over workspace SSE — the outbox of the
-
-        durable text-conversation actor (text-conversation-actor Stage A).
-
-
-        Where ``TextBackgroundResultEvent`` surfaces the raw tool card,
-
-        this carries the agent''s *narrated* response (the turn the actor produces after
-
-        re-entering on a background completion or other off-request signal), so a
-
-        subscribed web client renders it as a normal agent message with no polling and
-
-        no user turn. ``conversation_id`` is the durable conversation UUID (web-only).'
-      properties:
-        event_type:
-          const: text.agent_message
-          default: text.agent_message
-          title: Event Type
-          type: string
-        conversation_id:
-          format: uuid
-          title: Conversation Id
-          type: string
-        text:
-          title: Text
-          type: string
-        delivery_id:
-          anyOf:
-          - format: uuid
-            type: string
-          - type: 'null'
-          default: null
-          title: Delivery Id
-      required:
-      - conversation_id
-      - text
-      title: TextAgentMessageEvent
-      type: object
-    PipelineSyncCompletedEvent:
-      properties:
-        event_type:
-          const: pipeline.sync_completed
-          default: pipeline.sync_completed
-          title: Event Type
-          type: string
-        data_source_id:
-          format: uuid
-          title: Data Source Id
-          type: string
-        event_count:
-          title: Event Count
-          type: integer
-        duration_ms:
-          title: Duration Ms
-          type: integer
-      required:
-      - data_source_id
-      - event_count
-      - duration_ms
-      title: PipelineSyncCompletedEvent
-      type: object
-    WorkspaceMemberRoleUpdatedEvent:
-      properties:
-        event_type:
-          const: workspace.member_role_updated
-          default: workspace.member_role_updated
-          title: Event Type
-          type: string
-        entity_id:
-          format: uuid
-          title: Entity Id
-          type: string
-        role:
-          title: Role
-          type: string
-        previous_role:
-          title: Previous Role
-          type: string
-      required:
-      - entity_id
-      - role
-      - previous_role
-      title: WorkspaceMemberRoleUpdatedEvent
-      type: object
     IntegrationApprovalGrantedEvent:
       properties:
         event_type:
@@ -1289,20 +1075,43 @@ components:
       - conversation_id
       title: IntegrationApprovalGrantedEvent
       type: object
-    SurfaceReviewApprovedEvent:
+    ChannelEmailOpenedEvent:
       properties:
         event_type:
-          const: surface.review_approved
-          default: surface.review_approved
+          const: channel.email_opened
+          default: channel.email_opened
           title: Event Type
           type: string
-        surface_id:
-          format: uuid
-          title: Surface Id
+        email_id:
+          title: Email Id
           type: string
+        to_address:
+          title: To Address
+          type: string
+          x-phi: true
       required:
-      - surface_id
-      title: SurfaceReviewApprovedEvent
+      - email_id
+      - to_address
+      title: ChannelEmailOpenedEvent
+      type: object
+    ChannelEmailClickedEvent:
+      properties:
+        event_type:
+          const: channel.email_clicked
+          default: channel.email_clicked
+          title: Event Type
+          type: string
+        email_id:
+          title: Email Id
+          type: string
+        to_address:
+          title: To Address
+          type: string
+          x-phi: true
+      required:
+      - email_id
+      - to_address
+      title: ChannelEmailClickedEvent
       type: object
     TextToolStartedEvent:
       description: 'A slow text tool *began* running for a web text conversation — pushed live
@@ -1355,34 +1164,60 @@ components:
       - depth
       title: TextToolStartedEvent
       type: object
-    TriggerCompletedEvent:
+    OperatorModeChangedEvent:
       properties:
         event_type:
-          const: trigger.completed
-          default: trigger.completed
+          const: operator.mode_changed
+          default: operator.mode_changed
           title: Event Type
           type: string
-        trigger_id:
+        call_sid:
+          title: Call Sid
+          type: string
+        operator_id:
           format: uuid
-          title: Trigger Id
+          title: Operator Id
           type: string
-        trigger_name:
-          title: Trigger Name
-          type: string
-        status:
-          title: Status
+        mode:
+          enum:
+          - listen
+          - takeover
+          title: Mode
           type: string
       required:
-      - trigger_id
-      - trigger_name
-      - status
-      title: TriggerCompletedEvent
+      - call_sid
+      - operator_id
+      - mode
+      title: OperatorModeChangedEvent
       type: object
-    SurfaceOpenedEvent:
+    WorkspaceMemberRoleUpdatedEvent:
       properties:
         event_type:
-          const: surface.opened
-          default: surface.opened
+          const: workspace.member_role_updated
+          default: workspace.member_role_updated
+          title: Event Type
+          type: string
+        entity_id:
+          format: uuid
+          title: Entity Id
+          type: string
+        role:
+          title: Role
+          type: string
+        previous_role:
+          title: Previous Role
+          type: string
+      required:
+      - entity_id
+      - role
+      - previous_role
+      title: WorkspaceMemberRoleUpdatedEvent
+      type: object
+    SurfacePendingReviewEvent:
+      properties:
+        event_type:
+          const: surface.pending_review
+          default: surface.pending_review
           title: Event Type
           type: string
         surface_id:
@@ -1393,91 +1228,203 @@ components:
           format: uuid
           title: Entity Id
           type: string
-      required:
-      - surface_id
-      - entity_id
-      title: SurfaceOpenedEvent
-      type: object
-    NarrativeUpdatedEvent:
-      properties:
-        event_type:
-          const: self_image.brief_generated
-          default: self_image.brief_generated
-          title: Event Type
-          type: string
-        target_entity_id:
-          format: uuid
-          title: Target Entity Id
-          type: string
-        target_entity_type:
-          title: Target Entity Type
-          type: string
-        event_id:
-          format: uuid
-          title: Event Id
-          type: string
-        version:
-          title: Version
-          type: string
-        confidence:
-          title: Confidence
-          type: number
-        event_count:
-          title: Event Count
-          type: integer
-      required:
-      - target_entity_id
-      - target_entity_type
-      - event_id
-      - version
-      - confidence
-      - event_count
-      title: NarrativeUpdatedEvent
-      type: object
-    ReviewSubmittedEvent:
-      properties:
-        event_type:
-          const: review.submitted
-          default: review.submitted
-          title: Event Type
-          type: string
-        action:
-          enum:
-          - approve
-          - reject
-          - correct
-          - batch_approve
-          - batch_reject
-          title: Action
-          type: string
-        item_id:
+        source:
           anyOf:
           - type: string
           - type: 'null'
           default: null
-          title: Item Id
-        entity_id:
+          title: Source
+        form_template_id:
           anyOf:
           - format: uuid
             type: string
           - type: 'null'
           default: null
-          title: Entity Id
-        entity_type:
+          title: Form Template Id
+        review_required:
           anyOf:
-          - type: string
+          - type: boolean
           - type: 'null'
           default: null
-          title: Entity Type
-        count:
+          title: Review Required
+      required:
+      - surface_id
+      - entity_id
+      title: SurfacePendingReviewEvent
+      type: object
+    OperatorLeftCallEvent:
+      properties:
+        event_type:
+          const: operator.left_call
+          default: operator.left_call
+          title: Event Type
+          type: string
+        call_sid:
+          title: Call Sid
+          type: string
+        operator_id:
+          format: uuid
+          title: Operator Id
+          type: string
+        human_segment_turn_count:
           anyOf:
           - type: integer
           - type: 'null'
           default: null
-          title: Count
+          title: Human Segment Turn Count
       required:
-      - action
-      title: ReviewSubmittedEvent
+      - call_sid
+      - operator_id
+      title: OperatorLeftCallEvent
+      type: object
+    CallStartedEvent:
+      properties:
+        event_type:
+          const: call.started
+          default: call.started
+          title: Event Type
+          type: string
+        call_sid:
+          title: Call Sid
+          type: string
+        direction:
+          enum:
+          - inbound
+          - outbound
+          - playground
+          - simulated
+          - test
+          title: Direction
+          type: string
+        service_id:
+          format: uuid
+          title: Service Id
+          type: string
+        caller_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: null
+          title: Caller Id
+          x-phi: true
+      required:
+      - call_sid
+      - direction
+      - service_id
+      title: CallStartedEvent
+      type: object
+    ChannelEmailBouncedEvent:
+      properties:
+        event_type:
+          const: channel.email_bounced
+          default: channel.email_bounced
+          title: Event Type
+          type: string
+        email_id:
+          title: Email Id
+          type: string
+        to_address:
+          title: To Address
+          type: string
+          x-phi: true
+        from_address:
+          title: From Address
+          type: string
+        bounce_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: null
+          title: Bounce Type
+        bounce_subtype:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: null
+          title: Bounce Subtype
+      required:
+      - email_id
+      - to_address
+      - from_address
+      title: ChannelEmailBouncedEvent
+      type: object
+    SurfaceReviewRejectedEvent:
+      properties:
+        event_type:
+          const: surface.review_rejected
+          default: surface.review_rejected
+          title: Event Type
+          type: string
+        surface_id:
+          format: uuid
+          title: Surface Id
+          type: string
+        reason:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: null
+          title: Reason
+      required:
+      - surface_id
+      title: SurfaceReviewRejectedEvent
+      type: object
+    TextBackgroundResultEvent:
+      description: 'A background (``execution="background"``) tool finished for a web text
+
+        conversation. Pushed live the instant the completion lands so a subscribed
+
+        client renders the result without polling or sending another message.
+
+
+        ``call_id`` is ``bg:<task_id>`` to match the card identity the next-turn drain
+
+        surfaces (``build_background_completion_effect``), so a client that receives
+
+        both the live push and the eventual drained card sees one consistent card.
+
+        Web-only: ``conversation_id`` is the durable conversation UUID (non-web
+
+        channels route by a composite key and deliver via their own transport).'
+      properties:
+        event_type:
+          const: text.background_result
+          default: text.background_result
+          title: Event Type
+          type: string
+        conversation_id:
+          format: uuid
+          title: Conversation Id
+          type: string
+        tool_name:
+          title: Tool Name
+          type: string
+        call_id:
+          title: Call Id
+          type: string
+        succeeded:
+          title: Succeeded
+          type: boolean
+        result:
+          title: Result
+          type: string
+        depth:
+          title: Depth
+          type: integer
+        duration_ms:
+          anyOf:
+          - type: number
+          - type: 'null'
+          default: null
+          title: Duration Ms
+      required:
+      - conversation_id
+      - tool_name
+      - call_id
+      - succeeded
+      - result
+      - depth
+      title: TextBackgroundResultEvent
       type: object
     IntegrationApprovalRejectedEvent:
       properties:
@@ -1502,11 +1449,47 @@ components:
       - conversation_id
       title: IntegrationApprovalRejectedEvent
       type: object
-    TriggerFailedEvent:
+    TextCompletedEvent:
       properties:
         event_type:
-          const: trigger.failed
-          default: trigger.failed
+          const: text.completed
+          default: text.completed
+          title: Event Type
+          type: string
+        session_id:
+          title: Session Id
+          type: string
+        duration_seconds:
+          title: Duration Seconds
+          type: number
+        turn_count:
+          title: Turn Count
+          type: integer
+        completion_reason:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: null
+          title: Completion Reason
+        final_state:
+          title: Final State
+          type: string
+        channel_kind:
+          title: Channel Kind
+          type: string
+      required:
+      - session_id
+      - duration_seconds
+      - turn_count
+      - final_state
+      - channel_kind
+      title: TextCompletedEvent
+      type: object
+    TriggerCompletedEvent:
+      properties:
+        event_type:
+          const: trigger.completed
+          default: trigger.completed
           title: Event Type
           type: string
         trigger_id:
@@ -1523,37 +1506,54 @@ components:
       - trigger_id
       - trigger_name
       - status
-      title: TriggerFailedEvent
+      title: TriggerCompletedEvent
       type: object
-    TextStartedEvent:
+    SurfaceFieldSavedEvent:
       properties:
         event_type:
-          const: text.started
-          default: text.started
+          const: surface.field_saved
+          default: surface.field_saved
           title: Event Type
           type: string
-        session_id:
-          title: Session Id
-          type: string
-        service_id:
+        surface_id:
           format: uuid
-          title: Service Id
-          type: string
-        channel_kind:
-          title: Channel Kind
+          title: Surface Id
           type: string
         entity_id:
-          anyOf:
-          - format: uuid
-            type: string
-          - type: 'null'
-          default: null
+          format: uuid
           title: Entity Id
+          type: string
+        field_key:
+          title: Field Key
+          type: string
       required:
-      - session_id
-      - service_id
-      - channel_kind
-      title: TextStartedEvent
+      - surface_id
+      - entity_id
+      - field_key
+      title: SurfaceFieldSavedEvent
+      type: object
+    ChannelEmailDelayedEvent:
+      properties:
+        event_type:
+          const: channel.email_delayed
+          default: channel.email_delayed
+          title: Event Type
+          type: string
+        email_id:
+          title: Email Id
+          type: string
+        to_address:
+          title: To Address
+          type: string
+          x-phi: true
+        from_address:
+          title: From Address
+          type: string
+      required:
+      - email_id
+      - to_address
+      - from_address
+      title: ChannelEmailDelayedEvent
       type: object
   securitySchemes:
     BearerAuth:

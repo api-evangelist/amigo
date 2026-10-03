@@ -144,15 +144,6 @@ components:
       - msg
       - type
       title: ValidationError
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
     ToolExecuteRequest:
       properties:
         tool_type:
@@ -191,17 +182,79 @@ components:
       - tool_name
       - service_id
       title: ToolExecuteRequest
-    ToolCatalogResponse:
+    ToolResolveResponse:
       properties:
         tools:
           items:
             $ref: '#/components/schemas/ResolvedToolItem'
           type: array
           title: Tools
+        service_id:
+          type: string
+          format: uuid
+          title: Service Id
+        workspace_id:
+          type: string
+          format: uuid
+          title: Workspace Id
       type: object
       required:
       - tools
-      title: ToolCatalogResponse
+      - service_id
+      - workspace_id
+      title: ToolResolveResponse
+    NameString:
+      type: string
+      maxLength: 256
+      minLength: 1
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    ResolvedToolItem:
+      properties:
+        tool_name:
+          type: string
+          title: Tool Name
+        tool_type:
+          type: string
+          title: Tool Type
+        description:
+          type: string
+          title: Description
+          default: ''
+        input_schema:
+          additionalProperties: true
+          type: object
+          title: Input Schema
+        states:
+          items:
+            type: string
+          type: array
+          title: States
+        tier:
+          type: string
+          title: Tier
+          default: world
+        is_write:
+          type: boolean
+          title: Is Write
+          default: false
+        additional_instructions:
+          additionalProperties:
+            type: string
+          type: object
+          title: Additional Instructions
+      type: object
+      required:
+      - tool_name
+      - tool_type
+      title: ResolvedToolItem
     ToolExecuteResponse:
       properties:
         result:
@@ -247,10 +300,17 @@ components:
           title: Error
       type: object
       title: ToolExecuteResponse
-    NameString:
-      type: string
-      maxLength: 256
-      minLength: 1
+    ToolCatalogResponse:
+      properties:
+        tools:
+          items:
+            $ref: '#/components/schemas/ResolvedToolItem'
+          type: array
+          title: Tools
+      type: object
+      required:
+      - tools
+      title: ToolCatalogResponse
     SubToolLogItem:
       properties:
         tool_name:
@@ -275,66 +335,6 @@ components:
           default: true
       type: object
       title: SubToolLogItem
-    ToolResolveResponse:
-      properties:
-        tools:
-          items:
-            $ref: '#/components/schemas/ResolvedToolItem'
-          type: array
-          title: Tools
-        service_id:
-          type: string
-          format: uuid
-          title: Service Id
-        workspace_id:
-          type: string
-          format: uuid
-          title: Workspace Id
-      type: object
-      required:
-      - tools
-      - service_id
-      - workspace_id
-      title: ToolResolveResponse
-    ResolvedToolItem:
-      properties:
-        tool_name:
-          type: string
-          title: Tool Name
-        tool_type:
-          type: string
-          title: Tool Type
-        description:
-          type: string
-          title: Description
-          default: ''
-        input_schema:
-          additionalProperties: true
-          type: object
-          title: Input Schema
-        states:
-          items:
-            type: string
-          type: array
-          title: States
-        tier:
-          type: string
-          title: Tier
-          default: world
-        is_write:
-          type: boolean
-          title: Is Write
-          default: false
-        additional_instructions:
-          additionalProperties:
-            type: string
-          type: object
-          title: Additional Instructions
-      type: object
-      required:
-      - tool_name
-      - tool_type
-      title: ResolvedToolItem
   securitySchemes:
     BearerAuth:
       type: http

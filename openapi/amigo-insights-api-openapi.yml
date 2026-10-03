@@ -218,20 +218,6 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
-    SessionResponse:
-      properties:
-        id:
-          type: string
-          title: Id
-        created_at:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Created At
-      type: object
-      required:
-      - id
-      title: SessionResponse
     ValidationError:
       properties:
         loc:
@@ -258,6 +244,28 @@ components:
       - msg
       - type
       title: ValidationError
+    SqlQueryResponse:
+      properties:
+        results:
+          anyOf:
+          - items:
+              additionalProperties: true
+              type: object
+            type: array
+          - type: 'null'
+          title: Results
+        count:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Count
+        error:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Error
+      type: object
+      title: SqlQueryResponse
     SqlQueryRequest:
       properties:
         sql:
@@ -270,15 +278,6 @@ components:
       required:
       - sql
       title: SqlQueryRequest
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
     SchemaResponse:
       properties:
         lakebase_tables:
@@ -312,39 +311,15 @@ components:
       - uc_functions
       - ai_functions
       title: SchemaResponse
-    SqlQueryResponse:
+    HTTPValidationError:
       properties:
-        results:
-          anyOf:
-          - items:
-              additionalProperties: true
-              type: object
-            type: array
-          - type: 'null'
-          title: Results
-        count:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Count
-        error:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Error
-      type: object
-      title: SqlQueryResponse
-    SuggestionsResponse:
-      properties:
-        suggestions:
+        detail:
           items:
-            type: string
+            $ref: '#/components/schemas/ValidationError'
           type: array
-          title: Suggestions
+          title: Detail
       type: object
-      required:
-      - suggestions
-      title: SuggestionsResponse
+      title: HTTPValidationError
     ChatRequest:
       properties:
         message:
@@ -357,6 +332,31 @@ components:
       required:
       - message
       title: ChatRequest
+    SuggestionsResponse:
+      properties:
+        suggestions:
+          items:
+            type: string
+          type: array
+          title: Suggestions
+      type: object
+      required:
+      - suggestions
+      title: SuggestionsResponse
+    SessionResponse:
+      properties:
+        id:
+          type: string
+          title: Id
+        created_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Created At
+      type: object
+      required:
+      - id
+      title: SessionResponse
   securitySchemes:
     BearerAuth:
       type: http

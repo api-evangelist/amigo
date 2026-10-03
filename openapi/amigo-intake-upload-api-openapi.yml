@@ -105,28 +105,6 @@ paths:
           description: Rate limited or upload limit reached
 components:
   schemas:
-    LinkErrorResponse:
-      properties:
-        error_code:
-          type: string
-          enum:
-          - invalid_token
-          - link_not_found
-          - link_expired
-          - link_exhausted
-          title: Error Code
-          description: Machine-readable error code.
-        message:
-          type: string
-          maxLength: 512
-          title: Message
-          description: Human-readable error message.
-      type: object
-      required:
-      - error_code
-      - message
-      title: LinkErrorResponse
-      description: Error envelope returned for token / link validation failures.
     ValidationError:
       properties:
         loc:
@@ -153,47 +131,24 @@ components:
       - msg
       - type
       title: ValidationError
-    DescriptionString:
-      type: string
-      maxLength: 2000
-    HTTPValidationError:
+    UploadDuplicateInfo:
       properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
-    LinkInfoResponse:
-      properties:
-        display_name:
-          $ref: '#/components/schemas/DescriptionString'
-          description: Human-readable display name (falls back to customer slug).
-        customer_slug:
+        id:
           type: string
-          maxLength: 128
-          title: Customer Slug
-          description: Stable URL-safe customer identifier.
-        max_upload_bytes:
-          type: integer
-          minimum: 0.0
-          title: Max Upload Bytes
-          description: Maximum allowed upload size in bytes.
-        allowed_content_types:
-          items:
-            type: string
-          type: array
-          maxItems: 64
-          title: Allowed Content Types
-          description: Allowed Content-Type values for uploads, sorted lexicographically.
+          maxLength: 64
+          title: Id
+          description: UUID of the existing upload row.
+        received_at:
+          type: string
+          maxLength: 64
+          title: Received At
+          description: ISO-8601 timestamp the original upload was received.
       type: object
       required:
-      - display_name
-      - customer_slug
-      - max_upload_bytes
-      title: LinkInfoResponse
-      description: Public metadata for an intake upload link, returned to the forms app.
+      - id
+      - received_at
+      title: UploadDuplicateInfo
+      description: Pointer to an existing upload row when content-hash dedup fires.
     UploadFileResponse:
       properties:
         id:
@@ -235,24 +190,69 @@ components:
       - scan_status
       title: UploadFileResponse
       description: Receipt for a successful upload via an intake link.
-    UploadDuplicateInfo:
+    HTTPValidationError:
       properties:
-        id:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    LinkErrorResponse:
+      properties:
+        error_code:
           type: string
-          maxLength: 64
-          title: Id
-          description: UUID of the existing upload row.
-        received_at:
+          enum:
+          - invalid_token
+          - link_not_found
+          - link_expired
+          - link_exhausted
+          title: Error Code
+          description: Machine-readable error code.
+        message:
           type: string
-          maxLength: 64
-          title: Received At
-          description: ISO-8601 timestamp the original upload was received.
+          maxLength: 512
+          title: Message
+          description: Human-readable error message.
       type: object
       required:
-      - id
-      - received_at
-      title: UploadDuplicateInfo
-      description: Pointer to an existing upload row when content-hash dedup fires.
+      - error_code
+      - message
+      title: LinkErrorResponse
+      description: Error envelope returned for token / link validation failures.
+    LinkInfoResponse:
+      properties:
+        display_name:
+          $ref: '#/components/schemas/DescriptionString'
+          description: Human-readable display name (falls back to customer slug).
+        customer_slug:
+          type: string
+          maxLength: 128
+          title: Customer Slug
+          description: Stable URL-safe customer identifier.
+        max_upload_bytes:
+          type: integer
+          minimum: 0.0
+          title: Max Upload Bytes
+          description: Maximum allowed upload size in bytes.
+        allowed_content_types:
+          items:
+            type: string
+          type: array
+          maxItems: 64
+          title: Allowed Content Types
+          description: Allowed Content-Type values for uploads, sorted lexicographically.
+      type: object
+      required:
+      - display_name
+      - customer_slug
+      - max_upload_bytes
+      title: LinkInfoResponse
+      description: Public metadata for an intake upload link, returned to the forms app.
+    DescriptionString:
+      type: string
+      maxLength: 2000
   securitySchemes:
     BearerAuth:
       type: http

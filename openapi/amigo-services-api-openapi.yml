@@ -392,6 +392,231 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
+    LanguageProviderEntry:
+      properties:
+        provider:
+          type: string
+          enum:
+          - cartesia
+          - elevenlabs
+          - groq
+          title: Provider
+        config:
+          additionalProperties: true
+          type: object
+          maxProperties: 20
+          title: Config
+      type: object
+      required:
+      - provider
+      title: LanguageProviderEntry
+      description: Per-language TTS provider configuration.
+    UpdateServiceRequest:
+      properties:
+        name:
+          anyOf:
+          - $ref: '#/components/schemas/NameString'
+          - type: 'null'
+        description:
+          anyOf:
+          - $ref: '#/components/schemas/DescriptionString'
+          - type: 'null'
+        agent_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Agent Id
+        context_graph_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Context Graph Id
+        keyterms:
+          anyOf:
+          - items:
+              type: string
+              maxLength: 128
+              minLength: 1
+            type: array
+            maxItems: 500
+          - type: 'null'
+          title: Keyterms
+        is_active:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Active
+        version_sets:
+          anyOf:
+          - additionalProperties:
+              $ref: '#/components/schemas/VersionSet-Input'
+            type: object
+          - type: 'null'
+          title: Version Sets
+        tags:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/ServiceTag'
+            type: array
+            maxItems: 50
+          - type: 'null'
+          title: Tags
+        tool_capacity:
+          anyOf:
+          - type: integer
+            maximum: 10.0
+            minimum: 1.0
+          - type: 'null'
+          title: Tool Capacity
+        channel_type:
+          anyOf:
+          - type: string
+            enum:
+            - voice
+            - text
+          - type: 'null'
+          title: Channel Type
+        environment:
+          anyOf:
+          - type: string
+            enum:
+            - sandbox
+            - production
+          - type: 'null'
+          title: Environment
+        voice_config:
+          anyOf:
+          - $ref: '#/components/schemas/ServiceVoiceConfig-Input'
+          - type: 'null'
+      type: object
+      title: UpdateServiceRequest
+    VersionSet-Input:
+      properties:
+        agent_version_number:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Agent Version Number
+        context_graph_version_number:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Context Graph Version Number
+        llm_model_preferences:
+          additionalProperties:
+            $ref: '#/components/schemas/LLMConfig'
+          type: object
+          title: Llm Model Preferences
+        turn_runtime:
+          type: string
+          enum:
+          - native
+          - openai-agents
+          title: Turn Runtime
+          default: native
+      type: object
+      title: VersionSet
+      description: Pins agent, state machine, and LLM model versions for a service.
+    CreateServiceRequest:
+      properties:
+        name:
+          $ref: '#/components/schemas/NameString'
+        description:
+          $ref: '#/components/schemas/DescriptionString'
+          default: ''
+        agent_id:
+          type: string
+          format: uuid
+          title: Agent Id
+        context_graph_id:
+          type: string
+          format: uuid
+          title: Context Graph Id
+        keyterms:
+          items:
+            type: string
+            maxLength: 128
+            minLength: 1
+          type: array
+          maxItems: 500
+          title: Keyterms
+        is_active:
+          type: boolean
+          title: Is Active
+          default: true
+        version_sets:
+          additionalProperties:
+            $ref: '#/components/schemas/VersionSet-Input'
+          type: object
+          title: Version Sets
+          default: {}
+        tags:
+          items:
+            $ref: '#/components/schemas/ServiceTag'
+          type: array
+          maxItems: 50
+          title: Tags
+        tool_capacity:
+          type: integer
+          maximum: 10.0
+          minimum: 1.0
+          title: Tool Capacity
+          default: 3
+        channel_type:
+          type: string
+          enum:
+          - voice
+          - text
+          title: Channel Type
+          default: voice
+        environment:
+          type: string
+          enum:
+          - sandbox
+          - production
+          title: Environment
+          default: production
+        voice_config:
+          anyOf:
+          - $ref: '#/components/schemas/ServiceVoiceConfig-Input'
+          - type: 'null'
+      type: object
+      required:
+      - name
+      - agent_id
+      - context_graph_id
+      title: CreateServiceRequest
+    DescriptionString:
+      type: string
+      maxLength: 2000
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
     ServiceResponse:
       properties:
         id:
@@ -493,56 +718,33 @@ components:
       - created_at
       - updated_at
       title: ServiceResponse
-    TextTurnResponse:
+    TextTurnRequest:
       properties:
+        phone_number:
+          type: string
+          maxLength: 16
+          pattern: ^\+[1-9]\d{1,14}$
+          title: Phone Number
+        agent_phone:
+          type: string
+          maxLength: 16
+          pattern: ^\+[1-9]\d{1,14}$
+          title: Agent Phone
         text:
           type: string
           maxLength: 8192
+          minLength: 1
           title: Text
       type: object
       required:
+      - phone_number
+      - agent_phone
       - text
-      title: TextTurnResponse
-      description: 'Response body — the agent''s text reply.
-
-
-        Returned only on 200; 204 indicates the engine elected silence.'
-    PaginatedResponse_ServiceResponse_:
-      properties:
-        items:
-          items:
-            $ref: '#/components/schemas/ServiceResponse'
-          type: array
-          title: Items
-        has_more:
-          type: boolean
-          title: Has More
-        continuation_token:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Continuation Token
-        total:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Total
-      type: object
-      required:
-      - items
-      - has_more
-      title: PaginatedResponse[ServiceResponse]
-    UpsertVersionSetRequest:
-      properties:
-        version_set:
-          $ref: '#/components/schemas/VersionSet-Input'
-      type: object
-      required:
-      - version_set
-      title: UpsertVersionSetRequest
-    SearchString:
+      title: TextTurnRequest
+      description: Request body for ``POST /v1/{ws}/services/{service_id}/text-turn``.
+    NameString:
       type: string
-      maxLength: 200
+      maxLength: 256
       minLength: 1
     LLMExperienceControls:
       properties:
@@ -690,222 +892,82 @@ components:
         Token budgets are intentionally excluded so version sets do not reintroduce
 
         accidental response truncation.'
-    VersionSet-Input:
+    ServiceForwardingConfig:
       properties:
-        agent_version_number:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Agent Version Number
-        context_graph_version_number:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Context Graph Version Number
-        llm_model_preferences:
-          additionalProperties:
-            $ref: '#/components/schemas/LLMConfig'
-          type: object
-          title: Llm Model Preferences
-        turn_runtime:
-          type: string
-          enum:
-          - native
-          - openai-agents
-          title: Turn Runtime
-          default: native
+        forward_to:
+          $ref: '#/components/schemas/PhoneE164'
+        should_disconnect:
+          type: boolean
+          title: Should Disconnect
+          default: true
+        warm_transfer:
+          type: boolean
+          title: Warm Transfer
+          default: true
       type: object
-      title: VersionSet
-      description: Pins agent, state machine, and LLM model versions for a service.
-    TextTurnRequest:
+      required:
+      - forward_to
+      title: ServiceForwardingConfig
+      description: 'Per-service call-forwarding destination + transfer mechanism.
+
+
+        Read by the LLM-driven ``forward_call`` tool (tier 3 fallback when the LLM
+
+        doesn''t pass an explicit ``phone_number`` and no EHR location is configured).
+
+
+        Per-service forwarding is a binary presence — set means tier 3 resolves
+
+        to it, None means tier 3 has no static target. (The legacy per-phone
+
+        forwarding shape, with its own ``enabled`` flag, was removed alongside
+
+        the legacy Twilio phone path.)'
+    Body_voice-turn:
       properties:
+        audio:
+          type: string
+          contentMediaType: application/octet-stream
+          title: Audio
         phone_number:
           type: string
           maxLength: 16
           pattern: ^\+[1-9]\d{1,14}$
           title: Phone Number
-        agent_phone:
-          type: string
-          maxLength: 16
-          pattern: ^\+[1-9]\d{1,14}$
-          title: Agent Phone
-        text:
-          type: string
-          maxLength: 8192
-          minLength: 1
-          title: Text
       type: object
       required:
+      - audio
       - phone_number
-      - agent_phone
-      - text
-      title: TextTurnRequest
-      description: Request body for ``POST /v1/{ws}/services/{service_id}/text-turn``.
-    ServiceVoiceConfig-Output:
+      title: Body_voice-turn
+    SearchString:
+      type: string
+      maxLength: 200
+      minLength: 1
+    PaginatedResponse_ServiceResponse_:
       properties:
-        tts_model:
-          anyOf:
-          - type: string
-            enum:
-            - sonic-turbo
-            - sonic-3
-          - type: 'null'
-          title: Tts Model
-        max_buffer_delay_ms:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Max Buffer Delay Ms
-        eager_eot_threshold:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Eager Eot Threshold
-        eot_timeout_ms:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Eot Timeout Ms
-        filler_style:
-          type: string
-          enum:
-          - backchannel
-          - phrase
-          - silent
-          title: Filler Style
-          default: backchannel
-        filler_vocabulary:
-          anyOf:
-          - items:
-              type: string
-            type: array
-          - type: 'null'
-          title: Filler Vocabulary
-        backchannel_delay_ms:
-          type: integer
-          title: Backchannel Delay Ms
-          default: 400
-        max_response_sentences:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Max Response Sentences
-        max_response_words:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Max Response Words
-        barge_in_min_speech_s:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Barge In Min Speech S
-        barge_in_cooldown_s:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Barge In Cooldown S
-        min_tts_speed:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Min Tts Speed
-        post_eot_pause_ms:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Post Eot Pause Ms
-        transition_deadline_ms:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Transition Deadline Ms
-        progress_interval_ms:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Progress Interval Ms
-        empathy_hold_ms:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Empathy Hold Ms
-        filler_cooldown_ms:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Filler Cooldown Ms
-        progress_vocabulary:
-          anyOf:
-          - items:
-              type: string
-            type: array
-          - type: 'null'
-          title: Progress Vocabulary
-        tts_provider:
-          anyOf:
-          - type: string
-            enum:
-            - cartesia
-            - elevenlabs
-            - groq
-          - type: 'null'
-          title: Tts Provider
-        tts_config:
-          anyOf:
-          - additionalProperties: true
-            type: object
-          - type: 'null'
-          title: Tts Config
-        language_providers:
-          anyOf:
-          - additionalProperties:
-              $ref: '#/components/schemas/LanguageProviderEntry'
-            type: object
-            maxProperties: 10
-          - type: 'null'
-          title: Language Providers
-        session_provider:
-          anyOf:
-          - type: string
-            enum:
-            - amigo
-            - gpt_realtime
-            - gpt_live
-          - type: 'null'
-          title: Session Provider
-        realtime_voice:
-          anyOf:
-          - type: string
-            enum:
-            - alloy
-            - ash
-            - ballad
-            - coral
-            - echo
-            - sage
-            - shimmer
-            - verse
-            - marin
-            - cedar
-          - type: 'null'
-          title: Realtime Voice
-        forward_call_enabled:
+        items:
+          items:
+            $ref: '#/components/schemas/ServiceResponse'
+          type: array
+          title: Items
+        has_more:
           type: boolean
-          title: Forward Call Enabled
-          default: false
-        forwarding:
+          title: Has More
+        continuation_token:
           anyOf:
-          - $ref: '#/components/schemas/ServiceForwardingConfig'
+          - type: integer
           - type: 'null'
+          title: Continuation Token
+        total:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Total
       type: object
-      title: ServiceVoiceConfig
-      description: 'Per-service voice pipeline tuning. Overrides workspace/env defaults.
-
-
-        Each field is optional — None means inherit from the layer above
-
-        (workspace VoiceSettings → env vars → hardcoded defaults).'
+      required:
+      - items
+      - has_more
+      title: PaginatedResponse[ServiceResponse]
     ServiceVoiceConfig-Input:
       properties:
         tts_model:
@@ -1071,22 +1133,237 @@ components:
         Each field is optional — None means inherit from the layer above
 
         (workspace VoiceSettings → env vars → hardcoded defaults).'
-    Body_voice-turn:
+    HTTPValidationError:
       properties:
-        audio:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    TextTurnResponse:
+      properties:
+        text:
           type: string
-          contentMediaType: application/octet-stream
-          title: Audio
-        phone_number:
-          type: string
-          maxLength: 16
-          pattern: ^\+[1-9]\d{1,14}$
-          title: Phone Number
+          maxLength: 8192
+          title: Text
       type: object
       required:
-      - audio
-      - phone_number
-      title: Body_voice-turn
+      - text
+      title: TextTurnResponse
+      description: 'Response body — the agent''s text reply.
+
+
+        Returned only on 200; 204 indicates the engine elected silence.'
+    ServiceVoiceConfig-Output:
+      properties:
+        tts_model:
+          anyOf:
+          - type: string
+            enum:
+            - sonic-turbo
+            - sonic-3
+          - type: 'null'
+          title: Tts Model
+        max_buffer_delay_ms:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Max Buffer Delay Ms
+        eager_eot_threshold:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Eager Eot Threshold
+        eot_timeout_ms:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Eot Timeout Ms
+        filler_style:
+          type: string
+          enum:
+          - backchannel
+          - phrase
+          - silent
+          title: Filler Style
+          default: backchannel
+        filler_vocabulary:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          title: Filler Vocabulary
+        backchannel_delay_ms:
+          type: integer
+          title: Backchannel Delay Ms
+          default: 400
+        max_response_sentences:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Max Response Sentences
+        max_response_words:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Max Response Words
+        barge_in_min_speech_s:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Barge In Min Speech S
+        barge_in_cooldown_s:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Barge In Cooldown S
+        min_tts_speed:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Min Tts Speed
+        post_eot_pause_ms:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Post Eot Pause Ms
+        transition_deadline_ms:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Transition Deadline Ms
+        progress_interval_ms:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Progress Interval Ms
+        empathy_hold_ms:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Empathy Hold Ms
+        filler_cooldown_ms:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Filler Cooldown Ms
+        progress_vocabulary:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          title: Progress Vocabulary
+        tts_provider:
+          anyOf:
+          - type: string
+            enum:
+            - cartesia
+            - elevenlabs
+            - groq
+          - type: 'null'
+          title: Tts Provider
+        tts_config:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Tts Config
+        language_providers:
+          anyOf:
+          - additionalProperties:
+              $ref: '#/components/schemas/LanguageProviderEntry'
+            type: object
+            maxProperties: 10
+          - type: 'null'
+          title: Language Providers
+        session_provider:
+          anyOf:
+          - type: string
+            enum:
+            - amigo
+            - gpt_realtime
+            - gpt_live
+          - type: 'null'
+          title: Session Provider
+        realtime_voice:
+          anyOf:
+          - type: string
+            enum:
+            - alloy
+            - ash
+            - ballad
+            - coral
+            - echo
+            - sage
+            - shimmer
+            - verse
+            - marin
+            - cedar
+          - type: 'null'
+          title: Realtime Voice
+        forward_call_enabled:
+          type: boolean
+          title: Forward Call Enabled
+          default: false
+        forwarding:
+          anyOf:
+          - $ref: '#/components/schemas/ServiceForwardingConfig'
+          - type: 'null'
+      type: object
+      title: ServiceVoiceConfig
+      description: 'Per-service voice pipeline tuning. Overrides workspace/env defaults.
+
+
+        Each field is optional — None means inherit from the layer above
+
+        (workspace VoiceSettings → env vars → hardcoded defaults).'
+    UpsertVersionSetRequest:
+      properties:
+        version_set:
+          $ref: '#/components/schemas/VersionSet-Input'
+      type: object
+      required:
+      - version_set
+      title: UpsertVersionSetRequest
+    PhoneE164:
+      type: string
+      maxLength: 16
+      minLength: 2
+    LLMConfig:
+      properties:
+        llm_name:
+          type: string
+          title: Llm Name
+        params:
+          additionalProperties: true
+          type: object
+          title: Params
+        experience_controls:
+          anyOf:
+          - $ref: '#/components/schemas/LLMExperienceControls'
+          - type: 'null'
+      type: object
+      required:
+      - llm_name
+      title: LLMConfig
+    ServiceTag:
+      properties:
+        key:
+          type: string
+          title: Key
+        value:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Value
+      type: object
+      required:
+      - key
+      title: ServiceTag
     VersionSet-Output:
       properties:
         agent_version_number:
@@ -1114,283 +1391,6 @@ components:
       type: object
       title: VersionSet
       description: Pins agent, state machine, and LLM model versions for a service.
-    ValidationError:
-      properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-        input:
-          title: Input
-        ctx:
-          type: object
-          title: Context
-      type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
-    DescriptionString:
-      type: string
-      maxLength: 2000
-    UpdateServiceRequest:
-      properties:
-        name:
-          anyOf:
-          - $ref: '#/components/schemas/NameString'
-          - type: 'null'
-        description:
-          anyOf:
-          - $ref: '#/components/schemas/DescriptionString'
-          - type: 'null'
-        agent_id:
-          anyOf:
-          - type: string
-            format: uuid
-          - type: 'null'
-          title: Agent Id
-        context_graph_id:
-          anyOf:
-          - type: string
-            format: uuid
-          - type: 'null'
-          title: Context Graph Id
-        keyterms:
-          anyOf:
-          - items:
-              type: string
-              maxLength: 128
-              minLength: 1
-            type: array
-            maxItems: 500
-          - type: 'null'
-          title: Keyterms
-        is_active:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          title: Is Active
-        version_sets:
-          anyOf:
-          - additionalProperties:
-              $ref: '#/components/schemas/VersionSet-Input'
-            type: object
-          - type: 'null'
-          title: Version Sets
-        tags:
-          anyOf:
-          - items:
-              $ref: '#/components/schemas/ServiceTag'
-            type: array
-            maxItems: 50
-          - type: 'null'
-          title: Tags
-        tool_capacity:
-          anyOf:
-          - type: integer
-            maximum: 10.0
-            minimum: 1.0
-          - type: 'null'
-          title: Tool Capacity
-        channel_type:
-          anyOf:
-          - type: string
-            enum:
-            - voice
-            - text
-          - type: 'null'
-          title: Channel Type
-        environment:
-          anyOf:
-          - type: string
-            enum:
-            - sandbox
-            - production
-          - type: 'null'
-          title: Environment
-        voice_config:
-          anyOf:
-          - $ref: '#/components/schemas/ServiceVoiceConfig-Input'
-          - type: 'null'
-      type: object
-      title: UpdateServiceRequest
-    PhoneE164:
-      type: string
-      maxLength: 16
-      minLength: 2
-    CreateServiceRequest:
-      properties:
-        name:
-          $ref: '#/components/schemas/NameString'
-        description:
-          $ref: '#/components/schemas/DescriptionString'
-          default: ''
-        agent_id:
-          type: string
-          format: uuid
-          title: Agent Id
-        context_graph_id:
-          type: string
-          format: uuid
-          title: Context Graph Id
-        keyterms:
-          items:
-            type: string
-            maxLength: 128
-            minLength: 1
-          type: array
-          maxItems: 500
-          title: Keyterms
-        is_active:
-          type: boolean
-          title: Is Active
-          default: true
-        version_sets:
-          additionalProperties:
-            $ref: '#/components/schemas/VersionSet-Input'
-          type: object
-          title: Version Sets
-          default: {}
-        tags:
-          items:
-            $ref: '#/components/schemas/ServiceTag'
-          type: array
-          maxItems: 50
-          title: Tags
-        tool_capacity:
-          type: integer
-          maximum: 10.0
-          minimum: 1.0
-          title: Tool Capacity
-          default: 3
-        channel_type:
-          type: string
-          enum:
-          - voice
-          - text
-          title: Channel Type
-          default: voice
-        environment:
-          type: string
-          enum:
-          - sandbox
-          - production
-          title: Environment
-          default: production
-        voice_config:
-          anyOf:
-          - $ref: '#/components/schemas/ServiceVoiceConfig-Input'
-          - type: 'null'
-      type: object
-      required:
-      - name
-      - agent_id
-      - context_graph_id
-      title: CreateServiceRequest
-    ServiceTag:
-      properties:
-        key:
-          type: string
-          title: Key
-        value:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Value
-      type: object
-      required:
-      - key
-      title: ServiceTag
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
-    LanguageProviderEntry:
-      properties:
-        provider:
-          type: string
-          enum:
-          - cartesia
-          - elevenlabs
-          - groq
-          title: Provider
-        config:
-          additionalProperties: true
-          type: object
-          maxProperties: 20
-          title: Config
-      type: object
-      required:
-      - provider
-      title: LanguageProviderEntry
-      description: Per-language TTS provider configuration.
-    LLMConfig:
-      properties:
-        llm_name:
-          type: string
-          title: Llm Name
-        params:
-          additionalProperties: true
-          type: object
-          title: Params
-        experience_controls:
-          anyOf:
-          - $ref: '#/components/schemas/LLMExperienceControls'
-          - type: 'null'
-      type: object
-      required:
-      - llm_name
-      title: LLMConfig
-    ServiceForwardingConfig:
-      properties:
-        forward_to:
-          $ref: '#/components/schemas/PhoneE164'
-        should_disconnect:
-          type: boolean
-          title: Should Disconnect
-          default: true
-        warm_transfer:
-          type: boolean
-          title: Warm Transfer
-          default: true
-      type: object
-      required:
-      - forward_to
-      title: ServiceForwardingConfig
-      description: 'Per-service call-forwarding destination + transfer mechanism.
-
-
-        Read by the LLM-driven ``forward_call`` tool (tier 3 fallback when the LLM
-
-        doesn''t pass an explicit ``phone_number`` and no EHR location is configured).
-
-
-        Per-service forwarding is a binary presence — set means tier 3 resolves
-
-        to it, None means tier 3 has no static target. (The legacy per-phone
-
-        forwarding shape, with its own ``enabled`` flag, was removed alongside
-
-        the legacy Twilio phone path.)'
-    NameString:
-      type: string
-      maxLength: 256
-      minLength: 1
   securitySchemes:
     BearerAuth:
       type: http

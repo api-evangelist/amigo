@@ -369,112 +369,6 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
-    PaginatedResponse_TriggerResponse_:
-      properties:
-        items:
-          items:
-            $ref: '#/components/schemas/TriggerResponse'
-          type: array
-          title: Items
-        has_more:
-          type: boolean
-          title: Has More
-        continuation_token:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Continuation Token
-        total:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Total
-      type: object
-      required:
-      - items
-      - has_more
-      title: PaginatedResponse[TriggerResponse]
-    ValidationError:
-      properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-        input:
-          title: Input
-        ctx:
-          type: object
-          title: Context
-      type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
-    CreateTriggerRequest:
-      properties:
-        name:
-          $ref: '#/components/schemas/NameString'
-        description:
-          anyOf:
-          - $ref: '#/components/schemas/DescriptionString'
-          - type: 'null'
-        event_type:
-          $ref: '#/components/schemas/TriggerableEvent'
-        event_filter:
-          anyOf:
-          - additionalProperties: true
-            type: object
-          - type: 'null'
-          title: Event Filter
-        action_id:
-          type: string
-          format: uuid
-          title: Action Id
-        input_template:
-          additionalProperties: true
-          type: object
-          title: Input Template
-        schedule:
-          anyOf:
-          - type: string
-            maxLength: 128
-            minLength: 1
-          - type: 'null'
-          title: Schedule
-        timezone:
-          type: string
-          maxLength: 64
-          minLength: 1
-          title: Timezone
-          default: UTC
-      type: object
-      required:
-      - name
-      - event_type
-      - action_id
-      title: CreateTriggerRequest
-    DescriptionString:
-      type: string
-      maxLength: 2000
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
     UpdateTriggerRequest:
       properties:
         name:
@@ -523,6 +417,109 @@ components:
           title: Timezone
       type: object
       title: UpdateTriggerRequest
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    TriggerableEvent:
+      type: string
+      enum:
+      - amigo.trigger.cron
+      - appointment.booked
+      - appointment.cancelled
+      - appointment.confirmed
+      - booking.requested
+      - call.intelligence
+      - call.outcome
+      - channel.email.bounced
+      - channel.email.clicked
+      - channel.email.complained
+      - channel.email.delayed
+      - channel.email.delivered
+      - channel.email.opened
+      - channel.email.received
+      - channel.email.rejected
+      - channel.message.received
+      - channel.voice.voicemail_status
+      - conversation.channel_switched
+      - conversation.started
+      - conversation.turn_recorded
+      - coverage.created
+      - entity.enriched
+      - entity.resolved
+      - intake.file.received
+      - medication.refill_requested
+      - outbound.initiated
+      - outbound.scheduled
+      - patient.created
+      - patient.updated
+      - relationship.established
+      - review.approve
+      - review.correct
+      - review.reject
+      - surface.created
+      - surface.submitted
+      - ticket.created
+      - triage.completed
+      - trigger.completed
+      - trigger.failed
+      - trigger.fired
+      title: TriggerableEvent
+      description: 'Closed set of world events that trigger definitions may subscribe to.
+
+
+        The database column intentionally remains text for compatibility with old
+
+        rows, but API writes must choose from this list so typoed event names do
+
+        not silently create never-matching triggers.'
+    PaginatedResponse_TriggerResponse_:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/TriggerResponse'
+          type: array
+          title: Items
+        has_more:
+          type: boolean
+          title: Has More
+        continuation_token:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Continuation Token
+        total:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Total
+      type: object
+      required:
+      - items
+      - has_more
+      title: PaginatedResponse[TriggerResponse]
     TriggerResponse:
       properties:
         id:
@@ -616,31 +613,6 @@ components:
       - timezone
       - is_active
       title: TriggerResponse
-    PaginatedResponse_TriggerRunResponse_:
-      properties:
-        items:
-          items:
-            $ref: '#/components/schemas/TriggerRunResponse'
-          type: array
-          title: Items
-        has_more:
-          type: boolean
-          title: Has More
-        continuation_token:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Continuation Token
-        total:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Total
-      type: object
-      required:
-      - items
-      - has_more
-      title: PaginatedResponse[TriggerRunResponse]
     TriggerFireResponse:
       properties:
         fired_event_id:
@@ -661,73 +633,62 @@ components:
       - fired_event_id
       - trigger_id
       title: TriggerFireResponse
-    TriggerableEvent:
-      type: string
-      enum:
-      - amigo.trigger.cron
-      - appointment.booked
-      - appointment.cancelled
-      - appointment.confirmed
-      - booking.requested
-      - call.intelligence
-      - call.outcome
-      - channel.email.bounced
-      - channel.email.clicked
-      - channel.email.complained
-      - channel.email.delayed
-      - channel.email.delivered
-      - channel.email.opened
-      - channel.email.received
-      - channel.email.rejected
-      - channel.message.received
-      - channel.voice.voicemail_status
-      - conversation.channel_switched
-      - conversation.started
-      - conversation.turn_recorded
-      - coverage.created
-      - entity.enriched
-      - entity.resolved
-      - intake.file.received
-      - medication.refill_requested
-      - outbound.initiated
-      - outbound.scheduled
-      - patient.created
-      - patient.updated
-      - relationship.established
-      - review.approve
-      - review.correct
-      - review.reject
-      - surface.created
-      - surface.submitted
-      - ticket.created
-      - triage.completed
-      - trigger.completed
-      - trigger.failed
-      - trigger.fired
-      title: TriggerableEvent
-      description: 'Closed set of world events that trigger definitions may subscribe to.
-
-
-        The database column intentionally remains text for compatibility with old
-
-        rows, but API writes must choose from this list so typoed event names do
-
-        not silently create never-matching triggers.'
     NameString:
       type: string
       maxLength: 256
       minLength: 1
-    FireTriggerRequest:
+    HTTPValidationError:
       properties:
-        input:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    CreateTriggerRequest:
+      properties:
+        name:
+          $ref: '#/components/schemas/NameString'
+        description:
+          anyOf:
+          - $ref: '#/components/schemas/DescriptionString'
+          - type: 'null'
+        event_type:
+          $ref: '#/components/schemas/TriggerableEvent'
+        event_filter:
           anyOf:
           - additionalProperties: true
             type: object
           - type: 'null'
-          title: Input
-          description: Optional overrides merged into the trigger's input_template at fire time.
+          title: Event Filter
+        action_id:
+          type: string
+          format: uuid
+          title: Action Id
+        input_template:
+          additionalProperties: true
+          type: object
+          title: Input Template
+        schedule:
+          anyOf:
+          - type: string
+            maxLength: 128
+            minLength: 1
+          - type: 'null'
+          title: Schedule
+        timezone:
+          type: string
+          maxLength: 64
+          minLength: 1
+          title: Timezone
+          default: UTC
       type: object
-      title: FireTriggerRequest
+      required:
+      - name
+      - event_type
+      - action_id
+      title: CreateTriggerRequest
     TriggerRunResponse:
       properties:
         id:
@@ -841,6 +802,45 @@ components:
       - created_at
       - updated_at
       title: TriggerRunResponse
+    FireTriggerRequest:
+      properties:
+        input:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Input
+          description: Optional overrides merged into the trigger's input_template at fire time.
+      type: object
+      title: FireTriggerRequest
+    PaginatedResponse_TriggerRunResponse_:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/TriggerRunResponse'
+          type: array
+          title: Items
+        has_more:
+          type: boolean
+          title: Has More
+        continuation_token:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Continuation Token
+        total:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Total
+      type: object
+      required:
+      - items
+      - has_more
+      title: PaginatedResponse[TriggerRunResponse]
+    DescriptionString:
+      type: string
+      maxLength: 2000
   securitySchemes:
     BearerAuth:
       type: http

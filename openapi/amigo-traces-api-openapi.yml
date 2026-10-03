@@ -73,6 +73,54 @@ components:
       - msg
       - type
       title: ValidationError
+    ScopeSpans:
+      properties:
+        scope:
+          $ref: '#/components/schemas/InstrumentationScope'
+        spans:
+          items:
+            $ref: '#/components/schemas/Span'
+          type: array
+          title: Spans
+      type: object
+      required:
+      - scope
+      - spans
+      title: ScopeSpans
+    Resource:
+      properties:
+        attributes:
+          items:
+            $ref: '#/components/schemas/KeyValue'
+          type: array
+          title: Attributes
+      type: object
+      required:
+      - attributes
+      title: Resource
+    KeyValue:
+      properties:
+        key:
+          type: string
+          title: Key
+        value:
+          $ref: '#/components/schemas/AnyValue'
+      type: object
+      required:
+      - key
+      - value
+      title: KeyValue
+      description: OTLP ``KeyValue`` attribute pair.
+    Status:
+      properties:
+        code:
+          type: integer
+          title: Code
+      type: object
+      required:
+      - code
+      title: Status
+      description: OTLP ``Status`` — 0=UNSET, 1=OK, 2=ERROR.
     HTTPValidationError:
       properties:
         detail:
@@ -109,47 +157,9 @@ components:
       - start_time
       - end_time
       title: TracesExportRequest
-    KeyValue:
-      properties:
-        key:
-          type: string
-          title: Key
-        value:
-          $ref: '#/components/schemas/AnyValue'
+    AnyValue:
+      additionalProperties: true
       type: object
-      required:
-      - key
-      - value
-      title: KeyValue
-      description: OTLP ``KeyValue`` attribute pair.
-    TracesExportResponse:
-      properties:
-        resourceSpans:
-          items:
-            $ref: '#/components/schemas/ResourceSpans'
-          type: array
-          title: Resourcespans
-          description: OTLP/JSON ``ResourceSpans`` envelope (empty list when no spans match).
-        has_more:
-          type: boolean
-          title: Has More
-        continuation_token:
-          title: Continuation Token
-      type: object
-      required:
-      - resourceSpans
-      - has_more
-      title: TracesExportResponse
-      description: 'Paginated PULL response — NOT a bare OTLP ``ExportTraceServiceRequest``.
-
-
-        ``resourceSpans`` is OTLP/JSON-conformant; to forward to an OTLP collector,
-
-        extract ``.resourceSpans`` and re-wrap as ``{"resourceSpans": [...]}`` (a
-
-        strict protojson push receiver rejects the ``has_more``/``continuation_token``
-
-        siblings). Round-trip ``continuation_token`` to page.'
     ResourceSpans:
       properties:
         resource:
@@ -203,44 +213,34 @@ components:
       - status
       title: Span
       description: OTLP ``Span`` in OTLP/JSON encoding (ids hex, timestamps decimal-string).
-    ScopeSpans:
+    TracesExportResponse:
       properties:
-        scope:
-          $ref: '#/components/schemas/InstrumentationScope'
-        spans:
+        resourceSpans:
           items:
-            $ref: '#/components/schemas/Span'
+            $ref: '#/components/schemas/ResourceSpans'
           type: array
-          title: Spans
+          title: Resourcespans
+          description: OTLP/JSON ``ResourceSpans`` envelope (empty list when no spans match).
+        has_more:
+          type: boolean
+          title: Has More
+        continuation_token:
+          title: Continuation Token
       type: object
       required:
-      - scope
-      - spans
-      title: ScopeSpans
-    Status:
-      properties:
-        code:
-          type: integer
-          title: Code
-      type: object
-      required:
-      - code
-      title: Status
-      description: OTLP ``Status`` — 0=UNSET, 1=OK, 2=ERROR.
-    Resource:
-      properties:
-        attributes:
-          items:
-            $ref: '#/components/schemas/KeyValue'
-          type: array
-          title: Attributes
-      type: object
-      required:
-      - attributes
-      title: Resource
-    AnyValue:
-      additionalProperties: true
-      type: object
+      - resourceSpans
+      - has_more
+      title: TracesExportResponse
+      description: 'Paginated PULL response — NOT a bare OTLP ``ExportTraceServiceRequest``.
+
+
+        ``resourceSpans`` is OTLP/JSON-conformant; to forward to an OTLP collector,
+
+        extract ``.resourceSpans`` and re-wrap as ``{"resourceSpans": [...]}`` (a
+
+        strict protojson push receiver rejects the ``has_more``/``continuation_token``
+
+        siblings). Round-trip ``continuation_token`` to page.'
     InstrumentationScope:
       properties:
         name:

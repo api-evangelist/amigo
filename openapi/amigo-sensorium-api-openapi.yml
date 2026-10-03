@@ -135,37 +135,6 @@ components:
       - msg
       - type
       title: ValidationError
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
-    LoopLatencyPointItem:
-      properties:
-        hour:
-          type: string
-          format: date-time
-          title: Hour
-          description: UTC hour bucket (truncated to the hour).
-        count:
-          type: integer
-          title: Count
-          description: Sensing→action pairs whose sensing event lands in this hour.
-        p50_seconds:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: P50 Seconds
-          description: Median latency for this hour; null if no pairs.
-      type: object
-      required:
-      - hour
-      - count
-      title: LoopLatencyPointItem
     ConnectorHealthItem:
       properties:
         source:
@@ -212,6 +181,37 @@ components:
       - last_ingested_at
       - freshness
       title: ConnectorHealthItem
+    LoopLatencyPointItem:
+      properties:
+        hour:
+          type: string
+          format: date-time
+          title: Hour
+          description: UTC hour bucket (truncated to the hour).
+        count:
+          type: integer
+          title: Count
+          description: Sensing→action pairs whose sensing event lands in this hour.
+        p50_seconds:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: P50 Seconds
+          description: Median latency for this hour; null if no pairs.
+      type: object
+      required:
+      - hour
+      - count
+      title: LoopLatencyPointItem
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
     ConnectorHealthResponse:
       properties:
         sources:

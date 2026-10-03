@@ -47,6 +47,59 @@ paths:
           title: Workspace Id
 components:
   schemas:
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    MeteringEmitResponse:
+      properties:
+        status:
+          type: string
+          const: accepted
+          title: Status
+          description: Emission outcome. Always 'accepted' on 202.
+        event_type:
+          type: string
+          maxLength: 64
+          minLength: 1
+          title: Event Type
+          description: Echo of the emitted event_type.
+      type: object
+      required:
+      - status
+      - event_type
+      title: MeteringEmitResponse
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
     MeteringEmitRequest:
       properties:
         event_type:
@@ -99,59 +152,6 @@ components:
       - metering_quantity
       - metering_source
       title: MeteringEmitRequest
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
-    ValidationError:
-      properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-        input:
-          title: Input
-        ctx:
-          type: object
-          title: Context
-      type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
-    MeteringEmitResponse:
-      properties:
-        status:
-          type: string
-          const: accepted
-          title: Status
-          description: Emission outcome. Always 'accepted' on 202.
-        event_type:
-          type: string
-          maxLength: 64
-          minLength: 1
-          title: Event Type
-          description: Echo of the emitted event_type.
-      type: object
-      required:
-      - status
-      - event_type
-      title: MeteringEmitResponse
   securitySchemes:
     BearerAuth:
       type: http

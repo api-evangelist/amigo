@@ -591,48 +591,117 @@ paths:
           description: Rate limited
 components:
   schemas:
-    BrandingConfig:
+    CreateSurfaceResponse:
       properties:
-        logo_url:
-          anyOf:
-          - type: string
-            maxLength: 2048
-          - type: 'null'
-          title: Logo Url
-        primary_color:
-          anyOf:
-          - type: string
-            maxLength: 32
-          - type: 'null'
-          title: Primary Color
-        background_color:
-          anyOf:
-          - type: string
-            maxLength: 32
-          - type: 'null'
-          title: Background Color
-        font_family:
-          anyOf:
-          - type: string
-            maxLength: 256
-          - type: 'null'
-          title: Font Family
-      type: object
-      title: BrandingConfig
-      description: Visual branding for patient-facing surfaces.
-    DeliverSurfaceRequest:
-      properties:
-        channel_address:
+        id:
           type: string
-          maxLength: 256
-          minLength: 1
-          title: Channel Address
-          description: Delivery address (phone number, email, etc.)
+          format: uuid
+          title: Id
+        event_id:
+          type: string
+          format: uuid
+          title: Event Id
+        entity_id:
+          type: string
+          format: uuid
+          title: Entity Id
+        title:
+          type: string
+          title: Title
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        status:
+          $ref: '#/components/schemas/SurfaceStatus'
+        channel:
+          $ref: '#/components/schemas/ChannelType'
+        use_case_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Use Case Id
+        fields_count:
+          type: integer
+          title: Fields Count
+        expires_at:
+          type: string
+          title: Expires At
+        created_at:
+          type: string
+          title: Created At
+        token:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Token
+        url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Url
       type: object
       required:
-      - channel_address
-      title: DeliverSurfaceRequest
-      description: Request to mark a surface as delivered.
+      - id
+      - event_id
+      - entity_id
+      - title
+      - status
+      - channel
+      - fields_count
+      - expires_at
+      - created_at
+      title: CreateSurfaceResponse
+    DescriptionString:
+      type: string
+      maxLength: 2000
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    ArchiveResponse:
+      properties:
+        surface_id:
+          type: string
+          format: uuid
+          title: Surface Id
+        status:
+          type: string
+          const: archived
+          title: Status
+      type: object
+      required:
+      - surface_id
+      - status
+      title: ArchiveResponse
+    NameString:
+      type: string
+      maxLength: 256
+      minLength: 1
     SurfaceResponse:
       properties:
         id:
@@ -766,175 +835,159 @@ components:
       - status
       - fields_count
       title: SurfaceResponse
-    ReviewActionResponse:
+    BrandingConfig:
       properties:
-        surface_id:
-          type: string
-          format: uuid
-          title: Surface Id
-        status:
-          $ref: '#/components/schemas/SurfaceStatus'
-        action:
-          type: string
-          enum:
-          - approved
-          - rejected
-          title: Action
+        logo_url:
+          anyOf:
+          - type: string
+            maxLength: 2048
+          - type: 'null'
+          title: Logo Url
+        primary_color:
+          anyOf:
+          - type: string
+            maxLength: 32
+          - type: 'null'
+          title: Primary Color
+        background_color:
+          anyOf:
+          - type: string
+            maxLength: 32
+          - type: 'null'
+          title: Background Color
+        font_family:
+          anyOf:
+          - type: string
+            maxLength: 256
+          - type: 'null'
+          title: Font Family
       type: object
-      required:
-      - surface_id
-      - status
-      - action
-      title: ReviewActionResponse
-    SurfaceProgressResponse:
+      title: BrandingConfig
+      description: Visual branding for patient-facing surfaces.
+    SurfaceSection:
       properties:
-        surface_id:
-          type: string
-          format: uuid
-          title: Surface Id
-        total_fields:
-          type: integer
-          title: Total Fields
-        filled_count:
-          type: integer
-          title: Filled Count
-        empty_count:
-          type: integer
-          title: Empty Count
-        filled_keys:
+        title:
+          $ref: '#/components/schemas/NameString'
+        description:
+          anyOf:
+          - $ref: '#/components/schemas/DescriptionString'
+          - type: 'null'
+        field_keys:
           items:
             type: string
           type: array
-          title: Filled Keys
-        empty_keys:
-          items:
-            type: string
-          type: array
-          title: Empty Keys
-        required_empty_keys:
-          items:
-            type: string
-          type: array
-          title: Required Empty Keys
+          maxItems: 100
+          minItems: 1
+          title: Field Keys
+        condition:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Condition
       type: object
       required:
-      - surface_id
-      - total_fields
-      - filled_count
-      - empty_count
-      - filled_keys
-      - empty_keys
-      - required_empty_keys
-      title: SurfaceProgressResponse
-    SurfaceStatus:
-      type: string
-      enum:
-      - created
-      - pending_review
-      - delivered
-      - opened
-      - partial
-      - completed
-      - expired
-      - archived
-      title: SurfaceStatus
-      description: Lifecycle status of a surface.
-    ArchiveResponse:
+      - title
+      - field_keys
+      title: SurfaceSection
+      description: A page/step in a multi-page surface form.
+    UpdateSurfaceRequest:
       properties:
-        surface_id:
-          type: string
-          format: uuid
-          title: Surface Id
-        status:
-          type: string
-          const: archived
-          title: Status
-      type: object
-      required:
-      - surface_id
-      - status
-      title: ArchiveResponse
-    DeliverSurfaceResponse:
-      properties:
-        surface_id:
-          type: string
-          format: uuid
-          title: Surface Id
-        status:
-          type: string
-          enum:
-          - delivered
-          - pending_review
-          title: Status
+        title:
+          anyOf:
+          - $ref: '#/components/schemas/NameString'
+          - type: 'null'
+        description:
+          anyOf:
+          - $ref: '#/components/schemas/DescriptionString'
+          - type: 'null'
+        fields:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/SurfaceField'
+            type: array
+            maxItems: 200
+            minItems: 1
+          - type: 'null'
+          title: Fields
+        branding:
+          anyOf:
+          - $ref: '#/components/schemas/BrandingConfig'
+          - type: 'null'
+        sections:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/SurfaceSection'
+            type: array
+          - type: 'null'
+          title: Sections
+        completion_title:
+          anyOf:
+          - type: string
+            maxLength: 256
+          - type: 'null'
+          title: Completion Title
+        completion_message:
+          anyOf:
+          - type: string
+            maxLength: 2000
+          - type: 'null'
+          title: Completion Message
+        completion_action_url:
+          anyOf:
+          - type: string
+            maxLength: 2048
+          - type: 'null'
+          title: Completion Action Url
+        submit_button_text:
+          anyOf:
+          - type: string
+            maxLength: 128
+          - type: 'null'
+          title: Submit Button Text
         channel:
           anyOf:
           - $ref: '#/components/schemas/ChannelType'
           - type: 'null'
-        url:
+        resource_type:
           anyOf:
           - type: string
+            maxLength: 64
           - type: 'null'
-          title: Url
-        channel_address:
-          type: string
-          title: Channel Address
-        message_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Message Id
-        from_number:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: From Number
-        from_address:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: From Address
-        delivery_provider:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Delivery Provider
-        delivered_at:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Delivered At
+          title: Resource Type
       type: object
-      required:
-      - surface_id
-      - status
-      - channel_address
-      title: DeliverSurfaceResponse
-    ValidationError:
+      title: UpdateSurfaceRequest
+      description: 'Partial update to an existing surface.
+
+
+        All fields are optional. Only provided fields are merged into the spec.
+
+        Only allowed while status is CREATED or DELIVERED.'
+    PaginatedResponse_SurfaceResponse_:
       properties:
-        loc:
+        items:
           items:
-            anyOf:
-            - type: string
-            - type: integer
+            $ref: '#/components/schemas/SurfaceResponse'
           type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-        input:
-          title: Input
-        ctx:
-          type: object
-          title: Context
+          title: Items
+        has_more:
+          type: boolean
+          title: Has More
+        continuation_token:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Continuation Token
+        total:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Total
       type: object
       required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
+      - items
+      - has_more
+      title: PaginatedResponse[SurfaceResponse]
     CreateSurfaceRequest:
       properties:
         entity_id:
@@ -1025,69 +1078,185 @@ components:
 
 
         The agent generates a SurfaceSpec and sends it here.'
-    DescriptionString:
-      type: string
-      maxLength: 2000
-    ChannelType:
-      type: string
-      enum:
-      - email
-      - web
-      - sms
-      title: ChannelType
-      description: Delivery channels for surfaces.
-    PaginatedResponse_SurfaceResponse_:
+    SurfaceProgressResponse:
       properties:
-        items:
-          items:
-            $ref: '#/components/schemas/SurfaceResponse'
-          type: array
-          title: Items
-        has_more:
-          type: boolean
-          title: Has More
-        continuation_token:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Continuation Token
-        total:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Total
-      type: object
-      required:
-      - items
-      - has_more
-      title: PaginatedResponse[SurfaceResponse]
-    SurfaceSection:
-      properties:
-        title:
-          $ref: '#/components/schemas/NameString'
-        description:
-          anyOf:
-          - $ref: '#/components/schemas/DescriptionString'
-          - type: 'null'
-        field_keys:
+        surface_id:
+          type: string
+          format: uuid
+          title: Surface Id
+        total_fields:
+          type: integer
+          title: Total Fields
+        filled_count:
+          type: integer
+          title: Filled Count
+        empty_count:
+          type: integer
+          title: Empty Count
+        filled_keys:
           items:
             type: string
           type: array
-          maxItems: 100
-          minItems: 1
-          title: Field Keys
-        condition:
-          anyOf:
-          - additionalProperties: true
-            type: object
-          - type: 'null'
-          title: Condition
+          title: Filled Keys
+        empty_keys:
+          items:
+            type: string
+          type: array
+          title: Empty Keys
+        required_empty_keys:
+          items:
+            type: string
+          type: array
+          title: Required Empty Keys
       type: object
       required:
-      - title
-      - field_keys
-      title: SurfaceSection
-      description: A page/step in a multi-page surface form.
+      - surface_id
+      - total_fields
+      - filled_count
+      - empty_count
+      - filled_keys
+      - empty_keys
+      - required_empty_keys
+      title: SurfaceProgressResponse
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    FieldType:
+      type: string
+      enum:
+      - text
+      - textarea
+      - date
+      - phone
+      - email
+      - number
+      - select
+      - multiselect
+      - checkbox
+      - photo
+      - signature
+      - file
+      - heading
+      - info
+      title: FieldType
+      description: Input field types for surface data collection.
+    DeliverSurfaceResponse:
+      properties:
+        surface_id:
+          type: string
+          format: uuid
+          title: Surface Id
+        status:
+          type: string
+          enum:
+          - delivered
+          - pending_review
+          title: Status
+        channel:
+          anyOf:
+          - $ref: '#/components/schemas/ChannelType'
+          - type: 'null'
+        url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Url
+        channel_address:
+          type: string
+          title: Channel Address
+        message_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Message Id
+        from_number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: From Number
+        from_address:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: From Address
+        delivery_provider:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Delivery Provider
+        delivered_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Delivered At
+      type: object
+      required:
+      - surface_id
+      - status
+      - channel_address
+      title: DeliverSurfaceResponse
+    ReviewActionResponse:
+      properties:
+        surface_id:
+          type: string
+          format: uuid
+          title: Surface Id
+        status:
+          $ref: '#/components/schemas/SurfaceStatus'
+        action:
+          type: string
+          enum:
+          - approved
+          - rejected
+          title: Action
+      type: object
+      required:
+      - surface_id
+      - status
+      - action
+      title: ReviewActionResponse
+    DeliverSurfaceRequest:
+      properties:
+        channel_address:
+          type: string
+          maxLength: 256
+          minLength: 1
+          title: Channel Address
+          description: Delivery address (phone number, email, etc.)
+      type: object
+      required:
+      - channel_address
+      title: DeliverSurfaceRequest
+      description: Request to mark a surface as delivered.
+    RejectSurfaceRequest:
+      properties:
+        reason:
+          anyOf:
+          - type: string
+            maxLength: 2000
+          - type: 'null'
+          title: Reason
+      type: object
+      title: RejectSurfaceRequest
+    SurfaceStatus:
+      type: string
+      enum:
+      - created
+      - pending_review
+      - delivered
+      - opened
+      - partial
+      - completed
+      - expired
+      - archived
+      title: SurfaceStatus
+      description: Lifecycle status of a surface.
     SurfaceField:
       properties:
         key:
@@ -1159,183 +1328,14 @@ components:
         Generated by agents from HSM analysis. Each field maps
 
         to a specific piece of data the world model needs.'
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
-    RejectSurfaceRequest:
-      properties:
-        reason:
-          anyOf:
-          - type: string
-            maxLength: 2000
-          - type: 'null'
-          title: Reason
-      type: object
-      title: RejectSurfaceRequest
-    CreateSurfaceResponse:
-      properties:
-        id:
-          type: string
-          format: uuid
-          title: Id
-        event_id:
-          type: string
-          format: uuid
-          title: Event Id
-        entity_id:
-          type: string
-          format: uuid
-          title: Entity Id
-        title:
-          type: string
-          title: Title
-        description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Description
-        status:
-          $ref: '#/components/schemas/SurfaceStatus'
-        channel:
-          $ref: '#/components/schemas/ChannelType'
-        use_case_id:
-          anyOf:
-          - type: string
-            format: uuid
-          - type: 'null'
-          title: Use Case Id
-        fields_count:
-          type: integer
-          title: Fields Count
-        expires_at:
-          type: string
-          title: Expires At
-        created_at:
-          type: string
-          title: Created At
-        token:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Token
-        url:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Url
-      type: object
-      required:
-      - id
-      - event_id
-      - entity_id
-      - title
-      - status
-      - channel
-      - fields_count
-      - expires_at
-      - created_at
-      title: CreateSurfaceResponse
-    NameString:
-      type: string
-      maxLength: 256
-      minLength: 1
-    FieldType:
+    ChannelType:
       type: string
       enum:
-      - text
-      - textarea
-      - date
-      - phone
       - email
-      - number
-      - select
-      - multiselect
-      - checkbox
-      - photo
-      - signature
-      - file
-      - heading
-      - info
-      title: FieldType
-      description: Input field types for surface data collection.
-    UpdateSurfaceRequest:
-      properties:
-        title:
-          anyOf:
-          - $ref: '#/components/schemas/NameString'
-          - type: 'null'
-        description:
-          anyOf:
-          - $ref: '#/components/schemas/DescriptionString'
-          - type: 'null'
-        fields:
-          anyOf:
-          - items:
-              $ref: '#/components/schemas/SurfaceField'
-            type: array
-            maxItems: 200
-            minItems: 1
-          - type: 'null'
-          title: Fields
-        branding:
-          anyOf:
-          - $ref: '#/components/schemas/BrandingConfig'
-          - type: 'null'
-        sections:
-          anyOf:
-          - items:
-              $ref: '#/components/schemas/SurfaceSection'
-            type: array
-          - type: 'null'
-          title: Sections
-        completion_title:
-          anyOf:
-          - type: string
-            maxLength: 256
-          - type: 'null'
-          title: Completion Title
-        completion_message:
-          anyOf:
-          - type: string
-            maxLength: 2000
-          - type: 'null'
-          title: Completion Message
-        completion_action_url:
-          anyOf:
-          - type: string
-            maxLength: 2048
-          - type: 'null'
-          title: Completion Action Url
-        submit_button_text:
-          anyOf:
-          - type: string
-            maxLength: 128
-          - type: 'null'
-          title: Submit Button Text
-        channel:
-          anyOf:
-          - $ref: '#/components/schemas/ChannelType'
-          - type: 'null'
-        resource_type:
-          anyOf:
-          - type: string
-            maxLength: 64
-          - type: 'null'
-          title: Resource Type
-      type: object
-      title: UpdateSurfaceRequest
-      description: 'Partial update to an existing surface.
-
-
-        All fields are optional. Only provided fields are merged into the spec.
-
-        Only allowed while status is CREATED or DELIVERED.'
+      - web
+      - sms
+      title: ChannelType
+      description: Delivery channels for surfaces.
   securitySchemes:
     BearerAuth:
       type: http
