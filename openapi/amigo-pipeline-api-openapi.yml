@@ -619,6 +619,49 @@ components:
       - is_active
       - health_status
       title: SourceListItem
+    ThroughputBucket:
+      properties:
+        bucket:
+          type: string
+          title: Bucket
+        source_system:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Source System
+        event_count:
+          type: integer
+          title: Event Count
+      type: object
+      required:
+      - bucket
+      - event_count
+      title: ThroughputBucket
+    OutboundSummary:
+      properties:
+        total:
+          type: integer
+          title: Total
+          default: 0
+        synced:
+          type: integer
+          title: Synced
+          default: 0
+        failed:
+          type: integer
+          title: Failed
+          default: 0
+        pending:
+          type: integer
+          title: Pending
+          default: 0
+        last_synced_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Last Synced At
+      type: object
+      title: OutboundSummary
     ValidationError:
       properties:
         loc:
@@ -680,165 +723,6 @@ components:
       - failed
       - pending
       title: OutboundSinkSummary
-    ReviewMetrics:
-      properties:
-        queue_depth:
-          type: integer
-          title: Queue Depth
-        pending_by_priority:
-          additionalProperties:
-            type: integer
-          type: object
-          title: Pending By Priority
-        approved_7d:
-          type: integer
-          title: Approved 7D
-        rejected_7d:
-          type: integer
-          title: Rejected 7D
-        avg_review_time_hours:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Avg Review Time Hours
-        total_items:
-          type: integer
-          title: Total Items
-          default: 0
-      type: object
-      required:
-      - queue_depth
-      - pending_by_priority
-      - approved_7d
-      - rejected_7d
-      title: ReviewMetrics
-    ThroughputBucket:
-      properties:
-        bucket:
-          type: string
-          title: Bucket
-        source_system:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Source System
-        event_count:
-          type: integer
-          title: Event Count
-      type: object
-      required:
-      - bucket
-      - event_count
-      title: ThroughputBucket
-    OutboundLogItem:
-      properties:
-        id:
-          type: string
-          format: uuid
-          title: Id
-        event_id:
-          type: string
-          format: uuid
-          title: Event Id
-        synced_at:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Synced At
-        sync_error:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Sync Error
-        attempt_count:
-          type: integer
-          title: Attempt Count
-        created_at:
-          type: string
-          format: date-time
-          title: Created At
-      type: object
-      required:
-      - id
-      - event_id
-      - attempt_count
-      - created_at
-      title: OutboundLogItem
-    EntityResolutionMetrics:
-      properties:
-        total_same_as_edges:
-          type: integer
-          title: Total Same As Edges
-        recent_merges_24h:
-          type: integer
-          title: Recent Merges 24H
-        loop_status:
-          type: string
-          title: Loop Status
-        last_tick_at:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Last Tick At
-      type: object
-      required:
-      - total_same_as_edges
-      - recent_merges_24h
-      - loop_status
-      title: EntityResolutionMetrics
-    PaginatedResponse_SourceEventItem_:
-      properties:
-        items:
-          items:
-            $ref: '#/components/schemas/SourceEventItem'
-          type: array
-          title: Items
-        has_more:
-          type: boolean
-          title: Has More
-        continuation_token:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Continuation Token
-        total:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Total
-      type: object
-      required:
-      - items
-      - has_more
-      title: PaginatedResponse[SourceEventItem]
-    SourceHistoryItem:
-      properties:
-        bucket:
-          type: string
-          title: Bucket
-        source_system:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Source System
-        event_count:
-          type: integer
-          title: Event Count
-      type: object
-      required:
-      - bucket
-      - event_count
-      title: SourceHistoryItem
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
     SourceEventItem:
       properties:
         id:
@@ -882,56 +766,6 @@ components:
       - confidence
       - ingested_at
       title: SourceEventItem
-    OutboundSummary:
-      properties:
-        total:
-          type: integer
-          title: Total
-          default: 0
-        synced:
-          type: integer
-          title: Synced
-          default: 0
-        failed:
-          type: integer
-          title: Failed
-          default: 0
-        pending:
-          type: integer
-          title: Pending
-          default: 0
-        last_synced_at:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Last Synced At
-      type: object
-      title: OutboundSummary
-    PaginatedResponse_OutboundLogItem_:
-      properties:
-        items:
-          items:
-            $ref: '#/components/schemas/OutboundLogItem'
-          type: array
-          title: Items
-        has_more:
-          type: boolean
-          title: Has More
-        continuation_token:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Continuation Token
-        total:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Total
-      type: object
-      required:
-      - items
-      - has_more
-      title: PaginatedResponse[OutboundLogItem]
     SourceStatus:
       properties:
         data_source_id:
@@ -998,6 +832,62 @@ components:
       - source_type
       - status
       title: SourceStatus
+    LastPollInfo:
+      properties:
+        at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: At
+        duration_ms:
+          type: integer
+          title: Duration Ms
+          default: 0
+        event_count:
+          type: integer
+          title: Event Count
+          default: 0
+        error:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Error
+      type: object
+      title: LastPollInfo
+    PaginatedResponse_SourceEventItem_:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/SourceEventItem'
+          type: array
+          title: Items
+        has_more:
+          type: boolean
+          title: Has More
+        continuation_token:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Continuation Token
+        total:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Total
+      type: object
+      required:
+      - items
+      - has_more
+      title: PaginatedResponse[SourceEventItem]
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
     SourceOverviewResponse:
       properties:
         id:
@@ -1092,57 +982,46 @@ components:
       - is_active
       - health_status
       title: SourceOverviewResponse
-    LastPollInfo:
+    SourceHistoryItem:
       properties:
-        at:
+        bucket:
+          type: string
+          title: Bucket
+        source_system:
           anyOf:
           - type: string
           - type: 'null'
-          title: At
-        duration_ms:
-          type: integer
-          title: Duration Ms
-          default: 0
+          title: Source System
         event_count:
           type: integer
           title: Event Count
-          default: 0
-        error:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Error
-      type: object
-      title: LastPollInfo
-    SourceFailureItem:
-      properties:
-        event_id:
-          type: string
-          format: uuid
-          title: Event Id
-        event_type:
-          type: string
-          title: Event Type
-        fhir_resource_type:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Fhir Resource Type
-        sync_error:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Sync Error
-        ingested_at:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Ingested At
       type: object
       required:
-      - event_id
-      - event_type
-      title: SourceFailureItem
+      - bucket
+      - event_count
+      title: SourceHistoryItem
+    EntityResolutionMetrics:
+      properties:
+        total_same_as_edges:
+          type: integer
+          title: Total Same As Edges
+        recent_merges_24h:
+          type: integer
+          title: Recent Merges 24H
+        loop_status:
+          type: string
+          title: Loop Status
+        last_tick_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Last Tick At
+      type: object
+      required:
+      - total_same_as_edges
+      - recent_merges_24h
+      - loop_status
+      title: EntityResolutionMetrics
     PipelineStatusResponse:
       properties:
         status:
@@ -1231,6 +1110,127 @@ components:
       - status
       - connector_runner_status
       title: PipelineStatusResponse
+    SourceFailureItem:
+      properties:
+        event_id:
+          type: string
+          format: uuid
+          title: Event Id
+        event_type:
+          type: string
+          title: Event Type
+        fhir_resource_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Fhir Resource Type
+        sync_error:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Sync Error
+        ingested_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Ingested At
+      type: object
+      required:
+      - event_id
+      - event_type
+      title: SourceFailureItem
+    PaginatedResponse_OutboundLogItem_:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/OutboundLogItem'
+          type: array
+          title: Items
+        has_more:
+          type: boolean
+          title: Has More
+        continuation_token:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Continuation Token
+        total:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Total
+      type: object
+      required:
+      - items
+      - has_more
+      title: PaginatedResponse[OutboundLogItem]
+    OutboundLogItem:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        event_id:
+          type: string
+          format: uuid
+          title: Event Id
+        synced_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Synced At
+        sync_error:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Sync Error
+        attempt_count:
+          type: integer
+          title: Attempt Count
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+      type: object
+      required:
+      - id
+      - event_id
+      - attempt_count
+      - created_at
+      title: OutboundLogItem
+    ReviewMetrics:
+      properties:
+        queue_depth:
+          type: integer
+          title: Queue Depth
+        pending_by_priority:
+          additionalProperties:
+            type: integer
+          type: object
+          title: Pending By Priority
+        approved_7d:
+          type: integer
+          title: Approved 7D
+        rejected_7d:
+          type: integer
+          title: Rejected 7D
+        avg_review_time_hours:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Avg Review Time Hours
+        total_items:
+          type: integer
+          title: Total Items
+          default: 0
+      type: object
+      required:
+      - queue_depth
+      - pending_by_priority
+      - approved_7d
+      - rejected_7d
+      title: ReviewMetrics
   securitySchemes:
     BearerAuth:
       type: http

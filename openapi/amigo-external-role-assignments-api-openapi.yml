@@ -162,41 +162,23 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
-    ValidationError:
+    src__routes__external_role_assignments__ListResponse:
       properties:
-        loc:
+        items:
           items:
-            anyOf:
-            - type: string
-            - type: integer
+            $ref: '#/components/schemas/ExternalRoleAssignmentItem'
           type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-        input:
-          title: Input
-        ctx:
-          type: object
-          title: Context
+          title: Items
+        has_more:
+          type: boolean
+          title: Has More
+        continuation_token:
+          title: Continuation Token
       type: object
       required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
+      - items
+      - has_more
+      title: ListResponse
     ExternalRoleAssignmentItem:
       properties:
         id:
@@ -271,23 +253,41 @@ components:
       - created_at
       - updated_at
       title: ExternalRoleAssignmentItem
-    src__routes__external_role_assignments__ListResponse:
+    ValidationError:
       properties:
-        items:
+        loc:
           items:
-            $ref: '#/components/schemas/ExternalRoleAssignmentItem'
+            anyOf:
+            - type: string
+            - type: integer
           type: array
-          title: Items
-        has_more:
-          type: boolean
-          title: Has More
-        continuation_token:
-          title: Continuation Token
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
       type: object
       required:
-      - items
-      - has_more
-      title: ListResponse
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
     UpsertRequest:
       properties:
         source:

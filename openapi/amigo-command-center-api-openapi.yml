@@ -102,32 +102,31 @@ components:
           default: 0.0
       type: object
       title: VoiceMetrics
-    DataQualityMetrics:
+    CommandCenterAlert:
       properties:
-        pending_reviews:
-          type: integer
-          title: Pending Reviews
-          default: 0
-        approval_rate_7d:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Approval Rate 7D
-        avg_confidence:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Avg Confidence
-        entities_total:
-          type: integer
-          title: Entities Total
-          default: 0
-        entities_merged_7d:
-          type: integer
-          title: Entities Merged 7D
-          default: 0
+        level:
+          type: string
+          enum:
+          - info
+          - warning
+          - critical
+          title: Level
+        code:
+          type: string
+          title: Code
+        message:
+          type: string
+          title: Message
+        section:
+          type: string
+          title: Section
       type: object
-      title: DataQualityMetrics
+      required:
+      - level
+      - code
+      - message
+      - section
+      title: CommandCenterAlert
     CommandCenterResponse:
       properties:
         workspace_id:
@@ -186,31 +185,6 @@ components:
       - workspace_id
       - generated_at
       title: CommandCenterResponse
-    CommandCenterAlert:
-      properties:
-        level:
-          type: string
-          enum:
-          - info
-          - warning
-          - critical
-          title: Level
-        code:
-          type: string
-          title: Code
-        message:
-          type: string
-          title: Message
-        section:
-          type: string
-          title: Section
-      type: object
-      required:
-      - level
-      - code
-      - message
-      - section
-      title: CommandCenterAlert
     IdentityMetrics:
       properties:
         active_api_keys:
@@ -239,6 +213,32 @@ components:
           title: Mfa Coverage Pct
       type: object
       title: IdentityMetrics
+    DataQualityMetrics:
+      properties:
+        pending_reviews:
+          type: integer
+          title: Pending Reviews
+          default: 0
+        approval_rate_7d:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Approval Rate 7D
+        avg_confidence:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Avg Confidence
+        entities_total:
+          type: integer
+          title: Entities Total
+          default: 0
+        entities_merged_7d:
+          type: integer
+          title: Entities Merged 7D
+          default: 0
+      type: object
+      title: DataQualityMetrics
   securitySchemes:
     BearerAuth:
       type: http

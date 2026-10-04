@@ -1194,6 +1194,366 @@ components:
       - $ref: '#/components/schemas/ExtractActiveMemoriesAgentActionEvent'
       - $ref: '#/components/schemas/NavigateStateMachineAgentActionEvent'
       - $ref: '#/components/schemas/EngageUserAgentActionEvent'
+    src__app__endpoints__conversation__recommend_responses_for_interaction__Response:
+      properties:
+        recommended_responses:
+          items:
+            type: string
+          type: array
+          title: Recommended Responses
+          description: The recommended responses to the user.
+      type: object
+      required:
+      - recommended_responses
+      title: Response
+    NavigateStateMachineRecallStateDynamicQueriesGeneratedEvent:
+      properties:
+        type:
+          type: string
+          const: navigate-state-machine-recall-state-dynamic-queries-generated
+          title: Type
+          default: navigate-state-machine-recall-state-dynamic-queries-generated
+        dynamic_queries:
+          items:
+            type: string
+          type: array
+          title: Dynamic Queries
+          description: The dynamic queries that the agent has generated.
+        requested_information:
+          type: string
+          title: Requested Information
+          description: The information that the agent needs from the queries.
+      type: object
+      required:
+      - dynamic_queries
+      - requested_information
+      title: NavigateStateMachineRecallStateDynamicQueriesGeneratedEvent
+      description: Indicating that the agent has generated dynamic queries in the current the recall state.
+    NavigateStateMachineReflectionStateReflectionGeneratedEvent:
+      properties:
+        type:
+          type: string
+          const: navigate-state-machine-reflection-state-reflection-generated
+          title: Type
+          default: navigate-state-machine-reflection-state-reflection-generated
+        reflection:
+          type: string
+          title: Reflection
+          description: The reflection that the agent has generated.
+      type: object
+      required:
+      - reflection
+      title: NavigateStateMachineReflectionStateReflectionGeneratedEvent
+      description: Indicating that the agent has generated the reflection in the current reflection state.
+    src__app__endpoints__conversation__generate_conversation_starter__Response:
+      properties:
+        prompts:
+          items:
+            $ref: '#/components/schemas/Prompt'
+          type: array
+          title: Prompts
+          description: The generated prompts.
+      type: object
+      required:
+      - prompts
+      title: Response
+    ActionTooLongEvent:
+      properties:
+        type:
+          type: string
+          const: action-too-long
+          title: Type
+          default: action-too-long
+        filler:
+          type: string
+          title: Filler
+          description: 'A filler that can be played while waiting for the action to complete. If the audio filler exists, this is monochannel, 16-bit PCM WAV audio (at sample rate 16kHz) encoded in base64 encoding.
+
+            Otherwise, this is the text corresponding to the audio filler.'
+        previously_started_event:
+          title: Previously Started Event
+          description: The previously started event that is taking too long.
+      type: object
+      required:
+      - filler
+      - previously_started_event
+      title: ActionTooLongEvent
+      description: 'Indicating that a previously-started action of the agent is taking too long. This event supplies a filler text that can be displayed
+
+        while waiting for the action to complete.'
+    ErrorEvent:
+      properties:
+        type:
+          type: string
+          const: error
+          title: Type
+          default: error
+        http_error_code:
+          type: integer
+          title: Http Error Code
+          description: The HTTP status code of the error.
+        error_description:
+          type: string
+          title: Error Description
+          description: A description of the error.
+      type: object
+      required:
+      - http_error_code
+      - error_description
+      title: ErrorEvent
+      description: 'Emitted when there is an error during the stream. This event could be emitted even if the request returns with a 200.
+
+        If received before an `interaction-complete` event, the client should consider the entire interaction void and retry. If received after,
+
+        then the conversation has completed and an error occurred during the post-processing, so the client should consider the interaction valid and saved,
+
+        but manually call the `FinishConversation` endpoint to retry the post-processing.'
+    src__app__endpoints__conversation__get_conversation_messages__Response:
+      properties:
+        messages:
+          items:
+            $ref: '#/components/schemas/MessageInstance'
+          type: array
+          title: Messages
+          description: The retrieved messages.
+        has_more:
+          type: boolean
+          title: Has More
+          description: Whether there are more, earlier messages in the conversation to retrieve.
+        continuation_token:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Continuation Token
+          description: The continuation token to use to retrieve the next set of messages.
+      type: object
+      required:
+      - messages
+      - has_more
+      - continuation_token
+      title: Response
+    JumpbackStateTransitionLog:
+      properties:
+        previous_state:
+          type: string
+          title: Previous State
+          description: Name of the previous state to transition from.
+        previous_service_hierarchical_state_machine_version_info:
+          prefixItems:
+          - type: string
+          - type: integer
+          type: array
+          maxItems: 2
+          minItems: 2
+          title: Previous Service Hierarchical State Machine Version Info
+          description: The identifier of the service hierarchical state machine that the previous state is in.
+        next_state:
+          type: string
+          title: Next State
+          description: Name of the next state to transition to.
+        next_service_hierarchical_state_machine_version_info:
+          prefixItems:
+          - type: string
+          - type: integer
+          type: array
+          maxItems: 2
+          minItems: 2
+          title: Next Service Hierarchical State Machine Version Info
+          description: The identifier of the service hierarchical state machine that the next state is in.
+        type:
+          type: string
+          const: jumpback
+          title: Type
+          description: The type of the state transition log, which is the type of the state we're transitioning from.
+          default: jumpback
+      type: object
+      required:
+      - previous_state
+      - previous_service_hierarchical_state_machine_version_info
+      - next_state
+      - next_service_hierarchical_state_machine_version_info
+      title: JumpbackStateTransitionLog
+    StateTransitionLog:
+      oneOf:
+      - $ref: '#/components/schemas/ActionStateTransitionLog'
+      - $ref: '#/components/schemas/DecisionStateTransitionLog'
+      - $ref: '#/components/schemas/RecallStateTransitionLog'
+      - $ref: '#/components/schemas/JumpbackStateTransitionLog'
+      - $ref: '#/components/schemas/AnnotationStateTransitionLog'
+      - $ref: '#/components/schemas/ReflectionStateTransitionLog'
+      - $ref: '#/components/schemas/ToolCallStateTransitionLog'
+      discriminator:
+        propertyName: type
+        mapping:
+          action: '#/components/schemas/ActionStateTransitionLog'
+          annotation: '#/components/schemas/AnnotationStateTransitionLog'
+          decision: '#/components/schemas/DecisionStateTransitionLog'
+          jumpback: '#/components/schemas/JumpbackStateTransitionLog'
+          recall: '#/components/schemas/RecallStateTransitionLog'
+          reflection: '#/components/schemas/ReflectionStateTransitionLog'
+          tool-call: '#/components/schemas/ToolCallStateTransitionLog'
+    WorkingMemory:
+      properties:
+        content:
+          type: string
+          title: Content
+          description: The content of the memory.
+        context:
+          type: string
+          title: Context
+          description: The context of the memory.
+      type: object
+      required:
+      - content
+      - context
+      title: WorkingMemory
+    Format:
+      type: string
+      enum:
+      - text
+      - voice
+    LLMConfig-Output:
+      properties:
+        llm_name:
+          type: string
+          title: Llm Name
+          description: The name of the LLM to use.
+        params:
+          additionalProperties: true
+          type: object
+          title: Params
+          description: LLM-specific parameters to use.
+          default: {}
+      type: object
+      required:
+      - llm_name
+      title: LLMConfig
+    RecallStateTransitionLog:
+      properties:
+        previous_state:
+          type: string
+          title: Previous State
+          description: Name of the previous state to transition from.
+        previous_service_hierarchical_state_machine_version_info:
+          prefixItems:
+          - type: string
+          - type: integer
+          type: array
+          maxItems: 2
+          minItems: 2
+          title: Previous Service Hierarchical State Machine Version Info
+          description: The identifier of the service hierarchical state machine that the previous state is in.
+        next_state:
+          type: string
+          title: Next State
+          description: Name of the next state to transition to.
+        next_service_hierarchical_state_machine_version_info:
+          prefixItems:
+          - type: string
+          - type: integer
+          type: array
+          maxItems: 2
+          minItems: 2
+          title: Next Service Hierarchical State Machine Version Info
+          description: The identifier of the service hierarchical state machine that the next state is in.
+        type:
+          type: string
+          const: recall
+          title: Type
+          description: The type of the state transition log, which is the type of the state we're transitioning from.
+          default: recall
+        performed_queries:
+          items:
+            type: string
+          type: array
+          title: Performed Queries
+          description: A list of queries that were actually performed during this state. This does not include queries included in the states that are duplicates of queries performed previously in this conversation.
+      type: object
+      required:
+      - previous_state
+      - previous_service_hierarchical_state_machine_version_info
+      - next_state
+      - next_service_hierarchical_state_machine_version_info
+      - performed_queries
+      title: RecallStateTransitionLog
+    MP3UserMessageAudioConfig:
+      properties:
+        type:
+          type: string
+          const: mp3
+          title: Type
+          default: mp3
+      type: object
+      title: MP3UserMessageAudioConfig
+    NavigateStateMachineToolCallStateToolOutputAvailableEvent:
+      properties:
+        type:
+          type: string
+          const: navigate-state-machine-tool-call-state-tool-output-available
+          title: Type
+          default: navigate-state-machine-tool-call-state-tool-output-available
+        tool_id:
+          type: string
+          title: Tool Id
+          description: The ID of the tool being called.
+        tool_version:
+          type: string
+          title: Tool Version
+          description: The version of the tool being called.
+        tool_output:
+          type: string
+          title: Tool Output
+          description: The tool output.
+        duration:
+          type: number
+          title: Duration
+          description: The duration taken to receive the tool output in seconds.
+        input_arguments:
+          additionalProperties: true
+          type: object
+          title: Input Arguments
+          description: The input arguments used for the tool call.
+      type: object
+      required:
+      - tool_id
+      - tool_version
+      - tool_output
+      - duration
+      - input_arguments
+      title: NavigateStateMachineToolCallStateToolOutputAvailableEvent
+      description: Indicating that the agent has received the tool output in the current tool call state.
+    ToolCallStartedEvent:
+      properties:
+        type:
+          type: string
+          const: tool-call-started
+          title: Type
+          default: tool-call-started
+        tool_round_index:
+          type: integer
+          title: Tool Round Index
+          description: Within the current LLM interaction, the round of tool call.
+        tool_id:
+          type: string
+          title: Tool Id
+          description: The ID of the tool being called.
+        tool_version:
+          type: string
+          title: Tool Version
+          description: The version of the tool being called.
+        input_params:
+          additionalProperties: true
+          type: object
+          title: Input Params
+          description: The input parameters for the tool call.
+      type: object
+      required:
+      - tool_round_index
+      - tool_id
+      - tool_version
+      - input_params
+      title: ToolCallStartedEvent
+      description: Indicating that the agent has started executing a tool.
     NavigateStateMachineDecisionStateDecisionStartedEvent:
       properties:
         type:
@@ -1204,76 +1564,291 @@ components:
       type: object
       title: NavigateStateMachineDecisionStateDecisionStartedEvent
       description: Indicating that the agent has started making a decision in the current decision state.
-    EngageUserMessageFragmentGeneratedEvent:
+    NavigateStateMachineAgentActionEvent:
+      anyOf:
+      - $ref: '#/components/schemas/NavigateStateMachineDynamicBehaviorOverrideEvent'
+      - $ref: '#/components/schemas/NavigateStateMachineActionStateActionSelectedEvent'
+      - $ref: '#/components/schemas/NavigateStateMachineDecisionStateDecisionStartedEvent'
+      - $ref: '#/components/schemas/NavigateStateMachineExitConditionSelectedEvent'
+      - $ref: '#/components/schemas/NavigateStateMachineRecallStateDynamicQueriesGeneratedEvent'
+      - $ref: '#/components/schemas/NavigateStateMachineRecallStateStaticQueriesRetrievedEvent'
+      - $ref: '#/components/schemas/NavigateStateMachineRecallStateActiveMemoryRetrievedEvent'
+      - $ref: '#/components/schemas/NavigateStateMachineReflectionStatePromptRetrievedEvent'
+      - $ref: '#/components/schemas/NavigateStateMachineReflectionStateReflectionGeneratedEvent'
+      - $ref: '#/components/schemas/NavigateStateMachineAnnotationStateAnnotationRetrievedEvent'
+      - $ref: '#/components/schemas/NavigateStateMachineStateTransitionedEvent'
+      - $ref: '#/components/schemas/GenerateToolParamsEvent'
+      - $ref: '#/components/schemas/NavigateStateMachineToolCallStateToolOutputAvailableEvent'
+      - $ref: '#/components/schemas/ToolCallStartedEvent'
+      - $ref: '#/components/schemas/ToolCallEndedEvent'
+      - $ref: '#/components/schemas/ActionTooLongEvent'
+    NavigateStateMachineRecallStateActiveMemoryRetrievedEvent:
       properties:
         type:
           type: string
-          const: engage-user-message-fragment-generated
+          const: navigate-state-machine-recall-state-active-memory-retrieved
           title: Type
-          default: engage-user-message-fragment-generated
-        index:
-          type: integer
-          title: Index
-          description: The index of the fragment in the agent response.
-        fragment:
-          type: string
-          title: Fragment
-          description: The fragment of the agent response that has been generated.
-        is_final:
-          type: boolean
-          title: Is Final
-          description: Whether this fragment is the final fragment of the agent response.
-      type: object
-      required:
-      - index
-      - fragment
-      - is_final
-      title: EngageUserMessageFragmentGeneratedEvent
-      description: Indicating that the agent has generated a fragment of the agent response.
-    UserMessageAudioConfig:
-      oneOf:
-      - $ref: '#/components/schemas/MP3UserMessageAudioConfig'
-      - $ref: '#/components/schemas/PCMUserMessageAudioConfig'
-      discriminator:
-        propertyName: type
-        mapping:
-          mp3: '#/components/schemas/MP3UserMessageAudioConfig'
-          pcm: '#/components/schemas/PCMUserMessageAudioConfig'
-    NavigateStateMachineExitConditionSelectedEvent:
-      properties:
-        type:
-          type: string
-          const: navigate-state-machine-exit-condition-selected
-          title: Type
-          default: navigate-state-machine-exit-condition-selected
-        exit_condition:
-          type: string
-          title: Exit Condition
-          description: The exit condition that the agent has selected.
-        next_state_state_machine_version_info:
-          prefixItems:
-          - type: string
-          - type: integer
+          default: navigate-state-machine-recall-state-active-memory-retrieved
+        queries_and_responses:
+          items:
+            prefixItems:
+            - type: string
+            - type: string
+            type: array
+            maxItems: 2
+            minItems: 2
           type: array
-          maxItems: 2
-          minItems: 2
-          title: Next State State Machine Version Info
-          description: The state machine version info of the next state.
-        next_state_name:
-          type: string
-          title: Next State Name
-          description: The name of the next state.
+          title: Queries And Responses
+          description: A list of tuples of queries and responses.
       type: object
       required:
-      - exit_condition
-      - next_state_state_machine_version_info
-      - next_state_name
-      title: NavigateStateMachineExitConditionSelectedEvent
-      description: Indicating that the agent has selected an exit condition from the current action or decision state.
-    StrippedNonemptyString___w__s_____:
-      type: string
-      minLength: 1
-      pattern: ^[\w\s]+$
+      - queries_and_responses
+      title: NavigateStateMachineRecallStateActiveMemoryRetrievedEvent
+      description: Indicating that the agent has retrieved the active memory in the current the recall state.
+    MessageInstance:
+      properties:
+        id:
+          type: string
+          title: Id
+        interaction_id:
+          type: string
+          title: Interaction Id
+          description: The identifier of the interaction.
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+          description: The time at which this message was created.
+        sender:
+          type: string
+          title: Sender
+          description: A human-friendly name of the sender of the message.
+        message:
+          type: string
+          title: Message
+          description: The text content of the message.
+        format:
+          $ref: '#/components/schemas/Format'
+          description: The format in which the message was delivered.
+        message_type:
+          $ref: '#/components/schemas/MessageType'
+          description: The type of the message.
+      type: object
+      required:
+      - id
+      - interaction_id
+      - created_at
+      - sender
+      - message
+      - format
+      - message_type
+      title: MessageInstance
+    CurrentAgentActionEvent:
+      properties:
+        type:
+          type: string
+          const: current-agent-action
+          title: Type
+          default: current-agent-action
+        action:
+          $ref: '#/components/schemas/src__app__amigo__service__conversation__Action'
+          description: The type of action the agent is performing right now.
+      type: object
+      required:
+      - action
+      title: CurrentAgentActionEvent
+      description: 'Emitted when an agent is about to perform an action that aids in the generation of the response. This is emitted before any
+
+        `NewMessageEvent` is emitted.'
+    GenerateToolParamsDesignatedToolCallParamsGeneratedEvent:
+      properties:
+        type:
+          type: string
+          const: designated-tool-call-params-generated
+          title: Type
+          default: designated-tool-call-params-generated
+        tool_id:
+          type: string
+          title: Tool Id
+          description: The ID of the tool being called.
+        tool_version:
+          type: string
+          title: Tool Version
+          description: The version of the tool being called.
+        tool_call_params:
+          additionalProperties: true
+          type: object
+          title: Tool Call Params
+          description: The generated tool call parameters.
+      type: object
+      required:
+      - tool_id
+      - tool_version
+      - tool_call_params
+      title: GenerateToolParamsDesignatedToolCallParamsGeneratedEvent
+    NavigateStateMachineReflectionStatePromptRetrievedEvent:
+      properties:
+        type:
+          type: string
+          const: navigate-state-machine-reflection-state-prompt-retrieved
+          title: Type
+          default: navigate-state-machine-reflection-state-prompt-retrieved
+        prompt:
+          type: string
+          title: Prompt
+      type: object
+      required:
+      - prompt
+      title: NavigateStateMachineReflectionStatePromptRetrievedEvent
+      description: Indicating that the agent has retrieved the prompt in the current reflection state.
+    CheckIfActiveMemoryNeededAgentActionEvent:
+      properties:
+        type:
+          type: string
+          const: check-if-active-memory-needed-completed
+          title: Type
+          default: check-if-active-memory-needed-completed
+        queries:
+          items:
+            type: string
+          type: array
+          title: Queries
+      type: object
+      required:
+      - queries
+      title: CheckIfActiveMemoryNeededCompletedEvent
+    ExtractActiveMemoriesAgentActionEvent:
+      properties:
+        type:
+          type: string
+          const: extract-active-memories-completed
+          title: Type
+          default: extract-active-memories-completed
+        queries_and_responses:
+          items:
+            prefixItems:
+            - type: string
+            - type: string
+            type: array
+            maxItems: 2
+            minItems: 2
+          type: array
+          title: Queries And Responses
+      type: object
+      required:
+      - queries_and_responses
+      title: ExtractActiveMemoriesCompletedEvent
+    SelectDynamicBehaviorVectorGeneratedEvent:
+      properties:
+        type:
+          type: string
+          const: select-dynamic-behavior-vector-generated
+          title: Type
+          default: select-dynamic-behavior-vector-generated
+      type: object
+      title: SelectDynamicBehaviorVectorGeneratedEvent
+    SelectDynamicBehaviorCompletedEvent:
+      properties:
+        type:
+          type: string
+          const: select-dynamic-behavior-completed
+          title: Type
+          default: select-dynamic-behavior-completed
+        selected_dynamic_behavior_set_version_info:
+          anyOf:
+          - prefixItems:
+            - type: string
+            - type: integer
+            type: array
+            maxItems: 2
+            minItems: 2
+          - type: 'null'
+          title: Selected Dynamic Behavior Set Version Info
+        previous_selected_dynamic_behavior_set_version_info:
+          anyOf:
+          - prefixItems:
+            - type: string
+            - type: integer
+            type: array
+            maxItems: 2
+            minItems: 2
+          - type: 'null'
+          title: Previous Selected Dynamic Behavior Set Version Info
+      type: object
+      required:
+      - selected_dynamic_behavior_set_version_info
+      - previous_selected_dynamic_behavior_set_version_info
+      title: SelectDynamicBehaviorCompletedEvent
+    src__app__endpoints__conversation__generate_conversation_starter__Request:
+      properties:
+        service_id:
+          type: string
+          pattern: ^[a-f0-9]{24}$
+          title: Service Id
+          description: The identifier of the service to create a conversation starter for.
+        service_version_set_name:
+          type: string
+          title: Service Version Set Name
+          description: The version set of the service to use. If not provided, the `release` version set is used.
+          default: release
+        facets:
+          items:
+            $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
+          type: array
+          minItems: 1
+          title: Facets
+          description: The facets that the generated conversation starter should be about. Each generated starter is related to some of these facets.
+        min_count:
+          type: integer
+          maximum: 10.0
+          exclusiveMinimum: 0.0
+          title: Min Count
+          description: The minimum (inclusive) number of conversation starters to generate.
+        max_count:
+          type: integer
+          maximum: 10.0
+          exclusiveMinimum: 0.0
+          title: Max Count
+          description: The maximum (inclusive) number of conversation starters to generate.
+        generation_instructions:
+          $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
+          description: The instruction for the conversation starter generation.
+      type: object
+      required:
+      - service_id
+      - facets
+      - min_count
+      - max_count
+      - generation_instructions
+      title: Request
+    EngageUserDynamicBehaviorOverrideEvent:
+      properties:
+        type:
+          type: string
+          const: engage-user-dynamic-behavior-override
+          title: Type
+          default: engage-user-dynamic-behavior-override
+        overriding_instructions:
+          type: boolean
+          title: Overriding Instructions
+          description: Whether the dynamic behavior set is overriding instructions during this interaction.
+        overriding_tool_candidates:
+          type: boolean
+          title: Overriding Tool Candidates
+          description: Whether the dynamic behavior set is overriding the tool candidates during this interaction.
+      type: object
+      required:
+      - overriding_instructions
+      - overriding_tool_candidates
+      title: EngageUserDynamicBehaviorOverrideEvent
+      description: Indicating that the agent has merged the dynamic behavior set's instructions with the instructions from the current state.
+    GenerateToolParamsEvent:
+      anyOf:
+      - $ref: '#/components/schemas/GenerateToolParamsDesignatedToolRetrievedEvent'
+      - $ref: '#/components/schemas/GenerateToolParamsDesignatedToolCallParamsGeneratedEvent'
+      - $ref: '#/components/schemas/ActionTooLongEvent'
+      - $ref: '#/components/schemas/ToolCallStartedEvent'
+      - $ref: '#/components/schemas/ToolCallEndedEvent'
     UserMessageAvailableEvent:
       properties:
         type:
@@ -1295,122 +1870,95 @@ components:
       - user_message
       title: UserMessageAvailableEvent
       description: Emitted when the full text of the user message is available. In particular, for voice messages, this event is emitted when the transcription of the user message is complete. It's the first event in the response stream.
-    GenerateToolParamsEvent:
+    AnnotationStateTransitionLog:
+      properties:
+        previous_state:
+          type: string
+          title: Previous State
+          description: Name of the previous state to transition from.
+        previous_service_hierarchical_state_machine_version_info:
+          prefixItems:
+          - type: string
+          - type: integer
+          type: array
+          maxItems: 2
+          minItems: 2
+          title: Previous Service Hierarchical State Machine Version Info
+          description: The identifier of the service hierarchical state machine that the previous state is in.
+        next_state:
+          type: string
+          title: Next State
+          description: Name of the next state to transition to.
+        next_service_hierarchical_state_machine_version_info:
+          prefixItems:
+          - type: string
+          - type: integer
+          type: array
+          maxItems: 2
+          minItems: 2
+          title: Next Service Hierarchical State Machine Version Info
+          description: The identifier of the service hierarchical state machine that the next state is in.
+        type:
+          type: string
+          const: annotation
+          title: Type
+          description: The type of the state transition log, which is the type of the state we're transitioning from.
+          default: annotation
+        inner_thought_message_id:
+          type: string
+          title: Inner Thought Message Id
+          description: The identifier of the inserted inner thought message.
+      type: object
+      required:
+      - previous_state
+      - previous_service_hierarchical_state_machine_version_info
+      - next_state
+      - next_service_hierarchical_state_machine_version_info
+      - inner_thought_message_id
+      title: AnnotationStateTransitionLog
+    src__app__endpoints__conversation__interact_with_conversation__Response:
       anyOf:
-      - $ref: '#/components/schemas/GenerateToolParamsDesignatedToolRetrievedEvent'
-      - $ref: '#/components/schemas/GenerateToolParamsDesignatedToolCallParamsGeneratedEvent'
-      - $ref: '#/components/schemas/ActionTooLongEvent'
-      - $ref: '#/components/schemas/ToolCallStartedEvent'
-      - $ref: '#/components/schemas/ToolCallEndedEvent'
-    src__app__endpoints__conversation__create_conversation__Request:
-      properties:
-        service_id:
-          type: string
-          pattern: ^[a-f0-9]{24}$
-          title: Service Id
-          description: The identifier of the service to create a conversation in.
-        service_version_set_name:
-          type: string
-          title: Service Version Set Name
-          description: The version set of the service to use. If not provided, the `release` version set is used.
-          default: release
-        initial_message:
-          anyOf:
-          - $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
-          - type: 'null'
-          description: The initial user or agent inner thought message to send to the service. If not provided, the conversation will start with an agent message.
-        initial_message_type:
-          anyOf:
-          - type: string
-            enum:
-            - user-message
-            - external-event
-          - type: 'null'
-          title: Initial Message Type
-          description: The type of the `initial_message`. Can only be specified if `initial_message` is provided.
-        tags:
-          additionalProperties:
-            anyOf:
-            - $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__4'
-            - type: 'null'
-          propertyNames:
-            $ref: '#/components/schemas/StrippedNonemptyString___w__s______'
-          type: object
-          maxProperties: 20
-          title: Tags
-          description: A list of tags for the conversation. The key can only contain alphanumeric characters, underscores, or spaces. The value can only contain up to 100 characters.
-          default: {}
-      type: object
-      required:
-      - service_id
-      title: Request
-    EngageUserAgentActionEvent:
-      oneOf:
-      - $ref: '#/components/schemas/EngageUserDynamicBehaviorOverrideEvent'
-      - $ref: '#/components/schemas/EngageUserMessageFragmentGeneratedEvent'
-      - $ref: '#/components/schemas/ToolCallStartedEvent'
-      - $ref: '#/components/schemas/ToolCallEndedEvent'
-      - $ref: '#/components/schemas/ActionTooLongEvent'
-      discriminator:
-        propertyName: type
-        mapping:
-          action-too-long: '#/components/schemas/ActionTooLongEvent'
-          engage-user-dynamic-behavior-override: '#/components/schemas/EngageUserDynamicBehaviorOverrideEvent'
-          engage-user-message-fragment-generated: '#/components/schemas/EngageUserMessageFragmentGeneratedEvent'
-          tool-call-ended: '#/components/schemas/ToolCallEndedEvent'
-          tool-call-started: '#/components/schemas/ToolCallStartedEvent'
-    src__app__endpoints__conversation__create_conversation__Response:
-      oneOf:
-      - $ref: '#/components/schemas/ConversationCreatedEvent'
-      - $ref: '#/components/schemas/NewMessageEvent'
-      - $ref: '#/components/schemas/InteractionCompleteEvent'
-      - $ref: '#/components/schemas/CurrentAgentActionEvent'
+      - $ref: '#/components/schemas/ConversationEvent'
+      - $ref: '#/components/schemas/UserMessageAvailableEvent'
       - $ref: '#/components/schemas/ErrorEvent'
-      discriminator:
-        propertyName: type
-        mapping:
-          conversation-created: '#/components/schemas/ConversationCreatedEvent'
-          current-agent-action: '#/components/schemas/CurrentAgentActionEvent'
-          error: '#/components/schemas/ErrorEvent'
-          interaction-complete: '#/components/schemas/InteractionCompleteEvent'
-          new-message: '#/components/schemas/NewMessageEvent'
-    VersionSetInfo:
+    ToolCallLog:
       properties:
-        name:
+        tool_name:
           type: string
-          title: Name
-          description: The name of the version set. If the value is `unknown`, it means the conversation was created before this field was introduced and the version set name cannot be retroactively determined.
-        agent_version_info:
-          prefixItems:
-          - type: string
-          - type: integer
-          type: array
-          maxItems: 2
-          minItems: 2
-          title: Agent Version Info
-          description: The ID of the agent and version number used in this conversation.
-        service_hierarchical_state_machine_version_info:
-          prefixItems:
-          - type: string
-          - type: integer
-          type: array
-          maxItems: 2
-          minItems: 2
-          title: Service Hierarchical State Machine Version Info
-          description: The ID of the state machine and version number used in this conversation.
-        llm_model_preferences:
-          additionalProperties:
-            $ref: '#/components/schemas/LLMConfig-Output'
+          title: Tool Name
+          description: The name of the tool that was called.
+        tool_id:
+          type: string
+          title: Tool Id
+          description: The identifier of the tool that was called.
+        tool_version:
+          type: string
+          title: Tool Version
+          description: The version of the tool that was called.
+        input:
+          additionalProperties: true
           type: object
-          title: Llm Model Preferences
-          description: The LLM model preferences for this version set.
+          title: Input
+          description: The input to the tool call.
+        output:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Output
+          description: The output of the tool call. If `None`, the tool call's output is ephemeral and not stored.
+        duration:
+          type: number
+          title: Duration
+          description: The duration of the tool call in seconds.
       type: object
       required:
-      - name
-      - agent_version_info
-      - service_hierarchical_state_machine_version_info
-      - llm_model_preferences
-      title: VersionSetInfo
+      - tool_name
+      - tool_id
+      - tool_version
+      - input
+      - output
+      - duration
+      title: ToolCallLog
     DecisionStateTransitionLog:
       properties:
         previous_state:
@@ -1466,357 +2014,31 @@ components:
       - previous_state_exit_condition_description
       - tool_call_logs
       title: DecisionStateTransitionLog
-    ReflectionStateTransitionLog:
+    UserMessageAudioConfig:
+      oneOf:
+      - $ref: '#/components/schemas/MP3UserMessageAudioConfig'
+      - $ref: '#/components/schemas/PCMUserMessageAudioConfig'
+      discriminator:
+        propertyName: type
+        mapping:
+          mp3: '#/components/schemas/MP3UserMessageAudioConfig'
+          pcm: '#/components/schemas/PCMUserMessageAudioConfig'
+    ConversationCreatedEvent:
       properties:
-        previous_state:
-          type: string
-          title: Previous State
-          description: Name of the previous state to transition from.
-        previous_service_hierarchical_state_machine_version_info:
-          prefixItems:
-          - type: string
-          - type: integer
-          type: array
-          maxItems: 2
-          minItems: 2
-          title: Previous Service Hierarchical State Machine Version Info
-          description: The identifier of the service hierarchical state machine that the previous state is in.
-        next_state:
-          type: string
-          title: Next State
-          description: Name of the next state to transition to.
-        next_service_hierarchical_state_machine_version_info:
-          prefixItems:
-          - type: string
-          - type: integer
-          type: array
-          maxItems: 2
-          minItems: 2
-          title: Next Service Hierarchical State Machine Version Info
-          description: The identifier of the service hierarchical state machine that the next state is in.
         type:
           type: string
-          const: reflection
+          const: conversation-created
           title: Type
-          description: The type of the state transition log, which is the type of the state we're transitioning from.
-          default: reflection
-        inner_thought_message_id:
+          default: conversation-created
+        conversation_id:
           type: string
-          title: Inner Thought Message Id
-          description: The identifier of the inserted inner thought message.
-        tool_call_logs:
-          items:
-            items:
-              $ref: '#/components/schemas/ToolCallLog'
-            type: array
-          type: array
-          title: Tool Call Logs
-          description: A list of tool call logs that were performed during the `GenerateReflection` LLM call during this state.
+          title: Conversation Id
+          description: The identifier of the newly created conversation.
       type: object
       required:
-      - previous_state
-      - previous_service_hierarchical_state_machine_version_info
-      - next_state
-      - next_service_hierarchical_state_machine_version_info
-      - inner_thought_message_id
-      - tool_call_logs
-      title: ReflectionStateTransitionLog
-    ActionStateTransitionLog:
-      properties:
-        previous_state:
-          type: string
-          title: Previous State
-          description: Name of the previous state to transition from.
-        previous_service_hierarchical_state_machine_version_info:
-          prefixItems:
-          - type: string
-          - type: integer
-          type: array
-          maxItems: 2
-          minItems: 2
-          title: Previous Service Hierarchical State Machine Version Info
-          description: The identifier of the service hierarchical state machine that the previous state is in.
-        next_state:
-          type: string
-          title: Next State
-          description: Name of the next state to transition to.
-        next_service_hierarchical_state_machine_version_info:
-          prefixItems:
-          - type: string
-          - type: integer
-          type: array
-          maxItems: 2
-          minItems: 2
-          title: Next Service Hierarchical State Machine Version Info
-          description: The identifier of the service hierarchical state machine that the next state is in.
-        type:
-          type: string
-          const: action
-          title: Type
-          description: The type of the state transition log, which is the type of the state we're transitioning from.
-          default: action
-        previous_state_exit_condition_description:
-          type: string
-          title: Previous State Exit Condition Description
-          description: The description of the exit condition that led to the transition to the next state.
-        tool_call_logs:
-          items:
-            items:
-              $ref: '#/components/schemas/ToolCallLog'
-            type: array
-          type: array
-          title: Tool Call Logs
-          description: A list of tool call logs that were performed during the `SelectNextAction` LLM call during this state.
-      type: object
-      required:
-      - previous_state
-      - previous_service_hierarchical_state_machine_version_info
-      - next_state
-      - next_service_hierarchical_state_machine_version_info
-      - previous_state_exit_condition_description
-      - tool_call_logs
-      title: ActionStateTransitionLog
-    EngageUserDynamicBehaviorOverrideEvent:
-      properties:
-        type:
-          type: string
-          const: engage-user-dynamic-behavior-override
-          title: Type
-          default: engage-user-dynamic-behavior-override
-        overriding_instructions:
-          type: boolean
-          title: Overriding Instructions
-          description: Whether the dynamic behavior set is overriding instructions during this interaction.
-        overriding_tool_candidates:
-          type: boolean
-          title: Overriding Tool Candidates
-          description: Whether the dynamic behavior set is overriding the tool candidates during this interaction.
-      type: object
-      required:
-      - overriding_instructions
-      - overriding_tool_candidates
-      title: EngageUserDynamicBehaviorOverrideEvent
-      description: Indicating that the agent has merged the dynamic behavior set's instructions with the instructions from the current state.
-    NavigateStateMachineReflectionStatePromptRetrievedEvent:
-      properties:
-        type:
-          type: string
-          const: navigate-state-machine-reflection-state-prompt-retrieved
-          title: Type
-          default: navigate-state-machine-reflection-state-prompt-retrieved
-        prompt:
-          type: string
-          title: Prompt
-      type: object
-      required:
-      - prompt
-      title: NavigateStateMachineReflectionStatePromptRetrievedEvent
-      description: Indicating that the agent has retrieved the prompt in the current reflection state.
-    InteractionCompleteEvent:
-      properties:
-        type:
-          type: string
-          const: interaction-complete
-          title: Type
-          default: interaction-complete
-        message_id:
-          type: string
-          title: Message Id
-          description: The identifier of the agent message in this interaction.
-        interaction_id:
-          type: string
-          title: Interaction Id
-          description: The identifier of this interaction.
-        full_message:
-          type: string
-          title: Full Message
-          description: A structure containing either the content of the message if it's text, or the transcript of the message if it's audio.
-        conversation_completed:
-          type: boolean
-          title: Conversation Completed
-          description: Whether the conversation is auto-completed after this interaction.
-      type: object
-      required:
-      - message_id
-      - interaction_id
-      - full_message
-      - conversation_completed
-      title: InteractionCompleteEvent
-      description: Emitted when the interaction is complete and committed to database. This event is only emitted after all `NewMessageEvent`s are emitted.
-    MP3UserMessageAudioConfig:
-      properties:
-        type:
-          type: string
-          const: mp3
-          title: Type
-          default: mp3
-      type: object
-      title: MP3UserMessageAudioConfig
-    NavigateStateMachineStateTransitionedEvent:
-      properties:
-        type:
-          type: string
-          const: navigate-state-machine-state-transitioned
-          title: Type
-          default: navigate-state-machine-state-transitioned
-        prev_state:
-          type: string
-          title: Prev State
-          description: The previous state.
-        prev_state_state_machine_version_info:
-          prefixItems:
-          - type: string
-          - type: integer
-          type: array
-          maxItems: 2
-          minItems: 2
-          title: Prev State State Machine Version Info
-          description: The state machine version info of the previous state.
-        next_state:
-          type: string
-          title: Next State
-          description: The next state.
-        next_state_state_machine_version_info:
-          prefixItems:
-          - type: string
-          - type: integer
-          type: array
-          maxItems: 2
-          minItems: 2
-          title: Next State State Machine Version Info
-          description: The state machine version info of the next state.
-      type: object
-      required:
-      - prev_state
-      - prev_state_state_machine_version_info
-      - next_state
-      - next_state_state_machine_version_info
-      title: NavigateStateMachineStateTransitionedEvent
-      description: Indicating that the agent has transitioned to a new state.
-    ExtractActiveMemoriesAgentActionEvent:
-      properties:
-        type:
-          type: string
-          const: extract-active-memories-completed
-          title: Type
-          default: extract-active-memories-completed
-        queries_and_responses:
-          items:
-            prefixItems:
-            - type: string
-            - type: string
-            type: array
-            maxItems: 2
-            minItems: 2
-          type: array
-          title: Queries And Responses
-      type: object
-      required:
-      - queries_and_responses
-      title: ExtractActiveMemoriesCompletedEvent
-    NewMessageEvent:
-      properties:
-        type:
-          type: string
-          const: new-message
-          title: Type
-          default: new-message
-        message:
-          type: string
-          title: Message
-          description: 'Either the raw-text piece or a base-64 encoded string of bytes representing the piece in alternative forms. If it represents audio, the audios are in
-
-            PCM16 format.'
-        transcript_alignment:
-          anyOf:
-          - items:
-              prefixItems:
-              - type: integer
-              - type: string
-              type: array
-              maxItems: 2
-              minItems: 2
-            type: array
-          - type: 'null'
-          title: Transcript Alignment
-          description: 'Transcript of the ongoing audio message and how they align with the audio, if the message is in audio format. Otherwise, it''s `None`. This is an array of tuples, where each tuple contains
-
-            a character and an integer indicating the milliseconds since the audio started when the character is spoken.
-
-
-            Note that this field might not be defined for some events that transmit audio bytes -- in that case, the alignment information for that chunk was already
-
-            included in the `transcript_alignment` field in the previous event.'
-        stop:
-          type: boolean
-          title: Stop
-          description: Whether this is the last piece of the agent message.
-        sequence_number:
-          type: integer
-          title: Sequence Number
-          description: The sequence number of this piece in the agent message.
-        message_id:
-          type: string
-          title: Message Id
-          description: 'The identifier of this agent message. '
-      type: object
-      required:
-      - message
-      - transcript_alignment
-      - stop
-      - sequence_number
-      - message_id
-      title: NewMessageEvent
-      description: Emitted when a new piece of the agent message is available.
-    SelectDynamicBehaviorVectorGeneratedEvent:
-      properties:
-        type:
-          type: string
-          const: select-dynamic-behavior-vector-generated
-          title: Type
-          default: select-dynamic-behavior-vector-generated
-      type: object
-      title: SelectDynamicBehaviorVectorGeneratedEvent
-    CheckIfActiveMemoryNeededAgentActionEvent:
-      properties:
-        type:
-          type: string
-          const: check-if-active-memory-needed-completed
-          title: Type
-          default: check-if-active-memory-needed-completed
-        queries:
-          items:
-            type: string
-          type: array
-          title: Queries
-      type: object
-      required:
-      - queries
-      title: CheckIfActiveMemoryNeededCompletedEvent
-    PostAnalysisType:
-      type: string
-      enum:
-      - generate-user-models
-      - extract-memories
-      - compute-metrics
-    NavigateStateMachineRecallStateStaticQueriesRetrievedEvent:
-      properties:
-        type:
-          type: string
-          const: navigate-state-machine-recall-state-static-queries-retrieved
-          title: Type
-          default: navigate-state-machine-recall-state-static-queries-retrieved
-        static_queries:
-          items:
-            type: string
-          type: array
-          title: Static Queries
-          description: The static queries that the agent has retrieved.
-      type: object
-      required:
-      - static_queries
-      title: NavigateStateMachineRecallStateStaticQueriesRetrievedEvent
-      description: Indicating that the agent has retrieved the static queries in the current the recall state.
+      - conversation_id
+      title: ConversationCreatedEvent
+      description: Emitted when the conversation is created.
     SelectDynamicBehaviorAgentActionEvent:
       oneOf:
       - $ref: '#/components/schemas/SelectDynamicBehaviorVectorGeneratedEvent'
@@ -1828,236 +2050,45 @@ components:
           select-dynamic-behavior-completed: '#/components/schemas/SelectDynamicBehaviorCompletedEvent'
           select-dynamic-behavior-relevance-retrieval-completed: '#/components/schemas/SelectDynamicBehaviorRelevanceRetrievalCompletedEvent'
           select-dynamic-behavior-vector-generated: '#/components/schemas/SelectDynamicBehaviorVectorGeneratedEvent'
-    ToolCallStateTransitionLog:
+    MessageType:
+      type: string
+      enum:
+      - user-message
+      - agent-message
+      - agent-inner-thought
+      - external-event
+    EngageUserAgentActionEvent:
+      oneOf:
+      - $ref: '#/components/schemas/EngageUserDynamicBehaviorOverrideEvent'
+      - $ref: '#/components/schemas/EngageUserMessageFragmentGeneratedEvent'
+      - $ref: '#/components/schemas/ToolCallStartedEvent'
+      - $ref: '#/components/schemas/ToolCallEndedEvent'
+      - $ref: '#/components/schemas/ActionTooLongEvent'
+      discriminator:
+        propertyName: type
+        mapping:
+          action-too-long: '#/components/schemas/ActionTooLongEvent'
+          engage-user-dynamic-behavior-override: '#/components/schemas/EngageUserDynamicBehaviorOverrideEvent'
+          engage-user-message-fragment-generated: '#/components/schemas/EngageUserMessageFragmentGeneratedEvent'
+          tool-call-ended: '#/components/schemas/ToolCallEndedEvent'
+          tool-call-started: '#/components/schemas/ToolCallStartedEvent'
+    Prompt:
       properties:
-        previous_state:
+        prompt:
           type: string
-          title: Previous State
-          description: Name of the previous state to transition from.
-        previous_service_hierarchical_state_machine_version_info:
-          prefixItems:
-          - type: string
-          - type: integer
-          type: array
-          maxItems: 2
-          minItems: 2
-          title: Previous Service Hierarchical State Machine Version Info
-          description: The identifier of the service hierarchical state machine that the previous state is in.
-        next_state:
-          type: string
-          title: Next State
-          description: Name of the next state to transition to.
-        next_service_hierarchical_state_machine_version_info:
-          prefixItems:
-          - type: string
-          - type: integer
-          type: array
-          maxItems: 2
-          minItems: 2
-          title: Next Service Hierarchical State Machine Version Info
-          description: The identifier of the service hierarchical state machine that the next state is in.
-        type:
-          type: string
-          const: tool-call
-          title: Type
-          description: The type of the state transition log, which is the type of the state we're transitioning from.
-          default: tool-call
-        tool_call_logs:
-          items:
-            items:
-              $ref: '#/components/schemas/ToolCallLog'
-            type: array
-          type: array
-          title: Tool Call Logs
-          description: A list of tool call logs that were performed during this state, except for the tool call for the designated tool call.
-        designated_tool_call_log:
-          $ref: '#/components/schemas/ToolCallLog'
-          description: The tool call log for the designated tool call in this state.
-      type: object
-      required:
-      - previous_state
-      - previous_service_hierarchical_state_machine_version_info
-      - next_state
-      - next_service_hierarchical_state_machine_version_info
-      - tool_call_logs
-      - designated_tool_call_log
-      title: ToolCallStateTransitionLog
-    SelectDynamicBehaviorRelevanceRetrievalCompletedEvent:
-      properties:
-        type:
-          type: string
-          const: select-dynamic-behavior-relevance-retrieval-completed
-          title: Type
-          default: select-dynamic-behavior-relevance-retrieval-completed
-      type: object
-      title: SelectDynamicBehaviorRelevanceRetrievalCompletedEvent
-    RecallStateTransitionLog:
-      properties:
-        previous_state:
-          type: string
-          title: Previous State
-          description: Name of the previous state to transition from.
-        previous_service_hierarchical_state_machine_version_info:
-          prefixItems:
-          - type: string
-          - type: integer
-          type: array
-          maxItems: 2
-          minItems: 2
-          title: Previous Service Hierarchical State Machine Version Info
-          description: The identifier of the service hierarchical state machine that the previous state is in.
-        next_state:
-          type: string
-          title: Next State
-          description: Name of the next state to transition to.
-        next_service_hierarchical_state_machine_version_info:
-          prefixItems:
-          - type: string
-          - type: integer
-          type: array
-          maxItems: 2
-          minItems: 2
-          title: Next Service Hierarchical State Machine Version Info
-          description: The identifier of the service hierarchical state machine that the next state is in.
-        type:
-          type: string
-          const: recall
-          title: Type
-          description: The type of the state transition log, which is the type of the state we're transitioning from.
-          default: recall
-        performed_queries:
+          title: Prompt
+          description: The generated prompt.
+        facets:
           items:
             type: string
           type: array
-          title: Performed Queries
-          description: A list of queries that were actually performed during this state. This does not include queries included in the states that are duplicates of queries performed previously in this conversation.
+          title: Facets
+          description: The facets that the generated prompt is about.
       type: object
       required:
-      - previous_state
-      - previous_service_hierarchical_state_machine_version_info
-      - next_state
-      - next_service_hierarchical_state_machine_version_info
-      - performed_queries
-      title: RecallStateTransitionLog
-    GenerateToolParamsDesignatedToolCallParamsGeneratedEvent:
-      properties:
-        type:
-          type: string
-          const: designated-tool-call-params-generated
-          title: Type
-          default: designated-tool-call-params-generated
-        tool_id:
-          type: string
-          title: Tool Id
-          description: The ID of the tool being called.
-        tool_version:
-          type: string
-          title: Tool Version
-          description: The version of the tool being called.
-        tool_call_params:
-          additionalProperties: true
-          type: object
-          title: Tool Call Params
-          description: The generated tool call parameters.
-      type: object
-      required:
-      - tool_id
-      - tool_version
-      - tool_call_params
-      title: GenerateToolParamsDesignatedToolCallParamsGeneratedEvent
-    ErrorEvent:
-      properties:
-        type:
-          type: string
-          const: error
-          title: Type
-          default: error
-        http_error_code:
-          type: integer
-          title: Http Error Code
-          description: The HTTP status code of the error.
-        error_description:
-          type: string
-          title: Error Description
-          description: A description of the error.
-      type: object
-      required:
-      - http_error_code
-      - error_description
-      title: ErrorEvent
-      description: 'Emitted when there is an error during the stream. This event could be emitted even if the request returns with a 200.
-
-        If received before an `interaction-complete` event, the client should consider the entire interaction void and retry. If received after,
-
-        then the conversation has completed and an error occurred during the post-processing, so the client should consider the interaction valid and saved,
-
-        but manually call the `FinishConversation` endpoint to retry the post-processing.'
-    src__app__endpoints__conversation__get_conversations__Response:
-      properties:
-        conversations:
-          items:
-            $ref: '#/components/schemas/ConversationInstance'
-          type: array
-          title: Conversations
-          description: The conversations satisfying the filters.
-        has_more:
-          type: boolean
-          title: Has More
-          description: Whether there are more conversations to retrieve.
-        continuation_token:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Continuation Token
-          description: A token to supply to the next request to retrieve the next page of conversations. Only populated if `has_more` is `True`.
-      type: object
-      required:
-      - conversations
-      - has_more
-      - continuation_token
-      title: Response
-    ConversationEvent:
-      anyOf:
-      - $ref: '#/components/schemas/InteractionCompleteEvent'
-      - $ref: '#/components/schemas/NewMessageEvent'
-      - $ref: '#/components/schemas/CurrentAgentActionEvent'
-    NavigateStateMachineToolCallStateToolOutputAvailableEvent:
-      properties:
-        type:
-          type: string
-          const: navigate-state-machine-tool-call-state-tool-output-available
-          title: Type
-          default: navigate-state-machine-tool-call-state-tool-output-available
-        tool_id:
-          type: string
-          title: Tool Id
-          description: The ID of the tool being called.
-        tool_version:
-          type: string
-          title: Tool Version
-          description: The version of the tool being called.
-        tool_output:
-          type: string
-          title: Tool Output
-          description: The tool output.
-        duration:
-          type: number
-          title: Duration
-          description: The duration taken to receive the tool output in seconds.
-        input_arguments:
-          additionalProperties: true
-          type: object
-          title: Input Arguments
-          description: The input arguments used for the tool call.
-      type: object
-      required:
-      - tool_id
-      - tool_version
-      - tool_output
-      - duration
-      - input_arguments
-      title: NavigateStateMachineToolCallStateToolOutputAvailableEvent
-      description: Indicating that the agent has received the tool output in the current tool call state.
+      - prompt
+      - facets
+      title: Prompt
     PCMUserMessageAudioConfig:
       properties:
         type:
@@ -2086,55 +2117,6 @@ components:
       - n_channels
       - sample_width
       title: PCMUserMessageAudioConfig
-    Prompt:
-      properties:
-        prompt:
-          type: string
-          title: Prompt
-          description: The generated prompt.
-        facets:
-          items:
-            type: string
-          type: array
-          title: Facets
-          description: The facets that the generated prompt is about.
-      type: object
-      required:
-      - prompt
-      - facets
-      title: Prompt
-    SelectDynamicBehaviorCompletedEvent:
-      properties:
-        type:
-          type: string
-          const: select-dynamic-behavior-completed
-          title: Type
-          default: select-dynamic-behavior-completed
-        selected_dynamic_behavior_set_version_info:
-          anyOf:
-          - prefixItems:
-            - type: string
-            - type: integer
-            type: array
-            maxItems: 2
-            minItems: 2
-          - type: 'null'
-          title: Selected Dynamic Behavior Set Version Info
-        previous_selected_dynamic_behavior_set_version_info:
-          anyOf:
-          - prefixItems:
-            - type: string
-            - type: integer
-            type: array
-            maxItems: 2
-            minItems: 2
-          - type: 'null'
-          title: Previous Selected Dynamic Behavior Set Version Info
-      type: object
-      required:
-      - selected_dynamic_behavior_set_version_info
-      - previous_selected_dynamic_behavior_set_version_info
-      title: SelectDynamicBehaviorCompletedEvent
     src__app__endpoints__conversation__get_interaction_insights__Response:
       properties:
         current_state_name:
@@ -2206,45 +2188,201 @@ components:
       - select_next_action_tool_call_logs
       - engage_user_tool_call_logs
       title: Response
-    NavigateStateMachineActionStateActionSelectedEvent:
-      properties:
-        type:
-          type: string
-          const: navigate-state-machine-action-state-action-selected
-          title: Type
-          default: navigate-state-machine-action-state-action-selected
-        action:
-          type: string
-          title: Action
-      type: object
-      required:
-      - action
-      title: NavigateStateMachineActionStateActionSelectedEvent
-      description: Indicating that the agent has selected an action from the current state.
-    MessageType:
+    PostAnalysisType:
       type: string
       enum:
-      - user-message
-      - agent-message
-      - agent-inner-thought
-      - external-event
-    CurrentAgentActionEvent:
+      - generate-user-models
+      - extract-memories
+      - compute-metrics
+    ConversationEvent:
+      anyOf:
+      - $ref: '#/components/schemas/InteractionCompleteEvent'
+      - $ref: '#/components/schemas/NewMessageEvent'
+      - $ref: '#/components/schemas/CurrentAgentActionEvent'
+    ReflectionStateTransitionLog:
+      properties:
+        previous_state:
+          type: string
+          title: Previous State
+          description: Name of the previous state to transition from.
+        previous_service_hierarchical_state_machine_version_info:
+          prefixItems:
+          - type: string
+          - type: integer
+          type: array
+          maxItems: 2
+          minItems: 2
+          title: Previous Service Hierarchical State Machine Version Info
+          description: The identifier of the service hierarchical state machine that the previous state is in.
+        next_state:
+          type: string
+          title: Next State
+          description: Name of the next state to transition to.
+        next_service_hierarchical_state_machine_version_info:
+          prefixItems:
+          - type: string
+          - type: integer
+          type: array
+          maxItems: 2
+          minItems: 2
+          title: Next Service Hierarchical State Machine Version Info
+          description: The identifier of the service hierarchical state machine that the next state is in.
+        type:
+          type: string
+          const: reflection
+          title: Type
+          description: The type of the state transition log, which is the type of the state we're transitioning from.
+          default: reflection
+        inner_thought_message_id:
+          type: string
+          title: Inner Thought Message Id
+          description: The identifier of the inserted inner thought message.
+        tool_call_logs:
+          items:
+            items:
+              $ref: '#/components/schemas/ToolCallLog'
+            type: array
+          type: array
+          title: Tool Call Logs
+          description: A list of tool call logs that were performed during the `GenerateReflection` LLM call during this state.
+      type: object
+      required:
+      - previous_state
+      - previous_service_hierarchical_state_machine_version_info
+      - next_state
+      - next_service_hierarchical_state_machine_version_info
+      - inner_thought_message_id
+      - tool_call_logs
+      title: ReflectionStateTransitionLog
+    SelectDynamicBehaviorRelevanceRetrievalCompletedEvent:
       properties:
         type:
           type: string
-          const: current-agent-action
+          const: select-dynamic-behavior-relevance-retrieval-completed
           title: Type
-          default: current-agent-action
-        action:
-          $ref: '#/components/schemas/src__app__amigo__service__conversation__Action'
-          description: The type of action the agent is performing right now.
+          default: select-dynamic-behavior-relevance-retrieval-completed
+      type: object
+      title: SelectDynamicBehaviorRelevanceRetrievalCompletedEvent
+    StrippedNonemptyString___w__s______:
+      type: string
+      minLength: 1
+      pattern: ^[\w\s_]+$
+    NewMessageEvent:
+      properties:
+        type:
+          type: string
+          const: new-message
+          title: Type
+          default: new-message
+        message:
+          type: string
+          title: Message
+          description: 'Either the raw-text piece or a base-64 encoded string of bytes representing the piece in alternative forms. If it represents audio, the audios are in
+
+            PCM16 format.'
+        transcript_alignment:
+          anyOf:
+          - items:
+              prefixItems:
+              - type: integer
+              - type: string
+              type: array
+              maxItems: 2
+              minItems: 2
+            type: array
+          - type: 'null'
+          title: Transcript Alignment
+          description: 'Transcript of the ongoing audio message and how they align with the audio, if the message is in audio format. Otherwise, it''s `None`. This is an array of tuples, where each tuple contains
+
+            a character and an integer indicating the milliseconds since the audio started when the character is spoken.
+
+
+            Note that this field might not be defined for some events that transmit audio bytes -- in that case, the alignment information for that chunk was already
+
+            included in the `transcript_alignment` field in the previous event.'
+        stop:
+          type: boolean
+          title: Stop
+          description: Whether this is the last piece of the agent message.
+        sequence_number:
+          type: integer
+          title: Sequence Number
+          description: The sequence number of this piece in the agent message.
+        message_id:
+          type: string
+          title: Message Id
+          description: 'The identifier of this agent message. '
       type: object
       required:
-      - action
-      title: CurrentAgentActionEvent
-      description: 'Emitted when an agent is about to perform an action that aids in the generation of the response. This is emitted before any
-
-        `NewMessageEvent` is emitted.'
+      - message
+      - transcript_alignment
+      - stop
+      - sequence_number
+      - message_id
+      title: NewMessageEvent
+      description: Emitted when a new piece of the agent message is available.
+    NavigateStateMachineExitConditionSelectedEvent:
+      properties:
+        type:
+          type: string
+          const: navigate-state-machine-exit-condition-selected
+          title: Type
+          default: navigate-state-machine-exit-condition-selected
+        exit_condition:
+          type: string
+          title: Exit Condition
+          description: The exit condition that the agent has selected.
+        next_state_state_machine_version_info:
+          prefixItems:
+          - type: string
+          - type: integer
+          type: array
+          maxItems: 2
+          minItems: 2
+          title: Next State State Machine Version Info
+          description: The state machine version info of the next state.
+        next_state_name:
+          type: string
+          title: Next State Name
+          description: The name of the next state.
+      type: object
+      required:
+      - exit_condition
+      - next_state_state_machine_version_info
+      - next_state_name
+      title: NavigateStateMachineExitConditionSelectedEvent
+      description: Indicating that the agent has selected an exit condition from the current action or decision state.
+    InteractionCompleteEvent:
+      properties:
+        type:
+          type: string
+          const: interaction-complete
+          title: Type
+          default: interaction-complete
+        message_id:
+          type: string
+          title: Message Id
+          description: The identifier of the agent message in this interaction.
+        interaction_id:
+          type: string
+          title: Interaction Id
+          description: The identifier of this interaction.
+        full_message:
+          type: string
+          title: Full Message
+          description: A structure containing either the content of the message if it's text, or the transcript of the message if it's audio.
+        conversation_completed:
+          type: boolean
+          title: Conversation Completed
+          description: Whether the conversation is auto-completed after this interaction.
+      type: object
+      required:
+      - message_id
+      - interaction_id
+      - full_message
+      - conversation_completed
+      title: InteractionCompleteEvent
+      description: Emitted when the interaction is complete and committed to database. This event is only emitted after all `NewMessageEvent`s are emitted.
     ConversationInstance:
       properties:
         id:
@@ -2316,218 +2454,63 @@ components:
       - num_messages
       - tags
       title: ConversationInstance
-    LLMConfig-Output:
+    src__app__endpoints__conversation__modify_tags_of_conversation__Request:
       properties:
-        llm_name:
-          type: string
-          title: Llm Name
-          description: The name of the LLM to use.
-        params:
-          additionalProperties: true
+        updates:
+          additionalProperties:
+            anyOf:
+            - $ref: '#/components/schemas/StrippedNonemptyString___w__s_____'
+            - type: 'null'
+          propertyNames:
+            $ref: '#/components/schemas/StrippedNonemptyString___w__s_____'
           type: object
-          title: Params
-          description: LLM-specific parameters to use.
+          maxProperties: 20
+          title: Updates
+          description: A mapping of tags to add or update on the conversation. Existing tags not included here remain unchanged.
           default: {}
-      type: object
-      required:
-      - llm_name
-      title: LLMConfig
-    NavigateStateMachineAnnotationStateAnnotationRetrievedEvent:
-      properties:
-        type:
-          type: string
-          const: navigate-state-machine-annotation-state-annotation-retrieved
-          title: Type
-          default: navigate-state-machine-annotation-state-annotation-retrieved
-        annotation:
-          type: string
-          title: Annotation
-      type: object
-      required:
-      - annotation
-      title: NavigateStateMachineAnnotationStateAnnotationRetrievedEvent
-      description: Indicating that the agent has retrieved the annotation in the current annotation state.
-    src__app__endpoints__conversation__get_conversation_messages__Response:
-      properties:
-        messages:
-          items:
-            $ref: '#/components/schemas/MessageInstance'
-          type: array
-          title: Messages
-          description: The retrieved messages.
-        has_more:
-          type: boolean
-          title: Has More
-          description: Whether there are more, earlier messages in the conversation to retrieve.
-        continuation_token:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Continuation Token
-          description: The continuation token to use to retrieve the next set of messages.
-      type: object
-      required:
-      - messages
-      - has_more
-      - continuation_token
-      title: Response
-    src__app__endpoints__conversation__generate_conversation_starter__Request:
-      properties:
-        service_id:
-          type: string
-          pattern: ^[a-f0-9]{24}$
-          title: Service Id
-          description: The identifier of the service to create a conversation starter for.
-        service_version_set_name:
-          type: string
-          title: Service Version Set Name
-          description: The version set of the service to use. If not provided, the `release` version set is used.
-          default: release
-        facets:
+        deletes:
           items:
             $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
           type: array
-          minItems: 1
-          title: Facets
-          description: The facets that the generated conversation starter should be about. Each generated starter is related to some of these facets.
-        min_count:
-          type: integer
-          maximum: 10.0
-          exclusiveMinimum: 0.0
-          title: Min Count
-          description: The minimum (inclusive) number of conversation starters to generate.
-        max_count:
-          type: integer
-          maximum: 10.0
-          exclusiveMinimum: 0.0
-          title: Max Count
-          description: The maximum (inclusive) number of conversation starters to generate.
-        generation_instructions:
-          $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
-          description: The instruction for the conversation starter generation.
+          uniqueItems: true
+          title: Deletes
+          description: A list of tags to remove from the conversation.
+          default: []
       type: object
-      required:
-      - service_id
-      - facets
-      - min_count
-      - max_count
-      - generation_instructions
       title: Request
-    NavigateStateMachineDynamicBehaviorOverrideEvent:
-      properties:
-        type:
-          type: string
-          const: navigate-state-machine-dynamic-behavior-override
-          title: Type
-          default: navigate-state-machine-dynamic-behavior-override
-        overriding_instructions:
-          type: boolean
-          title: Overriding Instructions
-          description: Whether the dynamic behavior set is overriding instructions during this interaction.
-        overriding_tool_candidates:
-          type: boolean
-          title: Overriding Tool Candidates
-          description: Whether the dynamic behavior set is overriding the tool candidates during this interaction.
-      type: object
-      required:
-      - overriding_instructions
-      - overriding_tool_candidates
-      title: NavigateStateMachineDynamicBehaviorOverrideEvent
-      description: Indicating that the agent has merged the dynamic behavior set's instructions with the instructions from the current state.
-    src__app__endpoints__conversation__interact_with_conversation__Response:
-      anyOf:
-      - $ref: '#/components/schemas/ConversationEvent'
-      - $ref: '#/components/schemas/UserMessageAvailableEvent'
-      - $ref: '#/components/schemas/ErrorEvent'
-    Format:
-      type: string
-      enum:
-      - text
-      - voice
-    NavigateStateMachineRecallStateActiveMemoryRetrievedEvent:
-      properties:
-        type:
-          type: string
-          const: navigate-state-machine-recall-state-active-memory-retrieved
-          title: Type
-          default: navigate-state-machine-recall-state-active-memory-retrieved
-        queries_and_responses:
-          items:
-            prefixItems:
-            - type: string
-            - type: string
-            type: array
-            maxItems: 2
-            minItems: 2
-          type: array
-          title: Queries And Responses
-          description: A list of tuples of queries and responses.
-      type: object
-      required:
-      - queries_and_responses
-      title: NavigateStateMachineRecallStateActiveMemoryRetrievedEvent
-      description: Indicating that the agent has retrieved the active memory in the current the recall state.
-    JumpbackStateTransitionLog:
-      properties:
-        previous_state:
-          type: string
-          title: Previous State
-          description: Name of the previous state to transition from.
-        previous_service_hierarchical_state_machine_version_info:
-          prefixItems:
-          - type: string
-          - type: integer
-          type: array
-          maxItems: 2
-          minItems: 2
-          title: Previous Service Hierarchical State Machine Version Info
-          description: The identifier of the service hierarchical state machine that the previous state is in.
-        next_state:
-          type: string
-          title: Next State
-          description: Name of the next state to transition to.
-        next_service_hierarchical_state_machine_version_info:
-          prefixItems:
-          - type: string
-          - type: integer
-          type: array
-          maxItems: 2
-          minItems: 2
-          title: Next Service Hierarchical State Machine Version Info
-          description: The identifier of the service hierarchical state machine that the next state is in.
-        type:
-          type: string
-          const: jumpback
-          title: Type
-          description: The type of the state transition log, which is the type of the state we're transitioning from.
-          default: jumpback
-      type: object
-      required:
-      - previous_state
-      - previous_service_hierarchical_state_machine_version_info
-      - next_state
-      - next_service_hierarchical_state_machine_version_info
-      title: JumpbackStateTransitionLog
-    NavigateStateMachineReflectionStateReflectionGeneratedEvent:
-      properties:
-        type:
-          type: string
-          const: navigate-state-machine-reflection-state-reflection-generated
-          title: Type
-          default: navigate-state-machine-reflection-state-reflection-generated
-        reflection:
-          type: string
-          title: Reflection
-          description: The reflection that the agent has generated.
-      type: object
-      required:
-      - reflection
-      title: NavigateStateMachineReflectionStateReflectionGeneratedEvent
-      description: Indicating that the agent has generated the reflection in the current reflection state.
-    StrippedNonemptyString___w__s______:
+    amigo_lib__pydantic__base_model__StrippedNonemptyString__1:
       type: string
       minLength: 1
-      pattern: ^[\w\s_]+$
+    NavigateStateMachineActionStateActionSelectedEvent:
+      properties:
+        type:
+          type: string
+          const: navigate-state-machine-action-state-action-selected
+          title: Type
+          default: navigate-state-machine-action-state-action-selected
+        action:
+          type: string
+          title: Action
+      type: object
+      required:
+      - action
+      title: NavigateStateMachineActionStateActionSelectedEvent
+      description: Indicating that the agent has selected an action from the current state.
+    src__app__endpoints__conversation__create_conversation__Response:
+      oneOf:
+      - $ref: '#/components/schemas/ConversationCreatedEvent'
+      - $ref: '#/components/schemas/NewMessageEvent'
+      - $ref: '#/components/schemas/InteractionCompleteEvent'
+      - $ref: '#/components/schemas/CurrentAgentActionEvent'
+      - $ref: '#/components/schemas/ErrorEvent'
+      discriminator:
+        propertyName: type
+        mapping:
+          conversation-created: '#/components/schemas/ConversationCreatedEvent'
+          current-agent-action: '#/components/schemas/CurrentAgentActionEvent'
+          error: '#/components/schemas/ErrorEvent'
+          interaction-complete: '#/components/schemas/InteractionCompleteEvent'
+          new-message: '#/components/schemas/NewMessageEvent'
     ToolCallEndedEvent:
       properties:
         type:
@@ -2570,53 +2553,112 @@ components:
       - duration
       title: ToolCallEndedEvent
       description: Indicating that the agent has finished executing a tool.
-    NavigateStateMachineRecallStateDynamicQueriesGeneratedEvent:
+    VersionSetInfo:
+      properties:
+        name:
+          type: string
+          title: Name
+          description: The name of the version set. If the value is `unknown`, it means the conversation was created before this field was introduced and the version set name cannot be retroactively determined.
+        agent_version_info:
+          prefixItems:
+          - type: string
+          - type: integer
+          type: array
+          maxItems: 2
+          minItems: 2
+          title: Agent Version Info
+          description: The ID of the agent and version number used in this conversation.
+        service_hierarchical_state_machine_version_info:
+          prefixItems:
+          - type: string
+          - type: integer
+          type: array
+          maxItems: 2
+          minItems: 2
+          title: Service Hierarchical State Machine Version Info
+          description: The ID of the state machine and version number used in this conversation.
+        llm_model_preferences:
+          additionalProperties:
+            $ref: '#/components/schemas/LLMConfig-Output'
+          type: object
+          title: Llm Model Preferences
+          description: The LLM model preferences for this version set.
+      type: object
+      required:
+      - name
+      - agent_version_info
+      - service_hierarchical_state_machine_version_info
+      - llm_model_preferences
+      title: VersionSetInfo
+    src__app__endpoints__conversation__get_conversations__Response:
+      properties:
+        conversations:
+          items:
+            $ref: '#/components/schemas/ConversationInstance'
+          type: array
+          title: Conversations
+          description: The conversations satisfying the filters.
+        has_more:
+          type: boolean
+          title: Has More
+          description: Whether there are more conversations to retrieve.
+        continuation_token:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Continuation Token
+          description: A token to supply to the next request to retrieve the next page of conversations. Only populated if `has_more` is `True`.
+      type: object
+      required:
+      - conversations
+      - has_more
+      - continuation_token
+      title: Response
+    NavigateStateMachineStateTransitionedEvent:
       properties:
         type:
           type: string
-          const: navigate-state-machine-recall-state-dynamic-queries-generated
+          const: navigate-state-machine-state-transitioned
           title: Type
-          default: navigate-state-machine-recall-state-dynamic-queries-generated
-        dynamic_queries:
-          items:
-            type: string
-          type: array
-          title: Dynamic Queries
-          description: The dynamic queries that the agent has generated.
-        requested_information:
+          default: navigate-state-machine-state-transitioned
+        prev_state:
           type: string
-          title: Requested Information
-          description: The information that the agent needs from the queries.
+          title: Prev State
+          description: The previous state.
+        prev_state_state_machine_version_info:
+          prefixItems:
+          - type: string
+          - type: integer
+          type: array
+          maxItems: 2
+          minItems: 2
+          title: Prev State State Machine Version Info
+          description: The state machine version info of the previous state.
+        next_state:
+          type: string
+          title: Next State
+          description: The next state.
+        next_state_state_machine_version_info:
+          prefixItems:
+          - type: string
+          - type: integer
+          type: array
+          maxItems: 2
+          minItems: 2
+          title: Next State State Machine Version Info
+          description: The state machine version info of the next state.
       type: object
       required:
-      - dynamic_queries
-      - requested_information
-      title: NavigateStateMachineRecallStateDynamicQueriesGeneratedEvent
-      description: Indicating that the agent has generated dynamic queries in the current the recall state.
-    src__app__endpoints__conversation__modify_tags_of_conversation__Request:
-      properties:
-        updates:
-          additionalProperties:
-            anyOf:
-            - $ref: '#/components/schemas/StrippedNonemptyString___w__s_____'
-            - type: 'null'
-          propertyNames:
-            $ref: '#/components/schemas/StrippedNonemptyString___w__s_____'
-          type: object
-          maxProperties: 20
-          title: Updates
-          description: A mapping of tags to add or update on the conversation. Existing tags not included here remain unchanged.
-          default: {}
-        deletes:
-          items:
-            $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
-          type: array
-          uniqueItems: true
-          title: Deletes
-          description: A list of tags to remove from the conversation.
-          default: []
-      type: object
-      title: Request
+      - prev_state
+      - prev_state_state_machine_version_info
+      - next_state
+      - next_state_state_machine_version_info
+      title: NavigateStateMachineStateTransitionedEvent
+      description: Indicating that the agent has transitioned to a new state.
+    amigo_lib__pydantic__base_model__StrippedNonemptyString__4:
+      type: string
+      maxLength: 100
+      minLength: 1
     src__app__endpoints__conversation__recommend_responses_for_interaction__Request:
       properties:
         context:
@@ -2643,178 +2685,66 @@ components:
             '
       type: object
       title: Request
-    NavigateStateMachineAgentActionEvent:
-      anyOf:
-      - $ref: '#/components/schemas/NavigateStateMachineDynamicBehaviorOverrideEvent'
-      - $ref: '#/components/schemas/NavigateStateMachineActionStateActionSelectedEvent'
-      - $ref: '#/components/schemas/NavigateStateMachineDecisionStateDecisionStartedEvent'
-      - $ref: '#/components/schemas/NavigateStateMachineExitConditionSelectedEvent'
-      - $ref: '#/components/schemas/NavigateStateMachineRecallStateDynamicQueriesGeneratedEvent'
-      - $ref: '#/components/schemas/NavigateStateMachineRecallStateStaticQueriesRetrievedEvent'
-      - $ref: '#/components/schemas/NavigateStateMachineRecallStateActiveMemoryRetrievedEvent'
-      - $ref: '#/components/schemas/NavigateStateMachineReflectionStatePromptRetrievedEvent'
-      - $ref: '#/components/schemas/NavigateStateMachineReflectionStateReflectionGeneratedEvent'
-      - $ref: '#/components/schemas/NavigateStateMachineAnnotationStateAnnotationRetrievedEvent'
-      - $ref: '#/components/schemas/NavigateStateMachineStateTransitionedEvent'
-      - $ref: '#/components/schemas/GenerateToolParamsEvent'
-      - $ref: '#/components/schemas/NavigateStateMachineToolCallStateToolOutputAvailableEvent'
-      - $ref: '#/components/schemas/ToolCallStartedEvent'
-      - $ref: '#/components/schemas/ToolCallEndedEvent'
-      - $ref: '#/components/schemas/ActionTooLongEvent'
-    ToolCallStartedEvent:
+    src__app__endpoints__conversation__create_conversation__Request:
+      properties:
+        service_id:
+          type: string
+          pattern: ^[a-f0-9]{24}$
+          title: Service Id
+          description: The identifier of the service to create a conversation in.
+        service_version_set_name:
+          type: string
+          title: Service Version Set Name
+          description: The version set of the service to use. If not provided, the `release` version set is used.
+          default: release
+        initial_message:
+          anyOf:
+          - $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
+          - type: 'null'
+          description: The initial user or agent inner thought message to send to the service. If not provided, the conversation will start with an agent message.
+        initial_message_type:
+          anyOf:
+          - type: string
+            enum:
+            - user-message
+            - external-event
+          - type: 'null'
+          title: Initial Message Type
+          description: The type of the `initial_message`. Can only be specified if `initial_message` is provided.
+        tags:
+          additionalProperties:
+            anyOf:
+            - $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__4'
+            - type: 'null'
+          propertyNames:
+            $ref: '#/components/schemas/StrippedNonemptyString___w__s______'
+          type: object
+          maxProperties: 20
+          title: Tags
+          description: A list of tags for the conversation. The key can only contain alphanumeric characters, underscores, or spaces. The value can only contain up to 100 characters.
+          default: {}
+      type: object
+      required:
+      - service_id
+      title: Request
+    NavigateStateMachineRecallStateStaticQueriesRetrievedEvent:
       properties:
         type:
           type: string
-          const: tool-call-started
+          const: navigate-state-machine-recall-state-static-queries-retrieved
           title: Type
-          default: tool-call-started
-        tool_round_index:
-          type: integer
-          title: Tool Round Index
-          description: Within the current LLM interaction, the round of tool call.
-        tool_id:
-          type: string
-          title: Tool Id
-          description: The ID of the tool being called.
-        tool_version:
-          type: string
-          title: Tool Version
-          description: The version of the tool being called.
-        input_params:
-          additionalProperties: true
-          type: object
-          title: Input Params
-          description: The input parameters for the tool call.
-      type: object
-      required:
-      - tool_round_index
-      - tool_id
-      - tool_version
-      - input_params
-      title: ToolCallStartedEvent
-      description: Indicating that the agent has started executing a tool.
-    amigo_lib__pydantic__base_model__StrippedNonemptyString__1:
-      type: string
-      minLength: 1
-    src__app__endpoints__conversation__generate_conversation_starter__Response:
-      properties:
-        prompts:
-          items:
-            $ref: '#/components/schemas/Prompt'
-          type: array
-          title: Prompts
-          description: The generated prompts.
-      type: object
-      required:
-      - prompts
-      title: Response
-    ToolCallLog:
-      properties:
-        tool_name:
-          type: string
-          title: Tool Name
-          description: The name of the tool that was called.
-        tool_id:
-          type: string
-          title: Tool Id
-          description: The identifier of the tool that was called.
-        tool_version:
-          type: string
-          title: Tool Version
-          description: The version of the tool that was called.
-        input:
-          additionalProperties: true
-          type: object
-          title: Input
-          description: The input to the tool call.
-        output:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Output
-          description: The output of the tool call. If `None`, the tool call's output is ephemeral and not stored.
-        duration:
-          type: number
-          title: Duration
-          description: The duration of the tool call in seconds.
-      type: object
-      required:
-      - tool_name
-      - tool_id
-      - tool_version
-      - input
-      - output
-      - duration
-      title: ToolCallLog
-    StateTransitionLog:
-      oneOf:
-      - $ref: '#/components/schemas/ActionStateTransitionLog'
-      - $ref: '#/components/schemas/DecisionStateTransitionLog'
-      - $ref: '#/components/schemas/RecallStateTransitionLog'
-      - $ref: '#/components/schemas/JumpbackStateTransitionLog'
-      - $ref: '#/components/schemas/AnnotationStateTransitionLog'
-      - $ref: '#/components/schemas/ReflectionStateTransitionLog'
-      - $ref: '#/components/schemas/ToolCallStateTransitionLog'
-      discriminator:
-        propertyName: type
-        mapping:
-          action: '#/components/schemas/ActionStateTransitionLog'
-          annotation: '#/components/schemas/AnnotationStateTransitionLog'
-          decision: '#/components/schemas/DecisionStateTransitionLog'
-          jumpback: '#/components/schemas/JumpbackStateTransitionLog'
-          recall: '#/components/schemas/RecallStateTransitionLog'
-          reflection: '#/components/schemas/ReflectionStateTransitionLog'
-          tool-call: '#/components/schemas/ToolCallStateTransitionLog'
-    MessageInstance:
-      properties:
-        id:
-          type: string
-          title: Id
-        interaction_id:
-          type: string
-          title: Interaction Id
-          description: The identifier of the interaction.
-        created_at:
-          type: string
-          format: date-time
-          title: Created At
-          description: The time at which this message was created.
-        sender:
-          type: string
-          title: Sender
-          description: A human-friendly name of the sender of the message.
-        message:
-          type: string
-          title: Message
-          description: The text content of the message.
-        format:
-          $ref: '#/components/schemas/Format'
-          description: The format in which the message was delivered.
-        message_type:
-          $ref: '#/components/schemas/MessageType'
-          description: The type of the message.
-      type: object
-      required:
-      - id
-      - interaction_id
-      - created_at
-      - sender
-      - message
-      - format
-      - message_type
-      title: MessageInstance
-    src__app__endpoints__conversation__recommend_responses_for_interaction__Response:
-      properties:
-        recommended_responses:
+          default: navigate-state-machine-recall-state-static-queries-retrieved
+        static_queries:
           items:
             type: string
           type: array
-          title: Recommended Responses
-          description: The recommended responses to the user.
+          title: Static Queries
+          description: The static queries that the agent has retrieved.
       type: object
       required:
-      - recommended_responses
-      title: Response
+      - static_queries
+      title: NavigateStateMachineRecallStateStaticQueriesRetrievedEvent
+      description: Indicating that the agent has retrieved the static queries in the current the recall state.
     GenerateToolParamsDesignatedToolRetrievedEvent:
       properties:
         type:
@@ -2835,7 +2765,43 @@ components:
       - tool_id
       - tool_version
       title: GenerateToolParamsDesignatedToolRetrievedEvent
-    AnnotationStateTransitionLog:
+    NavigateStateMachineAnnotationStateAnnotationRetrievedEvent:
+      properties:
+        type:
+          type: string
+          const: navigate-state-machine-annotation-state-annotation-retrieved
+          title: Type
+          default: navigate-state-machine-annotation-state-annotation-retrieved
+        annotation:
+          type: string
+          title: Annotation
+      type: object
+      required:
+      - annotation
+      title: NavigateStateMachineAnnotationStateAnnotationRetrievedEvent
+      description: Indicating that the agent has retrieved the annotation in the current annotation state.
+    NavigateStateMachineDynamicBehaviorOverrideEvent:
+      properties:
+        type:
+          type: string
+          const: navigate-state-machine-dynamic-behavior-override
+          title: Type
+          default: navigate-state-machine-dynamic-behavior-override
+        overriding_instructions:
+          type: boolean
+          title: Overriding Instructions
+          description: Whether the dynamic behavior set is overriding instructions during this interaction.
+        overriding_tool_candidates:
+          type: boolean
+          title: Overriding Tool Candidates
+          description: Whether the dynamic behavior set is overriding the tool candidates during this interaction.
+      type: object
+      required:
+      - overriding_instructions
+      - overriding_tool_candidates
+      title: NavigateStateMachineDynamicBehaviorOverrideEvent
+      description: Indicating that the agent has merged the dynamic behavior set's instructions with the instructions from the current state.
+    ToolCallStateTransitionLog:
       properties:
         previous_state:
           type: string
@@ -2865,81 +2831,115 @@ components:
           description: The identifier of the service hierarchical state machine that the next state is in.
         type:
           type: string
-          const: annotation
+          const: tool-call
           title: Type
           description: The type of the state transition log, which is the type of the state we're transitioning from.
-          default: annotation
-        inner_thought_message_id:
-          type: string
-          title: Inner Thought Message Id
-          description: The identifier of the inserted inner thought message.
+          default: tool-call
+        tool_call_logs:
+          items:
+            items:
+              $ref: '#/components/schemas/ToolCallLog'
+            type: array
+          type: array
+          title: Tool Call Logs
+          description: A list of tool call logs that were performed during this state, except for the tool call for the designated tool call.
+        designated_tool_call_log:
+          $ref: '#/components/schemas/ToolCallLog'
+          description: The tool call log for the designated tool call in this state.
       type: object
       required:
       - previous_state
       - previous_service_hierarchical_state_machine_version_info
       - next_state
       - next_service_hierarchical_state_machine_version_info
-      - inner_thought_message_id
-      title: AnnotationStateTransitionLog
-    amigo_lib__pydantic__base_model__StrippedNonemptyString__4:
+      - tool_call_logs
+      - designated_tool_call_log
+      title: ToolCallStateTransitionLog
+    EngageUserMessageFragmentGeneratedEvent:
+      properties:
+        type:
+          type: string
+          const: engage-user-message-fragment-generated
+          title: Type
+          default: engage-user-message-fragment-generated
+        index:
+          type: integer
+          title: Index
+          description: The index of the fragment in the agent response.
+        fragment:
+          type: string
+          title: Fragment
+          description: The fragment of the agent response that has been generated.
+        is_final:
+          type: boolean
+          title: Is Final
+          description: Whether this fragment is the final fragment of the agent response.
+      type: object
+      required:
+      - index
+      - fragment
+      - is_final
+      title: EngageUserMessageFragmentGeneratedEvent
+      description: Indicating that the agent has generated a fragment of the agent response.
+    StrippedNonemptyString___w__s_____:
       type: string
-      maxLength: 100
       minLength: 1
-    ConversationCreatedEvent:
+      pattern: ^[\w\s]+$
+    ActionStateTransitionLog:
       properties:
+        previous_state:
+          type: string
+          title: Previous State
+          description: Name of the previous state to transition from.
+        previous_service_hierarchical_state_machine_version_info:
+          prefixItems:
+          - type: string
+          - type: integer
+          type: array
+          maxItems: 2
+          minItems: 2
+          title: Previous Service Hierarchical State Machine Version Info
+          description: The identifier of the service hierarchical state machine that the previous state is in.
+        next_state:
+          type: string
+          title: Next State
+          description: Name of the next state to transition to.
+        next_service_hierarchical_state_machine_version_info:
+          prefixItems:
+          - type: string
+          - type: integer
+          type: array
+          maxItems: 2
+          minItems: 2
+          title: Next Service Hierarchical State Machine Version Info
+          description: The identifier of the service hierarchical state machine that the next state is in.
         type:
           type: string
-          const: conversation-created
+          const: action
           title: Type
-          default: conversation-created
-        conversation_id:
+          description: The type of the state transition log, which is the type of the state we're transitioning from.
+          default: action
+        previous_state_exit_condition_description:
           type: string
-          title: Conversation Id
-          description: The identifier of the newly created conversation.
+          title: Previous State Exit Condition Description
+          description: The description of the exit condition that led to the transition to the next state.
+        tool_call_logs:
+          items:
+            items:
+              $ref: '#/components/schemas/ToolCallLog'
+            type: array
+          type: array
+          title: Tool Call Logs
+          description: A list of tool call logs that were performed during the `SelectNextAction` LLM call during this state.
       type: object
       required:
-      - conversation_id
-      title: ConversationCreatedEvent
-      description: Emitted when the conversation is created.
-    WorkingMemory:
-      properties:
-        content:
-          type: string
-          title: Content
-          description: The content of the memory.
-        context:
-          type: string
-          title: Context
-          description: The context of the memory.
-      type: object
-      required:
-      - content
-      - context
-      title: WorkingMemory
-    ActionTooLongEvent:
-      properties:
-        type:
-          type: string
-          const: action-too-long
-          title: Type
-          default: action-too-long
-        filler:
-          type: string
-          title: Filler
-          description: 'A filler that can be played while waiting for the action to complete. If the audio filler exists, this is monochannel, 16-bit PCM WAV audio (at sample rate 16kHz) encoded in base64 encoding.
-
-            Otherwise, this is the text corresponding to the audio filler.'
-        previously_started_event:
-          title: Previously Started Event
-          description: The previously started event that is taking too long.
-      type: object
-      required:
-      - filler
-      - previously_started_event
-      title: ActionTooLongEvent
-      description: 'Indicating that a previously-started action of the agent is taking too long. This event supplies a filler text that can be displayed
-
-        while waiting for the action to complete.'
+      - previous_state
+      - previous_service_hierarchical_state_machine_version_info
+      - next_state
+      - next_service_hierarchical_state_machine_version_info
+      - previous_state_exit_condition_description
+      - tool_call_logs
+      title: ActionStateTransitionLog
   securitySchemes:
     Bearer-Authorization:
       type: http

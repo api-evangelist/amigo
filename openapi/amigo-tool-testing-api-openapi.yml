@@ -144,78 +144,6 @@ components:
       - msg
       - type
       title: ValidationError
-    ToolExecuteRequest:
-      properties:
-        tool_type:
-          type: string
-          maxLength: 64
-          title: Tool Type
-          description: world_tool — other tool families use their dedicated endpoints
-        tool_name:
-          $ref: '#/components/schemas/NameString'
-          description: Fully qualified tool name
-        service_id:
-          type: string
-          format: uuid
-          title: Service Id
-          description: Service ID that owns the HSM
-        input_params:
-          additionalProperties: true
-          type: object
-          title: Input Params
-          description: Parameters to pass to the tool handler
-        entity_id:
-          anyOf:
-          - type: string
-            format: uuid
-          - type: 'null'
-          title: Entity Id
-          description: Optional entity ID for context
-        dry_run:
-          type: boolean
-          title: Dry Run
-          description: If true, write tools are simulated without persistence
-          default: false
-      type: object
-      required:
-      - tool_type
-      - tool_name
-      - service_id
-      title: ToolExecuteRequest
-    ToolResolveResponse:
-      properties:
-        tools:
-          items:
-            $ref: '#/components/schemas/ResolvedToolItem'
-          type: array
-          title: Tools
-        service_id:
-          type: string
-          format: uuid
-          title: Service Id
-        workspace_id:
-          type: string
-          format: uuid
-          title: Workspace Id
-      type: object
-      required:
-      - tools
-      - service_id
-      - workspace_id
-      title: ToolResolveResponse
-    NameString:
-      type: string
-      maxLength: 256
-      minLength: 1
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
     ResolvedToolItem:
       properties:
         tool_name:
@@ -255,6 +183,109 @@ components:
       - tool_name
       - tool_type
       title: ResolvedToolItem
+    ToolCatalogResponse:
+      properties:
+        tools:
+          items:
+            $ref: '#/components/schemas/ResolvedToolItem'
+          type: array
+          title: Tools
+      type: object
+      required:
+      - tools
+      title: ToolCatalogResponse
+    ToolResolveResponse:
+      properties:
+        tools:
+          items:
+            $ref: '#/components/schemas/ResolvedToolItem'
+          type: array
+          title: Tools
+        service_id:
+          type: string
+          format: uuid
+          title: Service Id
+        workspace_id:
+          type: string
+          format: uuid
+          title: Workspace Id
+      type: object
+      required:
+      - tools
+      - service_id
+      - workspace_id
+      title: ToolResolveResponse
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    SubToolLogItem:
+      properties:
+        tool_name:
+          type: string
+          title: Tool Name
+          default: ''
+        input:
+          additionalProperties: true
+          type: object
+          title: Input
+        output:
+          type: string
+          title: Output
+          default: ''
+        duration_ms:
+          type: number
+          title: Duration Ms
+          default: 0.0
+        succeeded:
+          type: boolean
+          title: Succeeded
+          default: true
+      type: object
+      title: SubToolLogItem
+    ToolExecuteRequest:
+      properties:
+        tool_type:
+          type: string
+          maxLength: 64
+          title: Tool Type
+          description: world_tool — other tool families use their dedicated endpoints
+        tool_name:
+          $ref: '#/components/schemas/NameString'
+          description: Fully qualified tool name
+        service_id:
+          type: string
+          format: uuid
+          title: Service Id
+          description: Service ID that owns the HSM
+        input_params:
+          additionalProperties: true
+          type: object
+          title: Input Params
+          description: Parameters to pass to the tool handler
+        entity_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Entity Id
+          description: Optional entity ID for context
+        dry_run:
+          type: boolean
+          title: Dry Run
+          description: If true, write tools are simulated without persistence
+          default: false
+      type: object
+      required:
+      - tool_type
+      - tool_name
+      - service_id
+      title: ToolExecuteRequest
     ToolExecuteResponse:
       properties:
         result:
@@ -300,41 +331,10 @@ components:
           title: Error
       type: object
       title: ToolExecuteResponse
-    ToolCatalogResponse:
-      properties:
-        tools:
-          items:
-            $ref: '#/components/schemas/ResolvedToolItem'
-          type: array
-          title: Tools
-      type: object
-      required:
-      - tools
-      title: ToolCatalogResponse
-    SubToolLogItem:
-      properties:
-        tool_name:
-          type: string
-          title: Tool Name
-          default: ''
-        input:
-          additionalProperties: true
-          type: object
-          title: Input
-        output:
-          type: string
-          title: Output
-          default: ''
-        duration_ms:
-          type: number
-          title: Duration Ms
-          default: 0.0
-        succeeded:
-          type: boolean
-          title: Succeeded
-          default: true
-      type: object
-      title: SubToolLogItem
+    NameString:
+      type: string
+      maxLength: 256
+      minLength: 1
   securitySchemes:
     BearerAuth:
       type: http

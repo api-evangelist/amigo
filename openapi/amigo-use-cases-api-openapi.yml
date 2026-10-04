@@ -333,6 +333,44 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
+    UseCaseListResponse:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/UseCaseResponse'
+          type: array
+          title: Items
+      type: object
+      required:
+      - items
+      title: UseCaseListResponse
+    OwnedUseCasesResponse:
+      properties:
+        items:
+          items:
+            type: string
+            format: uuid
+          type: array
+          title: Items
+      type: object
+      required:
+      - items
+      title: OwnedUseCasesResponse
+    OwnershipResponse:
+      properties:
+        use_case_id:
+          type: string
+          format: uuid
+          title: Use Case Id
+        workspace_id:
+          type: string
+          format: uuid
+          title: Workspace Id
+      type: object
+      required:
+      - use_case_id
+      - workspace_id
+      title: OwnershipResponse
     ValidationError:
       properties:
         loc:
@@ -359,18 +397,6 @@ components:
       - msg
       - type
       title: ValidationError
-    OwnedUseCasesResponse:
-      properties:
-        items:
-          items:
-            type: string
-            format: uuid
-          type: array
-          title: Items
-      type: object
-      required:
-      - items
-      title: OwnedUseCasesResponse
     HTTPValidationError:
       properties:
         detail:
@@ -380,6 +406,47 @@ components:
           title: Detail
       type: object
       title: HTTPValidationError
+    ServiceBindingResponse:
+      properties:
+        use_case_id:
+          type: string
+          format: uuid
+          title: Use Case Id
+        service_id:
+          type: string
+          format: uuid
+          title: Service Id
+        workspace_id:
+          type: string
+          format: uuid
+          title: Workspace Id
+        channel:
+          type: string
+          enum:
+          - inbound_voice
+          - outbound_voice
+          - ringless_voicemail
+          - email
+          - sms
+          - imessage
+          title: Channel
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+      type: object
+      required:
+      - use_case_id
+      - service_id
+      - workspace_id
+      - channel
+      - created_at
+      - updated_at
+      title: ServiceBindingResponse
     UseCaseResponse:
       properties:
         id:
@@ -451,21 +518,6 @@ components:
       - created_at
       - updated_at
       title: UseCaseResponse
-    OwnershipResponse:
-      properties:
-        use_case_id:
-          type: string
-          format: uuid
-          title: Use Case Id
-        workspace_id:
-          type: string
-          format: uuid
-          title: Workspace Id
-      type: object
-      required:
-      - use_case_id
-      - workspace_id
-      title: OwnershipResponse
     ServiceBindingRequest:
       properties:
         service_id:
@@ -476,58 +528,6 @@ components:
       required:
       - service_id
       title: ServiceBindingRequest
-    UseCaseListResponse:
-      properties:
-        items:
-          items:
-            $ref: '#/components/schemas/UseCaseResponse'
-          type: array
-          title: Items
-      type: object
-      required:
-      - items
-      title: UseCaseListResponse
-    ServiceBindingResponse:
-      properties:
-        use_case_id:
-          type: string
-          format: uuid
-          title: Use Case Id
-        service_id:
-          type: string
-          format: uuid
-          title: Service Id
-        workspace_id:
-          type: string
-          format: uuid
-          title: Workspace Id
-        channel:
-          type: string
-          enum:
-          - inbound_voice
-          - outbound_voice
-          - ringless_voicemail
-          - email
-          - sms
-          - imessage
-          title: Channel
-        created_at:
-          type: string
-          format: date-time
-          title: Created At
-        updated_at:
-          type: string
-          format: date-time
-          title: Updated At
-      type: object
-      required:
-      - use_case_id
-      - service_id
-      - workspace_id
-      - channel
-      - created_at
-      - updated_at
-      title: ServiceBindingResponse
   securitySchemes:
     BearerAuth:
       type: http

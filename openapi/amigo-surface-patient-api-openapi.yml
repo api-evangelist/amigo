@@ -532,17 +532,44 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
-    AvailabilityResponse:
+    SaveFieldResponse:
       properties:
-        dates:
-          items:
-            $ref: '#/components/schemas/AvailabilityDate'
-          type: array
-          maxItems: 64
-          title: Dates
+        status:
+          type: string
+          const: saved
+          title: Status
+          default: saved
       type: object
-      title: AvailabilityResponse
-      description: Available appointment slots grouped by date.
+      title: SaveFieldResponse
+      description: Acknowledgement returned when a field is auto-saved.
+    AvailabilityDate:
+      properties:
+        date:
+          type: string
+          maxLength: 16
+          title: Date
+        slots:
+          items:
+            $ref: '#/components/schemas/AvailabilitySlot'
+          type: array
+          maxItems: 200
+          title: Slots
+      type: object
+      required:
+      - date
+      title: AvailabilityDate
+    LookupResponse:
+      properties:
+        results:
+          items:
+            additionalProperties: true
+            type: object
+          type: array
+          maxItems: 200
+          title: Results
+      type: object
+      title: LookupResponse
+      description: Autocompletion results for a surface lookup field.
     ValidationError:
       properties:
         loc:
@@ -569,83 +596,6 @@ components:
       - msg
       - type
       title: ValidationError
-    FieldSaveRequest:
-      properties:
-        value:
-          title: Value
-          description: The field value to save
-      type: object
-      required:
-      - value
-      title: FieldSaveRequest
-    BookingRequest:
-      properties:
-        slot_id:
-          type: string
-          maxLength: 256
-          minLength: 1
-          title: Slot Id
-          description: The FHIR Slot ID to book
-      type: object
-      required:
-      - slot_id
-      title: BookingRequest
-    HealFieldRequest:
-      properties:
-        key:
-          type: string
-          maxLength: 128
-          minLength: 1
-          title: Key
-        value:
-          type: string
-          maxLength: 2000
-          minLength: 1
-          title: Value
-        field_type:
-          type: string
-          maxLength: 32
-          title: Field Type
-        label:
-          type: string
-          maxLength: 256
-          title: Label
-        sensitive:
-          type: boolean
-          title: Sensitive
-          default: false
-        context:
-          additionalProperties: true
-          type: object
-          title: Context
-      type: object
-      required:
-      - key
-      - value
-      - field_type
-      - label
-      title: HealFieldRequest
-    OcrRequest:
-      properties:
-        image:
-          type: string
-          maxLength: 10000000
-          minLength: 1
-          title: Image
-          description: Base64-encoded image data
-        target_fields:
-          anyOf:
-          - items:
-              type: string
-            type: array
-            maxItems: 50
-          - type: 'null'
-          title: Target Fields
-          description: Optional list of field keys to extract
-      type: object
-      required:
-      - image
-      title: OcrRequest
     PatientSurfaceSpec:
       properties:
         title:
@@ -726,62 +676,15 @@ components:
         force FastAPI to namespace both classes and rename the existing
 
         ``SurfaceSpec`` schema in the committed openapi.json).'
-    SurfaceSpecResponse:
+    FieldSaveRequest:
       properties:
-        surface_id:
-          anyOf:
-          - type: string
-            maxLength: 64
-          - type: 'null'
-          title: Surface Id
-        entity_id:
-          anyOf:
-          - type: string
-            maxLength: 64
-          - type: 'null'
-          title: Entity Id
-        status:
-          anyOf:
-          - type: string
-            maxLength: 64
-          - type: 'null'
-          title: Status
-        spec:
-          $ref: '#/components/schemas/PatientSurfaceSpec'
-        saved_values:
-          additionalProperties: true
-          type: object
-          title: Saved Values
+        value:
+          title: Value
+          description: The field value to save
       type: object
       required:
-      - spec
-      title: SurfaceSpecResponse
-      description: Surface render bundle returned to forms-app SSR.
-    AvailabilityDate:
-      properties:
-        date:
-          type: string
-          maxLength: 16
-          title: Date
-        slots:
-          items:
-            $ref: '#/components/schemas/AvailabilitySlot'
-          type: array
-          maxItems: 200
-          title: Slots
-      type: object
-      required:
-      - date
-      title: AvailabilityDate
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
+      - value
+      title: FieldSaveRequest
     AvailabilitySlot:
       properties:
         id:
@@ -808,6 +711,54 @@ components:
       - start
       - end
       title: AvailabilitySlot
+    BookingRequest:
+      properties:
+        slot_id:
+          type: string
+          maxLength: 256
+          minLength: 1
+          title: Slot Id
+          description: The FHIR Slot ID to book
+      type: object
+      required:
+      - slot_id
+      title: BookingRequest
+    OcrResponse:
+      properties:
+        extracted_fields:
+          additionalProperties: true
+          type: object
+          title: Extracted Fields
+        confidence:
+          type: number
+          maximum: 1.0
+          minimum: 0.0
+          title: Confidence
+      type: object
+      required:
+      - confidence
+      title: OcrResponse
+      description: Structured field extraction result for an uploaded image.
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    AvailabilityResponse:
+      properties:
+        dates:
+          items:
+            $ref: '#/components/schemas/AvailabilityDate'
+          type: array
+          maxItems: 64
+          title: Dates
+      type: object
+      title: AvailabilityResponse
+      description: Available appointment slots grouped by date.
     HealFieldResponse:
       properties:
         corrected_value:
@@ -830,28 +781,6 @@ components:
       - corrected_value
       - confidence
       title: HealFieldResponse
-    LookupResponse:
-      properties:
-        results:
-          items:
-            additionalProperties: true
-            type: object
-          type: array
-          maxItems: 200
-          title: Results
-      type: object
-      title: LookupResponse
-      description: Autocompletion results for a surface lookup field.
-    SaveFieldResponse:
-      properties:
-        status:
-          type: string
-          const: saved
-          title: Status
-          default: saved
-      type: object
-      title: SaveFieldResponse
-      description: Acknowledgement returned when a field is auto-saved.
     SurfaceErrorResponse:
       properties:
         error_code:
@@ -894,22 +823,41 @@ components:
         validator. ``details`` is set when a request body fails server-side
 
         validation.'
-    OcrResponse:
+    HealFieldRequest:
       properties:
-        extracted_fields:
+        key:
+          type: string
+          maxLength: 128
+          minLength: 1
+          title: Key
+        value:
+          type: string
+          maxLength: 2000
+          minLength: 1
+          title: Value
+        field_type:
+          type: string
+          maxLength: 32
+          title: Field Type
+        label:
+          type: string
+          maxLength: 256
+          title: Label
+        sensitive:
+          type: boolean
+          title: Sensitive
+          default: false
+        context:
           additionalProperties: true
           type: object
-          title: Extracted Fields
-        confidence:
-          type: number
-          maximum: 1.0
-          minimum: 0.0
-          title: Confidence
+          title: Context
       type: object
       required:
-      - confidence
-      title: OcrResponse
-      description: Structured field extraction result for an uploaded image.
+      - key
+      - value
+      - field_type
+      - label
+      title: HealFieldRequest
     BookingResponse:
       properties:
         status:
@@ -932,6 +880,58 @@ components:
       - slot_id
       title: BookingResponse
       description: Acknowledgement returned when a booking request is accepted.
+    OcrRequest:
+      properties:
+        image:
+          type: string
+          maxLength: 10000000
+          minLength: 1
+          title: Image
+          description: Base64-encoded image data
+        target_fields:
+          anyOf:
+          - items:
+              type: string
+            type: array
+            maxItems: 50
+          - type: 'null'
+          title: Target Fields
+          description: Optional list of field keys to extract
+      type: object
+      required:
+      - image
+      title: OcrRequest
+    SurfaceSpecResponse:
+      properties:
+        surface_id:
+          anyOf:
+          - type: string
+            maxLength: 64
+          - type: 'null'
+          title: Surface Id
+        entity_id:
+          anyOf:
+          - type: string
+            maxLength: 64
+          - type: 'null'
+          title: Entity Id
+        status:
+          anyOf:
+          - type: string
+            maxLength: 64
+          - type: 'null'
+          title: Status
+        spec:
+          $ref: '#/components/schemas/PatientSurfaceSpec'
+        saved_values:
+          additionalProperties: true
+          type: object
+          title: Saved Values
+      type: object
+      required:
+      - spec
+      title: SurfaceSpecResponse
+      description: Surface render bundle returned to forms-app SSR.
   securitySchemes:
     BearerAuth:
       type: http

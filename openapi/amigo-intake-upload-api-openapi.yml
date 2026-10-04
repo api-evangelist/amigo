@@ -105,6 +105,9 @@ paths:
           description: Rate limited or upload limit reached
 components:
   schemas:
+    DescriptionString:
+      type: string
+      maxLength: 2000
     ValidationError:
       properties:
         loc:
@@ -131,6 +134,35 @@ components:
       - msg
       - type
       title: ValidationError
+    LinkInfoResponse:
+      properties:
+        display_name:
+          $ref: '#/components/schemas/DescriptionString'
+          description: Human-readable display name (falls back to customer slug).
+        customer_slug:
+          type: string
+          maxLength: 128
+          title: Customer Slug
+          description: Stable URL-safe customer identifier.
+        max_upload_bytes:
+          type: integer
+          minimum: 0.0
+          title: Max Upload Bytes
+          description: Maximum allowed upload size in bytes.
+        allowed_content_types:
+          items:
+            type: string
+          type: array
+          maxItems: 64
+          title: Allowed Content Types
+          description: Allowed Content-Type values for uploads, sorted lexicographically.
+      type: object
+      required:
+      - display_name
+      - customer_slug
+      - max_upload_bytes
+      title: LinkInfoResponse
+      description: Public metadata for an intake upload link, returned to the forms app.
     UploadDuplicateInfo:
       properties:
         id:
@@ -149,6 +181,37 @@ components:
       - received_at
       title: UploadDuplicateInfo
       description: Pointer to an existing upload row when content-hash dedup fires.
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    LinkErrorResponse:
+      properties:
+        error_code:
+          type: string
+          enum:
+          - invalid_token
+          - link_not_found
+          - link_expired
+          - link_exhausted
+          title: Error Code
+          description: Machine-readable error code.
+        message:
+          type: string
+          maxLength: 512
+          title: Message
+          description: Human-readable error message.
+      type: object
+      required:
+      - error_code
+      - message
+      title: LinkErrorResponse
+      description: Error envelope returned for token / link validation failures.
     UploadFileResponse:
       properties:
         id:
@@ -190,69 +253,6 @@ components:
       - scan_status
       title: UploadFileResponse
       description: Receipt for a successful upload via an intake link.
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
-    LinkErrorResponse:
-      properties:
-        error_code:
-          type: string
-          enum:
-          - invalid_token
-          - link_not_found
-          - link_expired
-          - link_exhausted
-          title: Error Code
-          description: Machine-readable error code.
-        message:
-          type: string
-          maxLength: 512
-          title: Message
-          description: Human-readable error message.
-      type: object
-      required:
-      - error_code
-      - message
-      title: LinkErrorResponse
-      description: Error envelope returned for token / link validation failures.
-    LinkInfoResponse:
-      properties:
-        display_name:
-          $ref: '#/components/schemas/DescriptionString'
-          description: Human-readable display name (falls back to customer slug).
-        customer_slug:
-          type: string
-          maxLength: 128
-          title: Customer Slug
-          description: Stable URL-safe customer identifier.
-        max_upload_bytes:
-          type: integer
-          minimum: 0.0
-          title: Max Upload Bytes
-          description: Maximum allowed upload size in bytes.
-        allowed_content_types:
-          items:
-            type: string
-          type: array
-          maxItems: 64
-          title: Allowed Content Types
-          description: Allowed Content-Type values for uploads, sorted lexicographically.
-      type: object
-      required:
-      - display_name
-      - customer_slug
-      - max_upload_bytes
-      title: LinkInfoResponse
-      description: Public metadata for an intake upload link, returned to the forms app.
-    DescriptionString:
-      type: string
-      maxLength: 2000
   securitySchemes:
     BearerAuth:
       type: http

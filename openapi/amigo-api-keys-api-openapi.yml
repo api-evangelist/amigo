@@ -209,32 +209,6 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
-    ValidationError:
-      properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-        input:
-          title: Input
-        ctx:
-          type: object
-          title: Context
-      type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
     CreateApiKeyResponse:
       properties:
         key_id:
@@ -283,6 +257,105 @@ components:
       - created_by_entity_id
       - created_by_credential_id
       title: CreateApiKeyResponse
+    PermissionCatalogResponse:
+      properties:
+        roles:
+          items:
+            $ref: '#/components/schemas/RoleEntry'
+          type: array
+          title: Roles
+        permissions:
+          items:
+            $ref: '#/components/schemas/PermissionEntry'
+          type: array
+          title: Permissions
+      type: object
+      required:
+      - roles
+      - permissions
+      title: PermissionCatalogResponse
+      description: 'The authoritative role→permission model for API-key creation.
+
+
+        Serves the server-side source of truth (``DEFAULT_ROLE_DEFINITIONS``) so
+
+        clients (console, SDK) stop hand-copying the matrix and drifting out of
+
+        sync — a drift previously shipped `Data:Query` as a viewer default and
+
+        made the default create flow 422. Human-facing labels/descriptions for
+
+        individual permissions stay client-side (pure presentation); this payload
+
+        is authorization truth only.'
+    PermissionEntry:
+      properties:
+        name:
+          type: string
+          title: Name
+        namespace:
+          type: string
+          title: Namespace
+        action:
+          type: string
+          title: Action
+      type: object
+      required:
+      - name
+      - namespace
+      - action
+      title: PermissionEntry
+    PaginatedResponse_ApiKeyResponse_:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/ApiKeyResponse'
+          type: array
+          title: Items
+        has_more:
+          type: boolean
+          title: Has More
+        continuation_token:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Continuation Token
+        total:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Total
+      type: object
+      required:
+      - items
+      - has_more
+      title: PaginatedResponse[ApiKeyResponse]
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
     ApiKeyResponse:
       properties:
         id:
@@ -354,67 +427,6 @@ components:
       - created_at
       - updated_at
       title: ApiKeyResponse
-    PermissionEntry:
-      properties:
-        name:
-          type: string
-          title: Name
-        namespace:
-          type: string
-          title: Namespace
-        action:
-          type: string
-          title: Action
-      type: object
-      required:
-      - name
-      - namespace
-      - action
-      title: PermissionEntry
-    NameString:
-      type: string
-      maxLength: 256
-      minLength: 1
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
-    PermissionCatalogResponse:
-      properties:
-        roles:
-          items:
-            $ref: '#/components/schemas/RoleEntry'
-          type: array
-          title: Roles
-        permissions:
-          items:
-            $ref: '#/components/schemas/PermissionEntry'
-          type: array
-          title: Permissions
-      type: object
-      required:
-      - roles
-      - permissions
-      title: PermissionCatalogResponse
-      description: 'The authoritative role→permission model for API-key creation.
-
-
-        Serves the server-side source of truth (``DEFAULT_ROLE_DEFINITIONS``) so
-
-        clients (console, SDK) stop hand-copying the matrix and drifting out of
-
-        sync — a drift previously shipped `Data:Query` as a viewer default and
-
-        made the default create flow 422. Human-facing labels/descriptions for
-
-        individual permissions stay client-side (pure presentation); this payload
-
-        is authorization truth only.'
     CreateApiKeyRequest:
       properties:
         name:
@@ -442,42 +454,6 @@ components:
       required:
       - duration_days
       title: CreateApiKeyRequest
-    RotateApiKeyRequest:
-      properties:
-        duration_days:
-          type: integer
-          maximum: 90.0
-          minimum: 1.0
-          title: Duration Days
-      type: object
-      required:
-      - duration_days
-      title: RotateApiKeyRequest
-    PaginatedResponse_ApiKeyResponse_:
-      properties:
-        items:
-          items:
-            $ref: '#/components/schemas/ApiKeyResponse'
-          type: array
-          title: Items
-        has_more:
-          type: boolean
-          title: Has More
-        continuation_token:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Continuation Token
-        total:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Total
-      type: object
-      required:
-      - items
-      - has_more
-      title: PaginatedResponse[ApiKeyResponse]
     RoleEntry:
       properties:
         name:
@@ -501,6 +477,30 @@ components:
       - description
       - permission_names
       title: RoleEntry
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    RotateApiKeyRequest:
+      properties:
+        duration_days:
+          type: integer
+          maximum: 90.0
+          minimum: 1.0
+          title: Duration Days
+      type: object
+      required:
+      - duration_days
+      title: RotateApiKeyRequest
+    NameString:
+      type: string
+      maxLength: 256
+      minLength: 1
   securitySchemes:
     BearerAuth:
       type: http

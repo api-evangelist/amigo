@@ -818,194 +818,29 @@ paths:
           description: The user has exceeded the rate limit of 50 requests per minute for this endpoint.
 components:
   schemas:
-    UserModel:
+    UserStats:
       properties:
-        content:
-          type: string
-          title: Content
-        insight_ids:
-          items:
-            type: string
-          type: array
-          title: Insight Ids
-        dimensions:
-          items:
-            $ref: '#/components/schemas/UserDimension-Output'
-          type: array
-          title: Dimensions
-      type: object
-      required:
-      - content
-      - insight_ids
-      - dimensions
-      title: UserModel
-    src__app__endpoints__user__get_user_model__Response:
-      properties:
-        user_models:
-          items:
-            $ref: '#/components/schemas/UserModel'
-          type: array
-          title: User Models
-          description: The latest user models for the user.
-        additional_context:
-          items:
-            type: string
-          type: array
-          title: Additional Context
-          description: The additional context for the user.
-      type: object
-      required:
-      - user_models
-      - additional_context
-      title: Response
-    MemoryInstance:
-      properties:
-        id:
-          type: string
-          title: Id
-          description: The identifier of the memory.
-        created_at:
-          type: string
-          format: date-time
-          title: Created At
-          description: The time at which this memory was created.
-        conversation_id:
-          type: string
-          title: Conversation Id
-          description: The ID of the conversation from where this memory was created.
-        references:
-          items:
-            type: string
-          type: array
-          title: References
-          description: The identifiers of the messages that this memory references.
-        content:
-          type: string
-          title: Content
-          description: The content of the memory.
-        context:
-          type: string
-          title: Context
-          description: The context of the memory.
-      type: object
-      required:
-      - id
-      - created_at
-      - conversation_id
-      - references
-      - content
-      - context
-      title: MemoryInstance
-    src__app__endpoints__user__search_users__Response:
-      properties:
-        users:
-          items:
-            $ref: '#/components/schemas/src__app__endpoints__user__search_users__Response__UserInstance'
-          type: array
-          title: Users
-          description: Users in this organization.
-      type: object
-      required:
-      - users
-      title: Response
-    StrippedNonemptyString_a-z-_____a-z-____0_2____:
-      type: string
-      minLength: 1
-      pattern: ^[a-z-]+( [a-z-]+){0,2}$
-    src__app__endpoints__user__get_users__Response:
-      properties:
-        users:
-          items:
-            $ref: '#/components/schemas/src__app__endpoints__user__get_users__Response__UserInstance'
-          type: array
-          title: Users
-          description: Users in this organization.
-        has_more:
-          type: boolean
-          title: Has More
-          description: Whether there are more users to retrieve.
-        continuation_token:
+        num_conversations:
+          type: integer
+          title: Num Conversations
+          description: The number of conversations the user has created.
+        num_messages:
+          type: integer
+          title: Num Messages
+          description: The number of messages the user has sent and received.
+        last_message_time:
           anyOf:
-          - type: integer
+          - type: string
+            format: date-time
           - type: 'null'
-          title: Continuation Token
-          description: A token to supply to the next request to retrieve the next page of users. Only populated if `has_more` is `True`.
+          title: Last Message Time
+          description: The time of the last message the user sent or received. If `None`, the user hasn't started any conversations.
       type: object
       required:
-      - users
-      - has_more
-      - continuation_token
-      title: Response
-    src__app__endpoints__user__get_users__Response__UserInstance:
-      properties:
-        org_id:
-          type: string
-          title: Org Id
-          description: The ID of the organization that this user belongs to.
-        user_id:
-          type: string
-          title: User Id
-          description: The identifier of the user.
-        first_name:
-          type: string
-          title: First Name
-          description: The first name of the user.
-        last_name:
-          type: string
-          title: Last Name
-          description: The last name of the user.
-        email:
-          type: string
-          title: Email
-          description: Email of the user.
-        user_stats:
-          $ref: '#/components/schemas/UserStats'
-          description: Statistics about the user's usage of the Amigo platform.
-        role:
-          type: string
-          title: Role
-          description: The ID of the role of the user.
-        preferences:
-          $ref: '#/components/schemas/Preferences-Output'
-          description: The preferences of the user.
-        nonsensitive_variables:
-          additionalProperties:
-            type: string
-          type: object
-          title: Nonsensitive Variables
-          description: The user's nonsensitive variables.
-        sensitive_variables:
-          items:
-            type: string
-          type: array
-          title: Sensitive Variables
-          description: The names of the user's sensitive variables. The values of these variables are not retrievable.
-        enable_actions_access:
-          type: boolean
-          title: Enable Actions Access
-          description: Whether the user has access to the actions features.
-      type: object
-      required:
-      - org_id
-      - user_id
-      - first_name
-      - last_name
-      - email
-      - user_stats
-      - role
-      - preferences
-      - nonsensitive_variables
-      - sensitive_variables
-      - enable_actions_access
-      title: UserInstance
-    StrippedNonemptyString_a-z___a-z0-9___lambda__at_0xffff718d0a90__:
-      type: string
-      minLength: 1
-      pattern: ^[a-z_][a-z0-9_]+$
-    StrippedNonemptyString_a-z___a-z0-9_______:
-      type: string
-      minLength: 1
-      pattern: ^[a-z_][a-z0-9_]+$
+      - num_conversations
+      - num_messages
+      - last_message_time
+      title: UserStats
     src__app__endpoints__user__create_invited_user__Request__Preferences:
       properties:
         enable_response_recommendation:
@@ -9558,138 +9393,145 @@ components:
           default: []
       type: object
       title: Preferences
-    src__app__endpoints__user__create_invited_user__Response:
+    StrippedNonemptyString_a-z___a-z0-9___lambda__at_0xffff718d0a90__:
+      type: string
+      minLength: 1
+      pattern: ^[a-z_][a-z0-9_]+$
+    src__app__endpoints__user__get_users__Response__UserInstance:
       properties:
+        org_id:
+          type: string
+          title: Org Id
+          description: The ID of the organization that this user belongs to.
         user_id:
           type: string
           title: User Id
-          description: The identifier of the new user.
-        verify_link:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Verify Link
-          description: The link sent to the user. Only present if `login_link` is `True` in the request.
-      type: object
-      required:
-      - user_id
-      - verify_link
-      title: Response
-    _NotSet:
-      properties: {}
-      type: object
-      title: _NotSet
-      description: A specific type to indicate that a field is not set in the request.
-    src__app__endpoints__user__modify_user_variables__Request:
-      properties:
-        upserts:
-          items:
-            $ref: '#/components/schemas/UpsertRequest'
-          type: array
-          title: Upserts
-          description: A list of variables to upsert.
-          default: []
-        deletes:
-          items:
-            $ref: '#/components/schemas/src__app__endpoints__user__modify_user_variables__Request__DeleteRequest'
-          type: array
-          title: Deletes
-          description: A list of variables to delete.
-          default: []
-      type: object
-      title: Request
-    UserStats:
-      properties:
-        num_conversations:
-          type: integer
-          title: Num Conversations
-          description: The number of conversations the user has created.
-        num_messages:
-          type: integer
-          title: Num Messages
-          description: The number of messages the user has sent and received.
-        last_message_time:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Last Message Time
-          description: The time of the last message the user sent or received. If `None`, the user hasn't started any conversations.
-      type: object
-      required:
-      - num_conversations
-      - num_messages
-      - last_message_time
-      title: UserStats
-    src__app__endpoints__user__create_invited_user__Request:
-      properties:
+          description: The identifier of the user.
         first_name:
-          $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
+          type: string
+          title: First Name
           description: The first name of the user.
         last_name:
-          $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
+          type: string
+          title: Last Name
           description: The last name of the user.
         email:
           type: string
-          format: email
           title: Email
-          description: The email of the user. This email uniquely identifies the user in the organization.
-        login_link:
-          anyOf:
-          - type: string
-            maxLength: 2083
-            minLength: 1
-            format: uri
-          - type: 'null'
-          title: Login Link
-          description: 'If specified, this link will be sent to the user''s email as the link to start their Amigo experience. For Amigo''s frontend, this would be the user''s
-
-            organization''s login page with their email already filled in.'
-        role_name:
+          description: Email of the user.
+        user_stats:
+          $ref: '#/components/schemas/UserStats'
+          description: Statistics about the user's usage of the Amigo platform.
+        role:
           type: string
-          title: Role Name
-          description: The role to assign to the user. Only roles that are returned from the [Get roles](get-roles) endpoint are allowed.
-        nonsensitive_user_variables:
+          title: Role
+          description: The ID of the role of the user.
+        preferences:
+          $ref: '#/components/schemas/Preferences-Output'
+          description: The preferences of the user.
+        nonsensitive_variables:
           additionalProperties:
             type: string
-          propertyNames:
-            $ref: '#/components/schemas/StrippedNonemptyString_a-z___a-z0-9___lambda__at_0xffff718d0a90__'
           type: object
-          maxProperties: 19
-          title: Nonsensitive User Variables
-          description: The nonsensitive user variables to provide to the tool during invocation.
-          default: {}
-        sensitive_user_variables:
-          additionalProperties:
+          title: Nonsensitive Variables
+          description: The user's nonsensitive variables.
+        sensitive_variables:
+          items:
             type: string
-          propertyNames:
-            $ref: '#/components/schemas/StrippedNonemptyString_a-z___a-z0-9_______'
-          type: object
-          maxProperties: 20
-          title: Sensitive User Variables
-          description: The sensitive user variables to provide to the tool during invocation.
-          default: {}
-        user_preferences:
-          anyOf:
-          - $ref: '#/components/schemas/src__app__endpoints__user__create_invited_user__Request__Preferences'
-          - type: 'null'
-          description: If specified, the user's preferences will be set to this value instead of the organization default.
+          type: array
+          title: Sensitive Variables
+          description: The names of the user's sensitive variables. The values of these variables are not retrievable.
+        enable_actions_access:
+          type: boolean
+          title: Enable Actions Access
+          description: Whether the user has access to the actions features.
       type: object
       required:
+      - org_id
+      - user_id
       - first_name
       - last_name
       - email
-      - role_name
-      title: Request
-    src__app__endpoints__user__modify_user_variables__Request__DeleteRequest:
+      - user_stats
+      - role
+      - preferences
+      - nonsensitive_variables
+      - sensitive_variables
+      - enable_actions_access
+      title: UserInstance
+    src__app__endpoints__user__sign_in_with_api_key__Response:
       properties:
-        name:
-          $ref: '#/components/schemas/StrippedNonemptyString_a-z___a-z0-9_______'
-          description: The name of the variable to delete.
+        id_token:
+          type: string
+          title: Id Token
+          description: The ID token that should be attached to the Authorization header for future API calls.
+        expires_at:
+          type: string
+          format: date-time
+          title: Expires At
+          description: The time at which the token expires.
       type: object
       required:
-      - name
-      title: DeleteRequest
+      - id_token
+      - expires_at
+      title: SigninWithAPIKeyResponse
+    src__app__endpoints__user__search_users__Response__UserInstance:
+      properties:
+        org_id:
+          type: string
+          title: Org Id
+          description: The ID of the organization that this user belongs to.
+        user_id:
+          type: string
+          title: User Id
+          description: The identifier of the user.
+        first_name:
+          type: string
+          title: First Name
+          description: The first name of the user.
+        last_name:
+          type: string
+          title: Last Name
+          description: The last name of the user.
+        email:
+          type: string
+          title: Email
+          description: Email of the user.
+        user_stats:
+          $ref: '#/components/schemas/UserStats'
+          description: Statistics about the user's usage of the Amigo platform.
+        role:
+          type: string
+          title: Role
+          description: The ID of the role of the user.
+        preferences:
+          $ref: '#/components/schemas/Preferences-Output'
+          description: The preferences of the user.
+        nonsensitive_variables:
+          additionalProperties:
+            type: string
+          type: object
+          title: Nonsensitive Variables
+          description: The user's nonsensitive variables.
+        sensitive_variables:
+          items:
+            type: string
+          type: array
+          title: Sensitive Variables
+          description: The names of the user's sensitive variables. The values of these variables are not retrievable.
+      type: object
+      required:
+      - org_id
+      - user_id
+      - first_name
+      - last_name
+      - email
+      - user_stats
+      - role
+      - preferences
+      - nonsensitive_variables
+      - sensitive_variables
+      title: UserInstance
     src__app__endpoints__user__update_user_info__Request:
       properties:
         first_name:
@@ -18273,6 +18115,260 @@ components:
           description: A list of keyterms that are easy to get wrong during audio transcriptions that tend to occur commonly in audio sessions using this service. If `null`, the keyterms are not modified.
       type: object
       title: Request
+    src__app__endpoints__user__search_users__Response:
+      properties:
+        users:
+          items:
+            $ref: '#/components/schemas/src__app__endpoints__user__search_users__Response__UserInstance'
+          type: array
+          title: Users
+          description: Users in this organization.
+      type: object
+      required:
+      - users
+      title: Response
+    src__app__endpoints__user__get_memories__Response:
+      properties:
+        memories:
+          items:
+            $ref: '#/components/schemas/MemoryInstance'
+          type: array
+          title: Memories
+          description: The memories satisfying the filters.
+        has_more:
+          type: boolean
+          title: Has More
+          description: Whether there are more memories to retrieve.
+        continuation_token:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Continuation Token
+          description: A token to supply to the next request to retrieve the next page of memories. Only populated if `has_more` is `True`.
+      type: object
+      required:
+      - memories
+      - has_more
+      - continuation_token
+      title: Response
+    src__app__endpoints__user__get_users__Response:
+      properties:
+        users:
+          items:
+            $ref: '#/components/schemas/src__app__endpoints__user__get_users__Response__UserInstance'
+          type: array
+          title: Users
+          description: Users in this organization.
+        has_more:
+          type: boolean
+          title: Has More
+          description: Whether there are more users to retrieve.
+        continuation_token:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Continuation Token
+          description: A token to supply to the next request to retrieve the next page of users. Only populated if `has_more` is `True`.
+      type: object
+      required:
+      - users
+      - has_more
+      - continuation_token
+      title: Response
+    StrippedNonemptyString_a-z-_____a-z-____0_2____:
+      type: string
+      minLength: 1
+      pattern: ^[a-z-]+( [a-z-]+){0,2}$
+    UserModel:
+      properties:
+        content:
+          type: string
+          title: Content
+        insight_ids:
+          items:
+            type: string
+          type: array
+          title: Insight Ids
+        dimensions:
+          items:
+            $ref: '#/components/schemas/UserDimension-Output'
+          type: array
+          title: Dimensions
+      type: object
+      required:
+      - content
+      - insight_ids
+      - dimensions
+      title: UserModel
+    src__app__endpoints__user__create_invited_user__Request:
+      properties:
+        first_name:
+          $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
+          description: The first name of the user.
+        last_name:
+          $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
+          description: The last name of the user.
+        email:
+          type: string
+          format: email
+          title: Email
+          description: The email of the user. This email uniquely identifies the user in the organization.
+        login_link:
+          anyOf:
+          - type: string
+            maxLength: 2083
+            minLength: 1
+            format: uri
+          - type: 'null'
+          title: Login Link
+          description: 'If specified, this link will be sent to the user''s email as the link to start their Amigo experience. For Amigo''s frontend, this would be the user''s
+
+            organization''s login page with their email already filled in.'
+        role_name:
+          type: string
+          title: Role Name
+          description: The role to assign to the user. Only roles that are returned from the [Get roles](get-roles) endpoint are allowed.
+        nonsensitive_user_variables:
+          additionalProperties:
+            type: string
+          propertyNames:
+            $ref: '#/components/schemas/StrippedNonemptyString_a-z___a-z0-9___lambda__at_0xffff718d0a90__'
+          type: object
+          maxProperties: 19
+          title: Nonsensitive User Variables
+          description: The nonsensitive user variables to provide to the tool during invocation.
+          default: {}
+        sensitive_user_variables:
+          additionalProperties:
+            type: string
+          propertyNames:
+            $ref: '#/components/schemas/StrippedNonemptyString_a-z___a-z0-9_______'
+          type: object
+          maxProperties: 20
+          title: Sensitive User Variables
+          description: The sensitive user variables to provide to the tool during invocation.
+          default: {}
+        user_preferences:
+          anyOf:
+          - $ref: '#/components/schemas/src__app__endpoints__user__create_invited_user__Request__Preferences'
+          - type: 'null'
+          description: If specified, the user's preferences will be set to this value instead of the organization default.
+      type: object
+      required:
+      - first_name
+      - last_name
+      - email
+      - role_name
+      title: Request
+    _NotSet:
+      properties: {}
+      type: object
+      title: _NotSet
+      description: A specific type to indicate that a field is not set in the request.
+    MemoryInstance:
+      properties:
+        id:
+          type: string
+          title: Id
+          description: The identifier of the memory.
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+          description: The time at which this memory was created.
+        conversation_id:
+          type: string
+          title: Conversation Id
+          description: The ID of the conversation from where this memory was created.
+        references:
+          items:
+            type: string
+          type: array
+          title: References
+          description: The identifiers of the messages that this memory references.
+        content:
+          type: string
+          title: Content
+          description: The content of the memory.
+        context:
+          type: string
+          title: Context
+          description: The context of the memory.
+      type: object
+      required:
+      - id
+      - created_at
+      - conversation_id
+      - references
+      - content
+      - context
+      title: MemoryInstance
+    UpsertRequest:
+      properties:
+        name:
+          $ref: '#/components/schemas/StrippedNonemptyString_a-z___a-z0-9_______'
+          description: The name of the variable to upsert.
+        value:
+          type: string
+          maxLength: 255
+          minLength: 1
+          title: Value
+          description: The value of the variable to upsert.
+        is_secret:
+          type: boolean
+          title: Is Secret
+          description: Whether the variable is a secret.
+      type: object
+      required:
+      - name
+      - value
+      - is_secret
+      title: UpsertRequest
+    src__app__endpoints__user__create_invited_user__Response:
+      properties:
+        user_id:
+          type: string
+          title: User Id
+          description: The identifier of the new user.
+        verify_link:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Verify Link
+          description: The link sent to the user. Only present if `login_link` is `True` in the request.
+      type: object
+      required:
+      - user_id
+      - verify_link
+      title: Response
+    src__app__endpoints__user__modify_user_variables__Request__DeleteRequest:
+      properties:
+        name:
+          $ref: '#/components/schemas/StrippedNonemptyString_a-z___a-z0-9_______'
+          description: The name of the variable to delete.
+      type: object
+      required:
+      - name
+      title: DeleteRequest
+    src__app__endpoints__user__get_user_model__Response:
+      properties:
+        user_models:
+          items:
+            $ref: '#/components/schemas/UserModel'
+          type: array
+          title: User Models
+          description: The latest user models for the user.
+        additional_context:
+          items:
+            type: string
+          type: array
+          title: Additional Context
+          description: The additional context for the user.
+      type: object
+      required:
+      - user_models
+      - additional_context
+      title: Response
     Preferences-Output:
       properties:
         enable_response_recommendation:
@@ -18314,51 +18410,31 @@ components:
       type: object
       title: Preferences
       description: Preferences that the user can set to customize their experience.
-    UpsertRequest:
+    amigo_lib__pydantic__base_model__StrippedNonemptyString__1:
+      type: string
+      minLength: 1
+    src__app__endpoints__user__modify_user_variables__Request:
       properties:
-        name:
-          $ref: '#/components/schemas/StrippedNonemptyString_a-z___a-z0-9_______'
-          description: The name of the variable to upsert.
-        value:
-          type: string
-          maxLength: 255
-          minLength: 1
-          title: Value
-          description: The value of the variable to upsert.
-        is_secret:
-          type: boolean
-          title: Is Secret
-          description: Whether the variable is a secret.
-      type: object
-      required:
-      - name
-      - value
-      - is_secret
-      title: UpsertRequest
-    src__app__endpoints__user__get_memories__Response:
-      properties:
-        memories:
+        upserts:
           items:
-            $ref: '#/components/schemas/MemoryInstance'
+            $ref: '#/components/schemas/UpsertRequest'
           type: array
-          title: Memories
-          description: The memories satisfying the filters.
-        has_more:
-          type: boolean
-          title: Has More
-          description: Whether there are more memories to retrieve.
-        continuation_token:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Continuation Token
-          description: A token to supply to the next request to retrieve the next page of memories. Only populated if `has_more` is `True`.
+          title: Upserts
+          description: A list of variables to upsert.
+          default: []
+        deletes:
+          items:
+            $ref: '#/components/schemas/src__app__endpoints__user__modify_user_variables__Request__DeleteRequest'
+          type: array
+          title: Deletes
+          description: A list of variables to delete.
+          default: []
       type: object
-      required:
-      - memories
-      - has_more
-      - continuation_token
-      title: Response
+      title: Request
+    StrippedNonemptyString_a-z___a-z0-9_______:
+      type: string
+      minLength: 1
+      pattern: ^[a-z_][a-z0-9_]+$
     src__app__endpoints__user__sign_in_with_email__Request:
       properties:
         redirect_link:
@@ -18377,82 +18453,6 @@ components:
       - redirect_link
       - email
       title: Request
-    amigo_lib__pydantic__base_model__StrippedNonemptyString__1:
-      type: string
-      minLength: 1
-    src__app__endpoints__user__search_users__Response__UserInstance:
-      properties:
-        org_id:
-          type: string
-          title: Org Id
-          description: The ID of the organization that this user belongs to.
-        user_id:
-          type: string
-          title: User Id
-          description: The identifier of the user.
-        first_name:
-          type: string
-          title: First Name
-          description: The first name of the user.
-        last_name:
-          type: string
-          title: Last Name
-          description: The last name of the user.
-        email:
-          type: string
-          title: Email
-          description: Email of the user.
-        user_stats:
-          $ref: '#/components/schemas/UserStats'
-          description: Statistics about the user's usage of the Amigo platform.
-        role:
-          type: string
-          title: Role
-          description: The ID of the role of the user.
-        preferences:
-          $ref: '#/components/schemas/Preferences-Output'
-          description: The preferences of the user.
-        nonsensitive_variables:
-          additionalProperties:
-            type: string
-          type: object
-          title: Nonsensitive Variables
-          description: The user's nonsensitive variables.
-        sensitive_variables:
-          items:
-            type: string
-          type: array
-          title: Sensitive Variables
-          description: The names of the user's sensitive variables. The values of these variables are not retrievable.
-      type: object
-      required:
-      - org_id
-      - user_id
-      - first_name
-      - last_name
-      - email
-      - user_stats
-      - role
-      - preferences
-      - nonsensitive_variables
-      - sensitive_variables
-      title: UserInstance
-    src__app__endpoints__user__sign_in_with_api_key__Response:
-      properties:
-        id_token:
-          type: string
-          title: Id Token
-          description: The ID token that should be attached to the Authorization header for future API calls.
-        expires_at:
-          type: string
-          format: date-time
-          title: Expires At
-          description: The time at which the token expires.
-      type: object
-      required:
-      - id_token
-      - expires_at
-      title: SigninWithAPIKeyResponse
     UserDimension-Output:
       properties:
         description:

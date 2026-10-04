@@ -392,106 +392,54 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
-    LanguageProviderEntry:
+    UpsertVersionSetRequest:
       properties:
-        provider:
-          type: string
-          enum:
-          - cartesia
-          - elevenlabs
-          - groq
-          title: Provider
-        config:
-          additionalProperties: true
-          type: object
-          maxProperties: 20
-          title: Config
+        version_set:
+          $ref: '#/components/schemas/VersionSet-Input'
       type: object
       required:
-      - provider
-      title: LanguageProviderEntry
-      description: Per-language TTS provider configuration.
-    UpdateServiceRequest:
+      - version_set
+      title: UpsertVersionSetRequest
+    ValidationError:
       properties:
-        name:
-          anyOf:
-          - $ref: '#/components/schemas/NameString'
-          - type: 'null'
-        description:
-          anyOf:
-          - $ref: '#/components/schemas/DescriptionString'
-          - type: 'null'
-        agent_id:
-          anyOf:
-          - type: string
-            format: uuid
-          - type: 'null'
-          title: Agent Id
-        context_graph_id:
-          anyOf:
-          - type: string
-            format: uuid
-          - type: 'null'
-          title: Context Graph Id
-        keyterms:
-          anyOf:
-          - items:
-              type: string
-              maxLength: 128
-              minLength: 1
-            type: array
-            maxItems: 500
-          - type: 'null'
-          title: Keyterms
-        is_active:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          title: Is Active
-        version_sets:
-          anyOf:
-          - additionalProperties:
-              $ref: '#/components/schemas/VersionSet-Input'
-            type: object
-          - type: 'null'
-          title: Version Sets
-        tags:
-          anyOf:
-          - items:
-              $ref: '#/components/schemas/ServiceTag'
-            type: array
-            maxItems: 50
-          - type: 'null'
-          title: Tags
-        tool_capacity:
-          anyOf:
-          - type: integer
-            maximum: 10.0
-            minimum: 1.0
-          - type: 'null'
-          title: Tool Capacity
-        channel_type:
-          anyOf:
-          - type: string
-            enum:
-            - voice
-            - text
-          - type: 'null'
-          title: Channel Type
-        environment:
-          anyOf:
-          - type: string
-            enum:
-            - sandbox
-            - production
-          - type: 'null'
-          title: Environment
-        voice_config:
-          anyOf:
-          - $ref: '#/components/schemas/ServiceVoiceConfig-Input'
-          - type: 'null'
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
       type: object
-      title: UpdateServiceRequest
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    TextTurnResponse:
+      properties:
+        text:
+          type: string
+          maxLength: 8192
+          title: Text
+      type: object
+      required:
+      - text
+      title: TextTurnResponse
+      description: 'Response body — the agent''s text reply.
+
+
+        Returned only on 200; 204 indicates the engine elected silence.'
     VersionSet-Input:
       properties:
         agent_version_number:
@@ -519,6 +467,10 @@ components:
       type: object
       title: VersionSet
       description: Pins agent, state machine, and LLM model versions for a service.
+    PhoneE164:
+      type: string
+      maxLength: 16
+      minLength: 2
     CreateServiceRequest:
       properties:
         name:
@@ -588,35 +540,10 @@ components:
       - agent_id
       - context_graph_id
       title: CreateServiceRequest
-    DescriptionString:
+    SearchString:
       type: string
-      maxLength: 2000
-    ValidationError:
-      properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-        input:
-          title: Input
-        ctx:
-          type: object
-          title: Context
-      type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
+      maxLength: 200
+      minLength: 1
     ServiceResponse:
       properties:
         id:
@@ -718,231 +645,46 @@ components:
       - created_at
       - updated_at
       title: ServiceResponse
-    TextTurnRequest:
+    ServiceTag:
       properties:
-        phone_number:
+        key:
           type: string
-          maxLength: 16
-          pattern: ^\+[1-9]\d{1,14}$
-          title: Phone Number
-        agent_phone:
-          type: string
-          maxLength: 16
-          pattern: ^\+[1-9]\d{1,14}$
-          title: Agent Phone
-        text:
-          type: string
-          maxLength: 8192
-          minLength: 1
-          title: Text
+          title: Key
+        value:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Value
       type: object
       required:
-      - phone_number
-      - agent_phone
-      - text
-      title: TextTurnRequest
-      description: Request body for ``POST /v1/{ws}/services/{service_id}/text-turn``.
-    NameString:
-      type: string
-      maxLength: 256
-      minLength: 1
-    LLMExperienceControls:
+      - key
+      title: ServiceTag
+    HTTPValidationError:
       properties:
-        verbosity:
-          anyOf:
-          - type: string
-            enum:
-            - low
-            - medium
-            - high
-          - type: 'null'
-          title: Verbosity
-        reasoning_effort:
-          anyOf:
-          - type: string
-            enum:
-            - none
-            - minimal
-            - low
-            - medium
-            - high
-            - xhigh
-          - type: 'null'
-          title: Reasoning Effort
-        temperature:
-          anyOf:
-          - type: number
-            maximum: 2.0
-            minimum: 0.0
-          - type: 'null'
-          title: Temperature
-        top_p:
-          anyOf:
-          - type: number
-            maximum: 1.0
-            minimum: 0.0
-          - type: 'null'
-          title: Top P
-        presence_penalty:
-          anyOf:
-          - type: number
-            maximum: 2.0
-            minimum: -2.0
-          - type: 'null'
-          title: Presence Penalty
-        frequency_penalty:
-          anyOf:
-          - type: number
-            maximum: 2.0
-            minimum: -2.0
-          - type: 'null'
-          title: Frequency Penalty
-        response_format:
-          anyOf:
-          - additionalProperties: true
-            type: object
-          - type: 'null'
-          title: Response Format
-        seed:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Seed
-        stop:
-          anyOf:
-          - type: string
-          - items:
-              type: string
-            type: array
-          - type: 'null'
-          title: Stop
-        logit_bias:
-          anyOf:
-          - additionalProperties:
-              type: number
-              maximum: 100.0
-              minimum: -100.0
-            type: object
-          - type: 'null'
-          title: Logit Bias
-        logprobs:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          title: Logprobs
-        top_logprobs:
-          anyOf:
-          - type: integer
-            maximum: 20.0
-            minimum: 0.0
-          - type: 'null'
-          title: Top Logprobs
-        parallel_tool_calls:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          title: Parallel Tool Calls
-        service_tier:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Service Tier
-        prompt_cache_key:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Prompt Cache Key
-        prompt_cache_retention:
-          anyOf:
-          - type: string
-            enum:
-            - in-memory
-            - 24h
-          - type: 'null'
-          title: Prompt Cache Retention
-        safety_identifier:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Safety Identifier
-        store:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          title: Store
-        metadata:
-          anyOf:
-          - additionalProperties:
-              type: string
-            type: object
-          - type: 'null'
-          title: Metadata
-      additionalProperties: false
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
       type: object
-      title: LLMExperienceControls
-      description: 'First-class chat experience controls for consumer-facing agents.
-
-
-        ``params`` remains available as a provider-specific escape hatch. These
-
-        fields cover the OpenAI Chat Completions controls that most directly shape
-
-        response tone, feel, determinism, latency, and structured output behavior.
-
-        Token budgets are intentionally excluded so version sets do not reintroduce
-
-        accidental response truncation.'
-    ServiceForwardingConfig:
+      title: HTTPValidationError
+    LLMConfig:
       properties:
-        forward_to:
-          $ref: '#/components/schemas/PhoneE164'
-        should_disconnect:
-          type: boolean
-          title: Should Disconnect
-          default: true
-        warm_transfer:
-          type: boolean
-          title: Warm Transfer
-          default: true
+        llm_name:
+          type: string
+          title: Llm Name
+        params:
+          additionalProperties: true
+          type: object
+          title: Params
+        experience_controls:
+          anyOf:
+          - $ref: '#/components/schemas/LLMExperienceControls'
+          - type: 'null'
       type: object
       required:
-      - forward_to
-      title: ServiceForwardingConfig
-      description: 'Per-service call-forwarding destination + transfer mechanism.
-
-
-        Read by the LLM-driven ``forward_call`` tool (tier 3 fallback when the LLM
-
-        doesn''t pass an explicit ``phone_number`` and no EHR location is configured).
-
-
-        Per-service forwarding is a binary presence — set means tier 3 resolves
-
-        to it, None means tier 3 has no static target. (The legacy per-phone
-
-        forwarding shape, with its own ``enabled`` flag, was removed alongside
-
-        the legacy Twilio phone path.)'
-    Body_voice-turn:
-      properties:
-        audio:
-          type: string
-          contentMediaType: application/octet-stream
-          title: Audio
-        phone_number:
-          type: string
-          maxLength: 16
-          pattern: ^\+[1-9]\d{1,14}$
-          title: Phone Number
-      type: object
-      required:
-      - audio
-      - phone_number
-      title: Body_voice-turn
-    SearchString:
-      type: string
-      maxLength: 200
-      minLength: 1
+      - llm_name
+      title: LLMConfig
     PaginatedResponse_ServiceResponse_:
       properties:
         items:
@@ -968,6 +710,126 @@ components:
       - items
       - has_more
       title: PaginatedResponse[ServiceResponse]
+    NameString:
+      type: string
+      maxLength: 256
+      minLength: 1
+    LanguageProviderEntry:
+      properties:
+        provider:
+          type: string
+          enum:
+          - cartesia
+          - elevenlabs
+          - groq
+          title: Provider
+        config:
+          additionalProperties: true
+          type: object
+          maxProperties: 20
+          title: Config
+      type: object
+      required:
+      - provider
+      title: LanguageProviderEntry
+      description: Per-language TTS provider configuration.
+    Body_voice-turn:
+      properties:
+        audio:
+          type: string
+          contentMediaType: application/octet-stream
+          title: Audio
+        phone_number:
+          type: string
+          maxLength: 16
+          pattern: ^\+[1-9]\d{1,14}$
+          title: Phone Number
+      type: object
+      required:
+      - audio
+      - phone_number
+      title: Body_voice-turn
+    UpdateServiceRequest:
+      properties:
+        name:
+          anyOf:
+          - $ref: '#/components/schemas/NameString'
+          - type: 'null'
+        description:
+          anyOf:
+          - $ref: '#/components/schemas/DescriptionString'
+          - type: 'null'
+        agent_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Agent Id
+        context_graph_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Context Graph Id
+        keyterms:
+          anyOf:
+          - items:
+              type: string
+              maxLength: 128
+              minLength: 1
+            type: array
+            maxItems: 500
+          - type: 'null'
+          title: Keyterms
+        is_active:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Active
+        version_sets:
+          anyOf:
+          - additionalProperties:
+              $ref: '#/components/schemas/VersionSet-Input'
+            type: object
+          - type: 'null'
+          title: Version Sets
+        tags:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/ServiceTag'
+            type: array
+            maxItems: 50
+          - type: 'null'
+          title: Tags
+        tool_capacity:
+          anyOf:
+          - type: integer
+            maximum: 10.0
+            minimum: 1.0
+          - type: 'null'
+          title: Tool Capacity
+        channel_type:
+          anyOf:
+          - type: string
+            enum:
+            - voice
+            - text
+          - type: 'null'
+          title: Channel Type
+        environment:
+          anyOf:
+          - type: string
+            enum:
+            - sandbox
+            - production
+          - type: 'null'
+          title: Environment
+        voice_config:
+          anyOf:
+          - $ref: '#/components/schemas/ServiceVoiceConfig-Input'
+          - type: 'null'
+      type: object
+      title: UpdateServiceRequest
     ServiceVoiceConfig-Input:
       properties:
         tts_model:
@@ -1133,29 +995,6 @@ components:
         Each field is optional — None means inherit from the layer above
 
         (workspace VoiceSettings → env vars → hardcoded defaults).'
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
-    TextTurnResponse:
-      properties:
-        text:
-          type: string
-          maxLength: 8192
-          title: Text
-      type: object
-      required:
-      - text
-      title: TextTurnResponse
-      description: 'Response body — the agent''s text reply.
-
-
-        Returned only on 200; 204 indicates the engine elected silence.'
     ServiceVoiceConfig-Output:
       properties:
         tts_model:
@@ -1321,49 +1160,6 @@ components:
         Each field is optional — None means inherit from the layer above
 
         (workspace VoiceSettings → env vars → hardcoded defaults).'
-    UpsertVersionSetRequest:
-      properties:
-        version_set:
-          $ref: '#/components/schemas/VersionSet-Input'
-      type: object
-      required:
-      - version_set
-      title: UpsertVersionSetRequest
-    PhoneE164:
-      type: string
-      maxLength: 16
-      minLength: 2
-    LLMConfig:
-      properties:
-        llm_name:
-          type: string
-          title: Llm Name
-        params:
-          additionalProperties: true
-          type: object
-          title: Params
-        experience_controls:
-          anyOf:
-          - $ref: '#/components/schemas/LLMExperienceControls'
-          - type: 'null'
-      type: object
-      required:
-      - llm_name
-      title: LLMConfig
-    ServiceTag:
-      properties:
-        key:
-          type: string
-          title: Key
-        value:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Value
-      type: object
-      required:
-      - key
-      title: ServiceTag
     VersionSet-Output:
       properties:
         agent_version_number:
@@ -1391,6 +1187,210 @@ components:
       type: object
       title: VersionSet
       description: Pins agent, state machine, and LLM model versions for a service.
+    DescriptionString:
+      type: string
+      maxLength: 2000
+    TextTurnRequest:
+      properties:
+        phone_number:
+          type: string
+          maxLength: 16
+          pattern: ^\+[1-9]\d{1,14}$
+          title: Phone Number
+        agent_phone:
+          type: string
+          maxLength: 16
+          pattern: ^\+[1-9]\d{1,14}$
+          title: Agent Phone
+        text:
+          type: string
+          maxLength: 8192
+          minLength: 1
+          title: Text
+      type: object
+      required:
+      - phone_number
+      - agent_phone
+      - text
+      title: TextTurnRequest
+      description: Request body for ``POST /v1/{ws}/services/{service_id}/text-turn``.
+    ServiceForwardingConfig:
+      properties:
+        forward_to:
+          $ref: '#/components/schemas/PhoneE164'
+        should_disconnect:
+          type: boolean
+          title: Should Disconnect
+          default: true
+        warm_transfer:
+          type: boolean
+          title: Warm Transfer
+          default: true
+      type: object
+      required:
+      - forward_to
+      title: ServiceForwardingConfig
+      description: 'Per-service call-forwarding destination + transfer mechanism.
+
+
+        Read by the LLM-driven ``forward_call`` tool (tier 3 fallback when the LLM
+
+        doesn''t pass an explicit ``phone_number`` and no EHR location is configured).
+
+
+        Per-service forwarding is a binary presence — set means tier 3 resolves
+
+        to it, None means tier 3 has no static target. (The legacy per-phone
+
+        forwarding shape, with its own ``enabled`` flag, was removed alongside
+
+        the legacy Twilio phone path.)'
+    LLMExperienceControls:
+      properties:
+        verbosity:
+          anyOf:
+          - type: string
+            enum:
+            - low
+            - medium
+            - high
+          - type: 'null'
+          title: Verbosity
+        reasoning_effort:
+          anyOf:
+          - type: string
+            enum:
+            - none
+            - minimal
+            - low
+            - medium
+            - high
+            - xhigh
+          - type: 'null'
+          title: Reasoning Effort
+        temperature:
+          anyOf:
+          - type: number
+            maximum: 2.0
+            minimum: 0.0
+          - type: 'null'
+          title: Temperature
+        top_p:
+          anyOf:
+          - type: number
+            maximum: 1.0
+            minimum: 0.0
+          - type: 'null'
+          title: Top P
+        presence_penalty:
+          anyOf:
+          - type: number
+            maximum: 2.0
+            minimum: -2.0
+          - type: 'null'
+          title: Presence Penalty
+        frequency_penalty:
+          anyOf:
+          - type: number
+            maximum: 2.0
+            minimum: -2.0
+          - type: 'null'
+          title: Frequency Penalty
+        response_format:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Response Format
+        seed:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Seed
+        stop:
+          anyOf:
+          - type: string
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          title: Stop
+        logit_bias:
+          anyOf:
+          - additionalProperties:
+              type: number
+              maximum: 100.0
+              minimum: -100.0
+            type: object
+          - type: 'null'
+          title: Logit Bias
+        logprobs:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Logprobs
+        top_logprobs:
+          anyOf:
+          - type: integer
+            maximum: 20.0
+            minimum: 0.0
+          - type: 'null'
+          title: Top Logprobs
+        parallel_tool_calls:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Parallel Tool Calls
+        service_tier:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Service Tier
+        prompt_cache_key:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Prompt Cache Key
+        prompt_cache_retention:
+          anyOf:
+          - type: string
+            enum:
+            - in-memory
+            - 24h
+          - type: 'null'
+          title: Prompt Cache Retention
+        safety_identifier:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Safety Identifier
+        store:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Store
+        metadata:
+          anyOf:
+          - additionalProperties:
+              type: string
+            type: object
+          - type: 'null'
+          title: Metadata
+      additionalProperties: false
+      type: object
+      title: LLMExperienceControls
+      description: 'First-class chat experience controls for consumer-facing agents.
+
+
+        ``params`` remains available as a provider-specific escape hatch. These
+
+        fields cover the OpenAI Chat Completions controls that most directly shape
+
+        response tone, feel, determinism, latency, and structured output behavior.
+
+        Token budgets are intentionally excluded so version sets do not reintroduce
+
+        accidental response truncation.'
   securitySchemes:
     BearerAuth:
       type: http

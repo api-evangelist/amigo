@@ -258,6 +258,24 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
+    src__routes__workspace_data_queries__invoke_workspace_data_query__Response:
+      properties:
+        result:
+          items:
+            additionalProperties: true
+            type: object
+          type: array
+          title: Result
+        duration_ms:
+          type: number
+          title: Duration Ms
+          default: 0.0
+        row_count:
+          type: integer
+          title: Row Count
+          default: 0
+      type: object
+      title: Response
     ValidationError:
       properties:
         loc:
@@ -284,43 +302,15 @@ components:
       - msg
       - type
       title: ValidationError
-    src__routes__workspace_data_queries__create_workspace_data_query__Request__Parameter:
+    src__routes__workspace_data_queries__invoke_workspace_data_query__Request:
       properties:
-        name:
-          type: string
-          maxLength: 64
-          minLength: 1
-          pattern: ^[a-z][a-z0-9_]*$
-          title: Name
-        type:
-          type: string
-          enum:
-          - string
-          - integer
-          - number
-          - boolean
-          title: Type
-        description:
-          type: string
-          maxLength: 512
-          minLength: 1
-          title: Description
-        default:
-          anyOf:
-          - type: string
-          - type: integer
-          - type: number
-          - type: boolean
-          - type: 'null'
-          title: Default
-      additionalProperties: false
+        input:
+          additionalProperties: true
+          type: object
+          title: Input
+          description: Caller arguments matching the declared parameters.
       type: object
-      required:
-      - name
-      - type
-      - description
-      title: Parameter
-      description: Strict write-side validator for one declared parameter.
+      title: Request
     src__routes__workspace_data_queries__update_workspace_data_query__Request:
       properties:
         name:
@@ -364,15 +354,6 @@ components:
       type: object
       title: Request
       description: PATCH body — every field optional. Present ⇒ overwrite; absent ⇒ keep.
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
     src__routes__workspace_data_queries__create_workspace_data_query__Request:
       properties:
         name:
@@ -420,24 +401,141 @@ components:
         so a bad payload surfaces as a Pydantic 422 with the standard wire
 
         shape — no try/except in the handler.'
-    src__routes__workspace_data_queries__invoke_workspace_data_query__Response:
+    src__routes__workspace_data_queries__create_workspace_data_query__Request__Parameter:
       properties:
-        result:
-          items:
-            additionalProperties: true
-            type: object
-          type: array
-          title: Result
-        duration_ms:
-          type: number
-          title: Duration Ms
-          default: 0.0
-        row_count:
-          type: integer
-          title: Row Count
-          default: 0
+        name:
+          type: string
+          maxLength: 64
+          minLength: 1
+          pattern: ^[a-z][a-z0-9_]*$
+          title: Name
+        type:
+          type: string
+          enum:
+          - string
+          - integer
+          - number
+          - boolean
+          title: Type
+        description:
+          type: string
+          maxLength: 512
+          minLength: 1
+          title: Description
+        default:
+          anyOf:
+          - type: string
+          - type: integer
+          - type: number
+          - type: boolean
+          - type: 'null'
+          title: Default
+      additionalProperties: false
       type: object
-      title: Response
+      required:
+      - name
+      - type
+      - description
+      title: Parameter
+      description: Strict write-side validator for one declared parameter.
+    StoredParameter:
+      properties:
+        name:
+          type: string
+          title: Name
+        type:
+          type: string
+          enum:
+          - string
+          - integer
+          - number
+          - boolean
+          title: Type
+        description:
+          type: string
+          title: Description
+        default:
+          anyOf:
+          - type: string
+          - type: integer
+          - type: number
+          - type: boolean
+          - type: 'null'
+          title: Default
+      additionalProperties: false
+      type: object
+      required:
+      - name
+      - type
+      - description
+      title: StoredParameter
+      description: 'One typed input parameter to a workspace data query — trusted shape.
+
+
+        Read-path model: the DB''s CHECK constraints already enforced ``name``
+
+        regex and ``type`` enum on write, and the deploy endpoint''s strict
+
+        :class:`Parameter` validators enforced ``description`` length and
+
+        typo-rejection at the inbound network edge. After that, every
+
+        construction of this model (DB read projection, executor binding,
+
+        agent-engine spec, outbound response) is trusted — no 422 surface.
+
+
+        ``default is None`` is the canonical "required" signal: the executor
+
+        raises if a caller omits a required argument, otherwise substitutes
+
+        the stored default.'
+    src__routes__workspace_data_queries__update_workspace_data_query__Request__Parameter:
+      properties:
+        name:
+          type: string
+          maxLength: 64
+          minLength: 1
+          pattern: ^[a-z][a-z0-9_]*$
+          title: Name
+        type:
+          type: string
+          enum:
+          - string
+          - integer
+          - number
+          - boolean
+          title: Type
+        description:
+          type: string
+          maxLength: 512
+          minLength: 1
+          title: Description
+        default:
+          anyOf:
+          - type: string
+          - type: integer
+          - type: number
+          - type: boolean
+          - type: 'null'
+          title: Default
+      additionalProperties: false
+      type: object
+      required:
+      - name
+      - type
+      - description
+      title: Parameter
+      description: Strict write-side validator for one declared parameter.
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
     WorkspaceDataQueryItem:
       properties:
         id:
@@ -520,58 +618,6 @@ components:
       - items
       - has_more
       title: Response
-    StoredParameter:
-      properties:
-        name:
-          type: string
-          title: Name
-        type:
-          type: string
-          enum:
-          - string
-          - integer
-          - number
-          - boolean
-          title: Type
-        description:
-          type: string
-          title: Description
-        default:
-          anyOf:
-          - type: string
-          - type: integer
-          - type: number
-          - type: boolean
-          - type: 'null'
-          title: Default
-      additionalProperties: false
-      type: object
-      required:
-      - name
-      - type
-      - description
-      title: StoredParameter
-      description: 'One typed input parameter to a workspace data query — trusted shape.
-
-
-        Read-path model: the DB''s CHECK constraints already enforced ``name``
-
-        regex and ``type`` enum on write, and the deploy endpoint''s strict
-
-        :class:`Parameter` validators enforced ``description`` length and
-
-        typo-rejection at the inbound network edge. After that, every
-
-        construction of this model (DB read projection, executor binding,
-
-        agent-engine spec, outbound response) is trusted — no 422 surface.
-
-
-        ``default is None`` is the canonical "required" signal: the executor
-
-        raises if a caller omits a required argument, otherwise substitutes
-
-        the stored default.'
     src__routes__workspace_data_queries__list_workspace_data_queries__Response__Item:
       properties:
         id:
@@ -618,52 +664,6 @@ components:
       - deployed_at
       - deployed_by
       title: Item
-    src__routes__workspace_data_queries__update_workspace_data_query__Request__Parameter:
-      properties:
-        name:
-          type: string
-          maxLength: 64
-          minLength: 1
-          pattern: ^[a-z][a-z0-9_]*$
-          title: Name
-        type:
-          type: string
-          enum:
-          - string
-          - integer
-          - number
-          - boolean
-          title: Type
-        description:
-          type: string
-          maxLength: 512
-          minLength: 1
-          title: Description
-        default:
-          anyOf:
-          - type: string
-          - type: integer
-          - type: number
-          - type: boolean
-          - type: 'null'
-          title: Default
-      additionalProperties: false
-      type: object
-      required:
-      - name
-      - type
-      - description
-      title: Parameter
-      description: Strict write-side validator for one declared parameter.
-    src__routes__workspace_data_queries__invoke_workspace_data_query__Request:
-      properties:
-        input:
-          additionalProperties: true
-          type: object
-          title: Input
-          description: Caller arguments matching the declared parameters.
-      type: object
-      title: Request
   securitySchemes:
     BearerAuth:
       type: http

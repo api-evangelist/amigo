@@ -301,79 +301,6 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
-    ValidationError:
-      properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-        input:
-          title: Input
-        ctx:
-          type: object
-          title: Context
-      type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
-    PanelResultResponse:
-      properties:
-        panel_id:
-          type: string
-          title: Panel Id
-          description: Panel identifier from the definition
-        columns:
-          items:
-            type: string
-          type: array
-          title: Columns
-          description: Column names
-        rows:
-          items:
-            items: {}
-            type: array
-          type: array
-          title: Rows
-          description: Result rows
-        error:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Error
-          description: Error message if query failed
-      type: object
-      required:
-      - panel_id
-      - columns
-      - rows
-      title: PanelResultResponse
-    DashboardExecuteResponse:
-      properties:
-        dashboard_id:
-          type: string
-          format: uuid
-          title: Dashboard Id
-        results:
-          items:
-            $ref: '#/components/schemas/PanelResultResponse'
-          type: array
-          title: Results
-      type: object
-      required:
-      - dashboard_id
-      - results
-      title: DashboardExecuteResponse
     DashboardDefinitionResponse:
       properties:
         id:
@@ -458,19 +385,106 @@ components:
       - refresh_interval
       - is_active
       title: DashboardDefinitionResponse
-    NameString:
-      type: string
-      maxLength: 256
-      minLength: 1
-    HTTPValidationError:
+    CreateDashboardRequest:
       properties:
-        detail:
+        slug:
+          type: string
+          maxLength: 128
+          minLength: 2
+          pattern: ^[a-z0-9][a-z0-9\-]*$
+          title: Slug
+        title:
+          $ref: '#/components/schemas/NameString'
+        description:
+          anyOf:
+          - $ref: '#/components/schemas/DescriptionString'
+          - type: 'null'
+        page_context:
+          anyOf:
+          - type: string
+            enum:
+            - home
+            - patients
+            - calls
+            - data
+            - analytics
+            - pipeline
+            - operators
+            - surfaces
+            - compliance
+            - custom
+          - type: 'null'
+          title: Page Context
+        panels:
           items:
-            $ref: '#/components/schemas/ValidationError'
+            additionalProperties: true
+            type: object
           type: array
-          title: Detail
+          maxItems: 50
+          title: Panels
+        filters:
+          items:
+            additionalProperties: true
+            type: object
+          type: array
+          maxItems: 20
+          title: Filters
+        refresh_interval:
+          type: integer
+          maximum: 86400.0
+          minimum: 10.0
+          title: Refresh Interval
+          default: 300
       type: object
-      title: HTTPValidationError
+      required:
+      - slug
+      - title
+      title: CreateDashboardRequest
+    DescriptionString:
+      type: string
+      maxLength: 2000
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    DashboardExecuteResponse:
+      properties:
+        dashboard_id:
+          type: string
+          format: uuid
+          title: Dashboard Id
+        results:
+          items:
+            $ref: '#/components/schemas/PanelResultResponse'
+          type: array
+          title: Results
+      type: object
+      required:
+      - dashboard_id
+      - results
+      title: DashboardExecuteResponse
     ExecutePanelRequest:
       properties:
         filter_values:
@@ -480,31 +494,6 @@ components:
           description: Filter values to apply to panel queries
       type: object
       title: ExecutePanelRequest
-    PaginatedResponse_DashboardDefinitionResponse_:
-      properties:
-        items:
-          items:
-            $ref: '#/components/schemas/DashboardDefinitionResponse'
-          type: array
-          title: Items
-        has_more:
-          type: boolean
-          title: Has More
-        continuation_token:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Continuation Token
-        total:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Total
-      type: object
-      required:
-      - items
-      - has_more
-      title: PaginatedResponse[DashboardDefinitionResponse]
     UpdateDashboardRequest:
       properties:
         slug:
@@ -566,64 +555,75 @@ components:
           title: Refresh Interval
       type: object
       title: UpdateDashboardRequest
-    CreateDashboardRequest:
+    PaginatedResponse_DashboardDefinitionResponse_:
       properties:
-        slug:
-          type: string
-          maxLength: 128
-          minLength: 2
-          pattern: ^[a-z0-9][a-z0-9\-]*$
-          title: Slug
-        title:
-          $ref: '#/components/schemas/NameString'
-        description:
-          anyOf:
-          - $ref: '#/components/schemas/DescriptionString'
-          - type: 'null'
-        page_context:
-          anyOf:
-          - type: string
-            enum:
-            - home
-            - patients
-            - calls
-            - data
-            - analytics
-            - pipeline
-            - operators
-            - surfaces
-            - compliance
-            - custom
-          - type: 'null'
-          title: Page Context
-        panels:
+        items:
           items:
-            additionalProperties: true
-            type: object
+            $ref: '#/components/schemas/DashboardDefinitionResponse'
           type: array
-          maxItems: 50
-          title: Panels
-        filters:
-          items:
-            additionalProperties: true
-            type: object
-          type: array
-          maxItems: 20
-          title: Filters
-        refresh_interval:
-          type: integer
-          maximum: 86400.0
-          minimum: 10.0
-          title: Refresh Interval
-          default: 300
+          title: Items
+        has_more:
+          type: boolean
+          title: Has More
+        continuation_token:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Continuation Token
+        total:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Total
       type: object
       required:
-      - slug
-      - title
-      title: CreateDashboardRequest
-    DescriptionString:
+      - items
+      - has_more
+      title: PaginatedResponse[DashboardDefinitionResponse]
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    PanelResultResponse:
+      properties:
+        panel_id:
+          type: string
+          title: Panel Id
+          description: Panel identifier from the definition
+        columns:
+          items:
+            type: string
+          type: array
+          title: Columns
+          description: Column names
+        rows:
+          items:
+            items: {}
+            type: array
+          type: array
+          title: Rows
+          description: Result rows
+        error:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Error
+          description: Error message if query failed
+      type: object
+      required:
+      - panel_id
+      - columns
+      - rows
+      title: PanelResultResponse
+    NameString:
       type: string
-      maxLength: 2000
+      maxLength: 256
+      minLength: 1
   securitySchemes:
     BearerAuth:
       type: http

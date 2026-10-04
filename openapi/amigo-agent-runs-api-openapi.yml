@@ -125,6 +125,141 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
+    CreateAgentRunRequest:
+      properties:
+        service_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Service Id
+          description: 'Platform-authored run: the service whose pinned config the agent runs.'
+        version_set:
+          $ref: '#/components/schemas/NameString'
+          description: Named version set on the service whose pinned config the run uses (platform runs).
+          default: release
+        framework:
+          anyOf:
+          - type: string
+            enum:
+            - claude-agent-sdk
+            - openai-agents
+          - type: 'null'
+          title: Framework
+          description: Framework a PLATFORM run executes on. For a native run the framework comes from the definition.
+        native:
+          anyOf:
+          - $ref: '#/components/schemas/NativeRunRef'
+          - type: 'null'
+          description: Run a native (bring-your-own) agent definition instead of a platform service.
+        message:
+          type: string
+          maxLength: 8000
+          minLength: 1
+          title: Message
+          description: User message the framework agent is invoked with.
+        timeout_s:
+          type: integer
+          maximum: 300.0
+          exclusiveMinimum: 0.0
+          title: Timeout S
+          description: Server-side wall-clock budget for the run, in seconds (max 300).
+          default: 120
+      type: object
+      required:
+      - message
+      title: CreateAgentRunRequest
+    NativeRunRef:
+      properties:
+        definition_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Definition Id
+          description: Registered definition to run. Omit `version` for the latest.
+        version:
+          anyOf:
+          - type: integer
+            exclusiveMinimum: 0.0
+          - type: 'null'
+          title: Version
+          description: Pinned definition version; omit for latest.
+        inline:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Inline
+          description: Inline definition document (dev/playground). Validated by the platform clamp schema.
+      type: object
+      title: NativeRunRef
+      description: 'Run a customer-authored NATIVE agent definition (inc-10): a REGISTERED
+
+        definition by id (``version`` omitted = latest), or an INLINE body for
+
+        dev/playground iteration. The definition''s own ``framework`` selects the
+
+        runtime — no top-level ``framework`` needed.'
+    WorldScope:
+      properties:
+        workspace_id:
+          type: string
+          format: uuid
+          title: Workspace Id
+        scoped_entity_ids:
+          items:
+            type: string
+            format: uuid
+          type: array
+          title: Scoped Entity Ids
+          default: []
+        allow_create:
+          type: boolean
+          title: Allow Create
+          default: false
+      type: object
+      required:
+      - workspace_id
+      title: WorldScope
+      description: 'The world slice — ids only (the leaf stays I/O-free). This is the
+
+        read/subject scope, NOT the write bound (see ``write_floor``).'
+    WriteFloor:
+      properties:
+        enforced_at:
+          type: string
+          title: Enforced At
+          default: mcp-world-tools-edge
+        requires_entity_anchor:
+          type: boolean
+          title: Requires Entity Anchor
+          default: true
+        clinical_write_principal:
+          type: string
+          title: Clinical Write Principal
+          default: provider-only
+        clinical_write_scope:
+          type: string
+          title: Clinical Write Scope
+          default: any-entity-in-workspace
+        enrichment_write_scope:
+          type: string
+          title: Enrichment Write Scope
+          default: caller-anchor-only
+        unanchored_or_api_key_writes:
+          type: string
+          title: Unanchored Or Api Key Writes
+          default: none
+        allow_create:
+          type: boolean
+          title: Allow Create
+          default: false
+      type: object
+      title: WriteFloor
+      description: 'The REAL server-enforced write bound (audit G8) — advisory to render;
+
+        the MCP edge enforces it regardless of what a client does.'
     ValidationError:
       properties:
         loc:
@@ -151,44 +286,6 @@ components:
       - msg
       - type
       title: ValidationError
-    ToolDescriptor:
-      properties:
-        name:
-          type: string
-          title: Name
-        description:
-          type: string
-          title: Description
-          default: ''
-        input_schema:
-          additionalProperties: true
-          type: object
-          title: Input Schema
-          default: {}
-      type: object
-      required:
-      - name
-      title: ToolDescriptor
-    Runtime:
-      properties:
-        engage_model:
-          type: string
-          title: Engage Model
-          default: ''
-        channel_kind:
-          type: string
-          title: Channel Kind
-          default: ''
-        language:
-          type: string
-          title: Language
-          default: ''
-        caller_context:
-          type: string
-          title: Caller Context
-          default: ''
-      type: object
-      title: Runtime
     Guardrails:
       properties:
         guardrails:
@@ -212,6 +309,85 @@ components:
           default: []
       type: object
       title: Guardrails
+    ToolDescriptor:
+      properties:
+        name:
+          type: string
+          title: Name
+        description:
+          type: string
+          title: Description
+          default: ''
+        input_schema:
+          additionalProperties: true
+          type: object
+          title: Input Schema
+          default: {}
+      type: object
+      required:
+      - name
+      title: ToolDescriptor
+    HarnessContext:
+      properties:
+        context_version:
+          type: integer
+          title: Context Version
+          default: 1
+        config_fingerprint:
+          type: string
+          title: Config Fingerprint
+          default: ''
+        source:
+          type: string
+          title: Source
+          default: ''
+        identity:
+          anyOf:
+          - $ref: '#/components/schemas/AgentIdentity'
+          - type: 'null'
+        world_scope:
+          $ref: '#/components/schemas/WorldScope'
+        tools:
+          $ref: '#/components/schemas/Tools'
+        guardrails:
+          $ref: '#/components/schemas/Guardrails'
+        write_floor:
+          $ref: '#/components/schemas/WriteFloor'
+        runtime:
+          $ref: '#/components/schemas/Runtime'
+      type: object
+      required:
+      - world_scope
+      - tools
+      - guardrails
+      - write_floor
+      - runtime
+      title: HarnessContext
+      description: The neutral, retrievable session-bootstrap context for ANY framework.
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    CreateAgentRunResponse:
+      properties:
+        run_id:
+          type: string
+          format: uuid
+          title: Run Id
+        status:
+          type: string
+          const: running
+          title: Status
+      type: object
+      required:
+      - run_id
+      - status
+      title: CreateAgentRunResponse
     AgentRunDetail:
       properties:
         run_id:
@@ -263,110 +439,55 @@ components:
       - status
       - framework
       title: AgentRunDetail
-    WriteFloor:
+    Runtime:
       properties:
-        enforced_at:
+        engage_model:
           type: string
-          title: Enforced At
-          default: mcp-world-tools-edge
-        requires_entity_anchor:
-          type: boolean
-          title: Requires Entity Anchor
-          default: true
-        clinical_write_principal:
+          title: Engage Model
+          default: ''
+        channel_kind:
           type: string
-          title: Clinical Write Principal
-          default: provider-only
-        clinical_write_scope:
+          title: Channel Kind
+          default: ''
+        language:
           type: string
-          title: Clinical Write Scope
-          default: any-entity-in-workspace
-        enrichment_write_scope:
+          title: Language
+          default: ''
+        caller_context:
           type: string
-          title: Enrichment Write Scope
-          default: caller-anchor-only
-        unanchored_or_api_key_writes:
-          type: string
-          title: Unanchored Or Api Key Writes
-          default: none
-        allow_create:
-          type: boolean
-          title: Allow Create
-          default: false
+          title: Caller Context
+          default: ''
       type: object
-      title: WriteFloor
-      description: 'The REAL server-enforced write bound (audit G8) — advisory to render;
+      title: Runtime
+    Tools:
+      properties:
+        descriptors:
+          items:
+            $ref: '#/components/schemas/ToolDescriptor'
+          type: array
+          title: Descriptors
+          default: []
+        read_tool_names:
+          items:
+            type: string
+          type: array
+          title: Read Tool Names
+          default: []
+        write_tool_names:
+          items:
+            type: string
+          type: array
+          title: Write Tool Names
+          default: []
+      type: object
+      title: Tools
+      description: 'Discovery hint — the neutral descriptors. NOT the enforcement (the MCP
 
-        the MCP edge enforces it regardless of what a client does.'
+        edge is; a remote agent discovers live schemas from the server too).'
     NameString:
       type: string
       maxLength: 256
       minLength: 1
-    NativeRunRef:
-      properties:
-        definition_id:
-          anyOf:
-          - type: string
-            format: uuid
-          - type: 'null'
-          title: Definition Id
-          description: Registered definition to run. Omit `version` for the latest.
-        version:
-          anyOf:
-          - type: integer
-            exclusiveMinimum: 0.0
-          - type: 'null'
-          title: Version
-          description: Pinned definition version; omit for latest.
-        inline:
-          anyOf:
-          - additionalProperties: true
-            type: object
-          - type: 'null'
-          title: Inline
-          description: Inline definition document (dev/playground). Validated by the platform clamp schema.
-      type: object
-      title: NativeRunRef
-      description: 'Run a customer-authored NATIVE agent definition (inc-10): a REGISTERED
-
-        definition by id (``version`` omitted = latest), or an INLINE body for
-
-        dev/playground iteration. The definition''s own ``framework`` selects the
-
-        runtime — no top-level ``framework`` needed.'
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
-    WorldScope:
-      properties:
-        workspace_id:
-          type: string
-          format: uuid
-          title: Workspace Id
-        scoped_entity_ids:
-          items:
-            type: string
-            format: uuid
-          type: array
-          title: Scoped Entity Ids
-          default: []
-        allow_create:
-          type: boolean
-          title: Allow Create
-          default: false
-      type: object
-      required:
-      - workspace_id
-      title: WorldScope
-      description: 'The world slice — ids only (the leaf stays I/O-free). This is the
-
-        read/subject scope, NOT the write bound (see ``write_floor``).'
     AgentIdentity:
       properties:
         entry_actor_name:
@@ -404,127 +525,6 @@ components:
         ``config.models.Identity`` OpenAPI schema (a same-name collision would
 
         force-rename that shipped schema — a breaking spec change).'
-    HarnessContext:
-      properties:
-        context_version:
-          type: integer
-          title: Context Version
-          default: 1
-        config_fingerprint:
-          type: string
-          title: Config Fingerprint
-          default: ''
-        source:
-          type: string
-          title: Source
-          default: ''
-        identity:
-          anyOf:
-          - $ref: '#/components/schemas/AgentIdentity'
-          - type: 'null'
-        world_scope:
-          $ref: '#/components/schemas/WorldScope'
-        tools:
-          $ref: '#/components/schemas/Tools'
-        guardrails:
-          $ref: '#/components/schemas/Guardrails'
-        write_floor:
-          $ref: '#/components/schemas/WriteFloor'
-        runtime:
-          $ref: '#/components/schemas/Runtime'
-      type: object
-      required:
-      - world_scope
-      - tools
-      - guardrails
-      - write_floor
-      - runtime
-      title: HarnessContext
-      description: The neutral, retrievable session-bootstrap context for ANY framework.
-    Tools:
-      properties:
-        descriptors:
-          items:
-            $ref: '#/components/schemas/ToolDescriptor'
-          type: array
-          title: Descriptors
-          default: []
-        read_tool_names:
-          items:
-            type: string
-          type: array
-          title: Read Tool Names
-          default: []
-        write_tool_names:
-          items:
-            type: string
-          type: array
-          title: Write Tool Names
-          default: []
-      type: object
-      title: Tools
-      description: 'Discovery hint — the neutral descriptors. NOT the enforcement (the MCP
-
-        edge is; a remote agent discovers live schemas from the server too).'
-    CreateAgentRunRequest:
-      properties:
-        service_id:
-          anyOf:
-          - type: string
-            format: uuid
-          - type: 'null'
-          title: Service Id
-          description: 'Platform-authored run: the service whose pinned config the agent runs.'
-        version_set:
-          $ref: '#/components/schemas/NameString'
-          description: Named version set on the service whose pinned config the run uses (platform runs).
-          default: release
-        framework:
-          anyOf:
-          - type: string
-            enum:
-            - claude-agent-sdk
-            - openai-agents
-          - type: 'null'
-          title: Framework
-          description: Framework a PLATFORM run executes on. For a native run the framework comes from the definition.
-        native:
-          anyOf:
-          - $ref: '#/components/schemas/NativeRunRef'
-          - type: 'null'
-          description: Run a native (bring-your-own) agent definition instead of a platform service.
-        message:
-          type: string
-          maxLength: 8000
-          minLength: 1
-          title: Message
-          description: User message the framework agent is invoked with.
-        timeout_s:
-          type: integer
-          maximum: 300.0
-          exclusiveMinimum: 0.0
-          title: Timeout S
-          description: Server-side wall-clock budget for the run, in seconds (max 300).
-          default: 120
-      type: object
-      required:
-      - message
-      title: CreateAgentRunRequest
-    CreateAgentRunResponse:
-      properties:
-        run_id:
-          type: string
-          format: uuid
-          title: Run Id
-        status:
-          type: string
-          const: running
-          title: Status
-      type: object
-      required:
-      - run_id
-      - status
-      title: CreateAgentRunResponse
     Usage:
       properties:
         input_tokens:

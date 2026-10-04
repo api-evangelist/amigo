@@ -243,31 +243,28 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
-    AgentDefinitionVersionMeta:
+    SlugString:
+      type: string
+      maxLength: 63
+      minLength: 2
+      pattern: ^[a-z0-9][a-z0-9-]*[a-z0-9]$
+    AgentDefinitionListResponse:
       properties:
-        version:
-          type: integer
-          title: Version
-        body_sha256:
-          type: string
-          title: Body Sha256
-        validator_rev:
-          type: string
-          title: Validator Rev
-        has_write_tools:
+        items:
+          items:
+            $ref: '#/components/schemas/AgentDefinitionSummary'
+          type: array
+          title: Items
+        has_more:
           type: boolean
-          title: Has Write Tools
-        agent_count:
-          type: integer
-          title: Agent Count
+          title: Has More
+        continuation_token:
+          title: Continuation Token
       type: object
       required:
-      - version
-      - body_sha256
-      - validator_rev
-      - has_write_tools
-      - agent_count
-      title: AgentDefinitionVersionMeta
+      - items
+      - has_more
+      title: AgentDefinitionListResponse
     ValidationError:
       properties:
         loc:
@@ -294,80 +291,31 @@ components:
       - msg
       - type
       title: ValidationError
-    RegisterAgentDefinitionRequest:
+    AgentDefinitionVersionMeta:
       properties:
-        name:
-          $ref: '#/components/schemas/SlugString'
-          description: Stable slug identifying this definition within the workspace.
-        body:
-          additionalProperties: true
-          type: object
-          title: Body
-          description: The framework-native definition document (its 'framework' field selects the shape). Validated by the platform clamp schema — a non-whitelisted field is rejected.
-      type: object
-      required:
-      - name
-      - body
-      title: RegisterAgentDefinitionRequest
-    SlugString:
-      type: string
-      maxLength: 63
-      minLength: 2
-      pattern: ^[a-z0-9][a-z0-9-]*[a-z0-9]$
-    AgentDefinitionListResponse:
-      properties:
-        items:
-          items:
-            $ref: '#/components/schemas/AgentDefinitionSummary'
-          type: array
-          title: Items
-        has_more:
+        version:
+          type: integer
+          title: Version
+        body_sha256:
+          type: string
+          title: Body Sha256
+        validator_rev:
+          type: string
+          title: Validator Rev
+        has_write_tools:
           type: boolean
-          title: Has More
-        continuation_token:
-          title: Continuation Token
+          title: Has Write Tools
+        agent_count:
+          type: integer
+          title: Agent Count
       type: object
       required:
-      - items
-      - has_more
-      title: AgentDefinitionListResponse
-    AgentDefinitionSummary:
-      properties:
-        definition_id:
-          type: string
-          format: uuid
-          title: Definition Id
-        name:
-          type: string
-          title: Name
-        framework:
-          type: string
-          enum:
-          - claude-agent-sdk
-          - openai-agents
-          title: Framework
-        status:
-          type: string
-          enum:
-          - active
-          - archived
-          title: Status
-      type: object
-      required:
-      - definition_id
-      - name
-      - framework
-      - status
-      title: AgentDefinitionSummary
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
+      - version
+      - body_sha256
+      - validator_rev
+      - has_write_tools
+      - agent_count
+      title: AgentDefinitionVersionMeta
     AgentDefinitionDetail:
       properties:
         definition_id:
@@ -402,6 +350,21 @@ components:
       - status
       - versions
       title: AgentDefinitionDetail
+    RegisterAgentDefinitionRequest:
+      properties:
+        name:
+          $ref: '#/components/schemas/SlugString'
+          description: Stable slug identifying this definition within the workspace.
+        body:
+          additionalProperties: true
+          type: object
+          title: Body
+          description: The framework-native definition document (its 'framework' field selects the shape). Validated by the platform clamp schema — a non-whitelisted field is rejected.
+      type: object
+      required:
+      - name
+      - body
+      title: RegisterAgentDefinitionRequest
     AgentDefinitionVersionDetail:
       properties:
         version:
@@ -444,6 +407,15 @@ components:
       - framework
       - body
       title: AgentDefinitionVersionDetail
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
     ValidateAgentDefinitionResponse:
       properties:
         valid:
@@ -469,6 +441,34 @@ components:
       - has_write_tools
       - agent_count
       title: ValidateAgentDefinitionResponse
+    AgentDefinitionSummary:
+      properties:
+        definition_id:
+          type: string
+          format: uuid
+          title: Definition Id
+        name:
+          type: string
+          title: Name
+        framework:
+          type: string
+          enum:
+          - claude-agent-sdk
+          - openai-agents
+          title: Framework
+        status:
+          type: string
+          enum:
+          - active
+          - archived
+          title: Status
+      type: object
+      required:
+      - definition_id
+      - name
+      - framework
+      - status
+      title: AgentDefinitionSummary
     RegisterAgentDefinitionResponse:
       properties:
         definition_id:

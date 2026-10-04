@@ -164,6 +164,23 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
+    src__routes__external_roles__ListResponse:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/ExternalRoleItem'
+          type: array
+          title: Items
+        has_more:
+          type: boolean
+          title: Has More
+        continuation_token:
+          title: Continuation Token
+      type: object
+      required:
+      - items
+      - has_more
+      title: ListResponse
     ValidationError:
       properties:
         loc:
@@ -190,40 +207,6 @@ components:
       - msg
       - type
       title: ValidationError
-    ExternalRoleItem:
-      properties:
-        id:
-          type: string
-          format: uuid
-          title: Id
-        name:
-          type: string
-          title: Name
-        external_name:
-          type: string
-          title: External Name
-        description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Description
-        created_at:
-          type: string
-          format: date-time
-          title: Created At
-        updated_at:
-          type: string
-          format: date-time
-          title: Updated At
-      type: object
-      required:
-      - id
-      - name
-      - external_name
-      - created_at
-      - updated_at
-      title: ExternalRoleItem
-      description: Wire shape for read + create responses.
     HTTPValidationError:
       properties:
         detail:
@@ -258,23 +241,40 @@ components:
       - name
       - external_name
       title: CreateRequest
-    src__routes__external_roles__ListResponse:
+    ExternalRoleItem:
       properties:
-        items:
-          items:
-            $ref: '#/components/schemas/ExternalRoleItem'
-          type: array
-          title: Items
-        has_more:
-          type: boolean
-          title: Has More
-        continuation_token:
-          title: Continuation Token
+        id:
+          type: string
+          format: uuid
+          title: Id
+        name:
+          type: string
+          title: Name
+        external_name:
+          type: string
+          title: External Name
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
       type: object
       required:
-      - items
-      - has_more
-      title: ListResponse
+      - id
+      - name
+      - external_name
+      - created_at
+      - updated_at
+      title: ExternalRoleItem
+      description: Wire shape for read + create responses.
   securitySchemes:
     BearerAuth:
       type: http

@@ -47,6 +47,20 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
+    ScopeSpans:
+      properties:
+        scope:
+          $ref: '#/components/schemas/InstrumentationScope'
+        spans:
+          items:
+            $ref: '#/components/schemas/Span'
+          type: array
+          title: Spans
+      type: object
+      required:
+      - scope
+      - spans
+      title: ScopeSpans
     ValidationError:
       properties:
         loc:
@@ -73,31 +87,6 @@ components:
       - msg
       - type
       title: ValidationError
-    ScopeSpans:
-      properties:
-        scope:
-          $ref: '#/components/schemas/InstrumentationScope'
-        spans:
-          items:
-            $ref: '#/components/schemas/Span'
-          type: array
-          title: Spans
-      type: object
-      required:
-      - scope
-      - spans
-      title: ScopeSpans
-    Resource:
-      properties:
-        attributes:
-          items:
-            $ref: '#/components/schemas/KeyValue'
-          type: array
-          title: Attributes
-      type: object
-      required:
-      - attributes
-      title: Resource
     KeyValue:
       properties:
         key:
@@ -121,59 +110,17 @@ components:
       - code
       title: Status
       description: OTLP ``Status`` — 0=UNSET, 1=OK, 2=ERROR.
-    HTTPValidationError:
+    Resource:
       properties:
-        detail:
+        attributes:
           items:
-            $ref: '#/components/schemas/ValidationError'
+            $ref: '#/components/schemas/KeyValue'
           type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
-    TracesExportRequest:
-      properties:
-        start_time:
-          type: string
-          format: date-time
-          title: Start Time
-          description: Inclusive lower bound on span ``effective_at`` (ISO-8601).
-        end_time:
-          type: string
-          format: date-time
-          title: End Time
-          description: Exclusive upper bound on span ``effective_at`` (ISO-8601).
-        limit:
-          type: integer
-          maximum: 1000.0
-          exclusiveMinimum: 0.0
-          title: Limit
-          description: Max spans per page (1-1000).
-          default: 500
-        continuation_token:
-          title: Continuation Token
-          description: Opaque page cursor — round-trip the value from the previous response.
+          title: Attributes
       type: object
       required:
-      - start_time
-      - end_time
-      title: TracesExportRequest
-    AnyValue:
-      additionalProperties: true
-      type: object
-    ResourceSpans:
-      properties:
-        resource:
-          $ref: '#/components/schemas/Resource'
-        scopeSpans:
-          items:
-            $ref: '#/components/schemas/ScopeSpans'
-          type: array
-          title: Scopespans
-      type: object
-      required:
-      - resource
-      - scopeSpans
-      title: ResourceSpans
+      - attributes
+      title: Resource
     Span:
       properties:
         traceId:
@@ -213,6 +160,33 @@ components:
       - status
       title: Span
       description: OTLP ``Span`` in OTLP/JSON encoding (ids hex, timestamps decimal-string).
+    TracesExportRequest:
+      properties:
+        start_time:
+          type: string
+          format: date-time
+          title: Start Time
+          description: Inclusive lower bound on span ``effective_at`` (ISO-8601).
+        end_time:
+          type: string
+          format: date-time
+          title: End Time
+          description: Exclusive upper bound on span ``effective_at`` (ISO-8601).
+        limit:
+          type: integer
+          maximum: 1000.0
+          exclusiveMinimum: 0.0
+          title: Limit
+          description: Max spans per page (1-1000).
+          default: 500
+        continuation_token:
+          title: Continuation Token
+          description: Opaque page cursor — round-trip the value from the previous response.
+      type: object
+      required:
+      - start_time
+      - end_time
+      title: TracesExportRequest
     TracesExportResponse:
       properties:
         resourceSpans:
@@ -241,6 +215,29 @@ components:
         strict protojson push receiver rejects the ``has_more``/``continuation_token``
 
         siblings). Round-trip ``continuation_token`` to page.'
+    ResourceSpans:
+      properties:
+        resource:
+          $ref: '#/components/schemas/Resource'
+        scopeSpans:
+          items:
+            $ref: '#/components/schemas/ScopeSpans'
+          type: array
+          title: Scopespans
+      type: object
+      required:
+      - resource
+      - scopeSpans
+      title: ResourceSpans
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
     InstrumentationScope:
       properties:
         name:
@@ -254,6 +251,9 @@ components:
       - name
       - version
       title: InstrumentationScope
+    AnyValue:
+      additionalProperties: true
+      type: object
   securitySchemes:
     BearerAuth:
       type: http

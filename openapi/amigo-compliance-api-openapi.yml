@@ -152,6 +152,44 @@ components:
       - msg
       - type
       title: ValidationError
+    ComplianceDashboardResponse:
+      properties:
+        hipaa_status:
+          type: string
+          title: Hipaa Status
+        retention_days:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Retention Days
+        legal_hold:
+          type: boolean
+          title: Legal Hold
+        total_credentials:
+          type: integer
+          title: Total Credentials
+        active_credentials:
+          type: integer
+          title: Active Credentials
+        last_audit_export:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Last Audit Export
+        generated_at:
+          type: string
+          title: Generated At
+      type: object
+      required:
+      - hipaa_status
+      - retention_days
+      - legal_hold
+      - total_credentials
+      - active_credentials
+      - last_audit_export
+      - generated_at
+      title: ComplianceDashboardResponse
+      description: Composite compliance health overview.
     HTTPValidationError:
       properties:
         detail:
@@ -161,6 +199,35 @@ components:
           title: Detail
       type: object
       title: HTTPValidationError
+    AccessReviewResponse:
+      properties:
+        generated_at:
+          type: string
+          title: Generated At
+        workspace_id:
+          type: string
+          format: uuid
+          title: Workspace Id
+        credentials:
+          items:
+            additionalProperties: true
+            type: object
+          type: array
+          title: Credentials
+        total_credentials:
+          type: integer
+          title: Total Credentials
+        jwt_credentials_note:
+          type: string
+          title: Jwt Credentials Note
+      type: object
+      required:
+      - generated_at
+      - workspace_id
+      - credentials
+      - total_credentials
+      - jwt_credentials_note
+      title: AccessReviewResponse
     HipaaReportResponse:
       properties:
         generated_at:
@@ -210,73 +277,6 @@ components:
       - api_key_summary
       - compliance_status
       title: HipaaReportResponse
-    ComplianceDashboardResponse:
-      properties:
-        hipaa_status:
-          type: string
-          title: Hipaa Status
-        retention_days:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Retention Days
-        legal_hold:
-          type: boolean
-          title: Legal Hold
-        total_credentials:
-          type: integer
-          title: Total Credentials
-        active_credentials:
-          type: integer
-          title: Active Credentials
-        last_audit_export:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Last Audit Export
-        generated_at:
-          type: string
-          title: Generated At
-      type: object
-      required:
-      - hipaa_status
-      - retention_days
-      - legal_hold
-      - total_credentials
-      - active_credentials
-      - last_audit_export
-      - generated_at
-      title: ComplianceDashboardResponse
-      description: Composite compliance health overview.
-    AccessReviewResponse:
-      properties:
-        generated_at:
-          type: string
-          title: Generated At
-        workspace_id:
-          type: string
-          format: uuid
-          title: Workspace Id
-        credentials:
-          items:
-            additionalProperties: true
-            type: object
-          type: array
-          title: Credentials
-        total_credentials:
-          type: integer
-          title: Total Credentials
-        jwt_credentials_note:
-          type: string
-          title: Jwt Credentials Note
-      type: object
-      required:
-      - generated_at
-      - workspace_id
-      - credentials
-      - total_credentials
-      - jwt_credentials_note
-      title: AccessReviewResponse
   securitySchemes:
     BearerAuth:
       type: http

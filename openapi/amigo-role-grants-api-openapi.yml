@@ -176,69 +176,6 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
-    ValidationError:
-      properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-        input:
-          title: Input
-        ctx:
-          type: object
-          title: Context
-      type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
-    _Access:
-      type: string
-      enum:
-      - read
-      - write
-    _ResourceType:
-      type: string
-      enum:
-      - integration_endpoint
-      - skill
-      - kb_scope
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
-    src__routes__role_grants__ListResponse:
-      properties:
-        items:
-          items:
-            $ref: '#/components/schemas/RoleGrantItem'
-          type: array
-          title: Items
-        has_more:
-          type: boolean
-          title: Has More
-        continuation_token:
-          title: Continuation Token
-      type: object
-      required:
-      - items
-      - has_more
-      title: ListResponse
     RoleGrantItem:
       properties:
         id:
@@ -316,6 +253,69 @@ components:
       - resource_key
       - access
       title: CreateRequest
+    _Access:
+      type: string
+      enum:
+      - read
+      - write
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    src__routes__role_grants__ListResponse:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/RoleGrantItem'
+          type: array
+          title: Items
+        has_more:
+          type: boolean
+          title: Has More
+        continuation_token:
+          title: Continuation Token
+      type: object
+      required:
+      - items
+      - has_more
+      title: ListResponse
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    _ResourceType:
+      type: string
+      enum:
+      - integration_endpoint
+      - skill
+      - kb_scope
   securitySchemes:
     BearerAuth:
       type: http

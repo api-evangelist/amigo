@@ -381,176 +381,6 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
-    SyncFailureEntry:
-      properties:
-        event_id:
-          type: string
-          format: uuid
-          title: Event Id
-        event_type:
-          type: string
-          title: Event Type
-        fhir_resource_type:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Fhir Resource Type
-        fhir_resource_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Fhir Resource Id
-        sync_error:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Sync Error
-        created_at:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Created At
-      type: object
-      required:
-      - event_id
-      - event_type
-      - fhir_resource_type
-      - fhir_resource_id
-      - sync_error
-      - created_at
-      title: SyncFailureEntry
-    ValidationError:
-      properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-        input:
-          title: Input
-        ctx:
-          type: object
-          title: Context
-      type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
-    TriggerSyncConflictDetails:
-      properties:
-        last_poll_at:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Last Poll At
-        last_poll_duration_ms:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Last Poll Duration Ms
-      type: object
-      title: TriggerSyncConflictDetails
-      description: 'Operational fields included in a 409 to power UI affordances like
-
-        "syncing for 30s" — strict allowlist, never the whole status entry.'
-    TriggerSyncConflictResponse:
-      properties:
-        message:
-          type: string
-          title: Message
-        details:
-          $ref: '#/components/schemas/TriggerSyncConflictDetails'
-      type: object
-      required:
-      - message
-      - details
-      title: TriggerSyncConflictResponse
-      description: 'Body shape for the 409 returned by POST /sync when the source is
-
-        already mid-poll. Documented in OpenAPI so SDK consumers get a typed
-
-        AlreadySyncing error instead of an opaque blob.'
-    DataSourceStatusResponse:
-      properties:
-        data_source_id:
-          type: string
-          format: uuid
-          title: Data Source Id
-        name:
-          type: string
-          title: Name
-        is_active:
-          type: boolean
-          title: Is Active
-        health_status:
-          type: string
-          enum:
-          - unknown
-          - healthy
-          - degraded
-          title: Health Status
-        last_sync_at:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Last Sync At
-        last_sync_status:
-          anyOf:
-          - type: string
-            enum:
-            - success
-            - error
-          - type: 'null'
-          title: Last Sync Status
-        last_sync_event_count:
-          type: integer
-          title: Last Sync Event Count
-        event_count:
-          type: integer
-          title: Event Count
-        synced_count:
-          type: integer
-          title: Synced Count
-        failed_count:
-          type: integer
-          title: Failed Count
-      type: object
-      required:
-      - data_source_id
-      - name
-      - is_active
-      - health_status
-      - last_sync_at
-      - last_sync_status
-      - last_sync_event_count
-      - event_count
-      - synced_count
-      - failed_count
-      title: DataSourceStatusResponse
-    NameString:
-      type: string
-      maxLength: 256
-      minLength: 1
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
     CreateDataSourceRequest:
       properties:
         name:
@@ -630,7 +460,33 @@ components:
       - data_source_id
       - triggered_at
       title: TriggerSyncResponse
-    DataSourceSyncHistoryResponse:
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    DataSourceStatusResponse:
       properties:
         data_source_id:
           type: string
@@ -639,23 +495,73 @@ components:
         name:
           type: string
           title: Name
-        timeline:
-          items:
-            $ref: '#/components/schemas/SyncHistoryEntry'
-          type: array
-          title: Timeline
-        recent_failures:
-          items:
-            $ref: '#/components/schemas/SyncFailureEntry'
-          type: array
-          title: Recent Failures
+        is_active:
+          type: boolean
+          title: Is Active
+        health_status:
+          type: string
+          enum:
+          - unknown
+          - healthy
+          - degraded
+          title: Health Status
+        last_sync_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Last Sync At
+        last_sync_status:
+          anyOf:
+          - type: string
+            enum:
+            - success
+            - error
+          - type: 'null'
+          title: Last Sync Status
+        last_sync_event_count:
+          type: integer
+          title: Last Sync Event Count
+        event_count:
+          type: integer
+          title: Event Count
+        synced_count:
+          type: integer
+          title: Synced Count
+        failed_count:
+          type: integer
+          title: Failed Count
       type: object
       required:
       - data_source_id
       - name
-      - timeline
-      - recent_failures
-      title: DataSourceSyncHistoryResponse
+      - is_active
+      - health_status
+      - last_sync_at
+      - last_sync_status
+      - last_sync_event_count
+      - event_count
+      - synced_count
+      - failed_count
+      title: DataSourceStatusResponse
+    TriggerSyncConflictDetails:
+      properties:
+        last_poll_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Last Poll At
+        last_poll_duration_ms:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Last Poll Duration Ms
+      type: object
+      title: TriggerSyncConflictDetails
+      description: 'Operational fields included in a 409 to power UI affordances like
+
+        "syncing for 30s" — strict allowlist, never the whole status entry.'
     DataSourceResponse:
       properties:
         id:
@@ -776,6 +682,36 @@ components:
       - created_at
       - updated_at
       title: DataSourceResponse
+    SyncHistoryEntry:
+      properties:
+        date:
+          type: string
+          title: Date
+        event_count:
+          type: integer
+          title: Event Count
+        synced_count:
+          type: integer
+          title: Synced Count
+        failed_count:
+          type: integer
+          title: Failed Count
+      type: object
+      required:
+      - date
+      - event_count
+      - synced_count
+      - failed_count
+      title: SyncHistoryEntry
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
     UpdateDataSourceRequest:
       properties:
         display_name:
@@ -827,6 +763,10 @@ components:
           title: Is Active
       type: object
       title: UpdateDataSourceRequest
+    NameString:
+      type: string
+      maxLength: 256
+      minLength: 1
     PaginatedResponse_DataSourceResponse_:
       properties:
         items:
@@ -852,27 +792,87 @@ components:
       - items
       - has_more
       title: PaginatedResponse[DataSourceResponse]
-    SyncHistoryEntry:
+    TriggerSyncConflictResponse:
       properties:
-        date:
+        message:
           type: string
-          title: Date
-        event_count:
-          type: integer
-          title: Event Count
-        synced_count:
-          type: integer
-          title: Synced Count
-        failed_count:
-          type: integer
-          title: Failed Count
+          title: Message
+        details:
+          $ref: '#/components/schemas/TriggerSyncConflictDetails'
       type: object
       required:
-      - date
-      - event_count
-      - synced_count
-      - failed_count
-      title: SyncHistoryEntry
+      - message
+      - details
+      title: TriggerSyncConflictResponse
+      description: 'Body shape for the 409 returned by POST /sync when the source is
+
+        already mid-poll. Documented in OpenAPI so SDK consumers get a typed
+
+        AlreadySyncing error instead of an opaque blob.'
+    DataSourceSyncHistoryResponse:
+      properties:
+        data_source_id:
+          type: string
+          format: uuid
+          title: Data Source Id
+        name:
+          type: string
+          title: Name
+        timeline:
+          items:
+            $ref: '#/components/schemas/SyncHistoryEntry'
+          type: array
+          title: Timeline
+        recent_failures:
+          items:
+            $ref: '#/components/schemas/SyncFailureEntry'
+          type: array
+          title: Recent Failures
+      type: object
+      required:
+      - data_source_id
+      - name
+      - timeline
+      - recent_failures
+      title: DataSourceSyncHistoryResponse
+    SyncFailureEntry:
+      properties:
+        event_id:
+          type: string
+          format: uuid
+          title: Event Id
+        event_type:
+          type: string
+          title: Event Type
+        fhir_resource_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Fhir Resource Type
+        fhir_resource_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Fhir Resource Id
+        sync_error:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Sync Error
+        created_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Created At
+      type: object
+      required:
+      - event_id
+      - event_type
+      - fhir_resource_type
+      - fhir_resource_id
+      - sync_error
+      - created_at
+      title: SyncFailureEntry
   securitySchemes:
     BearerAuth:
       type: http

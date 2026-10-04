@@ -519,6 +519,54 @@ paths:
           description: Rate limited
 components:
   schemas:
+    AuditEventsListResponse:
+      properties:
+        events:
+          items:
+            $ref: '#/components/schemas/src__routes__audit__AuditEventResponse'
+          type: array
+          title: Events
+        total:
+          type: integer
+          title: Total
+        limit:
+          type: integer
+          title: Limit
+        offset:
+          type: integer
+          title: Offset
+        has_more:
+          type: boolean
+          title: Has More
+      type: object
+      required:
+      - events
+      - total
+      - limit
+      - offset
+      - has_more
+      title: AuditEventsListResponse
+    AuditSummaryResponse:
+      properties:
+        total_events:
+          type: integer
+          title: Total Events
+        phi_access_events:
+          type: integer
+          title: Phi Access Events
+        unique_actors:
+          type: integer
+          title: Unique Actors
+        services_with_events:
+          type: integer
+          title: Services With Events
+      type: object
+      required:
+      - total_events
+      - phi_access_events
+      - unique_actors
+      - services_with_events
+      title: AuditSummaryResponse
     ValidationError:
       properties:
         loc:
@@ -545,103 +593,6 @@ components:
       - msg
       - type
       title: ValidationError
-    AuditExportRequest:
-      properties:
-        date_from:
-          type: string
-          format: date-time
-          title: Date From
-        date_to:
-          type: string
-          format: date-time
-          title: Date To
-        service:
-          anyOf:
-          - type: string
-            maxLength: 64
-          - type: 'null'
-          title: Service
-          description: Filter by service name.
-        action:
-          anyOf:
-          - type: string
-            maxLength: 128
-          - type: 'null'
-          title: Action
-          description: Filter by action type.
-        phi_only:
-          type: boolean
-          title: Phi Only
-          default: false
-      type: object
-      required:
-      - date_from
-      - date_to
-      title: AuditExportRequest
-    AuditExportListResponse:
-      properties:
-        exports:
-          items:
-            $ref: '#/components/schemas/AuditExportListItem'
-          type: array
-          title: Exports
-      type: object
-      required:
-      - exports
-      title: AuditExportListResponse
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
-    AuditExportListItem:
-      properties:
-        key:
-          type: string
-          title: Key
-        size:
-          type: integer
-          title: Size
-        last_modified:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Last Modified
-        download_url:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Download Url
-      type: object
-      required:
-      - key
-      - size
-      title: AuditExportListItem
-    AuditSummaryResponse:
-      properties:
-        total_events:
-          type: integer
-          title: Total Events
-        phi_access_events:
-          type: integer
-          title: Phi Access Events
-        unique_actors:
-          type: integer
-          title: Unique Actors
-        services_with_events:
-          type: integer
-          title: Services With Events
-      type: object
-      required:
-      - total_events
-      - phi_access_events
-      - unique_actors
-      - services_with_events
-      title: AuditSummaryResponse
     src__routes__audit__AuditEventResponse:
       properties:
         id:
@@ -730,33 +681,48 @@ components:
       - service
       - action
       title: AuditEventResponse
-    AuditEventsListResponse:
+    HTTPValidationError:
       properties:
-        events:
+        detail:
           items:
-            $ref: '#/components/schemas/src__routes__audit__AuditEventResponse'
+            $ref: '#/components/schemas/ValidationError'
           type: array
-          title: Events
-        total:
-          type: integer
-          title: Total
-        limit:
-          type: integer
-          title: Limit
-        offset:
-          type: integer
-          title: Offset
-        has_more:
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    AuditExportRequest:
+      properties:
+        date_from:
+          type: string
+          format: date-time
+          title: Date From
+        date_to:
+          type: string
+          format: date-time
+          title: Date To
+        service:
+          anyOf:
+          - type: string
+            maxLength: 64
+          - type: 'null'
+          title: Service
+          description: Filter by service name.
+        action:
+          anyOf:
+          - type: string
+            maxLength: 128
+          - type: 'null'
+          title: Action
+          description: Filter by action type.
+        phi_only:
           type: boolean
-          title: Has More
+          title: Phi Only
+          default: false
       type: object
       required:
-      - events
-      - total
-      - limit
-      - offset
-      - has_more
-      title: AuditEventsListResponse
+      - date_from
+      - date_to
+      title: AuditExportRequest
     AuditExportResponse:
       properties:
         export_id:
@@ -782,6 +748,40 @@ components:
       - download_url
       - created_at
       title: AuditExportResponse
+    AuditExportListItem:
+      properties:
+        key:
+          type: string
+          title: Key
+        size:
+          type: integer
+          title: Size
+        last_modified:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Last Modified
+        download_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Download Url
+      type: object
+      required:
+      - key
+      - size
+      title: AuditExportListItem
+    AuditExportListResponse:
+      properties:
+        exports:
+          items:
+            $ref: '#/components/schemas/AuditExportListItem'
+          type: array
+          title: Exports
+      type: object
+      required:
+      - exports
+      title: AuditExportListResponse
   securitySchemes:
     BearerAuth:
       type: http
