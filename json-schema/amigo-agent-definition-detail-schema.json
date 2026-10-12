@@ -1,0 +1,86 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/amigo/main/json-schema/amigo-agent-definition-detail-schema.json",
+  "title": "AgentDefinitionDetail",
+  "x-generated": "2026-10-12",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/amigo-agent-definitions-api-openapi.yml#/components/schemas/AgentDefinitionDetail",
+  "properties": {
+    "definition_id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Definition Id"
+    },
+    "name": {
+      "type": "string",
+      "title": "Name"
+    },
+    "framework": {
+      "type": "string",
+      "enum": [
+        "claude-agent-sdk",
+        "openai-agents"
+      ],
+      "title": "Framework"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "archived"
+      ],
+      "title": "Status"
+    },
+    "versions": {
+      "items": {
+        "$ref": "#/$defs/AgentDefinitionVersionMeta"
+      },
+      "type": "array",
+      "title": "Versions"
+    }
+  },
+  "type": "object",
+  "required": [
+    "definition_id",
+    "name",
+    "framework",
+    "status",
+    "versions"
+  ],
+  "$defs": {
+    "AgentDefinitionVersionMeta": {
+      "properties": {
+        "version": {
+          "type": "integer",
+          "title": "Version"
+        },
+        "body_sha256": {
+          "type": "string",
+          "title": "Body Sha256"
+        },
+        "validator_rev": {
+          "type": "string",
+          "title": "Validator Rev"
+        },
+        "has_write_tools": {
+          "type": "boolean",
+          "title": "Has Write Tools"
+        },
+        "agent_count": {
+          "type": "integer",
+          "title": "Agent Count"
+        }
+      },
+      "type": "object",
+      "required": [
+        "version",
+        "body_sha256",
+        "validator_rev",
+        "has_write_tools",
+        "agent_count"
+      ],
+      "title": "AgentDefinitionVersionMeta"
+    }
+  }
+}

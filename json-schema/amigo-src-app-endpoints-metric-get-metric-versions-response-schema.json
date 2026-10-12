@@ -1,0 +1,178 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/amigo/main/json-schema/amigo-src-app-endpoints-metric-get-metric-versions-response-schema.json",
+  "title": "Response",
+  "x-generated": "2026-10-12",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/amigo-metric-api-openapi.yml#/components/schemas/src__app__endpoints__metric__get_metric_versions__Response",
+  "properties": {
+    "metric_versions": {
+      "items": {
+        "$ref": "#/$defs/MetricVersionInstance"
+      },
+      "type": "array",
+      "title": "Metric Versions",
+      "description": "The list of retrieved metric versions."
+    },
+    "has_more": {
+      "type": "boolean",
+      "title": "Has More",
+      "description": "Whether there are more metric versions that can be retrieved with further pagination."
+    },
+    "continuation_token": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Continuation Token",
+      "description": "The continuation token to be used to retrieve the next page of metric versions. This is only included if `has_more` is true."
+    }
+  },
+  "type": "object",
+  "required": [
+    "metric_versions",
+    "has_more",
+    "continuation_token"
+  ],
+  "$defs": {
+    "BooleanMetricValue": {
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "boolean",
+          "title": "Type"
+        }
+      },
+      "type": "object",
+      "required": [
+        "type"
+      ],
+      "title": "BooleanMetricValue"
+    },
+    "CategoricalMetricValue-Output": {
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "categorical",
+          "title": "Type"
+        },
+        "categories": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "title": "Categories"
+        }
+      },
+      "type": "object",
+      "required": [
+        "type",
+        "categories"
+      ],
+      "title": "CategoricalMetricValue"
+    },
+    "MetricValue-Output": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/BooleanMetricValue"
+        },
+        {
+          "$ref": "#/$defs/NumericalMetricValue"
+        },
+        {
+          "$ref": "#/$defs/CategoricalMetricValue-Output"
+        }
+      ]
+    },
+    "MetricVersionInstance": {
+      "properties": {
+        "metric_id": {
+          "type": "string",
+          "title": "Metric Id",
+          "description": "The ID of the metric."
+        },
+        "version": {
+          "type": "integer",
+          "title": "Version",
+          "description": "The version number of the metric."
+        },
+        "description": {
+          "type": "string",
+          "title": "Description",
+          "description": "The description of the metric. This tells the LLM what the metric is and how the metric result should be generated."
+        },
+        "metric_value": {
+          "$ref": "#/$defs/MetricValue-Output",
+          "description": "The type of value that this metric is measuring. The value type cannot be adjusted between versions, but specifiers of the type can."
+        },
+        "creator": {
+          "$ref": "#/$defs/amigo_lib__mongo__collections__metric_version__MetricVersion__UserInfo",
+          "description": "The user who created the metric."
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time",
+          "title": "Created At",
+          "description": "The timestamp of when the metric version was created."
+        }
+      },
+      "type": "object",
+      "required": [
+        "metric_id",
+        "version",
+        "description",
+        "metric_value",
+        "creator",
+        "created_at"
+      ],
+      "title": "MetricVersionInstance"
+    },
+    "NumericalMetricValue": {
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "numerical",
+          "title": "Type"
+        },
+        "lower_bound": {
+          "type": "number",
+          "title": "Lower Bound"
+        },
+        "upper_bound": {
+          "type": "number",
+          "title": "Upper Bound"
+        }
+      },
+      "type": "object",
+      "required": [
+        "type",
+        "lower_bound",
+        "upper_bound"
+      ],
+      "title": "NumericalMetricValue"
+    },
+    "amigo_lib__mongo__collections__metric_version__MetricVersion__UserInfo": {
+      "properties": {
+        "org_id": {
+          "type": "string",
+          "title": "Org Id"
+        },
+        "user_id": {
+          "type": "string",
+          "title": "User Id"
+        }
+      },
+      "type": "object",
+      "required": [
+        "org_id",
+        "user_id"
+      ],
+      "title": "UserInfo"
+    }
+  }
+}

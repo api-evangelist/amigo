@@ -1,0 +1,397 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/amigo/main/json-schema/amigo-src-routes-integrations-update-integration-request-schema.json",
+  "title": "Request",
+  "description": "PATCH body — each field is sentinel-defaulted; absent ≠ explicit-null.",
+  "x-generated": "2026-10-12",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/amigo-integrations-api-openapi.yml#/components/schemas/src__routes__integrations__update_integration__Request",
+  "properties": {
+    "display_name": {
+      "$ref": "#/$defs/NameString",
+      "title": "Display Name",
+      "description": "New display name."
+    },
+    "base_url": {
+      "type": "string",
+      "maxLength": 2083,
+      "minLength": 1,
+      "format": "uri",
+      "title": "Base Url",
+      "description": "New base URL."
+    },
+    "auth": {
+      "anyOf": [
+        {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/StaticHeaderAuthRequest"
+            },
+            {
+              "$ref": "#/$defs/OAuth2ClientCredentialsAuthRequest"
+            },
+            {
+              "$ref": "#/$defs/OAuth2JwtBearerAuthRequest"
+            },
+            {
+              "$ref": "#/$defs/CustomTokenExchangeAuthRequest"
+            }
+          ]
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Auth",
+      "description": "New auth config. Absent ⇒ untouched; null ⇒ clear; value ⇒ replace.\nIndependent of ``secret_value`` — updating ``auth`` alone reuses the\nexisting SSM secret."
+    },
+    "secret_value": {
+      "type": "string",
+      "maxLength": 8192,
+      "minLength": 1,
+      "title": "Secret Value",
+      "description": "Rotate the per-integration SSM secret. Absent ⇒ existing secret\nuntouched; value ⇒ overwrite SSM at the canonical path. Explicit\n``null`` is rejected at validation — there is no \"clear the secret\"\noperation (clearing ``auth`` makes the secret unreachable; that's the\nintended clear path)."
+    },
+    "enabled": {
+      "type": "boolean",
+      "title": "Enabled",
+      "description": "Toggle the integration on/off."
+    },
+    "managed": {
+      "type": "boolean",
+      "title": "Managed",
+      "description": "Mark/unmark the integration as system-managed. Requires ``platform:admin`` scope."
+    },
+    "approval_policy": {
+      "type": "string",
+      "enum": [
+        "none",
+        "writes",
+        "all"
+      ],
+      "title": "Approval Policy",
+      "description": "Change the human-in-the-loop approval gate. ``none`` = no approval\nrequired; ``writes`` = approval required for write-classified endpoints;\n``all`` = approval required for every endpoint. Absent ⇒ untouched."
+    }
+  },
+  "type": "object",
+  "$defs": {
+    "CustomTokenExchangeAuthRequest": {
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "custom_token_exchange",
+          "title": "Type",
+          "default": "custom_token_exchange"
+        },
+        "exchange_url": {
+          "type": "string",
+          "maxLength": 2083,
+          "minLength": 1,
+          "format": "uri",
+          "title": "Exchange Url"
+        },
+        "body_encoding": {
+          "type": "string",
+          "enum": [
+            "json",
+            "form"
+          ],
+          "title": "Body Encoding",
+          "description": "``json`` (default) sends static_body_fields + param_body_fields as JSON; ``form`` sends as application/x-www-form-urlencoded.",
+          "default": "json"
+        },
+        "static_headers": {
+          "patternProperties": {
+            "^[A-Za-z0-9!#$%&'*+\\-.^_`|~]+$": {
+              "type": "string"
+            }
+          },
+          "propertyNames": {
+            "maxLength": 256,
+            "minLength": 1
+          },
+          "type": "object",
+          "title": "Static Headers",
+          "description": "Workspace-level headers on the exchange request (keys are RFC 7230 tchar). Values may contain ``{secret}`` placeholder.",
+          "default": {}
+        },
+        "static_body_fields": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "type": "object",
+          "title": "Static Body Fields",
+          "description": "Workspace-level body fields keyed by RFC 6901 JSON Pointer (e.g. ``/meta/tool_name``\nfor nested fields, or ``/foo`` for a root-level field). Values may contain ``{secret}``\nplaceholder.",
+          "default": {}
+        },
+        "param_headers": {
+          "patternProperties": {
+            "^[A-Za-z0-9!#$%&'*+\\-.^_`|~]+$": {
+              "$ref": "#/$defs/ParamValueRequest"
+            }
+          },
+          "propertyNames": {
+            "maxLength": 256,
+            "minLength": 1
+          },
+          "type": "object",
+          "title": "Param Headers",
+          "description": "Per-request params routed to headers on the exchange request, keyed by wire-name.",
+          "default": {}
+        },
+        "param_body_fields": {
+          "additionalProperties": {
+            "$ref": "#/$defs/ParamValueRequest"
+          },
+          "type": "object",
+          "title": "Param Body Fields",
+          "description": "Per-request params routed to body fields on the exchange request, keyed by RFC 6901 JSON Pointer.",
+          "default": {}
+        },
+        "identity_bindings": {
+          "additionalProperties": {
+            "type": "string",
+            "enum": [
+              "principal.subject_key",
+              "principal.subject_id",
+              "external_user.subject_key"
+            ]
+          },
+          "type": "object",
+          "maxProperties": 50,
+          "title": "Identity Bindings",
+          "description": "Maps a declared ``param_name`` to the verified identity attribute that supplies it\nat dispatch. A bound param is dropped from the LLM-facing tool schema and injected from the\nverified session context (never model-supplied), closing the per-user-identity impersonation hole.\nKeys MUST reference a ``param_name`` declared on ``param_headers`` / ``param_body_fields``.",
+          "default": {}
+        },
+        "identity_binding_test_values": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "type": "object",
+          "title": "Identity Binding Test Values",
+          "description": "Author-configured test values for identity-bound params.\n\nOnly ``external_user.subject_key`` bindings may carry test values. Runtime\ndispatch uses them only when a backend execution path explicitly opts in.",
+          "default": {}
+        },
+        "response_token_path": {
+          "type": "string",
+          "title": "Response Token Path",
+          "description": "RFC 6901 JSON Pointer into the exchange response body that extracts the bearer token\n(e.g. ``/access_token`` or ``/data/bearer``). NO default — every config commits explicitly."
+        }
+      },
+      "type": "object",
+      "required": [
+        "exchange_url",
+        "response_token_path"
+      ],
+      "title": "CustomTokenExchangeAuthRequest",
+      "description": "Pre-flight exchange that mints a downstream bearer.\n\nReplaces legacy ``json_token_exchange`` AND ``bearer_token_exchange``.\nPath-shaped fields (``response_token_path``, ``static_body_fields`` keys,\n``param_body_fields`` keys) MUST be valid RFC 6901 JSON Pointer — one\nsyntax throughout."
+    },
+    "NameString": {
+      "type": "string",
+      "maxLength": 256,
+      "minLength": 1
+    },
+    "OAuth2ClientCredentialsAuthRequest": {
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "oauth2_client_credentials",
+          "title": "Type",
+          "default": "oauth2_client_credentials"
+        },
+        "token_url": {
+          "type": "string",
+          "maxLength": 2083,
+          "minLength": 1,
+          "format": "uri",
+          "title": "Token Url"
+        },
+        "client_id": {
+          "type": "string",
+          "title": "Client Id"
+        },
+        "scopes": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Scopes"
+        },
+        "client_auth_method": {
+          "type": "string",
+          "enum": [
+            "basic",
+            "body"
+          ],
+          "title": "Client Auth Method",
+          "description": "RFC 6749 § 2.3.1: ``basic`` sends client_id+secret as HTTP Basic auth; ``body`` sends them in the form body.",
+          "default": "basic"
+        }
+      },
+      "type": "object",
+      "required": [
+        "token_url",
+        "client_id"
+      ],
+      "title": "OAuth2ClientCredentialsAuthRequest",
+      "description": "OAuth 2.0 Client Credentials Grant — RFC 6749 § 4.4.\n\nStrict RFC 6749 § 4.4.2 access token request: ``grant_type`` + optional\n``scope``. Client authentication (RFC 6749 § 2.3.1) is orthogonal —\n``client_auth_method`` picks between HTTP Basic auth and form-body\ncredentials. RFC 8707 ``resource`` and non-standard ``audience`` extensions\nare NOT supported here — add them back when a vendor needs one."
+    },
+    "OAuth2JwtBearerAuthRequest": {
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "oauth2_jwt_bearer",
+          "title": "Type",
+          "default": "oauth2_jwt_bearer"
+        },
+        "token_url": {
+          "type": "string",
+          "maxLength": 2083,
+          "minLength": 1,
+          "format": "uri",
+          "title": "Token Url"
+        },
+        "assertion_issuer": {
+          "type": "string",
+          "title": "Assertion Issuer",
+          "description": "RFC 7523 ``iss`` claim — typically the service-account email or client_id."
+        },
+        "assertion_audience": {
+          "type": "string",
+          "title": "Assertion Audience",
+          "description": "RFC 7523 ``aud`` claim — typically the token_url."
+        },
+        "assertion_subject": {
+          "type": "string",
+          "title": "Assertion Subject",
+          "description": "RFC 7523 § 3 ``sub`` claim — MUST be present. For service-account flows\nwhere the client is its own subject, set to the same value as ``assertion_issuer``.\nUse a different value only for delegation / impersonation grants."
+        },
+        "assertion_lifetime_seconds": {
+          "type": "integer",
+          "title": "Assertion Lifetime Seconds",
+          "default": 3600
+        },
+        "include_iat": {
+          "type": "boolean",
+          "title": "Include Iat",
+          "description": "RFC 7523 § 3 item 6 — ``iat`` claim set to mint time. Most IdPs (Google, Azure)\nrequire it for anti-replay; leave True unless a specific vendor rejects it.",
+          "default": true
+        },
+        "include_jti": {
+          "type": "boolean",
+          "title": "Include Jti",
+          "description": "When True, generate a fresh ``jti`` (anti-replay) on every mint.",
+          "default": true
+        },
+        "assertion_algorithm": {
+          "type": "string",
+          "enum": [
+            "RS256",
+            "RS384",
+            "RS512",
+            "PS256",
+            "PS384",
+            "PS512",
+            "ES256",
+            "ES384",
+            "ES512"
+          ],
+          "title": "Assertion Algorithm",
+          "default": "RS256"
+        },
+        "assertion_usage": {
+          "type": "string",
+          "enum": [
+            "authorization_grant",
+            "client_authentication"
+          ],
+          "title": "Assertion Usage",
+          "description": "RFC 7523 flow selector — required; the caller must pick a flow.\n``authorization_grant`` (§ 2.1) sends the JWT as ``assertion`` under\n``grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer``.\n``client_authentication`` (§ 2.2, the ``private_key_jwt`` method) sends it as\n``client_assertion`` + ``client_assertion_type`` under ``grant_type=client_credentials``\n— required by Epic / SMART Backend Services."
+        },
+        "scopes": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Scopes",
+          "description": "RFC 7523 § 2.1 ``scope`` form-body parameter. Vendors that put scopes inside\nthe JWT instead (Google service accounts) use ``extra_claims = {\"scope\": \"...\"}``\nand leave this empty."
+        },
+        "extra_claims": {
+          "additionalProperties": true,
+          "type": "object",
+          "title": "Extra Claims",
+          "description": "RFC 7523 § 3 item 8 — arbitrary additional JWT claims (e.g. Google's\n``scope`` claim, Azure's tenant claim). Merged BEFORE the required claims so\nIdP-specific extensions can't override ``iss`` / ``sub`` / ``aud`` / ``exp`` /\n``iat`` / ``nbf`` / ``jti``.",
+          "default": {}
+        }
+      },
+      "type": "object",
+      "required": [
+        "token_url",
+        "assertion_issuer",
+        "assertion_audience",
+        "assertion_subject",
+        "assertion_usage"
+      ],
+      "title": "OAuth2JwtBearerAuthRequest",
+      "description": "OAuth 2.0 JWT Bearer Token — RFC 7523.\n\n``assertion_usage`` (required) selects the flow: § 2.1 (JWT as authorization\ngrant) or § 2.2 (JWT as client authentication / private_key_jwt)."
+    },
+    "ParamValueRequest": {
+      "properties": {
+        "param_name": {
+          "type": "string",
+          "title": "Param Name"
+        },
+        "description": {
+          "type": "string",
+          "title": "Description"
+        }
+      },
+      "type": "object",
+      "required": [
+        "param_name",
+        "description"
+      ],
+      "title": "ParamValueRequest",
+      "description": "Routing target for a single per-request parameter on the exchange call.\n\nPaired with a wire-name (header / body-field key) on\n``CustomTokenExchangeAuthRequest.param_headers`` / ``param_body_fields``."
+    },
+    "StaticHeaderAuthRequest": {
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "static_header",
+          "title": "Type",
+          "default": "static_header"
+        },
+        "header_name": {
+          "type": "string",
+          "maxLength": 256,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9!#$%&'*+\\-.^_`|~]+$",
+          "title": "Header Name",
+          "description": "Outbound header name (RFC 7230 tchar)."
+        }
+      },
+      "type": "object",
+      "required": [
+        "header_name"
+      ],
+      "title": "StaticHeaderAuthRequest",
+      "description": "Static workspace-level secret used verbatim as a single header value."
+    }
+  }
+}

@@ -1,0 +1,102 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/amigo/main/json-schema/amigo-data-quality-response-schema.json",
+  "title": "DataQualityResponse",
+  "description": "Data quality metrics — confidence distribution, review pipeline stats.",
+  "x-generated": "2026-10-12",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/amigo-analytics-api-openapi.yml#/components/schemas/DataQualityResponse",
+  "properties": {
+    "workspace_id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Workspace Id",
+      "description": "Workspace identifier"
+    },
+    "period_start": {
+      "type": "string",
+      "format": "date",
+      "title": "Period Start",
+      "description": "Start of the reporting period"
+    },
+    "period_end": {
+      "type": "string",
+      "format": "date",
+      "title": "Period End",
+      "description": "End of the reporting period"
+    },
+    "confidence_distribution": {
+      "items": {
+        "$ref": "#/$defs/ConfidenceBucket"
+      },
+      "type": "array",
+      "title": "Confidence Distribution",
+      "description": "Overall confidence distribution across buckets"
+    },
+    "confidence_by_source": {
+      "additionalProperties": {
+        "items": {
+          "$ref": "#/$defs/ConfidenceBucket"
+        },
+        "type": "array"
+      },
+      "type": "object",
+      "title": "Confidence By Source",
+      "description": "Confidence distribution broken down by event source"
+    },
+    "review_pipeline": {
+      "additionalProperties": true,
+      "type": "object",
+      "title": "Review Pipeline",
+      "description": "Review pipeline throughput statistics"
+    },
+    "timeseries": {
+      "items": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "type": "array",
+      "title": "Timeseries",
+      "description": "Daily confidence averages and event counts"
+    },
+    "total_events": {
+      "type": "integer",
+      "title": "Total Events",
+      "description": "Total number of events in the period"
+    }
+  },
+  "type": "object",
+  "required": [
+    "workspace_id",
+    "period_start",
+    "period_end",
+    "confidence_distribution",
+    "confidence_by_source",
+    "review_pipeline",
+    "timeseries",
+    "total_events"
+  ],
+  "$defs": {
+    "ConfidenceBucket": {
+      "properties": {
+        "confidence_range": {
+          "type": "string",
+          "title": "Confidence Range",
+          "description": "Confidence level bucket label (e.g. 'raw', 'verified', 'authoritative')"
+        },
+        "count": {
+          "type": "integer",
+          "title": "Count",
+          "description": "Number of events in this confidence bucket"
+        }
+      },
+      "type": "object",
+      "required": [
+        "confidence_range",
+        "count"
+      ],
+      "title": "ConfidenceBucket"
+    }
+  }
+}

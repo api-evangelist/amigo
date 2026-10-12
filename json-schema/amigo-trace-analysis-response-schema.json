@@ -1,0 +1,605 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/amigo/main/json-schema/amigo-trace-analysis-response-schema.json",
+  "title": "TraceAnalysisResponse",
+  "description": "Deep call understanding produced by the Amigo intelligence pipeline.\n\nAnalyzes the raw call audio to identify emotional dynamics, key decision\nmoments, and actionable coaching - understanding that exceeds what either\nparticipant had during the call itself.\n\n**Latency note**: This endpoint reads from the analytics data warehouse.\nExpect 500ms-2s response time, not sub-10ms like transactional endpoints.",
+  "x-generated": "2026-10-12",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/amigo-calls-api-openapi.yml#/components/schemas/TraceAnalysisResponse",
+  "properties": {
+    "call_sid": {
+      "type": "string",
+      "maxLength": 128,
+      "minLength": 1,
+      "title": "Call Sid",
+      "description": "Call identifier (Twilio call SID or direct session ID)"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "ready",
+        "pending",
+        "unavailable"
+      ],
+      "title": "Status",
+      "description": "ready: analysis complete. pending: call completed, analysis processing. unavailable: analysis not possible for this call.",
+      "default": "ready"
+    },
+    "summary": {
+      "anyOf": [
+        {
+          "type": "string",
+          "maxLength": 2000,
+          "minLength": 1
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Summary",
+      "description": "2-3 sentence narrative of the call - the emotional story, not just what happened"
+    },
+    "outcome": {
+      "anyOf": [
+        {
+          "type": "string",
+          "enum": [
+            "succeeded",
+            "partially",
+            "failed",
+            "abandoned"
+          ]
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Outcome",
+      "description": "Overall call outcome"
+    },
+    "key_moment_count": {
+      "type": "integer",
+      "minimum": 0.0,
+      "title": "Key Moment Count",
+      "description": "Number of key decision moments identified (typically 3-8)",
+      "default": 0
+    },
+    "key_moments": {
+      "items": {
+        "$ref": "#/$defs/TraceKeyMoment"
+      },
+      "type": "array",
+      "maxItems": 100,
+      "title": "Key Moments",
+      "description": "Key decision points with causal attribution to audio inputs"
+    },
+    "emotional_arc": {
+      "anyOf": [
+        {
+          "type": "string",
+          "maxLength": 2000,
+          "minLength": 1
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Emotional Arc",
+      "description": "Caller emotional trajectory as a readable sequence (e.g. 'curious -> confused -> frustrated -> relieved')"
+    },
+    "emotional_shifts": {
+      "items": {
+        "$ref": "#/$defs/EmotionalShift"
+      },
+      "type": "array",
+      "maxItems": 100,
+      "title": "Emotional Shifts",
+      "description": "Critical emotional state changes detected in the caller's voice"
+    },
+    "interaction_dynamics": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/InteractionDynamics"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "System-level conversation flow analysis"
+    },
+    "coaching": {
+      "items": {
+        "$ref": "#/$defs/CoachingItem"
+      },
+      "type": "array",
+      "maxItems": 50,
+      "title": "Coaching",
+      "description": "Specific, actionable agent improvements tied to exact moments in this call"
+    },
+    "counterfactuals": {
+      "items": {
+        "$ref": "#/$defs/Counterfactual"
+      },
+      "type": "array",
+      "maxItems": 50,
+      "title": "Counterfactuals",
+      "description": "Alternative actions that would have meaningfully changed the outcome"
+    },
+    "deep_understanding": {
+      "anyOf": [
+        {
+          "type": "string",
+          "maxLength": 10000,
+          "minLength": 1
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Deep Understanding",
+      "description": "Synthesis of why this call went the way it did - combining audio perception with execution data"
+    },
+    "signal_response_alignment": {
+      "items": {
+        "$ref": "#/$defs/SignalResponseAlignment"
+      },
+      "type": "array",
+      "maxItems": 50,
+      "title": "Signal Response Alignment",
+      "description": "Per-signal alignment analysis: whether the agent's response matched each salient signal"
+    },
+    "missed_opportunities": {
+      "items": {
+        "type": "string",
+        "maxLength": 2000,
+        "minLength": 1
+      },
+      "type": "array",
+      "maxItems": 50,
+      "title": "Missed Opportunities",
+      "description": "Moments where the agent could have taken a better action"
+    },
+    "emergent_patterns": {
+      "items": {
+        "type": "string",
+        "maxLength": 2000,
+        "minLength": 1
+      },
+      "type": "array",
+      "maxItems": 50,
+      "title": "Emergent Patterns",
+      "description": "Cross-call or cross-turn patterns detected by the analysis"
+    },
+    "call_entity_id": {
+      "anyOf": [
+        {
+          "type": "string",
+          "format": "uuid"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Call Entity Id",
+      "description": "UUID string of the associated world.entities_synced call row (if resolved)"
+    },
+    "computed_at": {
+      "anyOf": [
+        {
+          "type": "string",
+          "format": "date-time"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Computed At",
+      "description": "When the analysis was produced by the pipeline"
+    }
+  },
+  "type": "object",
+  "required": [
+    "call_sid"
+  ],
+  "$defs": {
+    "CoachingItem": {
+      "properties": {
+        "moment_timestamp": {
+          "anyOf": [
+            {
+              "type": "number",
+              "maximum": 86400.0,
+              "minimum": 0.0
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Moment Timestamp",
+          "description": "Position in the recording this coaching applies to (seconds)"
+        },
+        "observation": {
+          "type": "string",
+          "maxLength": 2000,
+          "minLength": 1,
+          "title": "Observation",
+          "description": "What was observed in the audio at this moment"
+        },
+        "recommendation": {
+          "type": "string",
+          "maxLength": 2000,
+          "minLength": 1,
+          "title": "Recommendation",
+          "description": "Specific improvement the agent should make"
+        },
+        "expected_impact": {
+          "anyOf": [
+            {
+              "type": "string",
+              "maxLength": 2000,
+              "minLength": 1
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Expected Impact",
+          "description": "How this improvement would change the interaction"
+        }
+      },
+      "type": "object",
+      "required": [
+        "observation",
+        "recommendation"
+      ],
+      "title": "CoachingItem",
+      "description": "A specific, actionable improvement tied to an exact moment in the call."
+    },
+    "Counterfactual": {
+      "properties": {
+        "timestamp_seconds": {
+          "anyOf": [
+            {
+              "type": "number",
+              "maximum": 86400.0,
+              "minimum": 0.0
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Timestamp Seconds",
+          "description": "When the alternative action was available (seconds)"
+        },
+        "actual": {
+          "type": "string",
+          "maxLength": 2000,
+          "minLength": 1,
+          "title": "Actual",
+          "description": "What the agent actually did"
+        },
+        "alternative": {
+          "type": "string",
+          "maxLength": 2000,
+          "minLength": 1,
+          "title": "Alternative",
+          "description": "What it could have done instead"
+        },
+        "predicted_impact": {
+          "type": "string",
+          "maxLength": 2000,
+          "minLength": 1,
+          "title": "Predicted Impact",
+          "description": "How the call would have gone differently"
+        }
+      },
+      "type": "object",
+      "required": [
+        "actual",
+        "alternative",
+        "predicted_impact"
+      ],
+      "title": "Counterfactual",
+      "description": "An alternative action that would have meaningfully changed the call outcome."
+    },
+    "DecisionFactor": {
+      "properties": {
+        "factor": {
+          "type": "string",
+          "maxLength": 2000,
+          "minLength": 1,
+          "title": "Factor",
+          "description": "What specifically drove this decision - exact words heard or tone described"
+        },
+        "source_type": {
+          "type": "string",
+          "title": "Source Type",
+          "description": "Category of the audio input"
+        }
+      },
+      "type": "object",
+      "required": [
+        "factor",
+        "source_type"
+      ],
+      "title": "DecisionFactor",
+      "description": "A specific audio input that drove an agent decision."
+    },
+    "EmotionalShift": {
+      "properties": {
+        "timestamp_seconds": {
+          "anyOf": [
+            {
+              "type": "number",
+              "maximum": 86400.0,
+              "minimum": 0.0
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Timestamp Seconds",
+          "description": "When the shift occurred (seconds from start)"
+        },
+        "from_state": {
+          "anyOf": [
+            {
+              "type": "string",
+              "maxLength": 500,
+              "minLength": 1
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "From State",
+          "description": "Emotional state before the shift"
+        },
+        "to_state": {
+          "anyOf": [
+            {
+              "type": "string",
+              "maxLength": 500,
+              "minLength": 1
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "To State",
+          "description": "Emotional state after the shift"
+        },
+        "trigger": {
+          "anyOf": [
+            {
+              "type": "string",
+              "maxLength": 2000,
+              "minLength": 1
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Trigger",
+          "description": "What caused the shift - exact words and tone"
+        },
+        "agent_awareness": {
+          "anyOf": [
+            {
+              "type": "string",
+              "maxLength": 2000,
+              "minLength": 1
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Agent Awareness",
+          "description": "Whether the agent noticed and responded to this shift"
+        }
+      },
+      "type": "object",
+      "title": "EmotionalShift",
+      "description": "A critical emotional state change detected in the caller's voice."
+    },
+    "InteractionDynamics": {
+      "properties": {
+        "turn_taking_quality": {
+          "anyOf": [
+            {
+              "type": "string",
+              "maxLength": 2000,
+              "minLength": 1
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Turn Taking Quality",
+          "description": "How well speakers managed turn-taking - interruptions, overlaps, pacing"
+        },
+        "information_density": {
+          "anyOf": [
+            {
+              "type": "string",
+              "maxLength": 2000,
+              "minLength": 1
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Information Density",
+          "description": "Whether the agent gave too much or too little information per turn"
+        },
+        "repair_effectiveness": {
+          "anyOf": [
+            {
+              "type": "string",
+              "maxLength": 2000,
+              "minLength": 1
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Repair Effectiveness",
+          "description": "How misunderstandings were detected and resolved"
+        },
+        "rapport_trajectory": {
+          "anyOf": [
+            {
+              "type": "string",
+              "maxLength": 2000,
+              "minLength": 1
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Rapport Trajectory",
+          "description": "How the interpersonal dynamic evolved across the call"
+        }
+      },
+      "type": "object",
+      "title": "InteractionDynamics",
+      "description": "System-level analysis of the conversation as a whole."
+    },
+    "SignalResponseAlignment": {
+      "properties": {
+        "signal": {
+          "type": "string",
+          "maxLength": 2000,
+          "minLength": 1,
+          "title": "Signal",
+          "description": "The signal observed (e.g. caller tone shift, tool result, silence)"
+        },
+        "agent_response": {
+          "type": "string",
+          "maxLength": 2000,
+          "minLength": 1,
+          "title": "Agent Response",
+          "description": "What the agent did in response"
+        },
+        "alignment": {
+          "type": "string",
+          "enum": [
+            "aligned",
+            "misaligned",
+            "partial"
+          ],
+          "title": "Alignment",
+          "description": "Whether the response was aligned, misaligned, or partial"
+        },
+        "insight": {
+          "anyOf": [
+            {
+              "type": "string",
+              "maxLength": 2000,
+              "minLength": 1
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Insight",
+          "description": "Short insight on why the alignment went the way it did"
+        }
+      },
+      "type": "object",
+      "required": [
+        "signal",
+        "agent_response",
+        "alignment"
+      ],
+      "title": "SignalResponseAlignment",
+      "description": "Whether the agent's response aligned with a salient signal in the call."
+    },
+    "TraceKeyMoment": {
+      "properties": {
+        "timestamp_seconds": {
+          "anyOf": [
+            {
+              "type": "number",
+              "maximum": 86400.0,
+              "minimum": 0.0
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Timestamp Seconds",
+          "description": "Approximate position in the recording (seconds from start)"
+        },
+        "what_happened": {
+          "type": "string",
+          "maxLength": 2000,
+          "minLength": 1,
+          "title": "What Happened",
+          "description": "Plain-English description of the agent's decision"
+        },
+        "quality": {
+          "anyOf": [
+            {
+              "type": "string",
+              "enum": [
+                "optimal",
+                "adequate",
+                "suboptimal"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Quality",
+          "description": "Assessment of the decision quality"
+        },
+        "reasoning": {
+          "anyOf": [
+            {
+              "type": "string",
+              "maxLength": 2000,
+              "minLength": 1
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Reasoning",
+          "description": "Why this was the right or wrong choice given the audio context"
+        },
+        "decision_factors": {
+          "items": {
+            "$ref": "#/$defs/DecisionFactor"
+          },
+          "type": "array",
+          "maxItems": 20,
+          "title": "Decision Factors",
+          "description": "Specific audio inputs that drove this decision"
+        },
+        "alternative": {
+          "anyOf": [
+            {
+              "type": "string",
+              "maxLength": 2000,
+              "minLength": 1
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Alternative",
+          "description": "What else the agent could have done and the likely outcome"
+        }
+      },
+      "type": "object",
+      "required": [
+        "what_happened"
+      ],
+      "title": "TraceKeyMoment",
+      "description": "A key decision point identified from the call audio."
+    }
+  }
+}

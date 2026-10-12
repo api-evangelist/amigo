@@ -1,0 +1,82 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/amigo/main/json-schema/amigo-event-breakdown-response-schema.json",
+  "title": "EventBreakdownResponse",
+  "x-generated": "2026-10-12",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/amigo-analytics-api-openapi.yml#/components/schemas/EventBreakdownResponse",
+  "properties": {
+    "workspace_id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Workspace Id",
+      "description": "Workspace identifier"
+    },
+    "period_start": {
+      "type": "string",
+      "format": "date",
+      "title": "Period Start",
+      "description": "Start of the reporting period"
+    },
+    "period_end": {
+      "type": "string",
+      "format": "date",
+      "title": "Period End",
+      "description": "End of the reporting period"
+    },
+    "by_type": {
+      "items": {
+        "$ref": "#/$defs/EventBreakdownItem"
+      },
+      "type": "array",
+      "title": "By Type",
+      "description": "Event counts grouped by event type"
+    },
+    "by_source": {
+      "items": {
+        "$ref": "#/$defs/EventBreakdownItem"
+      },
+      "type": "array",
+      "title": "By Source",
+      "description": "Event counts grouped by source"
+    },
+    "total_events": {
+      "type": "integer",
+      "title": "Total Events",
+      "description": "Total number of events in the period"
+    }
+  },
+  "type": "object",
+  "required": [
+    "workspace_id",
+    "period_start",
+    "period_end",
+    "by_type",
+    "by_source",
+    "total_events"
+  ],
+  "$defs": {
+    "EventBreakdownItem": {
+      "properties": {
+        "key": {
+          "type": "string",
+          "title": "Key",
+          "description": "Grouping key (event type or source name)"
+        },
+        "count": {
+          "type": "integer",
+          "title": "Count",
+          "description": "Number of events for this key"
+        }
+      },
+      "type": "object",
+      "required": [
+        "key",
+        "count"
+      ],
+      "title": "EventBreakdownItem",
+      "description": "Single row in an event breakdown aggregation."
+    }
+  }
+}

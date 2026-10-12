@@ -1,0 +1,124 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/amigo/main/json-schema/amigo-endpoint-response-schema.json",
+  "title": "EndpointResponse",
+  "description": "Per-endpoint response (V186 flat shape).",
+  "x-generated": "2026-10-12",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/amigo-integrations-api-openapi.yml#/components/schemas/EndpointResponse",
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Id",
+      "description": "Endpoint ID — stable, used in subsequent GET/PATCH/DELETE/test URLs."
+    },
+    "name": {
+      "type": "string",
+      "title": "Name",
+      "description": "Slug-like identifier. Unique per integration; immutable post-create."
+    },
+    "description": {
+      "type": "string",
+      "title": "Description",
+      "description": "LLM-facing description."
+    },
+    "method": {
+      "type": "string",
+      "enum": [
+        "GET",
+        "POST",
+        "PUT",
+        "PATCH",
+        "DELETE"
+      ],
+      "title": "Method",
+      "description": "HTTP method."
+    },
+    "path": {
+      "type": "string",
+      "title": "Path",
+      "description": "URL path appended to the integration's base_url."
+    },
+    "input_schema": {
+      "additionalProperties": true,
+      "type": "object",
+      "title": "Input Schema",
+      "description": "JSON Schema for the tool's input arguments."
+    },
+    "headers": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "type": "object",
+      "title": "Headers",
+      "description": "Static request headers."
+    },
+    "static_body_fields": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "type": "object",
+      "title": "Static Body Fields",
+      "description": "Static body fields merged into every request. Keys are RFC 6901 JSON Pointers\n(e.g. ``/meta/tool_name`` for nested, ``/foo`` for a root-level field)."
+    },
+    "body_format": {
+      "type": "string",
+      "enum": [
+        "json",
+        "form"
+      ],
+      "title": "Body Format",
+      "description": "Outbound body encoding.",
+      "default": "json"
+    },
+    "response_template": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Response Template",
+      "description": "Jinja template rendered against the parsed JSON response."
+    },
+    "max_response_length": {
+      "type": "integer",
+      "title": "Max Response Length",
+      "description": "Truncate the final rendered string to this many chars.",
+      "default": 0
+    },
+    "timeout_seconds": {
+      "type": "number",
+      "title": "Timeout Seconds",
+      "description": "Per-request timeout.",
+      "default": 30.0
+    },
+    "max_retries": {
+      "type": "integer",
+      "title": "Max Retries",
+      "description": "Retry attempts on transient failures.",
+      "default": 2
+    },
+    "retry_on_status": {
+      "items": {
+        "type": "integer"
+      },
+      "type": "array",
+      "uniqueItems": true,
+      "title": "Retry On Status",
+      "description": "HTTP status codes that trigger a retry."
+    }
+  },
+  "type": "object",
+  "required": [
+    "id",
+    "name",
+    "description",
+    "method",
+    "path"
+  ]
+}

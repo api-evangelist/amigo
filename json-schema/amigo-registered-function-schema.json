@@ -1,0 +1,216 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/amigo/main/json-schema/amigo-registered-function-schema.json",
+  "title": "RegisteredFunction",
+  "description": "The authored shape of a platform function.\n\nIdentical wire format whether it's authored as a YAML file in the\nrepo or POSTed to ``/v1/{ws}/functions/deploy``. The deploy\npipeline validates this, derives the JSON Schema for the LLM tool\nspec, and INSERTs a row into ``platform.functions`` with the next\nmonotonic ``version`` per ``(workspace_id, name)``. For\n``python`` / ``udtf`` rows, deploy ALSO issues\n``CREATE OR REPLACE FUNCTION`` against the warehouse to materialize\nthe UC UDF.",
+  "x-generated": "2026-10-12",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/amigo-functions-api-openapi.yml#/components/schemas/RegisteredFunction",
+  "properties": {
+    "name": {
+      "type": "string",
+      "maxLength": 128,
+      "minLength": 1,
+      "pattern": "^[a-z][a-z0-9_]*$",
+      "title": "Name"
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 2048,
+      "minLength": 1,
+      "title": "Description"
+    },
+    "when_to_use": {
+      "type": "string",
+      "maxLength": 2048,
+      "title": "When To Use",
+      "default": ""
+    },
+    "function_type": {
+      "type": "string",
+      "enum": [
+        "sql",
+        "ai",
+        "udtf",
+        "python"
+      ],
+      "title": "Function Type",
+      "default": "sql"
+    },
+    "returns": {
+      "type": "string",
+      "enum": [
+        "table",
+        "scalar"
+      ],
+      "title": "Returns",
+      "default": "table"
+    },
+    "returns_type": {
+      "type": "string",
+      "enum": [
+        "string",
+        "integer",
+        "number",
+        "boolean"
+      ],
+      "title": "Returns Type",
+      "default": "string"
+    },
+    "parameters": {
+      "items": {
+        "$ref": "#/$defs/platform_lib__platform_functions__models__Parameter"
+      },
+      "type": "array",
+      "maxItems": 32,
+      "title": "Parameters"
+    },
+    "returns_columns": {
+      "items": {
+        "$ref": "#/$defs/ReturnColumn"
+      },
+      "type": "array",
+      "maxItems": 32,
+      "title": "Returns Columns"
+    },
+    "body": {
+      "type": "string",
+      "maxLength": 8192,
+      "minLength": 1,
+      "title": "Body"
+    },
+    "timeout_ms": {
+      "type": "integer",
+      "maximum": 60000.0,
+      "minimum": 100.0,
+      "title": "Timeout Ms",
+      "default": 30000
+    }
+  },
+  "additionalProperties": false,
+  "type": "object",
+  "required": [
+    "name",
+    "description",
+    "body"
+  ],
+  "$defs": {
+    "FunctionExample": {
+      "properties": {
+        "input": {
+          "additionalProperties": true,
+          "type": "object",
+          "title": "Input"
+        },
+        "output": {
+          "title": "Output"
+        },
+        "description": {
+          "type": "string",
+          "title": "Description",
+          "default": ""
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "input",
+        "output"
+      ],
+      "title": "FunctionExample",
+      "description": "One example call, surfaced to the LLM and the DC test panel.\n\nExamples are first-class metadata, not buried in a UC ``COMMENT``\nclause the way Databricks' native authoring requires. The DC\ntool-picker shows them; the LLM tool spec includes them inline."
+    },
+    "ReturnColumn": {
+      "properties": {
+        "name": {
+          "type": "string",
+          "maxLength": 64,
+          "minLength": 1,
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "title": "Name"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "string",
+            "integer",
+            "number",
+            "boolean"
+          ],
+          "title": "Type"
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 512,
+          "title": "Description",
+          "default": ""
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "name",
+        "type"
+      ],
+      "title": "ReturnColumn",
+      "description": "One column in a UDTF's output schema.\n\nUC ``RETURNS TABLE(<col1> <type1>, <col2> <type2>, ...)`` requires\ndeclaring the schema at deploy time. This list anchors that\nschema for ``function_type=udtf`` rows. ``name`` becomes the\ncolumn name in the result rows; ``type`` maps to a Databricks\nSQL type via the same ``ParameterType`` Literal we use for inputs."
+    },
+    "platform_lib__platform_functions__models__Parameter": {
+      "properties": {
+        "name": {
+          "type": "string",
+          "maxLength": 64,
+          "minLength": 1,
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "title": "Name"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "string",
+            "integer",
+            "number",
+            "boolean"
+          ],
+          "title": "Type"
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Description"
+        },
+        "default": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "integer"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Default"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "name",
+        "type",
+        "description"
+      ],
+      "title": "Parameter",
+      "description": "Typed declaration of one input parameter.\n\nFor SQL function types, ``name`` becomes the ``:name`` placeholder\nin the SQL template. For Python function types, ``name`` becomes\nthe positional argument name in ``def main(...)`` and the input\ncolumn name on the UC UDF signature.\n\nThe ``description`` propagates into the LLM tool spec (this is\nwhat Databricks' Agent Framework reads, and what Anthropic's\ntool-use spec exposes to the model). Missing descriptions\nsilently break tool selection — the registration layer rejects\nempty strings."
+    }
+  }
+}

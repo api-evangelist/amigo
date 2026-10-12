@@ -1,0 +1,101 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/amigo/main/json-schema/amigo-create-conversation-request-schema.json",
+  "title": "CreateConversationRequest",
+  "x-generated": "2026-10-12",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/amigo-conversations-api-openapi.yml#/components/schemas/CreateConversationRequest",
+  "properties": {
+    "service_id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Service Id"
+    },
+    "entity_id": {
+      "anyOf": [
+        {
+          "type": "string",
+          "format": "uuid"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Entity Id"
+    },
+    "channel": {
+      "$ref": "#/$defs/ChannelKind",
+      "default": "web"
+    },
+    "recipient": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/PhoneE164"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Destination address for an outbound conversation (E.164 for sms/imessage). Required for non-web."
+    },
+    "use_case_id": {
+      "anyOf": [
+        {
+          "type": "string",
+          "format": "uuid"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Use Case Id",
+      "description": "Channel-manager use case the outbound conversation is sent through. Required for non-web; channel-manager resolves the sender (FROM) from it (never caller-supplied). Must be owned by this workspace."
+    },
+    "instruction": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/BackgroundString"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Optional context steering what the agent opens with on an outbound conversation."
+    },
+    "force_new": {
+      "type": "boolean",
+      "title": "Force New",
+      "description": "Outbound thread-keyed channels (sms/imessage) only: close any existing ACTIVE conversation on the computed provider thread (recipient + use case) before dispatching, so the opener materializes a brand-new conversation instead of continuing the old thread. Rejected with 422 on channel=web — every web create already starts a new conversation, so force_new is meaningless there.",
+      "default": false
+    }
+  },
+  "type": "object",
+  "required": [
+    "service_id"
+  ],
+  "$defs": {
+    "BackgroundString": {
+      "type": "string",
+      "maxLength": 10000
+    },
+    "ChannelKind": {
+      "type": "string",
+      "enum": [
+        "voice",
+        "sms",
+        "whatsapp",
+        "email",
+        "web",
+        "imessage"
+      ],
+      "title": "ChannelKind",
+      "description": "HSM execution channel type.\n\nDetermines how the HSM engine communicates with end users.\nEach kind maps to one or more providers."
+    },
+    "PhoneE164": {
+      "type": "string",
+      "maxLength": 16,
+      "minLength": 2
+    }
+  }
+}

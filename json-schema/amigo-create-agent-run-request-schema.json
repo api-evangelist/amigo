@@ -1,0 +1,128 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/amigo/main/json-schema/amigo-create-agent-run-request-schema.json",
+  "title": "CreateAgentRunRequest",
+  "x-generated": "2026-10-12",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/amigo-agent-runs-api-openapi.yml#/components/schemas/CreateAgentRunRequest",
+  "properties": {
+    "service_id": {
+      "anyOf": [
+        {
+          "type": "string",
+          "format": "uuid"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Service Id",
+      "description": "Platform-authored run: the service whose pinned config the agent runs."
+    },
+    "version_set": {
+      "$ref": "#/$defs/NameString",
+      "description": "Named version set on the service whose pinned config the run uses (platform runs).",
+      "default": "release"
+    },
+    "framework": {
+      "anyOf": [
+        {
+          "type": "string",
+          "enum": [
+            "claude-agent-sdk",
+            "openai-agents"
+          ]
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Framework",
+      "description": "Framework a PLATFORM run executes on. For a native run the framework comes from the definition."
+    },
+    "native": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/NativeRunRef"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Run a native (bring-your-own) agent definition instead of a platform service."
+    },
+    "message": {
+      "type": "string",
+      "maxLength": 8000,
+      "minLength": 1,
+      "title": "Message",
+      "description": "User message the framework agent is invoked with."
+    },
+    "timeout_s": {
+      "type": "integer",
+      "maximum": 300.0,
+      "exclusiveMinimum": 0.0,
+      "title": "Timeout S",
+      "description": "Server-side wall-clock budget for the run, in seconds (max 300).",
+      "default": 120
+    }
+  },
+  "type": "object",
+  "required": [
+    "message"
+  ],
+  "$defs": {
+    "NameString": {
+      "type": "string",
+      "maxLength": 256,
+      "minLength": 1
+    },
+    "NativeRunRef": {
+      "properties": {
+        "definition_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "uuid"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Definition Id",
+          "description": "Registered definition to run. Omit `version` for the latest."
+        },
+        "version": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "exclusiveMinimum": 0.0
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Version",
+          "description": "Pinned definition version; omit for latest."
+        },
+        "inline": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Inline",
+          "description": "Inline definition document (dev/playground). Validated by the platform clamp schema."
+        }
+      },
+      "type": "object",
+      "title": "NativeRunRef",
+      "description": "Run a customer-authored NATIVE agent definition (inc-10): a REGISTERED\ndefinition by id (``version`` omitted = latest), or an INLINE body for\ndev/playground iteration. The definition's own ``framework`` selects the\nruntime — no top-level ``framework`` needed."
+    }
+  }
+}

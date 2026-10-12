@@ -1,0 +1,171 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/amigo/main/json-schema/amigo-src-app-endpoints-metric-create-metric-request-schema.json",
+  "title": "Request",
+  "x-generated": "2026-10-12",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/amigo-metric-api-openapi.yml#/components/schemas/src__app__endpoints__metric__create_metric__Request",
+  "properties": {
+    "name": {
+      "$ref": "#/$defs/amigo_lib__pydantic__base_model__StrippedNonemptyString__1",
+      "description": "The name of the metric. Must be unique within the organization."
+    },
+    "applied_to_services": {
+      "items": {
+        "type": "string",
+        "pattern": "^[a-f0-9]{24}$"
+      },
+      "type": "array",
+      "title": "Applied To Services",
+      "description": "The services that the metric is applied to."
+    },
+    "additional_notes": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/amigo_lib__pydantic__base_model__StrippedNonemptyString__1"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Additional notes about the metric."
+    },
+    "tags": {
+      "additionalProperties": {
+        "anyOf": [
+          {
+            "$ref": "#/$defs/StrippedNonemptyString___w__s_____"
+          },
+          {
+            "type": "null"
+          }
+        ]
+      },
+      "propertyNames": {
+        "$ref": "#/$defs/StrippedNonemptyString___w__s_____"
+      },
+      "type": "object",
+      "maxProperties": 20,
+      "title": "Tags",
+      "description": "The tags of the metric."
+    },
+    "initial_version_metric_value": {
+      "$ref": "#/$defs/InitialMetricVersion",
+      "description": "The initial version of the metric."
+    }
+  },
+  "type": "object",
+  "required": [
+    "name",
+    "applied_to_services",
+    "additional_notes",
+    "tags",
+    "initial_version_metric_value"
+  ],
+  "$defs": {
+    "BooleanMetricValue": {
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "boolean",
+          "title": "Type"
+        }
+      },
+      "type": "object",
+      "required": [
+        "type"
+      ],
+      "title": "BooleanMetricValue"
+    },
+    "CategoricalMetricValue-Input": {
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "categorical",
+          "title": "Type"
+        },
+        "categories": {
+          "items": {
+            "$ref": "#/$defs/amigo_lib__pydantic__base_model__StrippedNonemptyString__1"
+          },
+          "type": "array",
+          "maxItems": 50,
+          "minItems": 1,
+          "title": "Categories"
+        }
+      },
+      "type": "object",
+      "required": [
+        "type",
+        "categories"
+      ],
+      "title": "CategoricalMetricValue"
+    },
+    "InitialMetricVersion": {
+      "properties": {
+        "description": {
+          "type": "string",
+          "title": "Description",
+          "description": "The description of the metric. This tells the LLM what the metric is and how the metric result should be generated."
+        },
+        "metric_value": {
+          "$ref": "#/$defs/MetricValue-Input",
+          "description": "The type of value this metric could take for the initial version of the metric. The value type cannot be adjusted between versions."
+        }
+      },
+      "type": "object",
+      "required": [
+        "description",
+        "metric_value"
+      ],
+      "title": "InitialMetricVersion"
+    },
+    "MetricValue-Input": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/NumericalMetricValue"
+        },
+        {
+          "$ref": "#/$defs/CategoricalMetricValue-Input"
+        },
+        {
+          "$ref": "#/$defs/BooleanMetricValue"
+        }
+      ]
+    },
+    "NumericalMetricValue": {
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "numerical",
+          "title": "Type"
+        },
+        "lower_bound": {
+          "type": "number",
+          "title": "Lower Bound"
+        },
+        "upper_bound": {
+          "type": "number",
+          "title": "Upper Bound"
+        }
+      },
+      "type": "object",
+      "required": [
+        "type",
+        "lower_bound",
+        "upper_bound"
+      ],
+      "title": "NumericalMetricValue"
+    },
+    "StrippedNonemptyString___w__s_____": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[\\w\\s]+$"
+    },
+    "amigo_lib__pydantic__base_model__StrippedNonemptyString__1": {
+      "type": "string",
+      "minLength": 1
+    }
+  }
+}

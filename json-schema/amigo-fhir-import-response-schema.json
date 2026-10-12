@@ -1,0 +1,135 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/amigo/main/json-schema/amigo-fhir-import-response-schema.json",
+  "title": "FhirImportResponse",
+  "x-generated": "2026-10-12",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/amigo-fhir-api-openapi.yml#/components/schemas/FhirImportResponse",
+  "properties": {
+    "events_created": {
+      "type": "integer",
+      "title": "Events Created"
+    },
+    "events_skipped": {
+      "type": "integer",
+      "title": "Events Skipped",
+      "default": 0
+    },
+    "events_updated": {
+      "type": "integer",
+      "title": "Events Updated",
+      "default": 0
+    },
+    "entities_created": {
+      "type": "integer",
+      "title": "Entities Created"
+    },
+    "entities_updated": {
+      "type": "integer",
+      "title": "Entities Updated"
+    },
+    "error_count": {
+      "type": "integer",
+      "title": "Error Count",
+      "default": 0
+    },
+    "errors": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array",
+      "maxItems": 1000,
+      "title": "Errors"
+    },
+    "errors_truncated": {
+      "type": "boolean",
+      "title": "Errors Truncated",
+      "default": false
+    },
+    "unsupported_resource_count": {
+      "type": "integer",
+      "title": "Unsupported Resource Count",
+      "default": 0
+    },
+    "unsupported_resources": {
+      "items": {
+        "$ref": "#/$defs/FhirUnsupportedResourceItem"
+      },
+      "type": "array",
+      "maxItems": 1000,
+      "title": "Unsupported Resources"
+    },
+    "unsupported_resources_truncated": {
+      "type": "boolean",
+      "title": "Unsupported Resources Truncated",
+      "default": false
+    },
+    "upsert_semantics": {
+      "type": "string",
+      "const": "same_resource_id_upsert",
+      "title": "Upsert Semantics",
+      "description": "FHIR import uses workspace + resourceType + id as the natural key. Identical re-uploads can be deduped; changed resources supersede prior current events.",
+      "default": "same_resource_id_upsert"
+    },
+    "absence_semantics": {
+      "type": "string",
+      "const": "absent_resources_persist",
+      "title": "Absence Semantics",
+      "description": "Resources omitted from a later bundle are not deleted or archived by import.",
+      "default": "absent_resources_persist"
+    }
+  },
+  "type": "object",
+  "required": [
+    "events_created",
+    "entities_created",
+    "entities_updated"
+  ],
+  "$defs": {
+    "FhirUnsupportedResourceItem": {
+      "properties": {
+        "resource_type": {
+          "anyOf": [
+            {
+              "type": "string",
+              "maxLength": 128
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Resource Type"
+        },
+        "resource_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "maxLength": 512
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Resource Id"
+        },
+        "location": {
+          "type": "string",
+          "maxLength": 128,
+          "title": "Location"
+        },
+        "reason": {
+          "type": "string",
+          "maxLength": 512,
+          "title": "Reason"
+        }
+      },
+      "type": "object",
+      "required": [
+        "location",
+        "reason"
+      ],
+      "title": "FhirUnsupportedResourceItem"
+    }
+  }
+}

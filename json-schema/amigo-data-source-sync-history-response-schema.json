@@ -1,0 +1,138 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/amigo/main/json-schema/amigo-data-source-sync-history-response-schema.json",
+  "title": "DataSourceSyncHistoryResponse",
+  "x-generated": "2026-10-12",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/amigo-data-sources-api-openapi.yml#/components/schemas/DataSourceSyncHistoryResponse",
+  "properties": {
+    "data_source_id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Data Source Id"
+    },
+    "name": {
+      "type": "string",
+      "title": "Name"
+    },
+    "timeline": {
+      "items": {
+        "$ref": "#/$defs/SyncHistoryEntry"
+      },
+      "type": "array",
+      "title": "Timeline"
+    },
+    "recent_failures": {
+      "items": {
+        "$ref": "#/$defs/SyncFailureEntry"
+      },
+      "type": "array",
+      "title": "Recent Failures"
+    }
+  },
+  "type": "object",
+  "required": [
+    "data_source_id",
+    "name",
+    "timeline",
+    "recent_failures"
+  ],
+  "$defs": {
+    "SyncFailureEntry": {
+      "properties": {
+        "event_id": {
+          "type": "string",
+          "format": "uuid",
+          "title": "Event Id"
+        },
+        "event_type": {
+          "type": "string",
+          "title": "Event Type"
+        },
+        "fhir_resource_type": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Fhir Resource Type"
+        },
+        "fhir_resource_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Fhir Resource Id"
+        },
+        "sync_error": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Sync Error"
+        },
+        "created_at": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Created At"
+        }
+      },
+      "type": "object",
+      "required": [
+        "event_id",
+        "event_type",
+        "fhir_resource_type",
+        "fhir_resource_id",
+        "sync_error",
+        "created_at"
+      ],
+      "title": "SyncFailureEntry"
+    },
+    "SyncHistoryEntry": {
+      "properties": {
+        "date": {
+          "type": "string",
+          "title": "Date"
+        },
+        "event_count": {
+          "type": "integer",
+          "title": "Event Count"
+        },
+        "synced_count": {
+          "type": "integer",
+          "title": "Synced Count"
+        },
+        "failed_count": {
+          "type": "integer",
+          "title": "Failed Count"
+        }
+      },
+      "type": "object",
+      "required": [
+        "date",
+        "event_count",
+        "synced_count",
+        "failed_count"
+      ],
+      "title": "SyncHistoryEntry"
+    }
+  }
+}

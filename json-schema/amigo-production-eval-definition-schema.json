@@ -1,0 +1,114 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/amigo/main/json-schema/amigo-production-eval-definition-schema.json",
+  "title": "ProductionEvalDefinition",
+  "description": "An eval (assertion or metric-eval) that runs against a workspace's live\ncalls — the production analogue of a sim case's ``evals``. ``service_id``\nNone applies to every service in the workspace. ``expected`` is JSON: a\nphrase string for assertions, or a ``{gte|lte|equals|...}`` threshold for\nmetric-evals.",
+  "x-generated": "2026-10-12",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/amigo-evaluations-api-openapi.yml#/components/schemas/ProductionEvalDefinition",
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Id"
+    },
+    "workspace_id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Workspace Id"
+    },
+    "service_id": {
+      "anyOf": [
+        {
+          "type": "string",
+          "format": "uuid"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Service Id"
+    },
+    "eval_key": {
+      "type": "string",
+      "maxLength": 128,
+      "title": "Eval Key"
+    },
+    "eval_type": {
+      "type": "string",
+      "enum": [
+        "assertion",
+        "metric"
+      ],
+      "title": "Eval Type"
+    },
+    "assertion_kind": {
+      "anyOf": [
+        {
+          "type": "string",
+          "maxLength": 128
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Assertion Kind"
+    },
+    "metric_key": {
+      "anyOf": [
+        {
+          "type": "string",
+          "maxLength": 128
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Metric Key"
+    },
+    "expected": {
+      "title": "Expected"
+    },
+    "params": {
+      "additionalProperties": true,
+      "type": "object",
+      "title": "Params"
+    },
+    "active": {
+      "type": "boolean",
+      "title": "Active",
+      "default": true
+    },
+    "created_at": {
+      "anyOf": [
+        {
+          "type": "string",
+          "format": "date-time"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Created At"
+    },
+    "updated_at": {
+      "anyOf": [
+        {
+          "type": "string",
+          "format": "date-time"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Updated At"
+    }
+  },
+  "type": "object",
+  "required": [
+    "workspace_id",
+    "eval_key",
+    "eval_type"
+  ]
+}

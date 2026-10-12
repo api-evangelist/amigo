@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/amigo/main/json-schema/amigo-fhir-import-request-schema.json",
+  "title": "FhirImportRequest",
+  "x-generated": "2026-10-12",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/amigo-fhir-api-openapi.yml#/components/schemas/FhirImportRequest",
+  "properties": {
+    "bundle": {
+      "additionalProperties": true,
+      "type": "object",
+      "title": "Bundle"
+    },
+    "source": {
+      "type": "string",
+      "maxLength": 128,
+      "title": "Source",
+      "default": "fhir_import"
+    },
+    "source_system": {
+      "anyOf": [
+        {
+          "type": "string",
+          "maxLength": 128
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Source System"
+    },
+    "data_source_id": {
+      "anyOf": [
+        {
+          "type": "string",
+          "format": "uuid"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Data Source Id"
+    },
+    "dedup": {
+      "type": "boolean",
+      "title": "Dedup",
+      "description": "When true, identical re-uploads of the same FHIR resource are skipped via content-hash dedup. Set to false to force emission regardless of content changes.",
+      "default": true
+    },
+    "unsupported_resource_policy": {
+      "$ref": "#/$defs/FhirUnsupportedResourcePolicy",
+      "description": "Controls resources whose resourceType is missing or not projected by platform FHIR APIs. 'error' skips the resource and adds a per-resource error; 'skip' skips it without adding an error. Unsupported resources are never emitted as silent raw world events.",
+      "default": "error"
+    }
+  },
+  "type": "object",
+  "required": [
+    "bundle"
+  ],
+  "$defs": {
+    "FhirUnsupportedResourcePolicy": {
+      "type": "string",
+      "enum": [
+        "error",
+        "skip"
+      ]
+    }
+  }
+}

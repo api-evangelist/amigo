@@ -1,0 +1,96 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/amigo/main/json-schema/amigo-create-data-source-request-schema.json",
+  "title": "CreateDataSourceRequest",
+  "x-generated": "2026-10-12",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/amigo-data-sources-api-openapi.yml#/components/schemas/CreateDataSourceRequest",
+  "properties": {
+    "name": {
+      "$ref": "#/$defs/NameString"
+    },
+    "display_name": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/NameString"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "source_type": {
+      "type": "string",
+      "enum": [
+        "rest_api",
+        "webhook",
+        "file_drop",
+        "fhir_store",
+        "ehr",
+        "database",
+        "custom",
+        "smart_fhir",
+        "customer_intake",
+        "lakebase_schema",
+        "crm"
+      ],
+      "title": "Source Type"
+    },
+    "connection_config": {
+      "additionalProperties": true,
+      "type": "object",
+      "title": "Connection Config"
+    },
+    "entity_types": {
+      "items": {
+        "type": "string",
+        "maxLength": 64,
+        "minLength": 1
+      },
+      "type": "array",
+      "maxItems": 100,
+      "title": "Entity Types"
+    },
+    "field_mappings": {
+      "additionalProperties": true,
+      "type": "object",
+      "title": "Field Mappings"
+    },
+    "sync_strategy": {
+      "type": "string",
+      "enum": [
+        "manual",
+        "scheduled",
+        "webhook",
+        "continuous"
+      ],
+      "title": "Sync Strategy",
+      "default": "manual"
+    },
+    "sync_schedule": {
+      "anyOf": [
+        {
+          "type": "string",
+          "maxLength": 256
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Sync Schedule"
+    }
+  },
+  "type": "object",
+  "required": [
+    "name",
+    "source_type"
+  ],
+  "$defs": {
+    "NameString": {
+      "type": "string",
+      "maxLength": 256,
+      "minLength": 1
+    }
+  }
+}

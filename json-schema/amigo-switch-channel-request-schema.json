@@ -1,0 +1,94 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/amigo/main/json-schema/amigo-switch-channel-request-schema.json",
+  "title": "SwitchChannelRequest",
+  "x-generated": "2026-10-12",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/amigo-conversations-api-openapi.yml#/components/schemas/SwitchChannelRequest",
+  "properties": {
+    "channel": {
+      "$ref": "#/$defs/ChannelKind",
+      "description": "Target channel to move the conversation to (sms or imessage)."
+    },
+    "recipient": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/PhoneE164"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Recipient address on the new channel (E.164). Required for sms/imessage."
+    },
+    "use_case_id": {
+      "anyOf": [
+        {
+          "type": "string",
+          "format": "uuid"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Use Case Id",
+      "description": "Channel-manager use case for the new channel (resolves the sender). Required for sms/imessage."
+    },
+    "reason": {
+      "$ref": "#/$defs/NameString",
+      "description": "Why the conversation is being moved (e.g. escalation, customer_request)."
+    },
+    "dispatch_opener": {
+      "type": "boolean",
+      "title": "Dispatch Opener",
+      "description": "If true, immediately drive one agent turn on the new channel (e.g. 'I'll text you now').",
+      "default": false
+    },
+    "instruction": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/BackgroundString"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Optional context steering the opener when dispatch_opener=true."
+    }
+  },
+  "type": "object",
+  "required": [
+    "channel",
+    "reason"
+  ],
+  "$defs": {
+    "BackgroundString": {
+      "type": "string",
+      "maxLength": 10000
+    },
+    "ChannelKind": {
+      "type": "string",
+      "enum": [
+        "voice",
+        "sms",
+        "whatsapp",
+        "email",
+        "web",
+        "imessage"
+      ],
+      "title": "ChannelKind",
+      "description": "HSM execution channel type.\n\nDetermines how the HSM engine communicates with end users.\nEach kind maps to one or more providers."
+    },
+    "NameString": {
+      "type": "string",
+      "maxLength": 256,
+      "minLength": 1
+    },
+    "PhoneE164": {
+      "type": "string",
+      "maxLength": 16,
+      "minLength": 2
+    }
+  }
+}

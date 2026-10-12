@@ -1,0 +1,89 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/amigo/main/json-schema/amigo-metering-emit-request-schema.json",
+  "title": "MeteringEmitRequest",
+  "x-generated": "2026-10-12",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/amigo-metering-api-openapi.yml#/components/schemas/MeteringEmitRequest",
+  "properties": {
+    "event_type": {
+      "type": "string",
+      "maxLength": 64,
+      "minLength": 1,
+      "pattern": "^[a-z][a-z0-9._]*$",
+      "title": "Event Type"
+    },
+    "metering_quantity": {
+      "type": "number",
+      "minimum": 0.0,
+      "title": "Metering Quantity"
+    },
+    "metering_source": {
+      "type": "string",
+      "enum": [
+        "production",
+        "simulation"
+      ],
+      "title": "Metering Source",
+      "description": "Traffic class — 'production' or 'simulation'."
+    },
+    "effective_at": {
+      "anyOf": [
+        {
+          "type": "string",
+          "format": "date-time"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Effective At",
+      "description": "When the event happened. Defaults to ingest time."
+    },
+    "metering_unit": {
+      "anyOf": [
+        {
+          "type": "string",
+          "maxLength": 32,
+          "minLength": 1
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Metering Unit"
+    },
+    "metering_metadata": {
+      "anyOf": [
+        {
+          "additionalProperties": true,
+          "type": "object"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Metering Metadata"
+    },
+    "event_id": {
+      "anyOf": [
+        {
+          "type": "string",
+          "format": "uuid"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Event Id",
+      "description": "Optional deterministic row id (typically uuid5(NAMESPACE, '<stable-key>')). Re-emitting with the same value lands on the same world_events row instead of double-billing. Use for backfills and retries. Default: server generates a random uuid4."
+    }
+  },
+  "type": "object",
+  "required": [
+    "event_type",
+    "metering_quantity",
+    "metering_source"
+  ]
+}

@@ -1,0 +1,107 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/amigo/main/json-schema/amigo-intake-source-row-schema.json",
+  "title": "IntakeSourceRow",
+  "description": "A registered intake source (Sources list).",
+  "x-generated": "2026-10-12",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/amigo-intake-api-openapi.yml#/components/schemas/IntakeSourceRow",
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Id",
+      "description": "source_id."
+    },
+    "source_type": {
+      "type": "string",
+      "title": "Source Type"
+    },
+    "display_name": {
+      "type": "string",
+      "title": "Display Name"
+    },
+    "drive_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Drive Id"
+    },
+    "folders": {
+      "items": {
+        "$ref": "#/$defs/DriveFolderMapping"
+      },
+      "type": "array",
+      "title": "Folders"
+    },
+    "credential_ssm_param_path": {
+      "type": "string",
+      "title": "Credential Ssm Param Path",
+      "description": "Where the SA key must be uploaded (derived; the secret itself is never returned)."
+    },
+    "impersonate_subject": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Impersonate Subject",
+      "description": "DWD impersonation subject, if this source authenticates via domain-wide delegation."
+    },
+    "status": {
+      "type": "string",
+      "title": "Status"
+    },
+    "created_ts": {
+      "type": "string",
+      "title": "Created Ts",
+      "description": "ISO-8601 timestamp."
+    }
+  },
+  "type": "object",
+  "required": [
+    "id",
+    "source_type",
+    "display_name",
+    "folders",
+    "credential_ssm_param_path",
+    "status",
+    "created_ts"
+  ],
+  "$defs": {
+    "DriveFolderMapping": {
+      "properties": {
+        "folder_id": {
+          "type": "string",
+          "maxLength": 256,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_-]+$",
+          "title": "Folder Id"
+        },
+        "dataset": {
+          "type": "string",
+          "maxLength": 63,
+          "minLength": 2,
+          "pattern": "^[a-z0-9][a-z0-9_-]*[a-z0-9]$",
+          "title": "Dataset"
+        }
+      },
+      "type": "object",
+      "required": [
+        "folder_id",
+        "dataset"
+      ],
+      "title": "DriveFolderMapping",
+      "description": "One Google Drive folder ↔ one intake dataset.\n\n``folder_id`` is the Drive folder id (the identity — never the folder name,\nwhich can be renamed/moved). One folder maps to exactly one dataset."
+    }
+  }
+}

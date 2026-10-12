@@ -1,0 +1,121 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/amigo/main/json-schema/amigo-performance-summary-response-schema.json",
+  "title": "PerformanceSummaryResponse",
+  "x-generated": "2026-10-12",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/amigo-operators-api-openapi.yml#/components/schemas/PerformanceSummaryResponse",
+  "properties": {
+    "workspace_id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Workspace Id"
+    },
+    "total_operators": {
+      "type": "integer",
+      "title": "Total Operators"
+    },
+    "online": {
+      "type": "integer",
+      "title": "Online"
+    },
+    "busy": {
+      "type": "integer",
+      "title": "Busy"
+    },
+    "offline": {
+      "type": "integer",
+      "title": "Offline"
+    },
+    "total_escalations_handled": {
+      "type": "integer",
+      "title": "Total Escalations Handled"
+    },
+    "avg_handle_time_seconds": {
+      "type": "number",
+      "title": "Avg Handle Time Seconds"
+    },
+    "operators": {
+      "items": {
+        "$ref": "#/$defs/OperatorPerformanceItem"
+      },
+      "type": "array",
+      "title": "Operators"
+    }
+  },
+  "type": "object",
+  "required": [
+    "workspace_id",
+    "total_operators",
+    "online",
+    "busy",
+    "offline",
+    "total_escalations_handled",
+    "avg_handle_time_seconds",
+    "operators"
+  ],
+  "$defs": {
+    "OperatorPerformanceItem": {
+      "properties": {
+        "operator_id": {
+          "type": "string",
+          "format": "uuid",
+          "title": "Operator Id"
+        },
+        "name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Name",
+          "description": "Display name"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "online",
+            "busy",
+            "offline"
+          ],
+          "title": "Status",
+          "description": "Current availability"
+        },
+        "total_escalations_handled": {
+          "type": "integer",
+          "title": "Total Escalations Handled",
+          "description": "Lifetime escalation count"
+        },
+        "avg_handle_time_seconds": {
+          "type": "number",
+          "title": "Avg Handle Time Seconds",
+          "description": "Average handle time in seconds"
+        },
+        "last_call_at": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Last Call At",
+          "description": "ISO-8601 timestamp of last call"
+        }
+      },
+      "type": "object",
+      "required": [
+        "operator_id",
+        "status",
+        "total_escalations_handled",
+        "avg_handle_time_seconds"
+      ],
+      "title": "OperatorPerformanceItem"
+    }
+  }
+}

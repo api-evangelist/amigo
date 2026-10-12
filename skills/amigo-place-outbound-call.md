@@ -1,5 +1,6 @@
 ---
-name: Place an outbound voice call (Amigo Platform API)
+name: amigo-place-outbound-call
+title: Place an outbound voice call (Amigo Platform API)
 description: Mint a workspace API key, provision access, and place an idempotent outbound voice call driven by an Amigo agent.
 api: openapi/amigo-platform-openapi-original.json
 operations:

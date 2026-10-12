@@ -1,0 +1,704 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/amigo/main/json-schema/amigo-src-app-endpoints-conversation-get-interaction-insights-response-schema.json",
+  "title": "Response",
+  "x-generated": "2026-10-12",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/amigo-conversation-api-openapi.yml#/components/schemas/src__app__endpoints__conversation__get_interaction_insights__Response",
+  "properties": {
+    "current_state_name": {
+      "type": "string",
+      "title": "Current State Name",
+      "description": "The state the agent is in."
+    },
+    "current_state_action": {
+      "type": "string",
+      "title": "Current State Action",
+      "description": "The action taken in the current state."
+    },
+    "current_state_objective": {
+      "type": "string",
+      "title": "Current State Objective",
+      "description": "The objective of the current state."
+    },
+    "state_transition_logs": {
+      "items": {
+        "$ref": "#/$defs/StateTransitionLog"
+      },
+      "type": "array",
+      "title": "State Transition Logs",
+      "description": "The state transition log of the interaction."
+    },
+    "working_memory": {
+      "items": {
+        "$ref": "#/$defs/WorkingMemory"
+      },
+      "type": "array",
+      "title": "Working Memory",
+      "description": "A list of active memories the agent used to generate the message."
+    },
+    "reflections": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array",
+      "title": "Reflections",
+      "description": "A list of reflections the agent made during the generation of this message."
+    },
+    "triggered_dynamic_behavior_set_version_info": {
+      "anyOf": [
+        {
+          "prefixItems": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "integer"
+            }
+          ],
+          "type": "array",
+          "maxItems": 2,
+          "minItems": 2
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Triggered Dynamic Behavior Set Version Info",
+      "description": "The ID and version number of the dynamic behavior set that was activated during this interaction."
+    },
+    "select_next_action_tool_call_logs": {
+      "items": {
+        "items": {
+          "$ref": "#/$defs/ToolCallLog"
+        },
+        "type": "array"
+      },
+      "type": "array",
+      "title": "Select Next Action Tool Call Logs",
+      "description": "A list of tool call logs that were performed during the final `SelectNextAction` LLM call during this interaction where an action was selected."
+    },
+    "engage_user_tool_call_logs": {
+      "items": {
+        "items": {
+          "$ref": "#/$defs/ToolCallLog"
+        },
+        "type": "array"
+      },
+      "type": "array",
+      "title": "Engage User Tool Call Logs",
+      "description": "A list of tool call logs that were performed during the `EngageUser` LLM call during this interaction."
+    }
+  },
+  "type": "object",
+  "required": [
+    "current_state_name",
+    "current_state_action",
+    "current_state_objective",
+    "state_transition_logs",
+    "working_memory",
+    "reflections",
+    "triggered_dynamic_behavior_set_version_info",
+    "select_next_action_tool_call_logs",
+    "engage_user_tool_call_logs"
+  ],
+  "$defs": {
+    "ActionStateTransitionLog": {
+      "properties": {
+        "previous_state": {
+          "type": "string",
+          "title": "Previous State",
+          "description": "Name of the previous state to transition from."
+        },
+        "previous_service_hierarchical_state_machine_version_info": {
+          "prefixItems": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "integer"
+            }
+          ],
+          "type": "array",
+          "maxItems": 2,
+          "minItems": 2,
+          "title": "Previous Service Hierarchical State Machine Version Info",
+          "description": "The identifier of the service hierarchical state machine that the previous state is in."
+        },
+        "next_state": {
+          "type": "string",
+          "title": "Next State",
+          "description": "Name of the next state to transition to."
+        },
+        "next_service_hierarchical_state_machine_version_info": {
+          "prefixItems": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "integer"
+            }
+          ],
+          "type": "array",
+          "maxItems": 2,
+          "minItems": 2,
+          "title": "Next Service Hierarchical State Machine Version Info",
+          "description": "The identifier of the service hierarchical state machine that the next state is in."
+        },
+        "type": {
+          "type": "string",
+          "const": "action",
+          "title": "Type",
+          "description": "The type of the state transition log, which is the type of the state we're transitioning from.",
+          "default": "action"
+        },
+        "previous_state_exit_condition_description": {
+          "type": "string",
+          "title": "Previous State Exit Condition Description",
+          "description": "The description of the exit condition that led to the transition to the next state."
+        },
+        "tool_call_logs": {
+          "items": {
+            "items": {
+              "$ref": "#/$defs/ToolCallLog"
+            },
+            "type": "array"
+          },
+          "type": "array",
+          "title": "Tool Call Logs",
+          "description": "A list of tool call logs that were performed during the `SelectNextAction` LLM call during this state."
+        }
+      },
+      "type": "object",
+      "required": [
+        "previous_state",
+        "previous_service_hierarchical_state_machine_version_info",
+        "next_state",
+        "next_service_hierarchical_state_machine_version_info",
+        "previous_state_exit_condition_description",
+        "tool_call_logs"
+      ],
+      "title": "ActionStateTransitionLog"
+    },
+    "AnnotationStateTransitionLog": {
+      "properties": {
+        "previous_state": {
+          "type": "string",
+          "title": "Previous State",
+          "description": "Name of the previous state to transition from."
+        },
+        "previous_service_hierarchical_state_machine_version_info": {
+          "prefixItems": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "integer"
+            }
+          ],
+          "type": "array",
+          "maxItems": 2,
+          "minItems": 2,
+          "title": "Previous Service Hierarchical State Machine Version Info",
+          "description": "The identifier of the service hierarchical state machine that the previous state is in."
+        },
+        "next_state": {
+          "type": "string",
+          "title": "Next State",
+          "description": "Name of the next state to transition to."
+        },
+        "next_service_hierarchical_state_machine_version_info": {
+          "prefixItems": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "integer"
+            }
+          ],
+          "type": "array",
+          "maxItems": 2,
+          "minItems": 2,
+          "title": "Next Service Hierarchical State Machine Version Info",
+          "description": "The identifier of the service hierarchical state machine that the next state is in."
+        },
+        "type": {
+          "type": "string",
+          "const": "annotation",
+          "title": "Type",
+          "description": "The type of the state transition log, which is the type of the state we're transitioning from.",
+          "default": "annotation"
+        },
+        "inner_thought_message_id": {
+          "type": "string",
+          "title": "Inner Thought Message Id",
+          "description": "The identifier of the inserted inner thought message."
+        }
+      },
+      "type": "object",
+      "required": [
+        "previous_state",
+        "previous_service_hierarchical_state_machine_version_info",
+        "next_state",
+        "next_service_hierarchical_state_machine_version_info",
+        "inner_thought_message_id"
+      ],
+      "title": "AnnotationStateTransitionLog"
+    },
+    "DecisionStateTransitionLog": {
+      "properties": {
+        "previous_state": {
+          "type": "string",
+          "title": "Previous State",
+          "description": "Name of the previous state to transition from."
+        },
+        "previous_service_hierarchical_state_machine_version_info": {
+          "prefixItems": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "integer"
+            }
+          ],
+          "type": "array",
+          "maxItems": 2,
+          "minItems": 2,
+          "title": "Previous Service Hierarchical State Machine Version Info",
+          "description": "The identifier of the service hierarchical state machine that the previous state is in."
+        },
+        "next_state": {
+          "type": "string",
+          "title": "Next State",
+          "description": "Name of the next state to transition to."
+        },
+        "next_service_hierarchical_state_machine_version_info": {
+          "prefixItems": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "integer"
+            }
+          ],
+          "type": "array",
+          "maxItems": 2,
+          "minItems": 2,
+          "title": "Next Service Hierarchical State Machine Version Info",
+          "description": "The identifier of the service hierarchical state machine that the next state is in."
+        },
+        "type": {
+          "type": "string",
+          "const": "decision",
+          "title": "Type",
+          "description": "The type of the state transition log, which is the type of the state we're transitioning from.",
+          "default": "decision"
+        },
+        "previous_state_exit_condition_description": {
+          "type": "string",
+          "title": "Previous State Exit Condition Description",
+          "description": "The description of the exit condition that led to the transition to the next state."
+        },
+        "tool_call_logs": {
+          "items": {
+            "items": {
+              "$ref": "#/$defs/ToolCallLog"
+            },
+            "type": "array"
+          },
+          "type": "array",
+          "title": "Tool Call Logs",
+          "description": "A list of tool call logs that were performed during the `SelectNextActionForDecisionState` LLM call during this state."
+        }
+      },
+      "type": "object",
+      "required": [
+        "previous_state",
+        "previous_service_hierarchical_state_machine_version_info",
+        "next_state",
+        "next_service_hierarchical_state_machine_version_info",
+        "previous_state_exit_condition_description",
+        "tool_call_logs"
+      ],
+      "title": "DecisionStateTransitionLog"
+    },
+    "JumpbackStateTransitionLog": {
+      "properties": {
+        "previous_state": {
+          "type": "string",
+          "title": "Previous State",
+          "description": "Name of the previous state to transition from."
+        },
+        "previous_service_hierarchical_state_machine_version_info": {
+          "prefixItems": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "integer"
+            }
+          ],
+          "type": "array",
+          "maxItems": 2,
+          "minItems": 2,
+          "title": "Previous Service Hierarchical State Machine Version Info",
+          "description": "The identifier of the service hierarchical state machine that the previous state is in."
+        },
+        "next_state": {
+          "type": "string",
+          "title": "Next State",
+          "description": "Name of the next state to transition to."
+        },
+        "next_service_hierarchical_state_machine_version_info": {
+          "prefixItems": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "integer"
+            }
+          ],
+          "type": "array",
+          "maxItems": 2,
+          "minItems": 2,
+          "title": "Next Service Hierarchical State Machine Version Info",
+          "description": "The identifier of the service hierarchical state machine that the next state is in."
+        },
+        "type": {
+          "type": "string",
+          "const": "jumpback",
+          "title": "Type",
+          "description": "The type of the state transition log, which is the type of the state we're transitioning from.",
+          "default": "jumpback"
+        }
+      },
+      "type": "object",
+      "required": [
+        "previous_state",
+        "previous_service_hierarchical_state_machine_version_info",
+        "next_state",
+        "next_service_hierarchical_state_machine_version_info"
+      ],
+      "title": "JumpbackStateTransitionLog"
+    },
+    "RecallStateTransitionLog": {
+      "properties": {
+        "previous_state": {
+          "type": "string",
+          "title": "Previous State",
+          "description": "Name of the previous state to transition from."
+        },
+        "previous_service_hierarchical_state_machine_version_info": {
+          "prefixItems": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "integer"
+            }
+          ],
+          "type": "array",
+          "maxItems": 2,
+          "minItems": 2,
+          "title": "Previous Service Hierarchical State Machine Version Info",
+          "description": "The identifier of the service hierarchical state machine that the previous state is in."
+        },
+        "next_state": {
+          "type": "string",
+          "title": "Next State",
+          "description": "Name of the next state to transition to."
+        },
+        "next_service_hierarchical_state_machine_version_info": {
+          "prefixItems": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "integer"
+            }
+          ],
+          "type": "array",
+          "maxItems": 2,
+          "minItems": 2,
+          "title": "Next Service Hierarchical State Machine Version Info",
+          "description": "The identifier of the service hierarchical state machine that the next state is in."
+        },
+        "type": {
+          "type": "string",
+          "const": "recall",
+          "title": "Type",
+          "description": "The type of the state transition log, which is the type of the state we're transitioning from.",
+          "default": "recall"
+        },
+        "performed_queries": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "title": "Performed Queries",
+          "description": "A list of queries that were actually performed during this state. This does not include queries included in the states that are duplicates of queries performed previously in this conversation."
+        }
+      },
+      "type": "object",
+      "required": [
+        "previous_state",
+        "previous_service_hierarchical_state_machine_version_info",
+        "next_state",
+        "next_service_hierarchical_state_machine_version_info",
+        "performed_queries"
+      ],
+      "title": "RecallStateTransitionLog"
+    },
+    "ReflectionStateTransitionLog": {
+      "properties": {
+        "previous_state": {
+          "type": "string",
+          "title": "Previous State",
+          "description": "Name of the previous state to transition from."
+        },
+        "previous_service_hierarchical_state_machine_version_info": {
+          "prefixItems": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "integer"
+            }
+          ],
+          "type": "array",
+          "maxItems": 2,
+          "minItems": 2,
+          "title": "Previous Service Hierarchical State Machine Version Info",
+          "description": "The identifier of the service hierarchical state machine that the previous state is in."
+        },
+        "next_state": {
+          "type": "string",
+          "title": "Next State",
+          "description": "Name of the next state to transition to."
+        },
+        "next_service_hierarchical_state_machine_version_info": {
+          "prefixItems": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "integer"
+            }
+          ],
+          "type": "array",
+          "maxItems": 2,
+          "minItems": 2,
+          "title": "Next Service Hierarchical State Machine Version Info",
+          "description": "The identifier of the service hierarchical state machine that the next state is in."
+        },
+        "type": {
+          "type": "string",
+          "const": "reflection",
+          "title": "Type",
+          "description": "The type of the state transition log, which is the type of the state we're transitioning from.",
+          "default": "reflection"
+        },
+        "inner_thought_message_id": {
+          "type": "string",
+          "title": "Inner Thought Message Id",
+          "description": "The identifier of the inserted inner thought message."
+        },
+        "tool_call_logs": {
+          "items": {
+            "items": {
+              "$ref": "#/$defs/ToolCallLog"
+            },
+            "type": "array"
+          },
+          "type": "array",
+          "title": "Tool Call Logs",
+          "description": "A list of tool call logs that were performed during the `GenerateReflection` LLM call during this state."
+        }
+      },
+      "type": "object",
+      "required": [
+        "previous_state",
+        "previous_service_hierarchical_state_machine_version_info",
+        "next_state",
+        "next_service_hierarchical_state_machine_version_info",
+        "inner_thought_message_id",
+        "tool_call_logs"
+      ],
+      "title": "ReflectionStateTransitionLog"
+    },
+    "StateTransitionLog": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/ActionStateTransitionLog"
+        },
+        {
+          "$ref": "#/$defs/DecisionStateTransitionLog"
+        },
+        {
+          "$ref": "#/$defs/RecallStateTransitionLog"
+        },
+        {
+          "$ref": "#/$defs/JumpbackStateTransitionLog"
+        },
+        {
+          "$ref": "#/$defs/AnnotationStateTransitionLog"
+        },
+        {
+          "$ref": "#/$defs/ReflectionStateTransitionLog"
+        },
+        {
+          "$ref": "#/$defs/ToolCallStateTransitionLog"
+        }
+      ]
+    },
+    "ToolCallLog": {
+      "properties": {
+        "tool_name": {
+          "type": "string",
+          "title": "Tool Name",
+          "description": "The name of the tool that was called."
+        },
+        "tool_id": {
+          "type": "string",
+          "title": "Tool Id",
+          "description": "The identifier of the tool that was called."
+        },
+        "tool_version": {
+          "type": "string",
+          "title": "Tool Version",
+          "description": "The version of the tool that was called."
+        },
+        "input": {
+          "additionalProperties": true,
+          "type": "object",
+          "title": "Input",
+          "description": "The input to the tool call."
+        },
+        "output": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Output",
+          "description": "The output of the tool call. If `None`, the tool call's output is ephemeral and not stored."
+        },
+        "duration": {
+          "type": "number",
+          "title": "Duration",
+          "description": "The duration of the tool call in seconds."
+        }
+      },
+      "type": "object",
+      "required": [
+        "tool_name",
+        "tool_id",
+        "tool_version",
+        "input",
+        "output",
+        "duration"
+      ],
+      "title": "ToolCallLog"
+    },
+    "ToolCallStateTransitionLog": {
+      "properties": {
+        "previous_state": {
+          "type": "string",
+          "title": "Previous State",
+          "description": "Name of the previous state to transition from."
+        },
+        "previous_service_hierarchical_state_machine_version_info": {
+          "prefixItems": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "integer"
+            }
+          ],
+          "type": "array",
+          "maxItems": 2,
+          "minItems": 2,
+          "title": "Previous Service Hierarchical State Machine Version Info",
+          "description": "The identifier of the service hierarchical state machine that the previous state is in."
+        },
+        "next_state": {
+          "type": "string",
+          "title": "Next State",
+          "description": "Name of the next state to transition to."
+        },
+        "next_service_hierarchical_state_machine_version_info": {
+          "prefixItems": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "integer"
+            }
+          ],
+          "type": "array",
+          "maxItems": 2,
+          "minItems": 2,
+          "title": "Next Service Hierarchical State Machine Version Info",
+          "description": "The identifier of the service hierarchical state machine that the next state is in."
+        },
+        "type": {
+          "type": "string",
+          "const": "tool-call",
+          "title": "Type",
+          "description": "The type of the state transition log, which is the type of the state we're transitioning from.",
+          "default": "tool-call"
+        },
+        "tool_call_logs": {
+          "items": {
+            "items": {
+              "$ref": "#/$defs/ToolCallLog"
+            },
+            "type": "array"
+          },
+          "type": "array",
+          "title": "Tool Call Logs",
+          "description": "A list of tool call logs that were performed during this state, except for the tool call for the designated tool call."
+        },
+        "designated_tool_call_log": {
+          "$ref": "#/$defs/ToolCallLog",
+          "description": "The tool call log for the designated tool call in this state."
+        }
+      },
+      "type": "object",
+      "required": [
+        "previous_state",
+        "previous_service_hierarchical_state_machine_version_info",
+        "next_state",
+        "next_service_hierarchical_state_machine_version_info",
+        "tool_call_logs",
+        "designated_tool_call_log"
+      ],
+      "title": "ToolCallStateTransitionLog"
+    },
+    "WorkingMemory": {
+      "properties": {
+        "content": {
+          "type": "string",
+          "title": "Content",
+          "description": "The content of the memory."
+        },
+        "context": {
+          "type": "string",
+          "title": "Context",
+          "description": "The context of the memory."
+        }
+      },
+      "type": "object",
+      "required": [
+        "content",
+        "context"
+      ],
+      "title": "WorkingMemory"
+    }
+  }
+}

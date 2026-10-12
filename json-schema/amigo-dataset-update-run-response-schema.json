@@ -1,0 +1,104 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/amigo/main/json-schema/amigo-dataset-update-run-response-schema.json",
+  "title": "DatasetUpdateRunResponse",
+  "description": "Durable status for one dataset update action.",
+  "x-generated": "2026-10-12",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/amigo-intake-api-openapi.yml#/components/schemas/DatasetUpdateRunResponse",
+  "properties": {
+    "run_id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Run Id"
+    },
+    "dataset": {
+      "type": "string",
+      "title": "Dataset"
+    },
+    "status": {
+      "$ref": "#/$defs/_DatasetUpdateStatus"
+    },
+    "source_ids": {
+      "items": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "type": "array",
+      "title": "Source Ids"
+    },
+    "batch_ids": {
+      "items": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "type": "array",
+      "title": "Batch Ids"
+    },
+    "materialize_run_id": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Materialize Run Id"
+    },
+    "error": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Error"
+    },
+    "created_at": {
+      "type": "string",
+      "title": "Created At"
+    },
+    "updated_at": {
+      "type": "string",
+      "title": "Updated At"
+    },
+    "completed_at": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Completed At"
+    }
+  },
+  "type": "object",
+  "required": [
+    "run_id",
+    "dataset",
+    "status",
+    "source_ids",
+    "batch_ids",
+    "created_at",
+    "updated_at"
+  ],
+  "$defs": {
+    "_DatasetUpdateStatus": {
+      "type": "string",
+      "enum": [
+        "checking_drive",
+        "preparing",
+        "publishing",
+        "completed",
+        "needs_review",
+        "failed"
+      ]
+    }
+  }
+}

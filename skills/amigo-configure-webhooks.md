@@ -1,5 +1,6 @@
 ---
-name: Configure and verify Amigo webhooks (Classic API)
+name: amigo-configure-webhooks
+title: Configure and verify Amigo webhooks (Classic API)
 description: Register a webhook destination, subscribe to events, verify HMAC signatures, rotate the signing secret, and inspect deliveries.
 api: openapi/amigo-classic-openapi-original.json
 operations:

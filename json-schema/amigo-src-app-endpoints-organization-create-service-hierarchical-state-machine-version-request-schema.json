@@ -1,0 +1,645 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/amigo/main/json-schema/amigo-src-app-endpoints-organization-create-service-hierarchical-state-machine-version-request-schema.json",
+  "title": "Request",
+  "x-generated": "2026-10-12",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/amigo-organization-api-openapi.yml#/components/schemas/src__app__endpoints__organization__create_service_hierarchical_state_machine_version__Request",
+  "properties": {
+    "description": {
+      "$ref": "#/$defs/amigo_lib__pydantic__base_model__StrippedNonemptyString__1",
+      "description": "A description of the service hierarchical state machine."
+    },
+    "states": {
+      "items": {
+        "oneOf": [
+          {
+            "$ref": "#/$defs/ActionState-Input"
+          },
+          {
+            "$ref": "#/$defs/DecisionState-Input"
+          },
+          {
+            "$ref": "#/$defs/RecallState-Input"
+          },
+          {
+            "$ref": "#/$defs/AnnotationState-Input"
+          },
+          {
+            "$ref": "#/$defs/ReflectionState-Input"
+          },
+          {
+            "$ref": "#/$defs/ToolCallState-Input"
+          }
+        ]
+      },
+      "type": "array",
+      "title": "States",
+      "description": "The internal states in this service hierarchical state machine."
+    },
+    "new_user_initial_state": {
+      "$ref": "#/$defs/StateOrRefName",
+      "description": "The state a new user will be in when a session starts. This must be an action state, and must be an internal state."
+    },
+    "returning_user_initial_state": {
+      "$ref": "#/$defs/StateOrRefName",
+      "description": "The state a returning user will be in when a session starts. This must be an action state, and must be an internal state."
+    },
+    "terminal_state": {
+      "$ref": "#/$defs/StateOrRefName",
+      "description": "The state the user will be in when the session ends. This must be an action state, and must be an internal state."
+    },
+    "references": {
+      "additionalProperties": {
+        "prefixItems": [
+          {
+            "type": "string",
+            "pattern": "^[a-f0-9]{24}$"
+          },
+          {
+            "type": "integer"
+          }
+        ],
+        "type": "array",
+        "maxItems": 2,
+        "minItems": 2
+      },
+      "propertyNames": {
+        "$ref": "#/$defs/StateOrRefName"
+      },
+      "type": "object",
+      "title": "References",
+      "description": "A dictionary of other service hierarchical state machines that this references to. This field is a map of the reference name to the machine's ID and its version number."
+    },
+    "global_intra_state_navigation_guidelines": {
+      "items": {
+        "$ref": "#/$defs/amigo_lib__pydantic__base_model__StrippedNonemptyString__1"
+      },
+      "type": "array",
+      "title": "Global Intra State Navigation Guidelines",
+      "description": "A list of guidelines for how the agent will navigate between subgoals and exit conditions within this state. This is injected into the `intra_state_navigation_guidelines` field of every action state."
+    },
+    "global_action_guidelines": {
+      "items": {
+        "$ref": "#/$defs/amigo_lib__pydantic__base_model__StrippedNonemptyString__1"
+      },
+      "type": "array",
+      "title": "Global Action Guidelines",
+      "description": "A list of guidelines for how the agent will behave when engaging with user. This is injected into the `action_guidelines` field of every action state."
+    },
+    "global_boundary_constraints": {
+      "items": {
+        "$ref": "#/$defs/amigo_lib__pydantic__base_model__StrippedNonemptyString__1"
+      },
+      "type": "array",
+      "title": "Global Boundary Constraints",
+      "description": "A list of guidelines for how the agent will not behave when engaging with user. This is injected into the `boundary_constraints` field of every action state."
+    }
+  },
+  "type": "object",
+  "required": [
+    "description",
+    "states",
+    "new_user_initial_state",
+    "returning_user_initial_state",
+    "terminal_state",
+    "references",
+    "global_intra_state_navigation_guidelines",
+    "global_action_guidelines",
+    "global_boundary_constraints"
+  ],
+  "$defs": {
+    "ActionState-Input": {
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "action",
+          "title": "Type"
+        },
+        "name": {
+          "$ref": "#/$defs/StateOrRefName"
+        },
+        "objective": {
+          "$ref": "#/$defs/amigo_lib__pydantic__base_model__StrippedNonemptyString__1"
+        },
+        "actions": {
+          "items": {
+            "$ref": "#/$defs/amigo_lib__pydantic__base_model__StrippedNonemptyString__1"
+          },
+          "type": "array",
+          "minItems": 1,
+          "title": "Actions"
+        },
+        "intra_state_navigation_guidelines": {
+          "items": {
+            "$ref": "#/$defs/amigo_lib__pydantic__base_model__StrippedNonemptyString__1"
+          },
+          "type": "array",
+          "title": "Intra State Navigation Guidelines"
+        },
+        "action_guidelines": {
+          "items": {
+            "$ref": "#/$defs/amigo_lib__pydantic__base_model__StrippedNonemptyString__1"
+          },
+          "type": "array",
+          "title": "Action Guidelines"
+        },
+        "boundary_constraints": {
+          "items": {
+            "$ref": "#/$defs/amigo_lib__pydantic__base_model__StrippedNonemptyString__1"
+          },
+          "type": "array",
+          "title": "Boundary Constraints"
+        },
+        "exit_conditions": {
+          "items": {
+            "$ref": "#/$defs/ExitCondition-Input"
+          },
+          "type": "array",
+          "title": "Exit Conditions"
+        },
+        "action_tool_call_specs": {
+          "items": {
+            "$ref": "#/$defs/src__app__endpoints__organization__create_service_hierarchical_state_machine_version__Request__ToolCallSpec"
+          },
+          "type": "array",
+          "title": "Action Tool Call Specs"
+        },
+        "exit_condition_tool_call_specs": {
+          "items": {
+            "$ref": "#/$defs/src__app__endpoints__organization__create_service_hierarchical_state_machine_version__Request__ToolCallSpec"
+          },
+          "type": "array",
+          "title": "Exit Condition Tool Call Specs"
+        },
+        "skip_active_memory_retrieval": {
+          "type": "boolean",
+          "title": "Skip Active Memory Retrieval",
+          "description": "If `True`, the agent will not perform active memory retrieval at the start of an interaction in this state."
+        }
+      },
+      "type": "object",
+      "required": [
+        "type",
+        "name",
+        "objective",
+        "actions",
+        "intra_state_navigation_guidelines",
+        "action_guidelines",
+        "boundary_constraints",
+        "exit_conditions",
+        "action_tool_call_specs",
+        "exit_condition_tool_call_specs",
+        "skip_active_memory_retrieval"
+      ],
+      "title": "ActionState"
+    },
+    "AnnotationState-Input": {
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "annotation",
+          "title": "Type"
+        },
+        "name": {
+          "$ref": "#/$defs/StateOrRefName"
+        },
+        "inner_thought": {
+          "$ref": "#/$defs/amigo_lib__pydantic__base_model__StrippedNonemptyString__1"
+        },
+        "next_state": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/StateOrRefName"
+            },
+            {
+              "prefixItems": [
+                {
+                  "$ref": "#/$defs/ExternalStateName"
+                },
+                {
+                  "$ref": "#/$defs/StateOrRefName"
+                }
+              ],
+              "type": "array",
+              "maxItems": 2,
+              "minItems": 2
+            }
+          ],
+          "title": "Next State"
+        }
+      },
+      "type": "object",
+      "required": [
+        "type",
+        "name",
+        "inner_thought",
+        "next_state"
+      ],
+      "title": "AnnotationState"
+    },
+    "DecisionState-Input": {
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "decision",
+          "title": "Type"
+        },
+        "name": {
+          "$ref": "#/$defs/StateOrRefName"
+        },
+        "exit_conditions": {
+          "items": {
+            "$ref": "#/$defs/ExitCondition-Input"
+          },
+          "type": "array",
+          "title": "Exit Conditions"
+        },
+        "decision_guidelines": {
+          "items": {
+            "$ref": "#/$defs/amigo_lib__pydantic__base_model__StrippedNonemptyString__1"
+          },
+          "type": "array",
+          "title": "Decision Guidelines"
+        },
+        "objective": {
+          "$ref": "#/$defs/amigo_lib__pydantic__base_model__StrippedNonemptyString__1"
+        },
+        "tool_call_specs": {
+          "items": {
+            "$ref": "#/$defs/src__app__endpoints__organization__create_service_hierarchical_state_machine_version__Request__ToolCallSpec"
+          },
+          "type": "array",
+          "title": "Tool Call Specs"
+        },
+        "audio_fillers": {
+          "items": {
+            "$ref": "#/$defs/amigo_lib__pydantic__base_model__StrippedNonemptyString__1"
+          },
+          "type": "array",
+          "maxItems": 5,
+          "title": "Audio Fillers",
+          "description": "A list of audio fillers to play in audio mode if the `select-next-state-for-decision-state` prompt is taking too long to process."
+        },
+        "audio_filler_triggered_after": {
+          "type": "number",
+          "maximum": 10.0,
+          "exclusiveMinimum": 0.0,
+          "title": "Audio Filler Triggered After",
+          "description": "The number of seconds to wait before playing an audio filler."
+        }
+      },
+      "type": "object",
+      "required": [
+        "type",
+        "name",
+        "exit_conditions",
+        "decision_guidelines",
+        "objective",
+        "tool_call_specs",
+        "audio_fillers",
+        "audio_filler_triggered_after"
+      ],
+      "title": "DecisionState"
+    },
+    "ExitCondition-Input": {
+      "properties": {
+        "description": {
+          "$ref": "#/$defs/amigo_lib__pydantic__base_model__StrippedNonemptyString__1"
+        },
+        "next_state": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/StateOrRefName"
+            },
+            {
+              "prefixItems": [
+                {
+                  "$ref": "#/$defs/ExternalStateName"
+                },
+                {
+                  "$ref": "#/$defs/StateOrRefName"
+                }
+              ],
+              "type": "array",
+              "maxItems": 2,
+              "minItems": 2
+            }
+          ],
+          "title": "Next State"
+        }
+      },
+      "type": "object",
+      "required": [
+        "description",
+        "next_state"
+      ],
+      "title": "ExitCondition"
+    },
+    "ExternalStateName": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_]+\\.[A-Za-z0-9_]+$"
+    },
+    "RecallState-Input": {
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "recall",
+          "title": "Type"
+        },
+        "name": {
+          "$ref": "#/$defs/StateOrRefName"
+        },
+        "queries": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array",
+              "minItems": 1
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Queries"
+        },
+        "requested_information": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/amigo_lib__pydantic__base_model__StrippedNonemptyString__1"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "next_state": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/StateOrRefName"
+            },
+            {
+              "prefixItems": [
+                {
+                  "$ref": "#/$defs/ExternalStateName"
+                },
+                {
+                  "$ref": "#/$defs/StateOrRefName"
+                }
+              ],
+              "type": "array",
+              "maxItems": 2,
+              "minItems": 2
+            }
+          ],
+          "title": "Next State"
+        }
+      },
+      "type": "object",
+      "required": [
+        "type",
+        "name",
+        "queries",
+        "requested_information",
+        "next_state"
+      ],
+      "title": "RecallState"
+    },
+    "ReflectionState-Input": {
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "reflection",
+          "title": "Type"
+        },
+        "name": {
+          "$ref": "#/$defs/StateOrRefName"
+        },
+        "problem": {
+          "$ref": "#/$defs/amigo_lib__pydantic__base_model__StrippedNonemptyString__1"
+        },
+        "word_limit": {
+          "type": "integer",
+          "exclusiveMinimum": 0.0,
+          "title": "Word Limit"
+        },
+        "next_state": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/StateOrRefName"
+            },
+            {
+              "prefixItems": [
+                {
+                  "$ref": "#/$defs/ExternalStateName"
+                },
+                {
+                  "$ref": "#/$defs/StateOrRefName"
+                }
+              ],
+              "type": "array",
+              "maxItems": 2,
+              "minItems": 2
+            }
+          ],
+          "title": "Next State"
+        },
+        "tool_call_specs": {
+          "items": {
+            "$ref": "#/$defs/src__app__endpoints__organization__create_service_hierarchical_state_machine_version__Request__ToolCallSpec"
+          },
+          "type": "array",
+          "title": "Tool Call Specs"
+        },
+        "audio_fillers": {
+          "items": {
+            "$ref": "#/$defs/amigo_lib__pydantic__base_model__StrippedNonemptyString__1"
+          },
+          "type": "array",
+          "maxItems": 5,
+          "title": "Audio Fillers",
+          "description": "A list of audio fillers to play in audio mode if the reflection is taking too long to be generated."
+        },
+        "audio_filler_triggered_after": {
+          "type": "number",
+          "maximum": 10.0,
+          "exclusiveMinimum": 0.0,
+          "title": "Audio Filler Triggered After",
+          "description": "The number of seconds to wait before playing an audio filler."
+        }
+      },
+      "type": "object",
+      "required": [
+        "type",
+        "name",
+        "problem",
+        "word_limit",
+        "next_state",
+        "tool_call_specs",
+        "audio_fillers",
+        "audio_filler_triggered_after"
+      ],
+      "title": "ReflectionState"
+    },
+    "ResultPersistence": {
+      "type": "string",
+      "enum": [
+        "ephemeral",
+        "persisted-preferred",
+        "persisted"
+      ]
+    },
+    "StateOrRefName": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_]+$"
+    },
+    "ToolCallState-Input": {
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "tool-call",
+          "title": "Type"
+        },
+        "name": {
+          "$ref": "#/$defs/StateOrRefName"
+        },
+        "next_state": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/StateOrRefName"
+            },
+            {
+              "prefixItems": [
+                {
+                  "$ref": "#/$defs/ExternalStateName"
+                },
+                {
+                  "$ref": "#/$defs/StateOrRefName"
+                }
+              ],
+              "type": "array",
+              "maxItems": 2,
+              "minItems": 2
+            }
+          ],
+          "title": "Next State"
+        },
+        "designated_tool": {
+          "$ref": "#/$defs/src__app__endpoints__organization__create_service_hierarchical_state_machine_version__Request__ToolCallSpec"
+        },
+        "designated_tool_call_params_generation_audio_fillers": {
+          "items": {
+            "$ref": "#/$defs/amigo_lib__pydantic__base_model__StrippedNonemptyString__1"
+          },
+          "type": "array",
+          "maxItems": 5,
+          "title": "Designated Tool Call Params Generation Audio Fillers"
+        },
+        "designated_tool_call_params_generation_audio_filler_triggered_after": {
+          "type": "number",
+          "maximum": 10.0,
+          "exclusiveMinimum": 0.0,
+          "title": "Designated Tool Call Params Generation Audio Filler Triggered After"
+        },
+        "designated_tool_call_objective": {
+          "$ref": "#/$defs/amigo_lib__pydantic__base_model__StrippedNonemptyString__1"
+        },
+        "designated_tool_call_context": {
+          "$ref": "#/$defs/amigo_lib__pydantic__base_model__StrippedNonemptyString__1"
+        },
+        "designated_tool_call_guidances": {
+          "items": {
+            "$ref": "#/$defs/amigo_lib__pydantic__base_model__StrippedNonemptyString__1"
+          },
+          "type": "array",
+          "title": "Designated Tool Call Guidances"
+        },
+        "designated_tool_call_validations": {
+          "items": {
+            "$ref": "#/$defs/amigo_lib__pydantic__base_model__StrippedNonemptyString__1"
+          },
+          "type": "array",
+          "title": "Designated Tool Call Validations"
+        },
+        "tool_call_specs": {
+          "items": {
+            "$ref": "#/$defs/src__app__endpoints__organization__create_service_hierarchical_state_machine_version__Request__ToolCallSpec"
+          },
+          "type": "array",
+          "title": "Tool Call Specs"
+        }
+      },
+      "type": "object",
+      "required": [
+        "type",
+        "name",
+        "next_state",
+        "designated_tool",
+        "designated_tool_call_params_generation_audio_fillers",
+        "designated_tool_call_params_generation_audio_filler_triggered_after",
+        "designated_tool_call_objective",
+        "designated_tool_call_context",
+        "designated_tool_call_guidances",
+        "designated_tool_call_validations",
+        "tool_call_specs"
+      ],
+      "title": "ToolCallState"
+    },
+    "amigo_lib__pydantic__base_model__StrippedNonemptyString__1": {
+      "type": "string",
+      "minLength": 1
+    },
+    "src__app__endpoints__organization__create_service_hierarchical_state_machine_version__Request__ToolCallSpec": {
+      "properties": {
+        "tool_id": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{24}$",
+          "title": "Tool Id",
+          "description": "The ID of the tool."
+        },
+        "version_constraint": {
+          "type": "string",
+          "title": "Version Constraint",
+          "description": "A [Python packaging version constraint](https://packaging.python.org/en/latest/specifications/version-specifiers/#id5) of the tool."
+        },
+        "additional_instruction": {
+          "$ref": "#/$defs/amigo_lib__pydantic__base_model__StrippedNonemptyString__1",
+          "description": "Additional instruction to be supplied to the LLM in addition to the tool's description."
+        },
+        "audio_fillers": {
+          "items": {
+            "$ref": "#/$defs/amigo_lib__pydantic__base_model__StrippedNonemptyString__1"
+          },
+          "type": "array",
+          "maxItems": 5,
+          "title": "Audio Fillers",
+          "description": "A list of audio fillers to play in audio mode if the tool is taking a long time."
+        },
+        "audio_filler_triggered_after": {
+          "type": "number",
+          "maximum": 10.0,
+          "exclusiveMinimum": 0.0,
+          "title": "Audio Filler Triggered After",
+          "description": "The number of seconds to wait before playing an audio filler."
+        },
+        "result_persistence": {
+          "$ref": "#/$defs/ResultPersistence",
+          "description": "The type of result persistence for this tool call.\n\n- If `ephemeral`, the result of the tool call is only provided to the current LLM interaction. Any future LLM interactions will not see this tool result.\n- If `persisted-preferred`, the result of the tool call is reflected in all future LLM interactions if it's less than 5000 characters long. Otherwise, it's only visible in the current LLM interaction.\n- If `persisted`, the result of the tool call is reflected in all future LLM interactions, unless it's more than 5000 characters long, in which case an error is thrown."
+        }
+      },
+      "type": "object",
+      "required": [
+        "tool_id",
+        "version_constraint",
+        "additional_instruction",
+        "audio_fillers",
+        "audio_filler_triggered_after",
+        "result_persistence"
+      ],
+      "title": "ToolCallSpec"
+    }
+  }
+}

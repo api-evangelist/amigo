@@ -1,0 +1,185 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/amigo/main/json-schema/amigo-create-outbound-call-request-schema.json",
+  "title": "CreateOutboundCallRequest",
+  "description": "Request body for creating an outbound call.\n\n``use_case_id`` is required: channel-manager selects the optimal outbound\nphone number bound to that use case (the sole caller-ID resolution path).",
+  "x-generated": "2026-10-12",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/amigo-calls-api-openapi.yml#/components/schemas/CreateOutboundCallRequest",
+  "properties": {
+    "phone_to": {
+      "$ref": "#/$defs/PhoneE164",
+      "description": "Destination phone number in E.164 format."
+    },
+    "use_case_id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Use Case Id",
+      "description": "Channel-manager use case ID. channel-manager selects the optimal outbound phone number bound to this use case."
+    },
+    "patient_entity_id": {
+      "anyOf": [
+        {
+          "type": "string",
+          "format": "uuid"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Patient Entity Id",
+      "description": "Patient entity UUID in the world model. Must exist in workspace as a person entity. Provide either patient_entity_id or patient_canonical_id."
+    },
+    "patient_canonical_id": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/CanonicalIdString"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Patient world model canonical_id of the form 'source:resource_type:id' (e.g. 'charmhealth:Patient:67890'). The structural regex on CanonicalIdString rejects spaces, names, DOBs, and similar regulated content so PHI cannot leak into audit events or pipeline projections. The raw value is deliberately not recorded in the outbound.initiated event — correlation back to the source system is via the resolved entity_id joined to world.entities_synced.canonical_id. Resolved against the SDP-projected world.entities_synced table; an entity created moments ago may not yet be visible if the projection is lagging. Provide either patient_entity_id or patient_canonical_id, not both."
+    },
+    "reason": {
+      "$ref": "#/$defs/NameString",
+      "description": "Why the call is being made (e.g. appointment_reminder, follow_up, lab_results)."
+    },
+    "service_id": {
+      "anyOf": [
+        {
+          "type": "string",
+          "format": "uuid"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Service Id",
+      "description": "Service ID for the voice agent to use."
+    },
+    "system_prompt": {
+      "anyOf": [
+        {
+          "type": "string",
+          "maxLength": 10000
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "System Prompt",
+      "description": "Optional system prompt override for this call."
+    },
+    "goal": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/DescriptionString"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "What the call should accomplish. Injected into agent context."
+    },
+    "tags": {
+      "anyOf": [
+        {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "maxItems": 10
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Tags",
+      "description": "Classification tags for analytics."
+    },
+    "metadata": {
+      "anyOf": [
+        {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "type": "object"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Metadata",
+      "description": "Arbitrary key-value pairs for external system correlation."
+    },
+    "derived_from_call_sid": {
+      "anyOf": [
+        {
+          "type": "string",
+          "maxLength": 64
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Derived From Call Sid",
+      "description": "Prior call_sid if this is a callback from a previous call."
+    },
+    "idempotency_key": {
+      "anyOf": [
+        {
+          "type": "string",
+          "maxLength": 128
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Idempotency Key",
+      "description": "Client-provided idempotency key. Auto-generated if omitted."
+    },
+    "outbound_task_entity_id": {
+      "anyOf": [
+        {
+          "type": "string",
+          "format": "uuid"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Outbound Task Entity Id",
+      "description": "World model outbound_task entity ID for completion feedback."
+    }
+  },
+  "type": "object",
+  "required": [
+    "phone_to",
+    "use_case_id",
+    "reason"
+  ],
+  "$defs": {
+    "CanonicalIdString": {
+      "type": "string",
+      "maxLength": 256,
+      "minLength": 3,
+      "pattern": "^[A-Za-z0-9._-]+:[A-Za-z0-9._-]+:[A-Za-z0-9._-]+$"
+    },
+    "DescriptionString": {
+      "type": "string",
+      "maxLength": 2000
+    },
+    "NameString": {
+      "type": "string",
+      "maxLength": 256,
+      "minLength": 1
+    },
+    "PhoneE164": {
+      "type": "string",
+      "maxLength": 16,
+      "minLength": 2
+    }
+  }
+}

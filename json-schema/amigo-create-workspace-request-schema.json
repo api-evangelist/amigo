@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/amigo/main/json-schema/amigo-create-workspace-request-schema.json",
+  "title": "CreateWorkspaceRequest",
+  "description": "Request body for ``POST /v1/me/workspaces``.\n\n``region`` is intentionally not exposed here — the workspace is created\nin the region of the platform-api pod that handles the request (each\nregion's CD pipeline serves its own ingress host), and a workspace\ncannot migrate between regions. The handler derives it from\n``app.env.aws_region``.\n\n``environment`` has no default: it is a load-bearing routing field\n(staging vs production downstream), and ``PATCH .../convert_environment``\nis the supported migration path. Callers must commit to a value.",
+  "x-generated": "2026-10-12",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/amigo-account-api-openapi.yml#/components/schemas/CreateWorkspaceRequest",
+  "properties": {
+    "slug": {
+      "$ref": "#/$defs/SlugString"
+    },
+    "name": {
+      "$ref": "#/$defs/StrippedNonemptyString"
+    },
+    "environment": {
+      "type": "string",
+      "enum": [
+        "production",
+        "staging",
+        "development"
+      ],
+      "title": "Environment"
+    },
+    "backend_org_id": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/StrippedNonemptyString"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  },
+  "type": "object",
+  "required": [
+    "slug",
+    "name",
+    "environment"
+  ],
+  "$defs": {
+    "SlugString": {
+      "type": "string",
+      "maxLength": 63,
+      "minLength": 2,
+      "pattern": "^[a-z0-9][a-z0-9-]*[a-z0-9]$"
+    },
+    "StrippedNonemptyString": {
+      "type": "string",
+      "minLength": 1
+    }
+  }
+}

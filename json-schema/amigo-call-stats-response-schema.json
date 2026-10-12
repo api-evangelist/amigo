@@ -1,0 +1,97 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/amigo/main/json-schema/amigo-call-stats-response-schema.json",
+  "title": "CallStatsResponse",
+  "x-generated": "2026-10-12",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/amigo-analytics-api-openapi.yml#/components/schemas/CallStatsResponse",
+  "properties": {
+    "workspace_id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Workspace Id",
+      "description": "Workspace identifier"
+    },
+    "period_start": {
+      "type": "string",
+      "format": "date",
+      "title": "Period Start",
+      "description": "Start of the reporting period"
+    },
+    "period_end": {
+      "type": "string",
+      "format": "date",
+      "title": "Period End",
+      "description": "End of the reporting period"
+    },
+    "total_calls": {
+      "type": "integer",
+      "title": "Total Calls",
+      "description": "Total number of calls in the period"
+    },
+    "total_duration_seconds": {
+      "type": "number",
+      "title": "Total Duration Seconds",
+      "description": "Sum of all call durations in seconds"
+    },
+    "avg_duration_seconds": {
+      "type": "number",
+      "title": "Avg Duration Seconds",
+      "description": "Average call duration in seconds"
+    },
+    "calls_by_date": {
+      "items": {
+        "$ref": "#/$defs/DailyCallStat"
+      },
+      "type": "array",
+      "title": "Calls By Date",
+      "description": "Daily call volume breakdown"
+    }
+  },
+  "type": "object",
+  "required": [
+    "workspace_id",
+    "period_start",
+    "period_end",
+    "total_calls",
+    "total_duration_seconds",
+    "avg_duration_seconds",
+    "calls_by_date"
+  ],
+  "$defs": {
+    "DailyCallStat": {
+      "properties": {
+        "date": {
+          "type": "string",
+          "title": "Date",
+          "description": "Date string (YYYY-MM-DD)"
+        },
+        "count": {
+          "type": "integer",
+          "title": "Count",
+          "description": "Number of calls on this date"
+        },
+        "avg_duration_seconds": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Avg Duration Seconds",
+          "description": "Average call duration in seconds"
+        }
+      },
+      "type": "object",
+      "required": [
+        "date",
+        "count"
+      ],
+      "title": "DailyCallStat",
+      "description": "Per-day call volume and duration."
+    }
+  }
+}

@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/amigo/main/json-schema/amigo-src-app-endpoints-conversation-generate-conversation-starter-request-schema.json",
+  "title": "Request",
+  "x-generated": "2026-10-12",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/amigo-conversation-api-openapi.yml#/components/schemas/src__app__endpoints__conversation__generate_conversation_starter__Request",
+  "properties": {
+    "service_id": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{24}$",
+      "title": "Service Id",
+      "description": "The identifier of the service to create a conversation starter for."
+    },
+    "service_version_set_name": {
+      "type": "string",
+      "title": "Service Version Set Name",
+      "description": "The version set of the service to use. If not provided, the `release` version set is used.",
+      "default": "release"
+    },
+    "facets": {
+      "items": {
+        "$ref": "#/$defs/amigo_lib__pydantic__base_model__StrippedNonemptyString__1"
+      },
+      "type": "array",
+      "minItems": 1,
+      "title": "Facets",
+      "description": "The facets that the generated conversation starter should be about. Each generated starter is related to some of these facets."
+    },
+    "min_count": {
+      "type": "integer",
+      "maximum": 10.0,
+      "exclusiveMinimum": 0.0,
+      "title": "Min Count",
+      "description": "The minimum (inclusive) number of conversation starters to generate."
+    },
+    "max_count": {
+      "type": "integer",
+      "maximum": 10.0,
+      "exclusiveMinimum": 0.0,
+      "title": "Max Count",
+      "description": "The maximum (inclusive) number of conversation starters to generate."
+    },
+    "generation_instructions": {
+      "$ref": "#/$defs/amigo_lib__pydantic__base_model__StrippedNonemptyString__1",
+      "description": "The instruction for the conversation starter generation."
+    }
+  },
+  "type": "object",
+  "required": [
+    "service_id",
+    "facets",
+    "min_count",
+    "max_count",
+    "generation_instructions"
+  ],
+  "$defs": {
+    "amigo_lib__pydantic__base_model__StrippedNonemptyString__1": {
+      "type": "string",
+      "minLength": 1
+    }
+  }
+}

@@ -1,0 +1,284 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/amigo/main/json-schema/amigo-src-app-endpoints-metric-get-metric-evaluation-results-response-schema.json",
+  "title": "Response",
+  "x-generated": "2026-10-12",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/amigo-metric-api-openapi.yml#/components/schemas/src__app__endpoints__metric__get_metric_evaluation_results__Response",
+  "properties": {
+    "metric_evaluation_results": {
+      "items": {
+        "$ref": "#/$defs/MetricEvaluationResultInstance"
+      },
+      "type": "array",
+      "title": "Metric Evaluation Results",
+      "description": "The list of retrieved metric evaluation results."
+    },
+    "has_more": {
+      "type": "boolean",
+      "title": "Has More",
+      "description": "Whether there are more metric evaluation results to retrieve."
+    },
+    "continuation_token": {
+      "anyOf": [
+        {},
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Continuation Token",
+      "description": "The continuation token to use to retrieve the next set of metric evaluation results."
+    },
+    "filter_values": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/src__app__endpoints__metric__get_metric_evaluation_results__Response__FilterValues"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "For each filter that this endpoint supports that can take on dynamic values, this field includes what these values are. This is only provided for the first page in the pagination results.\n\nNote that the values are counted assuming the authenticated user has access to all the metric evaluation results, so they might differ from how many are actually\nretrieved."
+    }
+  },
+  "type": "object",
+  "required": [
+    "metric_evaluation_results",
+    "has_more",
+    "continuation_token",
+    "filter_values"
+  ],
+  "$defs": {
+    "EvaluationSource": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/PostSessionEvaluationSource"
+        },
+        {
+          "$ref": "#/$defs/ManualEvaluationSource"
+        },
+        {
+          "$ref": "#/$defs/SimulationEvaluationSource"
+        }
+      ]
+    },
+    "ManualEvaluationSource": {
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "manual",
+          "title": "Type",
+          "default": "manual"
+        },
+        "conversation_id": {
+          "type": "string",
+          "title": "Conversation Id"
+        },
+        "evaluate_to_interaction_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Evaluate To Interaction Id"
+        },
+        "invoked_by": {
+          "$ref": "#/$defs/amigo_lib__mongo__collections__metric_evaluation_result__MetricEvaluationResult__ManualEvaluationSource__UserInfo",
+          "description": "The user who invoked the manual evaluation."
+        },
+        "references": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "title": "References",
+          "description": "A list of references to the messages that were used to compute this metric."
+        }
+      },
+      "type": "object",
+      "required": [
+        "conversation_id",
+        "evaluate_to_interaction_id",
+        "invoked_by",
+        "references"
+      ],
+      "title": "ManualEvaluationSource"
+    },
+    "MetricEvaluationResultInstance": {
+      "properties": {
+        "id": {
+          "type": "string",
+          "title": "Id",
+          "description": "The ID of the metric evaluation result."
+        },
+        "org_id": {
+          "type": "string",
+          "title": "Org Id",
+          "description": "The ID of the organization."
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time",
+          "title": "Created At"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time",
+          "title": "Updated At"
+        },
+        "metric_id": {
+          "type": "string",
+          "title": "Metric Id",
+          "description": "The ID of the metric that was evaluated."
+        },
+        "metric_version": {
+          "type": "integer",
+          "title": "Metric Version",
+          "description": "The version of the metric that was evaluated."
+        },
+        "result": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Result",
+          "description": "The result of the metric evaluation. If `None`, the metric was deemed not applicable."
+        },
+        "justification": {
+          "type": "string",
+          "title": "Justification",
+          "description": "The justification for the result of the metric evaluation."
+        },
+        "source": {
+          "$ref": "#/$defs/EvaluationSource"
+        }
+      },
+      "type": "object",
+      "required": [
+        "id",
+        "org_id",
+        "metric_id",
+        "metric_version",
+        "result",
+        "justification",
+        "source"
+      ],
+      "title": "MetricEvaluationResultInstance"
+    },
+    "PostSessionEvaluationSource": {
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "post-session",
+          "title": "Type",
+          "default": "post-session"
+        },
+        "conversation_id": {
+          "type": "string",
+          "title": "Conversation Id"
+        },
+        "references": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "title": "References",
+          "description": "A list of references to the messages that were used to compute this metric."
+        }
+      },
+      "type": "object",
+      "required": [
+        "conversation_id",
+        "references"
+      ],
+      "title": "PostSessionEvaluationSource"
+    },
+    "SimulationEvaluationSource": {
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "simulation",
+          "title": "Type",
+          "default": "simulation"
+        },
+        "simulation_unit_test_set_run_id": {
+          "type": "string",
+          "title": "Simulation Unit Test Set Run Id"
+        },
+        "unit_test_id": {
+          "type": "string",
+          "title": "Unit Test Id"
+        },
+        "run_index": {
+          "type": "integer",
+          "title": "Run Index"
+        },
+        "references": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "title": "References",
+          "description": "A list of messages that were used to compute this metric."
+        }
+      },
+      "type": "object",
+      "required": [
+        "simulation_unit_test_set_run_id",
+        "unit_test_id",
+        "run_index",
+        "references"
+      ],
+      "title": "SimulationEvaluationSource"
+    },
+    "amigo_lib__mongo__collections__metric_evaluation_result__MetricEvaluationResult__ManualEvaluationSource__UserInfo": {
+      "properties": {
+        "org_id": {
+          "type": "string",
+          "title": "Org Id"
+        },
+        "user_id": {
+          "type": "string",
+          "title": "User Id"
+        }
+      },
+      "type": "object",
+      "required": [
+        "org_id",
+        "user_id"
+      ],
+      "title": "UserInfo"
+    },
+    "src__app__endpoints__metric__get_metric_evaluation_results__Response__FilterValues": {
+      "properties": {
+        "metric_ids": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "title": "Metric Ids",
+          "description": "The IDs of the metrics that the metric evaluation results are for."
+        }
+      },
+      "type": "object",
+      "required": [
+        "metric_ids"
+      ],
+      "title": "FilterValues"
+    }
+  }
+}

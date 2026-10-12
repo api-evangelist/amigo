@@ -1,0 +1,144 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/amigo/main/json-schema/amigo-paginated-response-meter-value-item-schema.json",
+  "title": "PaginatedResponse[MeterValueItem]",
+  "x-generated": "2026-10-12",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/amigo-billing-api-openapi.yml#/components/schemas/PaginatedResponse_MeterValueItem_",
+  "properties": {
+    "items": {
+      "items": {
+        "$ref": "#/$defs/MeterValueItem"
+      },
+      "type": "array",
+      "title": "Items"
+    },
+    "has_more": {
+      "type": "boolean",
+      "title": "Has More"
+    },
+    "continuation_token": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Continuation Token"
+    },
+    "total": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Total"
+    }
+  },
+  "type": "object",
+  "required": [
+    "items",
+    "has_more"
+  ],
+  "$defs": {
+    "MeterBreakdown": {
+      "properties": {
+        "categories": {
+          "additionalProperties": {
+            "type": "number"
+          },
+          "type": "object",
+          "title": "Categories",
+          "description": "Sub-category values"
+        }
+      },
+      "type": "object",
+      "title": "MeterBreakdown",
+      "description": "Breakdown of a meter value by sub-category."
+    },
+    "MeterValueItem": {
+      "properties": {
+        "id": {
+          "type": "string",
+          "title": "Id",
+          "description": "Meter value record ID"
+        },
+        "customer_id": {
+          "type": "string",
+          "title": "Customer Id",
+          "description": "Customer ID"
+        },
+        "meter_key": {
+          "type": "string",
+          "title": "Meter Key",
+          "description": "Meter identifier"
+        },
+        "metering_source": {
+          "type": "string",
+          "enum": [
+            "production",
+            "simulation"
+          ],
+          "title": "Metering Source",
+          "description": "Traffic class",
+          "default": "production"
+        },
+        "period_start": {
+          "type": "string",
+          "title": "Period Start",
+          "description": "Period start (ISO-8601)"
+        },
+        "period_end": {
+          "type": "string",
+          "title": "Period End",
+          "description": "Period end (ISO-8601)"
+        },
+        "value": {
+          "type": "string",
+          "title": "Value",
+          "description": "Metered value"
+        },
+        "unit": {
+          "type": "string",
+          "title": "Unit",
+          "description": "Unit of measurement"
+        },
+        "breakdown": {
+          "$ref": "#/$defs/MeterBreakdown",
+          "description": "Sub-category breakdown"
+        },
+        "updated_at": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Updated At",
+          "description": "Last updated (ISO-8601)"
+        }
+      },
+      "type": "object",
+      "required": [
+        "id",
+        "customer_id",
+        "meter_key",
+        "period_start",
+        "period_end",
+        "value",
+        "unit",
+        "breakdown",
+        "updated_at"
+      ],
+      "title": "MeterValueItem"
+    }
+  }
+}

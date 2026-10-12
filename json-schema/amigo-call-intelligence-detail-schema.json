@@ -1,0 +1,699 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/amigo/main/json-schema/amigo-call-intelligence-detail-schema.json",
+  "title": "CallIntelligenceDetail",
+  "description": "Layer 4 (Narrative) intelligence for a completed call.\n\nAggregated summaries, quality breakdown, and key moments — the\ninterpretive layer. Per-turn visualization data lives on the unified\ntimeline (call detail → PlaybackTimeline.segments), not here.",
+  "x-generated": "2026-10-12",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/amigo-calls-api-openapi.yml#/components/schemas/CallIntelligenceDetail",
+  "properties": {
+    "call_id": {
+      "type": "string",
+      "title": "Call Id",
+      "description": "World entity ID for the call"
+    },
+    "call_sid": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Call Sid",
+      "description": "Twilio call SID"
+    },
+    "direction": {
+      "type": "string",
+      "enum": [
+        "inbound",
+        "outbound",
+        "playground",
+        "simulated",
+        "test"
+      ],
+      "title": "Direction",
+      "description": "Call direction",
+      "default": "inbound"
+    },
+    "duration_seconds": {
+      "type": "number",
+      "title": "Duration Seconds",
+      "description": "Call duration in seconds",
+      "default": 0.0
+    },
+    "quality_score": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Quality Score",
+      "description": "Quality score 0.0 to 1.0"
+    },
+    "quality_breakdown": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/QualityBreakdown"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Detailed quality breakdown"
+    },
+    "key_moments": {
+      "items": {
+        "$ref": "#/$defs/KeyMoment"
+      },
+      "type": "array",
+      "title": "Key Moments",
+      "description": "Notable call events"
+    },
+    "emotion_summary": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/EmotionSummary"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Emotional analysis"
+    },
+    "risk_summary": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/RiskSummary"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Risk assessment"
+    },
+    "latency_summary": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/LatencySummary"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Audio latency metrics"
+    },
+    "conversation_summary": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ConversationSummary"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Conversation flow metrics"
+    },
+    "tool_summary": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ToolSummary"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Tool usage statistics"
+    },
+    "safety_summary": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/SafetySummary"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Safety filter results"
+    },
+    "operator_summary": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/OperatorIntelligenceSummary"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Operator intervention"
+    },
+    "completion_reason": {
+      "anyOf": [
+        {
+          "type": "string",
+          "enum": [
+            "completed",
+            "abandoned",
+            "escalated",
+            "transferred",
+            "timeout",
+            "error",
+            "voicemail",
+            "no_answer",
+            "caller_hangup",
+            "forwarded",
+            "terminal_state",
+            "warm_transfer_completed",
+            "no_inbound_audio",
+            "cancelled"
+          ]
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Completion Reason",
+      "description": "Why the call ended"
+    },
+    "final_state": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Final State",
+      "description": "Final conversation state name"
+    },
+    "created_at": {
+      "anyOf": [
+        {
+          "type": "string",
+          "format": "date-time"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Created At",
+      "description": "When intelligence was computed"
+    }
+  },
+  "type": "object",
+  "required": [
+    "call_id"
+  ],
+  "$defs": {
+    "ConversationSummary": {
+      "properties": {
+        "turn_count": {
+          "type": "integer",
+          "title": "Turn Count",
+          "description": "Total turn count for the call",
+          "default": 0
+        },
+        "states_visited_count": {
+          "type": "integer",
+          "title": "States Visited Count",
+          "description": "Number of states visited (including repeats)",
+          "default": 0
+        },
+        "unique_states": {
+          "type": "integer",
+          "title": "Unique States",
+          "description": "Number of distinct states visited",
+          "default": 0
+        },
+        "loop_count": {
+          "type": "integer",
+          "title": "Loop Count",
+          "description": "Number of detected state loops",
+          "default": 0
+        },
+        "barge_in_count": {
+          "type": "integer",
+          "title": "Barge In Count",
+          "description": "Number of caller interruptions",
+          "default": 0
+        }
+      },
+      "type": "object",
+      "title": "ConversationSummary",
+      "description": "Conversation flow metrics.\n\nFree-form residual on the raw ``conversation_summary`` JSONB:\n``text_intelligence: dict`` (text-channel intelligence\nsub-payload), and on the simulation path ``transcript_text:\nstr`` (PHI), ``tool_calls: list``, ``score``,\n``score_rationale``, ``terminal_reached``, ``states_visited``.\nNot exposed via this typed shape."
+    },
+    "EmotionSummary": {
+      "properties": {
+        "dominant_emotion": {
+          "anyOf": [
+            {
+              "type": "string",
+              "maxLength": 256
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Dominant Emotion",
+          "description": "Most frequent emotion (e.g. 'neutral', 'happy', 'angry')"
+        },
+        "average_valence": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Average Valence",
+          "description": "Average emotional valence -1.0 to 1.0"
+        },
+        "average_arousal": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Average Arousal",
+          "description": "Average emotional arousal 0.0 to 1.0"
+        },
+        "peak_negative_valence": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Peak Negative Valence",
+          "description": "Most negative valence observed"
+        },
+        "barge_in_count": {
+          "type": "integer",
+          "title": "Barge In Count",
+          "description": "Number of caller interruptions (emotion-tagged)",
+          "default": 0
+        }
+      },
+      "type": "object",
+      "title": "EmotionSummary",
+      "description": "Aggregated emotional analysis across the call.\n\nFree-form residual on the raw ``emotion_summary`` JSONB:\n``compound_emotions: list[{name, score}]``. Not exposed via this\ntyped shape — readers wanting it consume the JSONB endpoint."
+    },
+    "KeyMoment": {
+      "properties": {
+        "turn": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Turn",
+          "description": "Turn index where the moment occurred"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "latency_spike",
+            "silence",
+            "barge_in",
+            "loop",
+            "tool_failure",
+            "escalation",
+            "safety_flag",
+            "high_risk",
+            "elevated_risk"
+          ],
+          "title": "Type",
+          "description": "Category of the moment"
+        },
+        "severity": {
+          "type": "string",
+          "enum": [
+            "info",
+            "warning",
+            "error"
+          ],
+          "title": "Severity",
+          "description": "Severity level",
+          "default": "warning"
+        },
+        "description": {
+          "type": "string",
+          "title": "Description",
+          "description": "Human-readable description"
+        }
+      },
+      "type": "object",
+      "required": [
+        "type",
+        "description"
+      ],
+      "title": "KeyMoment",
+      "description": "Notable event during the call worth highlighting."
+    },
+    "LatencySummary": {
+      "properties": {
+        "avg_engine_ms": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Avg Engine Ms",
+          "description": "Average reasoning-engine latency (ms)"
+        },
+        "p50_engine_ms": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "P50 Engine Ms",
+          "description": "Median engine latency (ms)"
+        },
+        "p95_engine_ms": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "P95 Engine Ms",
+          "description": "95th percentile engine latency (ms)"
+        },
+        "avg_audio_ttfb_ms": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Avg Audio Ttfb Ms",
+          "description": "Average audio time-to-first-byte (ms)"
+        },
+        "p50_audio_ttfb_ms": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "P50 Audio Ttfb Ms",
+          "description": "Median audio TTFB (ms)"
+        },
+        "p95_audio_ttfb_ms": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "P95 Audio Ttfb Ms",
+          "description": "95th percentile audio TTFB (ms)"
+        },
+        "avg_nav_ms": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Avg Nav Ms",
+          "description": "Average navigation latency (ms)"
+        },
+        "avg_render_ms": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Avg Render Ms",
+          "description": "Average render latency (ms)"
+        },
+        "turn_count": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Turn Count",
+          "description": "Number of turns the latency averages were computed over"
+        },
+        "silence_ratio": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Silence Ratio",
+          "description": "Fraction of call spent in silence"
+        }
+      },
+      "type": "object",
+      "title": "LatencySummary",
+      "description": "Audio + engine latency metrics (one entry per turn averaged)."
+    },
+    "OperatorIntelligenceSummary": {
+      "properties": {
+        "escalated": {
+          "type": "boolean",
+          "title": "Escalated",
+          "description": "Whether the call was escalated to a human operator",
+          "default": false
+        },
+        "operator_active": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Operator Active",
+          "description": "Whether an operator was active during escalation. True = active; False = escalation occurred but no operator picked up; None = no escalation occurred (do NOT coerce to False)."
+        }
+      },
+      "type": "object",
+      "title": "OperatorIntelligenceSummary",
+      "description": "Operator intervention summary.\n\nThree-valued semantics on ``operator_active``:\n- ``True``  — escalation occurred and an operator was active.\n- ``False`` — escalation occurred but no operator picked up.\n- ``None``  — no escalation occurred (producer omits the key).\n  Readers must distinguish; do not coerce ``None`` → ``False``."
+    },
+    "QualityBreakdown": {
+      "properties": {
+        "score": {
+          "type": "number",
+          "title": "Score"
+        },
+        "components": {
+          "items": {
+            "$ref": "#/$defs/QualityComponent"
+          },
+          "type": "array",
+          "title": "Components"
+        },
+        "workspace_avg": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Workspace Avg"
+        },
+        "workspace_percentile": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Workspace Percentile"
+        }
+      },
+      "type": "object",
+      "required": [
+        "score",
+        "components"
+      ],
+      "title": "QualityBreakdown",
+      "description": "Structured breakdown of how quality score was computed."
+    },
+    "QualityComponent": {
+      "properties": {
+        "name": {
+          "type": "string",
+          "enum": [
+            "latency",
+            "silence",
+            "barge_ins",
+            "loops",
+            "escalation",
+            "tool_failures"
+          ],
+          "title": "Name",
+          "description": "Quality dimension"
+        },
+        "penalty": {
+          "type": "number",
+          "title": "Penalty",
+          "description": "Penalty subtracted from the score"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Value",
+          "description": "Raw measured value"
+        },
+        "threshold": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Threshold",
+          "description": "Threshold that was exceeded"
+        },
+        "severity": {
+          "type": "string",
+          "enum": [
+            "none",
+            "minor",
+            "major",
+            "critical"
+          ],
+          "title": "Severity",
+          "description": "Severity of the penalty",
+          "default": "none"
+        }
+      },
+      "type": "object",
+      "required": [
+        "name",
+        "penalty"
+      ],
+      "title": "QualityComponent",
+      "description": "Single quality score component with penalty and context."
+    },
+    "RiskSummary": {
+      "properties": {
+        "composite_score": {
+          "type": "number",
+          "title": "Composite Score",
+          "description": "Overall risk score 0.0 to 1.0",
+          "default": 0.0
+        },
+        "level": {
+          "type": "string",
+          "enum": [
+            "low",
+            "medium",
+            "high",
+            "critical"
+          ],
+          "title": "Level",
+          "description": "Risk level",
+          "default": "low"
+        }
+      },
+      "type": "object",
+      "title": "RiskSummary",
+      "description": "Aggregated risk signals across the call.\n\nFree-form residual on the raw ``risk_summary`` JSONB:\n``signals: list[{name, raw_score, weight, weighted_score, detail}]``\n— the per-signal breakdown that aggregates into ``composite_score``.\nNot exposed via this typed shape; consumers needing per-signal\ndetail read the JSONB endpoint."
+    },
+    "SafetySummary": {
+      "properties": {
+        "match_count": {
+          "type": "integer",
+          "title": "Match Count",
+          "description": "Number of safety filter matches",
+          "default": 0
+        }
+      },
+      "type": "object",
+      "title": "SafetySummary",
+      "description": "Safety filter results.\n\nFree-form residual on the raw ``safety_summary`` JSONB:\n``actions: dict | list`` — escalation handler actions taken\nwhen ``match_count > 0``. Not exposed via this typed shape."
+    },
+    "ToolSummary": {
+      "properties": {
+        "total_calls": {
+          "type": "integer",
+          "title": "Total Calls",
+          "description": "Total tool invocations",
+          "default": 0
+        },
+        "succeeded": {
+          "type": "integer",
+          "title": "Succeeded",
+          "description": "Successful tool invocations",
+          "default": 0
+        },
+        "failed": {
+          "type": "integer",
+          "title": "Failed",
+          "description": "Failed tool invocations",
+          "default": 0
+        },
+        "failure_rate": {
+          "type": "number",
+          "title": "Failure Rate",
+          "description": "Tool failure rate 0.0 to 1.0",
+          "default": 0.0
+        }
+      },
+      "type": "object",
+      "title": "ToolSummary",
+      "description": "Tool usage statistics.\n\nFree-form residual on the raw ``tool_summary`` JSONB:\n``by_tool: list[{name, calls, succeeded, failed, avg_duration_ms}]``\n— per-tool breakdown. Not exposed via this typed shape."
+    }
+  }
+}

@@ -1,0 +1,87 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/amigo/main/json-schema/amigo-permission-catalog-response-schema.json",
+  "title": "PermissionCatalogResponse",
+  "description": "The authoritative role→permission model for API-key creation.\n\nServes the server-side source of truth (``DEFAULT_ROLE_DEFINITIONS``) so\nclients (console, SDK) stop hand-copying the matrix and drifting out of\nsync — a drift previously shipped `Data:Query` as a viewer default and\nmade the default create flow 422. Human-facing labels/descriptions for\nindividual permissions stay client-side (pure presentation); this payload\nis authorization truth only.",
+  "x-generated": "2026-10-12",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/amigo-api-keys-api-openapi.yml#/components/schemas/PermissionCatalogResponse",
+  "properties": {
+    "roles": {
+      "items": {
+        "$ref": "#/$defs/RoleEntry"
+      },
+      "type": "array",
+      "title": "Roles"
+    },
+    "permissions": {
+      "items": {
+        "$ref": "#/$defs/PermissionEntry"
+      },
+      "type": "array",
+      "title": "Permissions"
+    }
+  },
+  "type": "object",
+  "required": [
+    "roles",
+    "permissions"
+  ],
+  "$defs": {
+    "PermissionEntry": {
+      "properties": {
+        "name": {
+          "type": "string",
+          "title": "Name"
+        },
+        "namespace": {
+          "type": "string",
+          "title": "Namespace"
+        },
+        "action": {
+          "type": "string",
+          "title": "Action"
+        }
+      },
+      "type": "object",
+      "required": [
+        "name",
+        "namespace",
+        "action"
+      ],
+      "title": "PermissionEntry"
+    },
+    "RoleEntry": {
+      "properties": {
+        "name": {
+          "type": "string",
+          "title": "Name"
+        },
+        "priority": {
+          "type": "integer",
+          "title": "Priority"
+        },
+        "description": {
+          "type": "string",
+          "title": "Description"
+        },
+        "permission_names": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "title": "Permission Names"
+        }
+      },
+      "type": "object",
+      "required": [
+        "name",
+        "priority",
+        "description",
+        "permission_names"
+      ],
+      "title": "RoleEntry"
+    }
+  }
+}

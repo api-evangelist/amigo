@@ -1,0 +1,1052 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/amigo/main/json-schema/amigo-src-app-endpoints-conversation-create-conversation-response-schema.json",
+  "title": "src__app__endpoints__conversation__create_conversation__Response",
+  "x-generated": "2026-10-12",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/amigo-conversation-api-openapi.yml#/components/schemas/src__app__endpoints__conversation__create_conversation__Response",
+  "oneOf": [
+    {
+      "$ref": "#/$defs/ConversationCreatedEvent"
+    },
+    {
+      "$ref": "#/$defs/NewMessageEvent"
+    },
+    {
+      "$ref": "#/$defs/InteractionCompleteEvent"
+    },
+    {
+      "$ref": "#/$defs/CurrentAgentActionEvent"
+    },
+    {
+      "$ref": "#/$defs/ErrorEvent"
+    }
+  ],
+  "$defs": {
+    "ActionTooLongEvent": {
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "action-too-long",
+          "title": "Type",
+          "default": "action-too-long"
+        },
+        "filler": {
+          "type": "string",
+          "title": "Filler",
+          "description": "A filler that can be played while waiting for the action to complete. If the audio filler exists, this is monochannel, 16-bit PCM WAV audio (at sample rate 16kHz) encoded in base64 encoding.\nOtherwise, this is the text corresponding to the audio filler."
+        },
+        "previously_started_event": {
+          "title": "Previously Started Event",
+          "description": "The previously started event that is taking too long."
+        }
+      },
+      "type": "object",
+      "required": [
+        "filler",
+        "previously_started_event"
+      ],
+      "title": "ActionTooLongEvent",
+      "description": "Indicating that a previously-started action of the agent is taking too long. This event supplies a filler text that can be displayed\nwhile waiting for the action to complete."
+    },
+    "CheckIfActiveMemoryNeededAgentActionEvent": {
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "check-if-active-memory-needed-completed",
+          "title": "Type",
+          "default": "check-if-active-memory-needed-completed"
+        },
+        "queries": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "title": "Queries"
+        }
+      },
+      "type": "object",
+      "required": [
+        "queries"
+      ],
+      "title": "CheckIfActiveMemoryNeededCompletedEvent"
+    },
+    "ConversationCreatedEvent": {
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "conversation-created",
+          "title": "Type",
+          "default": "conversation-created"
+        },
+        "conversation_id": {
+          "type": "string",
+          "title": "Conversation Id",
+          "description": "The identifier of the newly created conversation."
+        }
+      },
+      "type": "object",
+      "required": [
+        "conversation_id"
+      ],
+      "title": "ConversationCreatedEvent",
+      "description": "Emitted when the conversation is created."
+    },
+    "CurrentAgentActionEvent": {
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "current-agent-action",
+          "title": "Type",
+          "default": "current-agent-action"
+        },
+        "action": {
+          "$ref": "#/$defs/src__app__amigo__service__conversation__Action",
+          "description": "The type of action the agent is performing right now."
+        }
+      },
+      "type": "object",
+      "required": [
+        "action"
+      ],
+      "title": "CurrentAgentActionEvent",
+      "description": "Emitted when an agent is about to perform an action that aids in the generation of the response. This is emitted before any\n`NewMessageEvent` is emitted."
+    },
+    "EngageUserAgentActionEvent": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/EngageUserDynamicBehaviorOverrideEvent"
+        },
+        {
+          "$ref": "#/$defs/EngageUserMessageFragmentGeneratedEvent"
+        },
+        {
+          "$ref": "#/$defs/ToolCallStartedEvent"
+        },
+        {
+          "$ref": "#/$defs/ToolCallEndedEvent"
+        },
+        {
+          "$ref": "#/$defs/ActionTooLongEvent"
+        }
+      ]
+    },
+    "EngageUserDynamicBehaviorOverrideEvent": {
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "engage-user-dynamic-behavior-override",
+          "title": "Type",
+          "default": "engage-user-dynamic-behavior-override"
+        },
+        "overriding_instructions": {
+          "type": "boolean",
+          "title": "Overriding Instructions",
+          "description": "Whether the dynamic behavior set is overriding instructions during this interaction."
+        },
+        "overriding_tool_candidates": {
+          "type": "boolean",
+          "title": "Overriding Tool Candidates",
+          "description": "Whether the dynamic behavior set is overriding the tool candidates during this interaction."
+        }
+      },
+      "type": "object",
+      "required": [
+        "overriding_instructions",
+        "overriding_tool_candidates"
+      ],
+      "title": "EngageUserDynamicBehaviorOverrideEvent",
+      "description": "Indicating that the agent has merged the dynamic behavior set's instructions with the instructions from the current state."
+    },
+    "EngageUserMessageFragmentGeneratedEvent": {
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "engage-user-message-fragment-generated",
+          "title": "Type",
+          "default": "engage-user-message-fragment-generated"
+        },
+        "index": {
+          "type": "integer",
+          "title": "Index",
+          "description": "The index of the fragment in the agent response."
+        },
+        "fragment": {
+          "type": "string",
+          "title": "Fragment",
+          "description": "The fragment of the agent response that has been generated."
+        },
+        "is_final": {
+          "type": "boolean",
+          "title": "Is Final",
+          "description": "Whether this fragment is the final fragment of the agent response."
+        }
+      },
+      "type": "object",
+      "required": [
+        "index",
+        "fragment",
+        "is_final"
+      ],
+      "title": "EngageUserMessageFragmentGeneratedEvent",
+      "description": "Indicating that the agent has generated a fragment of the agent response."
+    },
+    "ErrorEvent": {
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "error",
+          "title": "Type",
+          "default": "error"
+        },
+        "http_error_code": {
+          "type": "integer",
+          "title": "Http Error Code",
+          "description": "The HTTP status code of the error."
+        },
+        "error_description": {
+          "type": "string",
+          "title": "Error Description",
+          "description": "A description of the error."
+        }
+      },
+      "type": "object",
+      "required": [
+        "http_error_code",
+        "error_description"
+      ],
+      "title": "ErrorEvent",
+      "description": "Emitted when there is an error during the stream. This event could be emitted even if the request returns with a 200.\nIf received before an `interaction-complete` event, the client should consider the entire interaction void and retry. If received after,\nthen the conversation has completed and an error occurred during the post-processing, so the client should consider the interaction valid and saved,\nbut manually call the `FinishConversation` endpoint to retry the post-processing."
+    },
+    "ExtractActiveMemoriesAgentActionEvent": {
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "extract-active-memories-completed",
+          "title": "Type",
+          "default": "extract-active-memories-completed"
+        },
+        "queries_and_responses": {
+          "items": {
+            "prefixItems": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "type": "array",
+            "maxItems": 2,
+            "minItems": 2
+          },
+          "type": "array",
+          "title": "Queries And Responses"
+        }
+      },
+      "type": "object",
+      "required": [
+        "queries_and_responses"
+      ],
+      "title": "ExtractActiveMemoriesCompletedEvent"
+    },
+    "GenerateToolParamsDesignatedToolCallParamsGeneratedEvent": {
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "designated-tool-call-params-generated",
+          "title": "Type",
+          "default": "designated-tool-call-params-generated"
+        },
+        "tool_id": {
+          "type": "string",
+          "title": "Tool Id",
+          "description": "The ID of the tool being called."
+        },
+        "tool_version": {
+          "type": "string",
+          "title": "Tool Version",
+          "description": "The version of the tool being called."
+        },
+        "tool_call_params": {
+          "additionalProperties": true,
+          "type": "object",
+          "title": "Tool Call Params",
+          "description": "The generated tool call parameters."
+        }
+      },
+      "type": "object",
+      "required": [
+        "tool_id",
+        "tool_version",
+        "tool_call_params"
+      ],
+      "title": "GenerateToolParamsDesignatedToolCallParamsGeneratedEvent"
+    },
+    "GenerateToolParamsDesignatedToolRetrievedEvent": {
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "designated-tool-retrieved",
+          "title": "Type",
+          "default": "designated-tool-retrieved"
+        },
+        "tool_id": {
+          "type": "string",
+          "title": "Tool Id",
+          "description": "The ID of the tool being called."
+        },
+        "tool_version": {
+          "type": "string",
+          "title": "Tool Version",
+          "description": "The version of the tool being called."
+        }
+      },
+      "type": "object",
+      "required": [
+        "tool_id",
+        "tool_version"
+      ],
+      "title": "GenerateToolParamsDesignatedToolRetrievedEvent"
+    },
+    "GenerateToolParamsEvent": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/GenerateToolParamsDesignatedToolRetrievedEvent"
+        },
+        {
+          "$ref": "#/$defs/GenerateToolParamsDesignatedToolCallParamsGeneratedEvent"
+        },
+        {
+          "$ref": "#/$defs/ActionTooLongEvent"
+        },
+        {
+          "$ref": "#/$defs/ToolCallStartedEvent"
+        },
+        {
+          "$ref": "#/$defs/ToolCallEndedEvent"
+        }
+      ]
+    },
+    "InteractionCompleteEvent": {
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "interaction-complete",
+          "title": "Type",
+          "default": "interaction-complete"
+        },
+        "message_id": {
+          "type": "string",
+          "title": "Message Id",
+          "description": "The identifier of the agent message in this interaction."
+        },
+        "interaction_id": {
+          "type": "string",
+          "title": "Interaction Id",
+          "description": "The identifier of this interaction."
+        },
+        "full_message": {
+          "type": "string",
+          "title": "Full Message",
+          "description": "A structure containing either the content of the message if it's text, or the transcript of the message if it's audio."
+        },
+        "conversation_completed": {
+          "type": "boolean",
+          "title": "Conversation Completed",
+          "description": "Whether the conversation is auto-completed after this interaction."
+        }
+      },
+      "type": "object",
+      "required": [
+        "message_id",
+        "interaction_id",
+        "full_message",
+        "conversation_completed"
+      ],
+      "title": "InteractionCompleteEvent",
+      "description": "Emitted when the interaction is complete and committed to database. This event is only emitted after all `NewMessageEvent`s are emitted."
+    },
+    "NavigateStateMachineActionStateActionSelectedEvent": {
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "navigate-state-machine-action-state-action-selected",
+          "title": "Type",
+          "default": "navigate-state-machine-action-state-action-selected"
+        },
+        "action": {
+          "type": "string",
+          "title": "Action"
+        }
+      },
+      "type": "object",
+      "required": [
+        "action"
+      ],
+      "title": "NavigateStateMachineActionStateActionSelectedEvent",
+      "description": "Indicating that the agent has selected an action from the current state."
+    },
+    "NavigateStateMachineAgentActionEvent": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/NavigateStateMachineDynamicBehaviorOverrideEvent"
+        },
+        {
+          "$ref": "#/$defs/NavigateStateMachineActionStateActionSelectedEvent"
+        },
+        {
+          "$ref": "#/$defs/NavigateStateMachineDecisionStateDecisionStartedEvent"
+        },
+        {
+          "$ref": "#/$defs/NavigateStateMachineExitConditionSelectedEvent"
+        },
+        {
+          "$ref": "#/$defs/NavigateStateMachineRecallStateDynamicQueriesGeneratedEvent"
+        },
+        {
+          "$ref": "#/$defs/NavigateStateMachineRecallStateStaticQueriesRetrievedEvent"
+        },
+        {
+          "$ref": "#/$defs/NavigateStateMachineRecallStateActiveMemoryRetrievedEvent"
+        },
+        {
+          "$ref": "#/$defs/NavigateStateMachineReflectionStatePromptRetrievedEvent"
+        },
+        {
+          "$ref": "#/$defs/NavigateStateMachineReflectionStateReflectionGeneratedEvent"
+        },
+        {
+          "$ref": "#/$defs/NavigateStateMachineAnnotationStateAnnotationRetrievedEvent"
+        },
+        {
+          "$ref": "#/$defs/NavigateStateMachineStateTransitionedEvent"
+        },
+        {
+          "$ref": "#/$defs/GenerateToolParamsEvent"
+        },
+        {
+          "$ref": "#/$defs/NavigateStateMachineToolCallStateToolOutputAvailableEvent"
+        },
+        {
+          "$ref": "#/$defs/ToolCallStartedEvent"
+        },
+        {
+          "$ref": "#/$defs/ToolCallEndedEvent"
+        },
+        {
+          "$ref": "#/$defs/ActionTooLongEvent"
+        }
+      ]
+    },
+    "NavigateStateMachineAnnotationStateAnnotationRetrievedEvent": {
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "navigate-state-machine-annotation-state-annotation-retrieved",
+          "title": "Type",
+          "default": "navigate-state-machine-annotation-state-annotation-retrieved"
+        },
+        "annotation": {
+          "type": "string",
+          "title": "Annotation"
+        }
+      },
+      "type": "object",
+      "required": [
+        "annotation"
+      ],
+      "title": "NavigateStateMachineAnnotationStateAnnotationRetrievedEvent",
+      "description": "Indicating that the agent has retrieved the annotation in the current annotation state."
+    },
+    "NavigateStateMachineDecisionStateDecisionStartedEvent": {
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "navigate-state-machine-decision-state-decision-started",
+          "title": "Type",
+          "default": "navigate-state-machine-decision-state-decision-started"
+        }
+      },
+      "type": "object",
+      "title": "NavigateStateMachineDecisionStateDecisionStartedEvent",
+      "description": "Indicating that the agent has started making a decision in the current decision state."
+    },
+    "NavigateStateMachineDynamicBehaviorOverrideEvent": {
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "navigate-state-machine-dynamic-behavior-override",
+          "title": "Type",
+          "default": "navigate-state-machine-dynamic-behavior-override"
+        },
+        "overriding_instructions": {
+          "type": "boolean",
+          "title": "Overriding Instructions",
+          "description": "Whether the dynamic behavior set is overriding instructions during this interaction."
+        },
+        "overriding_tool_candidates": {
+          "type": "boolean",
+          "title": "Overriding Tool Candidates",
+          "description": "Whether the dynamic behavior set is overriding the tool candidates during this interaction."
+        }
+      },
+      "type": "object",
+      "required": [
+        "overriding_instructions",
+        "overriding_tool_candidates"
+      ],
+      "title": "NavigateStateMachineDynamicBehaviorOverrideEvent",
+      "description": "Indicating that the agent has merged the dynamic behavior set's instructions with the instructions from the current state."
+    },
+    "NavigateStateMachineExitConditionSelectedEvent": {
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "navigate-state-machine-exit-condition-selected",
+          "title": "Type",
+          "default": "navigate-state-machine-exit-condition-selected"
+        },
+        "exit_condition": {
+          "type": "string",
+          "title": "Exit Condition",
+          "description": "The exit condition that the agent has selected."
+        },
+        "next_state_state_machine_version_info": {
+          "prefixItems": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "integer"
+            }
+          ],
+          "type": "array",
+          "maxItems": 2,
+          "minItems": 2,
+          "title": "Next State State Machine Version Info",
+          "description": "The state machine version info of the next state."
+        },
+        "next_state_name": {
+          "type": "string",
+          "title": "Next State Name",
+          "description": "The name of the next state."
+        }
+      },
+      "type": "object",
+      "required": [
+        "exit_condition",
+        "next_state_state_machine_version_info",
+        "next_state_name"
+      ],
+      "title": "NavigateStateMachineExitConditionSelectedEvent",
+      "description": "Indicating that the agent has selected an exit condition from the current action or decision state."
+    },
+    "NavigateStateMachineRecallStateActiveMemoryRetrievedEvent": {
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "navigate-state-machine-recall-state-active-memory-retrieved",
+          "title": "Type",
+          "default": "navigate-state-machine-recall-state-active-memory-retrieved"
+        },
+        "queries_and_responses": {
+          "items": {
+            "prefixItems": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "type": "array",
+            "maxItems": 2,
+            "minItems": 2
+          },
+          "type": "array",
+          "title": "Queries And Responses",
+          "description": "A list of tuples of queries and responses."
+        }
+      },
+      "type": "object",
+      "required": [
+        "queries_and_responses"
+      ],
+      "title": "NavigateStateMachineRecallStateActiveMemoryRetrievedEvent",
+      "description": "Indicating that the agent has retrieved the active memory in the current the recall state."
+    },
+    "NavigateStateMachineRecallStateDynamicQueriesGeneratedEvent": {
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "navigate-state-machine-recall-state-dynamic-queries-generated",
+          "title": "Type",
+          "default": "navigate-state-machine-recall-state-dynamic-queries-generated"
+        },
+        "dynamic_queries": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "title": "Dynamic Queries",
+          "description": "The dynamic queries that the agent has generated."
+        },
+        "requested_information": {
+          "type": "string",
+          "title": "Requested Information",
+          "description": "The information that the agent needs from the queries."
+        }
+      },
+      "type": "object",
+      "required": [
+        "dynamic_queries",
+        "requested_information"
+      ],
+      "title": "NavigateStateMachineRecallStateDynamicQueriesGeneratedEvent",
+      "description": "Indicating that the agent has generated dynamic queries in the current the recall state."
+    },
+    "NavigateStateMachineRecallStateStaticQueriesRetrievedEvent": {
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "navigate-state-machine-recall-state-static-queries-retrieved",
+          "title": "Type",
+          "default": "navigate-state-machine-recall-state-static-queries-retrieved"
+        },
+        "static_queries": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "title": "Static Queries",
+          "description": "The static queries that the agent has retrieved."
+        }
+      },
+      "type": "object",
+      "required": [
+        "static_queries"
+      ],
+      "title": "NavigateStateMachineRecallStateStaticQueriesRetrievedEvent",
+      "description": "Indicating that the agent has retrieved the static queries in the current the recall state."
+    },
+    "NavigateStateMachineReflectionStatePromptRetrievedEvent": {
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "navigate-state-machine-reflection-state-prompt-retrieved",
+          "title": "Type",
+          "default": "navigate-state-machine-reflection-state-prompt-retrieved"
+        },
+        "prompt": {
+          "type": "string",
+          "title": "Prompt"
+        }
+      },
+      "type": "object",
+      "required": [
+        "prompt"
+      ],
+      "title": "NavigateStateMachineReflectionStatePromptRetrievedEvent",
+      "description": "Indicating that the agent has retrieved the prompt in the current reflection state."
+    },
+    "NavigateStateMachineReflectionStateReflectionGeneratedEvent": {
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "navigate-state-machine-reflection-state-reflection-generated",
+          "title": "Type",
+          "default": "navigate-state-machine-reflection-state-reflection-generated"
+        },
+        "reflection": {
+          "type": "string",
+          "title": "Reflection",
+          "description": "The reflection that the agent has generated."
+        }
+      },
+      "type": "object",
+      "required": [
+        "reflection"
+      ],
+      "title": "NavigateStateMachineReflectionStateReflectionGeneratedEvent",
+      "description": "Indicating that the agent has generated the reflection in the current reflection state."
+    },
+    "NavigateStateMachineStateTransitionedEvent": {
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "navigate-state-machine-state-transitioned",
+          "title": "Type",
+          "default": "navigate-state-machine-state-transitioned"
+        },
+        "prev_state": {
+          "type": "string",
+          "title": "Prev State",
+          "description": "The previous state."
+        },
+        "prev_state_state_machine_version_info": {
+          "prefixItems": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "integer"
+            }
+          ],
+          "type": "array",
+          "maxItems": 2,
+          "minItems": 2,
+          "title": "Prev State State Machine Version Info",
+          "description": "The state machine version info of the previous state."
+        },
+        "next_state": {
+          "type": "string",
+          "title": "Next State",
+          "description": "The next state."
+        },
+        "next_state_state_machine_version_info": {
+          "prefixItems": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "integer"
+            }
+          ],
+          "type": "array",
+          "maxItems": 2,
+          "minItems": 2,
+          "title": "Next State State Machine Version Info",
+          "description": "The state machine version info of the next state."
+        }
+      },
+      "type": "object",
+      "required": [
+        "prev_state",
+        "prev_state_state_machine_version_info",
+        "next_state",
+        "next_state_state_machine_version_info"
+      ],
+      "title": "NavigateStateMachineStateTransitionedEvent",
+      "description": "Indicating that the agent has transitioned to a new state."
+    },
+    "NavigateStateMachineToolCallStateToolOutputAvailableEvent": {
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "navigate-state-machine-tool-call-state-tool-output-available",
+          "title": "Type",
+          "default": "navigate-state-machine-tool-call-state-tool-output-available"
+        },
+        "tool_id": {
+          "type": "string",
+          "title": "Tool Id",
+          "description": "The ID of the tool being called."
+        },
+        "tool_version": {
+          "type": "string",
+          "title": "Tool Version",
+          "description": "The version of the tool being called."
+        },
+        "tool_output": {
+          "type": "string",
+          "title": "Tool Output",
+          "description": "The tool output."
+        },
+        "duration": {
+          "type": "number",
+          "title": "Duration",
+          "description": "The duration taken to receive the tool output in seconds."
+        },
+        "input_arguments": {
+          "additionalProperties": true,
+          "type": "object",
+          "title": "Input Arguments",
+          "description": "The input arguments used for the tool call."
+        }
+      },
+      "type": "object",
+      "required": [
+        "tool_id",
+        "tool_version",
+        "tool_output",
+        "duration",
+        "input_arguments"
+      ],
+      "title": "NavigateStateMachineToolCallStateToolOutputAvailableEvent",
+      "description": "Indicating that the agent has received the tool output in the current tool call state."
+    },
+    "NewMessageEvent": {
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "new-message",
+          "title": "Type",
+          "default": "new-message"
+        },
+        "message": {
+          "type": "string",
+          "title": "Message",
+          "description": "Either the raw-text piece or a base-64 encoded string of bytes representing the piece in alternative forms. If it represents audio, the audios are in\nPCM16 format."
+        },
+        "transcript_alignment": {
+          "anyOf": [
+            {
+              "items": {
+                "prefixItems": [
+                  {
+                    "type": "integer"
+                  },
+                  {
+                    "type": "string"
+                  }
+                ],
+                "type": "array",
+                "maxItems": 2,
+                "minItems": 2
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Transcript Alignment",
+          "description": "Transcript of the ongoing audio message and how they align with the audio, if the message is in audio format. Otherwise, it's `None`. This is an array of tuples, where each tuple contains\na character and an integer indicating the milliseconds since the audio started when the character is spoken.\n\nNote that this field might not be defined for some events that transmit audio bytes -- in that case, the alignment information for that chunk was already\nincluded in the `transcript_alignment` field in the previous event."
+        },
+        "stop": {
+          "type": "boolean",
+          "title": "Stop",
+          "description": "Whether this is the last piece of the agent message."
+        },
+        "sequence_number": {
+          "type": "integer",
+          "title": "Sequence Number",
+          "description": "The sequence number of this piece in the agent message."
+        },
+        "message_id": {
+          "type": "string",
+          "title": "Message Id",
+          "description": "The identifier of this agent message. "
+        }
+      },
+      "type": "object",
+      "required": [
+        "message",
+        "transcript_alignment",
+        "stop",
+        "sequence_number",
+        "message_id"
+      ],
+      "title": "NewMessageEvent",
+      "description": "Emitted when a new piece of the agent message is available."
+    },
+    "SelectDynamicBehaviorAgentActionEvent": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/SelectDynamicBehaviorVectorGeneratedEvent"
+        },
+        {
+          "$ref": "#/$defs/SelectDynamicBehaviorRelevanceRetrievalCompletedEvent"
+        },
+        {
+          "$ref": "#/$defs/SelectDynamicBehaviorCompletedEvent"
+        }
+      ]
+    },
+    "SelectDynamicBehaviorCompletedEvent": {
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "select-dynamic-behavior-completed",
+          "title": "Type",
+          "default": "select-dynamic-behavior-completed"
+        },
+        "selected_dynamic_behavior_set_version_info": {
+          "anyOf": [
+            {
+              "prefixItems": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ],
+              "type": "array",
+              "maxItems": 2,
+              "minItems": 2
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Selected Dynamic Behavior Set Version Info"
+        },
+        "previous_selected_dynamic_behavior_set_version_info": {
+          "anyOf": [
+            {
+              "prefixItems": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ],
+              "type": "array",
+              "maxItems": 2,
+              "minItems": 2
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Previous Selected Dynamic Behavior Set Version Info"
+        }
+      },
+      "type": "object",
+      "required": [
+        "selected_dynamic_behavior_set_version_info",
+        "previous_selected_dynamic_behavior_set_version_info"
+      ],
+      "title": "SelectDynamicBehaviorCompletedEvent"
+    },
+    "SelectDynamicBehaviorRelevanceRetrievalCompletedEvent": {
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "select-dynamic-behavior-relevance-retrieval-completed",
+          "title": "Type",
+          "default": "select-dynamic-behavior-relevance-retrieval-completed"
+        }
+      },
+      "type": "object",
+      "title": "SelectDynamicBehaviorRelevanceRetrievalCompletedEvent"
+    },
+    "SelectDynamicBehaviorVectorGeneratedEvent": {
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "select-dynamic-behavior-vector-generated",
+          "title": "Type",
+          "default": "select-dynamic-behavior-vector-generated"
+        }
+      },
+      "type": "object",
+      "title": "SelectDynamicBehaviorVectorGeneratedEvent"
+    },
+    "ToolCallEndedEvent": {
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "tool-call-ended",
+          "title": "Type",
+          "default": "tool-call-ended"
+        },
+        "tool_round_index": {
+          "type": "integer",
+          "title": "Tool Round Index",
+          "description": "Within the current LLM interaction, the round of tool call."
+        },
+        "tool_id": {
+          "type": "string",
+          "title": "Tool Id",
+          "description": "The ID of the tool being called."
+        },
+        "tool_version": {
+          "type": "string",
+          "title": "Tool Version",
+          "description": "The version of the tool being called."
+        },
+        "input_parameters": {
+          "additionalProperties": true,
+          "type": "object",
+          "title": "Input Parameters",
+          "description": "The input parameters for the tool call."
+        },
+        "result": {
+          "type": "string",
+          "title": "Result",
+          "description": "The result of the tool call."
+        },
+        "duration": {
+          "type": "number",
+          "title": "Duration",
+          "description": "The duration of the tool call in seconds."
+        }
+      },
+      "type": "object",
+      "required": [
+        "tool_round_index",
+        "tool_id",
+        "tool_version",
+        "input_parameters",
+        "result",
+        "duration"
+      ],
+      "title": "ToolCallEndedEvent",
+      "description": "Indicating that the agent has finished executing a tool."
+    },
+    "ToolCallStartedEvent": {
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "tool-call-started",
+          "title": "Type",
+          "default": "tool-call-started"
+        },
+        "tool_round_index": {
+          "type": "integer",
+          "title": "Tool Round Index",
+          "description": "Within the current LLM interaction, the round of tool call."
+        },
+        "tool_id": {
+          "type": "string",
+          "title": "Tool Id",
+          "description": "The ID of the tool being called."
+        },
+        "tool_version": {
+          "type": "string",
+          "title": "Tool Version",
+          "description": "The version of the tool being called."
+        },
+        "input_params": {
+          "additionalProperties": true,
+          "type": "object",
+          "title": "Input Params",
+          "description": "The input parameters for the tool call."
+        }
+      },
+      "type": "object",
+      "required": [
+        "tool_round_index",
+        "tool_id",
+        "tool_version",
+        "input_params"
+      ],
+      "title": "ToolCallStartedEvent",
+      "description": "Indicating that the agent has started executing a tool."
+    },
+    "src__app__amigo__service__conversation__Action": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/SelectDynamicBehaviorAgentActionEvent"
+        },
+        {
+          "$ref": "#/$defs/CheckIfActiveMemoryNeededAgentActionEvent"
+        },
+        {
+          "$ref": "#/$defs/ExtractActiveMemoriesAgentActionEvent"
+        },
+        {
+          "$ref": "#/$defs/NavigateStateMachineAgentActionEvent"
+        },
+        {
+          "$ref": "#/$defs/EngageUserAgentActionEvent"
+        }
+      ]
+    }
+  }
+}

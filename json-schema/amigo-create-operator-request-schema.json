@@ -1,0 +1,85 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/amigo/main/json-schema/amigo-create-operator-request-schema.json",
+  "title": "CreateOperatorRequest",
+  "x-generated": "2026-10-12",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/amigo-operators-api-openapi.yml#/components/schemas/CreateOperatorRequest",
+  "properties": {
+    "name": {
+      "$ref": "#/$defs/NameString"
+    },
+    "email": {
+      "type": "string",
+      "format": "email",
+      "title": "Email"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "clinical",
+        "administrative",
+        "crisis_counselor"
+      ],
+      "title": "Type",
+      "default": "clinical"
+    },
+    "skills": {
+      "items": {
+        "type": "string",
+        "maxLength": 64,
+        "minLength": 1
+      },
+      "type": "array",
+      "maxItems": 50,
+      "title": "Skills"
+    },
+    "connection_method": {
+      "type": "string",
+      "enum": [
+        "browser",
+        "phone"
+      ],
+      "title": "Connection Method",
+      "default": "browser"
+    },
+    "phone_number": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/PhoneE164"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "role": {
+      "type": "string",
+      "enum": [
+        "operator",
+        "supervisor",
+        "admin"
+      ],
+      "title": "Role",
+      "default": "operator"
+    }
+  },
+  "type": "object",
+  "required": [
+    "name",
+    "email"
+  ],
+  "$defs": {
+    "NameString": {
+      "type": "string",
+      "maxLength": 256,
+      "minLength": 1
+    },
+    "PhoneE164": {
+      "type": "string",
+      "maxLength": 16,
+      "minLength": 2
+    }
+  }
+}

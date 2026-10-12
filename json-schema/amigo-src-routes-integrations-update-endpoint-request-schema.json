@@ -1,0 +1,105 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/amigo/main/json-schema/amigo-src-routes-integrations-update-endpoint-request-schema.json",
+  "title": "Request",
+  "description": "Patch an existing endpoint (V186 flat shape). ``name`` is immutable.",
+  "x-generated": "2026-10-12",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/amigo-integrations-api-openapi.yml#/components/schemas/src__routes__integrations__update_endpoint__Request",
+  "properties": {
+    "description": {
+      "type": "string",
+      "maxLength": 2048,
+      "minLength": 1,
+      "title": "Description"
+    },
+    "method": {
+      "type": "string",
+      "enum": [
+        "GET",
+        "POST",
+        "PUT",
+        "PATCH",
+        "DELETE"
+      ],
+      "title": "Method"
+    },
+    "path": {
+      "type": "string",
+      "maxLength": 2048,
+      "minLength": 1,
+      "pattern": "^[^/]",
+      "title": "Path",
+      "description": "URL path appended to the integration's base_url. Must NOT start with `/`."
+    },
+    "input_schema": {
+      "additionalProperties": true,
+      "type": "object",
+      "title": "Input Schema"
+    },
+    "headers": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "type": "object",
+      "title": "Headers"
+    },
+    "static_body_fields": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "type": "object",
+      "title": "Static Body Fields"
+    },
+    "body_format": {
+      "type": "string",
+      "enum": [
+        "json",
+        "form"
+      ],
+      "title": "Body Format"
+    },
+    "response_template": {
+      "anyOf": [
+        {
+          "type": "string",
+          "maxLength": 16384
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Response Template",
+      "description": "Jinja template; pass `null` to clear (the only DB-nullable column on this row)."
+    },
+    "max_response_length": {
+      "type": "integer",
+      "maximum": 1000000.0,
+      "minimum": 0.0,
+      "title": "Max Response Length"
+    },
+    "timeout_seconds": {
+      "type": "number",
+      "maximum": 600.0,
+      "exclusiveMinimum": 0.0,
+      "title": "Timeout Seconds"
+    },
+    "max_retries": {
+      "type": "integer",
+      "maximum": 10.0,
+      "minimum": 0.0,
+      "title": "Max Retries"
+    },
+    "retry_on_status": {
+      "items": {
+        "type": "integer"
+      },
+      "type": "array",
+      "maxItems": 20,
+      "uniqueItems": true,
+      "title": "Retry On Status"
+    }
+  },
+  "type": "object"
+}

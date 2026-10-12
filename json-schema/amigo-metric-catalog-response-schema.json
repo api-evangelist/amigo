@@ -1,0 +1,176 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/amigo/main/json-schema/amigo-metric-catalog-response-schema.json",
+  "title": "MetricCatalogResponse",
+  "x-generated": "2026-10-12",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/amigo-metrics-api-openapi.yml#/components/schemas/MetricCatalogResponse",
+  "properties": {
+    "metrics": {
+      "items": {
+        "$ref": "#/$defs/MetricCatalogEntry"
+      },
+      "type": "array",
+      "title": "Metrics"
+    }
+  },
+  "type": "object",
+  "required": [
+    "metrics"
+  ],
+  "$defs": {
+    "DescriptionString": {
+      "type": "string",
+      "maxLength": 2000
+    },
+    "MetricCatalogEntry": {
+      "properties": {
+        "key": {
+          "type": "string",
+          "maxLength": 64,
+          "minLength": 1,
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "title": "Key",
+          "description": "Metric key (lowercase alphanumeric + underscores)"
+        },
+        "name": {
+          "$ref": "#/$defs/NameString"
+        },
+        "description": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DescriptionString"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "metric_type": {
+          "type": "string",
+          "enum": [
+            "numerical",
+            "categorical",
+            "boolean"
+          ],
+          "title": "Metric Type"
+        },
+        "source": {
+          "type": "string",
+          "enum": [
+            "call_intelligence",
+            "world_events",
+            "surface_events",
+            "emotion_events",
+            "connector_events",
+            "zerobus_events",
+            "voice_judge_results",
+            "custom"
+          ],
+          "title": "Source"
+        },
+        "custom_source_key": {
+          "anyOf": [
+            {
+              "type": "string",
+              "maxLength": 128,
+              "pattern": "^[a-z][a-z0-9_]*$"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Custom Source Key"
+        },
+        "extraction_mode": {
+          "type": "string",
+          "enum": [
+            "static",
+            "ai_classify",
+            "ai_extract",
+            "ai_query",
+            "sql_expr"
+          ],
+          "title": "Extraction Mode",
+          "default": "static"
+        },
+        "granularity": {
+          "type": "string",
+          "enum": [
+            "aggregate",
+            "per_entity"
+          ],
+          "title": "Granularity",
+          "default": "aggregate"
+        },
+        "period_granularity": {
+          "type": "string",
+          "enum": [
+            "hourly",
+            "daily"
+          ],
+          "title": "Period Granularity",
+          "default": "daily"
+        },
+        "latency_tier": {
+          "type": "string",
+          "enum": [
+            "streaming",
+            "near_realtime",
+            "batch"
+          ],
+          "title": "Latency Tier",
+          "default": "batch"
+        },
+        "model_tier": {
+          "type": "string",
+          "enum": [
+            "free",
+            "fast",
+            "balanced",
+            "max",
+            "custom"
+          ],
+          "title": "Model Tier",
+          "default": "free"
+        },
+        "unit": {
+          "anyOf": [
+            {
+              "type": "string",
+              "maxLength": 32
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Unit"
+        },
+        "has_prompt": {
+          "type": "boolean",
+          "title": "Has Prompt",
+          "default": false
+        },
+        "builtin": {
+          "type": "boolean",
+          "title": "Builtin"
+        }
+      },
+      "type": "object",
+      "required": [
+        "key",
+        "name",
+        "metric_type",
+        "source",
+        "builtin"
+      ],
+      "title": "MetricCatalogEntry"
+    },
+    "NameString": {
+      "type": "string",
+      "maxLength": 256,
+      "minLength": 1
+    }
+  }
+}

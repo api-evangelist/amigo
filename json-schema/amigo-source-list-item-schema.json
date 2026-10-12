@@ -1,0 +1,135 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/amigo/main/json-schema/amigo-source-list-item-schema.json",
+  "title": "SourceListItem",
+  "x-generated": "2026-10-12",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/amigo-pipeline-api-openapi.yml#/components/schemas/SourceListItem",
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Id"
+    },
+    "name": {
+      "type": "string",
+      "title": "Name"
+    },
+    "display_name": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Display Name"
+    },
+    "source_type": {
+      "type": "string",
+      "enum": [
+        "rest_api",
+        "webhook",
+        "file_drop",
+        "fhir_store",
+        "ehr",
+        "database",
+        "custom",
+        "smart_fhir",
+        "customer_intake",
+        "lakebase_schema",
+        "crm"
+      ],
+      "title": "Source Type"
+    },
+    "is_active": {
+      "type": "boolean",
+      "title": "Is Active"
+    },
+    "health_status": {
+      "type": "string",
+      "enum": [
+        "unknown",
+        "healthy",
+        "degraded"
+      ],
+      "title": "Health Status"
+    },
+    "last_poll": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/LastPollInfo"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "event_count": {
+      "type": "integer",
+      "title": "Event Count",
+      "default": 0
+    },
+    "last_sync_at": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Last Sync At"
+    }
+  },
+  "type": "object",
+  "required": [
+    "id",
+    "name",
+    "source_type",
+    "is_active",
+    "health_status"
+  ],
+  "$defs": {
+    "LastPollInfo": {
+      "properties": {
+        "at": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "At"
+        },
+        "duration_ms": {
+          "type": "integer",
+          "title": "Duration Ms",
+          "default": 0
+        },
+        "event_count": {
+          "type": "integer",
+          "title": "Event Count",
+          "default": 0
+        },
+        "error": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Error"
+        }
+      },
+      "type": "object",
+      "title": "LastPollInfo"
+    }
+  }
+}

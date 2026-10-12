@@ -1,5 +1,6 @@
 ---
-name: Run an Amigo agent conversation (Classic API)
+name: amigo-run-a-conversation
+title: Run an Amigo agent conversation (Classic API)
 description: Authenticate, open a conversation with an Amigo service/agent, exchange turns, read messages, and finish the conversation.
 api: openapi/amigo-classic-openapi-original.json
 operations:

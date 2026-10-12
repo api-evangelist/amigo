@@ -1,0 +1,125 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/amigo/main/json-schema/amigo-intake-link-response-schema.json",
+  "title": "IntakeLinkResponse",
+  "x-generated": "2026-10-12",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/amigo-intake-api-openapi.yml#/components/schemas/IntakeLinkResponse",
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Id"
+    },
+    "workspace_id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Workspace Id"
+    },
+    "customer_slug": {
+      "$ref": "#/$defs/SlugString"
+    },
+    "display_name": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/DescriptionString"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "upload_url": {
+      "type": "string",
+      "maxLength": 512,
+      "title": "Upload Url"
+    },
+    "link_token": {
+      "type": "string",
+      "maxLength": 128,
+      "minLength": 32,
+      "title": "Link Token"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "expired",
+        "revoked",
+        "exhausted"
+      ],
+      "title": "Status"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Created At"
+    },
+    "expires_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Expires At"
+    },
+    "revoked_at": {
+      "anyOf": [
+        {
+          "type": "string",
+          "format": "date-time"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Revoked At"
+    },
+    "max_uploads": {
+      "type": "integer",
+      "title": "Max Uploads"
+    },
+    "upload_count": {
+      "type": "integer",
+      "title": "Upload Count"
+    },
+    "last_upload_at": {
+      "anyOf": [
+        {
+          "type": "string",
+          "format": "date-time"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Last Upload At"
+    }
+  },
+  "type": "object",
+  "required": [
+    "id",
+    "workspace_id",
+    "customer_slug",
+    "display_name",
+    "upload_url",
+    "link_token",
+    "status",
+    "created_at",
+    "expires_at",
+    "revoked_at",
+    "max_uploads",
+    "upload_count",
+    "last_upload_at"
+  ],
+  "$defs": {
+    "DescriptionString": {
+      "type": "string",
+      "maxLength": 2000
+    },
+    "SlugString": {
+      "type": "string",
+      "maxLength": 63,
+      "minLength": 2,
+      "pattern": "^[a-z0-9][a-z0-9-]*[a-z0-9]$"
+    }
+  }
+}

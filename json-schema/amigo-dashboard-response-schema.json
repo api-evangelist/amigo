@@ -1,0 +1,347 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/amigo/main/json-schema/amigo-dashboard-response-schema.json",
+  "title": "DashboardResponse",
+  "x-generated": "2026-10-12",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/amigo-operators-api-openapi.yml#/components/schemas/DashboardResponse",
+  "properties": {
+    "workspace_id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Workspace Id"
+    },
+    "operators": {
+      "$ref": "#/$defs/OperatorStatusCounts"
+    },
+    "active_escalations": {
+      "type": "integer",
+      "title": "Active Escalations"
+    },
+    "escalations_today": {
+      "$ref": "#/$defs/EscalationDailyStats"
+    },
+    "recent_escalations": {
+      "items": {
+        "$ref": "#/$defs/ActiveEscalationItem"
+      },
+      "type": "array",
+      "title": "Recent Escalations"
+    }
+  },
+  "type": "object",
+  "required": [
+    "workspace_id",
+    "operators",
+    "active_escalations",
+    "escalations_today",
+    "recent_escalations"
+  ],
+  "$defs": {
+    "ActiveEscalationItem": {
+      "properties": {
+        "call_entity_id": {
+          "type": "string",
+          "format": "uuid",
+          "title": "Call Entity Id"
+        },
+        "call_sid": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Call Sid",
+          "description": "Twilio call SID"
+        },
+        "escalation_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Escalation Id",
+          "description": "Escalation event ID"
+        },
+        "status": {
+          "type": "string",
+          "maxLength": 64,
+          "title": "Status",
+          "description": "Current escalation state"
+        },
+        "trigger": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Trigger",
+          "description": "What triggered the escalation"
+        },
+        "trigger_source": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Trigger Source",
+          "description": "Source system of the trigger"
+        },
+        "concept": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Concept",
+          "description": "Clinical concept that triggered escalation"
+        },
+        "operator_type": {
+          "anyOf": [
+            {
+              "type": "string",
+              "enum": [
+                "clinical",
+                "administrative",
+                "crisis_counselor"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Operator Type",
+          "description": "Required operator specialization"
+        },
+        "regulatory_basis": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Regulatory Basis",
+          "description": "Regulatory reason for escalation"
+        },
+        "immediate": {
+          "type": "boolean",
+          "title": "Immediate",
+          "description": "Whether the escalation requires immediate attention"
+        },
+        "risk_score": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Risk Score",
+          "description": "Risk score 0.0 to 1.0"
+        },
+        "requested_at": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Requested At",
+          "description": "ISO-8601 timestamp when escalation was requested"
+        },
+        "connected_at": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Connected At",
+          "description": "ISO-8601 timestamp when operator connected"
+        },
+        "wait_seconds": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Wait Seconds",
+          "description": "Seconds the caller waited for an operator"
+        },
+        "operator_entity_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "uuid"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Operator Entity Id",
+          "description": "Entity ID of the connected operator"
+        },
+        "caller_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Caller Id",
+          "description": "Caller phone number"
+        },
+        "direction": {
+          "anyOf": [
+            {
+              "type": "string",
+              "enum": [
+                "inbound",
+                "outbound",
+                "playground",
+                "simulated",
+                "test"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Direction",
+          "description": "Call direction"
+        },
+        "phone_number": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Phone Number",
+          "description": "Service phone number"
+        },
+        "started_at": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Started At",
+          "description": "ISO-8601 timestamp when the call started"
+        }
+      },
+      "type": "object",
+      "required": [
+        "call_entity_id",
+        "status",
+        "immediate"
+      ],
+      "title": "ActiveEscalationItem",
+      "description": "A call with an active escalation, enriched from projected state."
+    },
+    "EscalationDailyStats": {
+      "properties": {
+        "requested": {
+          "type": "integer",
+          "title": "Requested",
+          "default": 0
+        },
+        "connected": {
+          "type": "integer",
+          "title": "Connected",
+          "default": 0
+        },
+        "completed": {
+          "type": "integer",
+          "title": "Completed",
+          "default": 0
+        },
+        "avg_wait_seconds": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Avg Wait Seconds"
+        },
+        "avg_handle_time_seconds": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Avg Handle Time Seconds"
+        }
+      },
+      "type": "object",
+      "title": "EscalationDailyStats"
+    },
+    "OperatorStatusCounts": {
+      "properties": {
+        "total": {
+          "type": "integer",
+          "title": "Total"
+        },
+        "online": {
+          "type": "integer",
+          "title": "Online"
+        },
+        "busy": {
+          "type": "integer",
+          "title": "Busy"
+        },
+        "offline": {
+          "type": "integer",
+          "title": "Offline"
+        }
+      },
+      "type": "object",
+      "required": [
+        "total",
+        "online",
+        "busy",
+        "offline"
+      ],
+      "title": "OperatorStatusCounts"
+    }
+  }
+}

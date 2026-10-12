@@ -1,0 +1,1016 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/amigo/main/json-schema/amigo-create-context-graph-version-request-schema.json",
+  "title": "CreateContextGraphVersionRequest",
+  "x-generated": "2026-10-12",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/amigo-context-graphs-api-openapi.yml#/components/schemas/CreateContextGraphVersionRequest",
+  "properties": {
+    "description": {
+      "$ref": "#/$defs/DescriptionString",
+      "default": ""
+    },
+    "states": {
+      "items": {
+        "$ref": "#/$defs/ContextGraphState-Input"
+      },
+      "type": "array",
+      "title": "States"
+    },
+    "new_user_initial_state": {
+      "type": "string",
+      "title": "New User Initial State"
+    },
+    "returning_user_initial_state": {
+      "type": "string",
+      "title": "Returning User Initial State"
+    },
+    "terminal_state": {
+      "type": "string",
+      "title": "Terminal State"
+    },
+    "global_intra_state_navigation_guidelines": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array",
+      "title": "Global Intra State Navigation Guidelines",
+      "default": []
+    },
+    "global_action_guidelines": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array",
+      "title": "Global Action Guidelines",
+      "default": []
+    },
+    "global_boundary_constraints": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array",
+      "title": "Global Boundary Constraints",
+      "default": []
+    },
+    "topology_description": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Topology Description"
+    }
+  },
+  "type": "object",
+  "required": [
+    "states",
+    "new_user_initial_state",
+    "returning_user_initial_state",
+    "terminal_state"
+  ],
+  "$defs": {
+    "Action": {
+      "properties": {
+        "description": {
+          "type": "string",
+          "title": "Description"
+        },
+        "filler_hint": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Filler Hint"
+        }
+      },
+      "type": "object",
+      "required": [
+        "description"
+      ],
+      "title": "Action",
+      "description": "A single action the agent can take within a state."
+    },
+    "ActionState-Input": {
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "action",
+          "title": "Type"
+        },
+        "name": {
+          "type": "string",
+          "title": "Name"
+        },
+        "objective": {
+          "type": "string",
+          "title": "Objective"
+        },
+        "actions": {
+          "items": {
+            "$ref": "#/$defs/Action"
+          },
+          "type": "array",
+          "title": "Actions"
+        },
+        "intra_state_navigation_guidelines": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "title": "Intra State Navigation Guidelines"
+        },
+        "action_guidelines": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "title": "Action Guidelines"
+        },
+        "boundary_constraints": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "title": "Boundary Constraints"
+        },
+        "exit_conditions": {
+          "items": {
+            "$ref": "#/$defs/ExitCondition"
+          },
+          "type": "array",
+          "title": "Exit Conditions"
+        },
+        "action_tool_call_specs": {
+          "items": {
+            "$ref": "#/$defs/ToolCallSpec"
+          },
+          "type": "array",
+          "title": "Action Tool Call Specs",
+          "default": []
+        },
+        "exit_condition_tool_call_specs": {
+          "items": {
+            "$ref": "#/$defs/ToolCallSpec"
+          },
+          "type": "array",
+          "title": "Exit Condition Tool Call Specs",
+          "default": []
+        },
+        "wait_for": {
+          "anyOf": [
+            {
+              "type": "string",
+              "enum": [
+                "surface_submission",
+                "human_approval"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Wait For"
+        },
+        "guardrails": {
+          "items": {
+            "$ref": "#/$defs/Guardrail"
+          },
+          "type": "array",
+          "title": "Guardrails",
+          "default": []
+        },
+        "channel_overrides": {
+          "additionalProperties": {
+            "$ref": "#/$defs/ChannelOverride"
+          },
+          "type": "object",
+          "title": "Channel Overrides"
+        },
+        "surface_spec_template": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Surface Spec Template"
+        },
+        "turn_policy": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TurnPolicy"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "preload": {
+          "items": {
+            "$ref": "#/$defs/PreloadSpec"
+          },
+          "type": "array",
+          "maxItems": 20,
+          "title": "Preload"
+        }
+      },
+      "type": "object",
+      "required": [
+        "type",
+        "name",
+        "objective",
+        "actions",
+        "intra_state_navigation_guidelines",
+        "action_guidelines",
+        "boundary_constraints",
+        "exit_conditions"
+      ],
+      "title": "ActionState",
+      "description": "User-facing engagement state with actions and exit conditions."
+    },
+    "AnnotationState": {
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "annotation",
+          "title": "Type"
+        },
+        "name": {
+          "type": "string",
+          "title": "Name"
+        },
+        "inner_thought": {
+          "type": "string",
+          "title": "Inner Thought"
+        },
+        "next_state": {
+          "type": "string",
+          "title": "Next State"
+        }
+      },
+      "type": "object",
+      "required": [
+        "type",
+        "name",
+        "inner_thought",
+        "next_state"
+      ],
+      "title": "AnnotationState",
+      "description": "Injects a hardcoded inner thought (no LLM call)."
+    },
+    "ChannelOverride": {
+      "properties": {
+        "objective": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Objective"
+        },
+        "action_guidelines": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "title": "Action Guidelines",
+          "default": []
+        },
+        "progress": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ProgressHint"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "type": "object",
+      "title": "ChannelOverride",
+      "description": "Per-channel behavior override for a state."
+    },
+    "CollectionField": {
+      "properties": {
+        "key": {
+          "type": "string",
+          "title": "Key"
+        },
+        "type": {
+          "type": "string",
+          "title": "Type"
+        },
+        "label": {
+          "type": "string",
+          "title": "Label"
+        },
+        "required": {
+          "type": "boolean",
+          "title": "Required",
+          "default": true
+        },
+        "options": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Options"
+        },
+        "validation": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Validation"
+        },
+        "ask_prompt": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Ask Prompt"
+        },
+        "fhir_path": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Fhir Path"
+        }
+      },
+      "type": "object",
+      "required": [
+        "key",
+        "type",
+        "label"
+      ],
+      "title": "CollectionField",
+      "description": "A single field to collect during a data collection state."
+    },
+    "ContextGraphState-Input": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/ActionState-Input"
+        },
+        {
+          "$ref": "#/$defs/DecisionState-Input"
+        },
+        {
+          "$ref": "#/$defs/AnnotationState"
+        },
+        {
+          "$ref": "#/$defs/DataCollectionState-Input"
+        }
+      ]
+    },
+    "DataCollectionState-Input": {
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "data_collection",
+          "title": "Type"
+        },
+        "name": {
+          "type": "string",
+          "title": "Name"
+        },
+        "objective": {
+          "type": "string",
+          "title": "Objective"
+        },
+        "fields": {
+          "items": {
+            "$ref": "#/$defs/CollectionField"
+          },
+          "type": "array",
+          "title": "Fields"
+        },
+        "on_complete": {
+          "type": "string",
+          "title": "On Complete"
+        },
+        "action_guidelines": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "title": "Action Guidelines",
+          "default": []
+        },
+        "boundary_constraints": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "title": "Boundary Constraints",
+          "default": []
+        },
+        "surface_fallback": {
+          "type": "boolean",
+          "title": "Surface Fallback",
+          "default": false
+        },
+        "surface_fallback_after_turns": {
+          "type": "integer",
+          "title": "Surface Fallback After Turns",
+          "default": 6
+        },
+        "max_turns": {
+          "type": "integer",
+          "title": "Max Turns",
+          "default": 10
+        },
+        "guardrails": {
+          "items": {
+            "$ref": "#/$defs/Guardrail"
+          },
+          "type": "array",
+          "title": "Guardrails",
+          "default": []
+        },
+        "channel_overrides": {
+          "additionalProperties": {
+            "$ref": "#/$defs/ChannelOverride"
+          },
+          "type": "object",
+          "title": "Channel Overrides"
+        },
+        "turn_policy": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TurnPolicy"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "tool_call_specs": {
+          "items": {
+            "$ref": "#/$defs/ToolCallSpec"
+          },
+          "type": "array",
+          "title": "Tool Call Specs",
+          "default": []
+        }
+      },
+      "type": "object",
+      "required": [
+        "type",
+        "name",
+        "objective",
+        "fields",
+        "on_complete"
+      ],
+      "title": "DataCollectionState",
+      "description": "Structured voice/text data collection with field tracking.\n\nThe engine presents fields conversationally, tracks completion, and\noptionally falls back to a Surface form after N turns. Each collected\nfield produces a world.event with confidence 0.5."
+    },
+    "DecisionState-Input": {
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "decision",
+          "title": "Type"
+        },
+        "name": {
+          "type": "string",
+          "title": "Name"
+        },
+        "objective": {
+          "type": "string",
+          "title": "Objective"
+        },
+        "exit_conditions": {
+          "items": {
+            "$ref": "#/$defs/ExitCondition"
+          },
+          "type": "array",
+          "title": "Exit Conditions"
+        },
+        "decision_guidelines": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "title": "Decision Guidelines",
+          "default": []
+        },
+        "tool_call_specs": {
+          "items": {
+            "$ref": "#/$defs/ToolCallSpec"
+          },
+          "type": "array",
+          "title": "Tool Call Specs",
+          "default": []
+        },
+        "wait_for": {
+          "anyOf": [
+            {
+              "type": "string",
+              "enum": [
+                "surface_submission",
+                "human_approval"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Wait For"
+        },
+        "guardrails": {
+          "items": {
+            "$ref": "#/$defs/Guardrail"
+          },
+          "type": "array",
+          "title": "Guardrails",
+          "default": []
+        },
+        "channel_overrides": {
+          "additionalProperties": {
+            "$ref": "#/$defs/ChannelOverride"
+          },
+          "type": "object",
+          "title": "Channel Overrides"
+        },
+        "turn_policy": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TurnPolicy"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "type": "object",
+      "required": [
+        "type",
+        "name",
+        "objective",
+        "exit_conditions"
+      ],
+      "title": "DecisionState",
+      "description": "Passthrough routing state — Agent picks an exit condition, no user interaction."
+    },
+    "DescriptionString": {
+      "type": "string",
+      "maxLength": 2000
+    },
+    "ExitCondition": {
+      "properties": {
+        "description": {
+          "type": "string",
+          "title": "Description"
+        },
+        "next_state": {
+          "type": "string",
+          "title": "Next State"
+        },
+        "filler_hint": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Filler Hint"
+        }
+      },
+      "type": "object",
+      "required": [
+        "description",
+        "next_state"
+      ],
+      "title": "ExitCondition"
+    },
+    "FailureClass": {
+      "type": "string",
+      "enum": [
+        "timeout",
+        "input_rejected",
+        "rounds_exhausted",
+        "generic"
+      ],
+      "title": "FailureClass",
+      "description": "Why a tool result is a failure — produced by the executor at RUN time.\n\nUnlike ``ResultDelivery`` (a fixed config-time axis), this is a runtime\nclassification the executor knows at the moment of failure. It flavors the\nagent-facing failure wording and the world-event / status-tool observability,\nand it is ALSO an optional routing key: a state x tool binding may set\n``ToolCallSpec.failure_delivery_by_class`` to deliver differently per class\n(e.g. interrupt on timeout, queue on a generic error). With no per-class map\n(the default), failed results route by the ``failure_delivery`` floor,\nunchanged. Add a member only in the same change that wires a producer for it —\nadding one also widens the per-class routing surface, so it must be a\ndeliberate, produced class."
+    },
+    "Guardrail": {
+      "properties": {
+        "name": {
+          "type": "string",
+          "maxLength": 128,
+          "title": "Name"
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 1000,
+          "title": "Description"
+        },
+        "enforcement": {
+          "type": "string",
+          "enum": [
+            "hard",
+            "soft"
+          ],
+          "title": "Enforcement",
+          "default": "hard"
+        }
+      },
+      "type": "object",
+      "required": [
+        "name",
+        "description"
+      ],
+      "title": "Guardrail",
+      "description": "Typed safety rule enforced per-state (not just global freetext guidelines)."
+    },
+    "PreloadSpec": {
+      "properties": {
+        "tool_id": {
+          "type": "string",
+          "maxLength": 256,
+          "title": "Tool Id"
+        },
+        "params": {
+          "additionalProperties": true,
+          "type": "object",
+          "maxProperties": 20,
+          "title": "Params"
+        }
+      },
+      "type": "object",
+      "required": [
+        "tool_id"
+      ],
+      "title": "PreloadSpec",
+      "description": "A tool call executed deterministically by the engine on state entry.\n\nUnlike LLM-driven tool calls, preloads run before any LLM turn —\nthe results appear in the interaction log so the engage LLM sees\nthem as pre-loaded context.  All preloads in a state execute in\nparallel.  Param values support ``{caller_mrn}`` and ``{entity_id}``\ntemplate variables resolved from the session's caller context."
+    },
+    "ProgressHint": {
+      "properties": {
+        "deterministic": {
+          "type": "boolean",
+          "title": "Deterministic",
+          "default": false
+        },
+        "phrases": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array",
+              "maxItems": 10,
+              "minItems": 1,
+              "description": "Filler phrases. deterministic=true: played verbatim in order. deterministic=false: used as hints for early attempts."
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Phrases"
+        },
+        "trigger_delay_ms": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "maximum": 30000.0,
+              "minimum": 0.0
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Trigger Delay Ms"
+        },
+        "interval_ms": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "maximum": 30000.0,
+              "minimum": 100.0
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Interval Ms"
+        },
+        "mode": {
+          "type": "string",
+          "enum": [
+            "auto",
+            "silent",
+            "backchannel",
+            "verbal"
+          ],
+          "title": "Mode",
+          "default": "auto"
+        },
+        "progress_class": {
+          "anyOf": [
+            {
+              "type": "string",
+              "enum": [
+                "lookup",
+                "write",
+                "external_call",
+                "compute",
+                "multi_step"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Progress Class"
+        },
+        "expected_latency_ms": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "maximum": 60000.0,
+              "minimum": 0.0
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Expected Latency Ms"
+        },
+        "custom_phrase": {
+          "anyOf": [
+            {
+              "type": "string",
+              "maxLength": 500,
+              "description": "Legacy: use phrases instead."
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Custom Phrase"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "title": "ProgressHint",
+      "description": "How the agent narrates waiting on a tool.\n\n``deterministic=true``: scripted — ``phrases`` play verbatim in order.\n``deterministic=false``: engine picks — ``phrases`` are hints.\n``trigger_delay_ms``: milliseconds before first filler (0 = immediate).\n``interval_ms``: milliseconds between subsequent fillers."
+    },
+    "ToolCallSpec": {
+      "properties": {
+        "tool_id": {
+          "type": "string",
+          "title": "Tool Id"
+        },
+        "additional_instruction": {
+          "type": "string",
+          "title": "Additional Instruction",
+          "default": ""
+        },
+        "navigate_on_completion": {
+          "type": "boolean",
+          "title": "Navigate On Completion",
+          "default": false
+        },
+        "progress": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ProgressHint"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "result_persistence": {
+          "type": "string",
+          "enum": [
+            "accumulate",
+            "override"
+          ],
+          "title": "Result Persistence",
+          "default": "accumulate"
+        },
+        "delivery": {
+          "type": "string",
+          "enum": [
+            "interrupt",
+            "queue"
+          ],
+          "title": "Delivery",
+          "default": "interrupt"
+        },
+        "failure_delivery": {
+          "anyOf": [
+            {
+              "type": "string",
+              "enum": [
+                "interrupt",
+                "queue"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Failure Delivery"
+        },
+        "failure_delivery_by_class": {
+          "anyOf": [
+            {
+              "additionalProperties": {
+                "type": "string",
+                "enum": [
+                  "interrupt",
+                  "queue"
+                ]
+              },
+              "propertyNames": {
+                "$ref": "#/$defs/FailureClass"
+              },
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Failure Delivery By Class"
+        },
+        "execution": {
+          "type": "string",
+          "enum": [
+            "blocking",
+            "background"
+          ],
+          "title": "Execution",
+          "default": "blocking"
+        },
+        "lifecycle": {
+          "type": "string",
+          "enum": [
+            "coupled",
+            "independent"
+          ],
+          "title": "Lifecycle",
+          "default": "independent"
+        },
+        "audio_fillers": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Audio Fillers"
+        },
+        "audio_filler_triggered_after": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Audio Filler Triggered After"
+        }
+      },
+      "type": "object",
+      "required": [
+        "tool_id"
+      ],
+      "title": "ToolCallSpec",
+      "description": "A tool call that the agent can make in a state."
+    },
+    "TurnPolicy": {
+      "properties": {
+        "barge_in_enabled": {
+          "type": "boolean",
+          "title": "Barge In Enabled",
+          "default": true
+        },
+        "greeting_shield_s": {
+          "type": "number",
+          "title": "Greeting Shield S",
+          "default": 0.0
+        },
+        "safety_response": {
+          "type": "string",
+          "enum": [
+            "suspend_forward",
+            "stay_empathize",
+            "alert"
+          ],
+          "title": "Safety Response",
+          "default": "stay_empathize"
+        },
+        "context_strategy": {
+          "type": "string",
+          "enum": [
+            "full",
+            "compact"
+          ],
+          "title": "Context Strategy",
+          "default": "full"
+        },
+        "degradation_threshold": {
+          "type": "integer",
+          "minimum": -1.0,
+          "title": "Degradation Threshold",
+          "default": -1
+        },
+        "block_forward_call": {
+          "type": "boolean",
+          "title": "Block Forward Call",
+          "default": false
+        },
+        "block_forward_call_after_turns": {
+          "type": "integer",
+          "minimum": -1.0,
+          "title": "Block Forward Call After Turns",
+          "default": -1
+        },
+        "stt_eot_threshold": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Stt Eot Threshold"
+        },
+        "stt_eager_eot_threshold": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Stt Eager Eot Threshold"
+        },
+        "stt_eot_timeout_ms": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Stt Eot Timeout Ms"
+        }
+      },
+      "type": "object",
+      "title": "TurnPolicy",
+      "description": "Voice pipeline parameters declared per HSM state.\n\nLives on ActionState/DecisionState alongside guardrails, wait_for, and\nchannel_overrides.  The HSM state IS the policy — no shadow state machine.\nAll fields optional with safe defaults (production behavior unchanged\nwhen no turn_policy is set)."
+    }
+  }
+}

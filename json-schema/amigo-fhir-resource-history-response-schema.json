@@ -1,0 +1,170 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/amigo/main/json-schema/amigo-fhir-resource-history-response-schema.json",
+  "title": "FhirResourceHistoryResponse",
+  "x-generated": "2026-10-12",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/amigo-fhir-api-openapi.yml#/components/schemas/FhirResourceHistoryResponse",
+  "properties": {
+    "resource_type": {
+      "type": "string",
+      "title": "Resource Type"
+    },
+    "resource_id": {
+      "type": "string",
+      "title": "Resource Id"
+    },
+    "entries": {
+      "items": {
+        "$ref": "#/$defs/FhirResourceHistoryEntry"
+      },
+      "type": "array",
+      "title": "Entries"
+    },
+    "total": {
+      "type": "integer",
+      "title": "Total"
+    },
+    "has_more": {
+      "type": "boolean",
+      "title": "Has More",
+      "default": false
+    },
+    "next_offset": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Next Offset"
+    }
+  },
+  "type": "object",
+  "required": [
+    "resource_type",
+    "resource_id",
+    "entries",
+    "total"
+  ],
+  "$defs": {
+    "FhirResourceHistoryEntry": {
+      "properties": {
+        "event_id": {
+          "type": "string",
+          "format": "uuid",
+          "title": "Event Id"
+        },
+        "event_type": {
+          "type": "string",
+          "title": "Event Type"
+        },
+        "source": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Source"
+        },
+        "source_system": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Source System"
+        },
+        "data_source_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "uuid"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Data Source Id"
+        },
+        "entity_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "uuid"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Entity Id"
+        },
+        "confidence": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Confidence"
+        },
+        "is_current": {
+          "type": "boolean",
+          "title": "Is Current"
+        },
+        "effective_at": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Effective At"
+        },
+        "created_at": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Created At"
+        },
+        "fields_affected": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "title": "Fields Affected"
+        },
+        "data": {
+          "additionalProperties": true,
+          "type": "object",
+          "title": "Data"
+        }
+      },
+      "type": "object",
+      "required": [
+        "event_id",
+        "event_type",
+        "is_current"
+      ],
+      "title": "FhirResourceHistoryEntry"
+    }
+  }
+}

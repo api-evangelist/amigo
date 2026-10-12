@@ -1,0 +1,152 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/amigo/main/json-schema/amigo-src-app-endpoints-dynamic-behavior-set-get-dynamic-behavior-invocations-response-schema.json",
+  "title": "Response",
+  "x-generated": "2026-10-12",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/amigo-dynamic-behavior-set-api-openapi.yml#/components/schemas/src__app__endpoints__dynamic_behavior_set__get_dynamic_behavior_invocations__Response",
+  "properties": {
+    "dynamic_behavior_invocations": {
+      "items": {
+        "$ref": "#/$defs/DynamicBehaviorInvocation"
+      },
+      "type": "array",
+      "title": "Dynamic Behavior Invocations",
+      "description": "The retrieved dynamic behavior invocations."
+    },
+    "has_more": {
+      "type": "boolean",
+      "title": "Has More",
+      "description": "Whether there are more dynamic behavior invocations to retrieve."
+    },
+    "continuation_token": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Continuation Token",
+      "description": "A token to supply to the next request to retrieve the next page of dynamic behavior invocations. Only populated if `has_more` is `True`."
+    }
+  },
+  "type": "object",
+  "required": [
+    "dynamic_behavior_invocations",
+    "has_more",
+    "continuation_token"
+  ],
+  "$defs": {
+    "DynamicBehaviorInvocation": {
+      "properties": {
+        "_id": {
+          "type": "string",
+          "title": "Id",
+          "description": "The ID of the document."
+        },
+        "org_id": {
+          "type": "string",
+          "title": "Org Id",
+          "description": "The ID of the organization."
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time",
+          "title": "Created At"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time",
+          "title": "Updated At"
+        },
+        "conversation_id": {
+          "type": "string",
+          "title": "Conversation Id",
+          "description": "The ID of the conversation."
+        },
+        "service_id": {
+          "type": "string",
+          "title": "Service Id",
+          "description": "The ID of the service that the conversation belongs to."
+        },
+        "user_id": {
+          "type": "string",
+          "title": "User Id",
+          "description": "The ID of the user that triggered the dynamic behavior."
+        },
+        "initial_message_id": {
+          "type": "string",
+          "title": "Initial Message Id",
+          "description": "The ID of the initial message that led to the dynamic behavior invocation."
+        },
+        "agent_message_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Agent Message Id",
+          "description": "The ID of the agent message that led to the dynamic behavior invocation."
+        },
+        "agent_inner_thoughts_ids": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "title": "Agent Inner Thoughts Ids",
+          "description": "The IDs of the agent inner thoughts that led to the dynamic behavior invocation."
+        },
+        "dynamic_behavior_set_version_info": {
+          "prefixItems": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "integer"
+            }
+          ],
+          "type": "array",
+          "maxItems": 2,
+          "minItems": 2,
+          "title": "Dynamic Behavior Set Version Info",
+          "description": "The ID and version number of the dynamic behavior set version that was activated."
+        },
+        "invoked_at": {
+          "type": "string",
+          "format": "date-time",
+          "title": "Invoked At",
+          "description": "The time when the dynamic behavior was invoked."
+        },
+        "external_event_message_ids": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "title": "External Event Message Ids",
+          "description": "The IDs of the external event messages that were considered during the invocation. These do not include the initial message if it's an external event.",
+          "default": []
+        }
+      },
+      "type": "object",
+      "required": [
+        "_id",
+        "org_id",
+        "conversation_id",
+        "service_id",
+        "user_id",
+        "initial_message_id",
+        "agent_message_id",
+        "agent_inner_thoughts_ids",
+        "dynamic_behavior_set_version_info",
+        "invoked_at"
+      ],
+      "title": "DynamicBehaviorInvocation"
+    }
+  }
+}

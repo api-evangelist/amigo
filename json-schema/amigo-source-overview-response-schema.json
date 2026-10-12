@@ -1,0 +1,277 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/amigo/main/json-schema/amigo-source-overview-response-schema.json",
+  "title": "SourceOverviewResponse",
+  "x-generated": "2026-10-12",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/amigo-pipeline-api-openapi.yml#/components/schemas/SourceOverviewResponse",
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Id"
+    },
+    "name": {
+      "type": "string",
+      "title": "Name"
+    },
+    "display_name": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Display Name"
+    },
+    "source_type": {
+      "type": "string",
+      "enum": [
+        "rest_api",
+        "webhook",
+        "file_drop",
+        "fhir_store",
+        "ehr",
+        "database",
+        "custom",
+        "smart_fhir",
+        "customer_intake",
+        "lakebase_schema",
+        "crm"
+      ],
+      "title": "Source Type"
+    },
+    "is_active": {
+      "type": "boolean",
+      "title": "Is Active"
+    },
+    "health_status": {
+      "type": "string",
+      "enum": [
+        "unknown",
+        "healthy",
+        "degraded"
+      ],
+      "title": "Health Status"
+    },
+    "last_sync_at": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Last Sync At"
+    },
+    "last_sync_status": {
+      "anyOf": [
+        {
+          "type": "string",
+          "enum": [
+            "success",
+            "error"
+          ]
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Last Sync Status"
+    },
+    "last_sync_event_count": {
+      "type": "integer",
+      "title": "Last Sync Event Count",
+      "default": 0
+    },
+    "created_at": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Created At"
+    },
+    "event_count": {
+      "type": "integer",
+      "title": "Event Count",
+      "default": 0
+    },
+    "entity_count": {
+      "type": "integer",
+      "title": "Entity Count",
+      "default": 0
+    },
+    "last_poll": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/LastPollInfo"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "recent_failures": {
+      "items": {
+        "$ref": "#/$defs/SourceFailureItem"
+      },
+      "type": "array",
+      "title": "Recent Failures",
+      "default": []
+    },
+    "outbound": {
+      "$ref": "#/$defs/OutboundSummary",
+      "default": {
+        "total": 0,
+        "synced": 0,
+        "failed": 0,
+        "pending": 0
+      }
+    }
+  },
+  "type": "object",
+  "required": [
+    "id",
+    "name",
+    "source_type",
+    "is_active",
+    "health_status"
+  ],
+  "$defs": {
+    "LastPollInfo": {
+      "properties": {
+        "at": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "At"
+        },
+        "duration_ms": {
+          "type": "integer",
+          "title": "Duration Ms",
+          "default": 0
+        },
+        "event_count": {
+          "type": "integer",
+          "title": "Event Count",
+          "default": 0
+        },
+        "error": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Error"
+        }
+      },
+      "type": "object",
+      "title": "LastPollInfo"
+    },
+    "OutboundSummary": {
+      "properties": {
+        "total": {
+          "type": "integer",
+          "title": "Total",
+          "default": 0
+        },
+        "synced": {
+          "type": "integer",
+          "title": "Synced",
+          "default": 0
+        },
+        "failed": {
+          "type": "integer",
+          "title": "Failed",
+          "default": 0
+        },
+        "pending": {
+          "type": "integer",
+          "title": "Pending",
+          "default": 0
+        },
+        "last_synced_at": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Last Synced At"
+        }
+      },
+      "type": "object",
+      "title": "OutboundSummary"
+    },
+    "SourceFailureItem": {
+      "properties": {
+        "event_id": {
+          "type": "string",
+          "format": "uuid",
+          "title": "Event Id"
+        },
+        "event_type": {
+          "type": "string",
+          "title": "Event Type"
+        },
+        "fhir_resource_type": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Fhir Resource Type"
+        },
+        "sync_error": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Sync Error"
+        },
+        "ingested_at": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Ingested At"
+        }
+      },
+      "type": "object",
+      "required": [
+        "event_id",
+        "event_type"
+      ],
+      "title": "SourceFailureItem"
+    }
+  }
+}

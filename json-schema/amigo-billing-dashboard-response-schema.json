@@ -1,0 +1,141 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/amigo/main/json-schema/amigo-billing-dashboard-response-schema.json",
+  "title": "BillingDashboardResponse",
+  "x-generated": "2026-10-12",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/amigo-billing-api-openapi.yml#/components/schemas/BillingDashboardResponse",
+  "properties": {
+    "workspace_id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Workspace Id",
+      "description": "Workspace ID"
+    },
+    "current_period_total": {
+      "type": "number",
+      "title": "Current Period Total",
+      "description": "Total billing for the current period"
+    },
+    "previous_period_total": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Previous Period Total",
+      "description": "Total billing for the previous period"
+    },
+    "delta_pct": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Delta Pct",
+      "description": "Percentage change from previous period"
+    },
+    "top_meters": {
+      "items": {
+        "$ref": "#/$defs/MeterSummary"
+      },
+      "type": "array",
+      "title": "Top Meters",
+      "description": "Top meters by value"
+    },
+    "invoice_status_summary": {
+      "additionalProperties": {
+        "type": "integer"
+      },
+      "type": "object",
+      "title": "Invoice Status Summary",
+      "description": "Invoice counts by status"
+    },
+    "period_start": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Period Start",
+      "description": "Current period start date (ISO-8601)"
+    },
+    "period_end": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Period End",
+      "description": "Current period end date (ISO-8601)"
+    }
+  },
+  "type": "object",
+  "required": [
+    "workspace_id",
+    "current_period_total",
+    "previous_period_total",
+    "delta_pct",
+    "top_meters",
+    "invoice_status_summary",
+    "period_start",
+    "period_end"
+  ],
+  "$defs": {
+    "MeterSummary": {
+      "properties": {
+        "meter_key": {
+          "type": "string",
+          "title": "Meter Key",
+          "description": "Unique meter identifier (e.g. voice_minutes)"
+        },
+        "metering_source": {
+          "type": "string",
+          "enum": [
+            "production",
+            "simulation"
+          ],
+          "title": "Metering Source",
+          "description": "Traffic class — production or simulation, billed separately",
+          "default": "production"
+        },
+        "display_name": {
+          "type": "string",
+          "title": "Display Name",
+          "description": "Human-readable meter name"
+        },
+        "value": {
+          "type": "number",
+          "title": "Value",
+          "description": "Metered value for the period"
+        },
+        "unit": {
+          "type": "string",
+          "title": "Unit",
+          "description": "Unit of measurement (e.g. minutes, calls)"
+        }
+      },
+      "type": "object",
+      "required": [
+        "meter_key",
+        "display_name",
+        "value",
+        "unit"
+      ],
+      "title": "MeterSummary"
+    }
+  }
+}

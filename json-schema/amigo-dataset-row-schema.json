@@ -1,0 +1,75 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/amigo/main/json-schema/amigo-dataset-row-schema.json",
+  "title": "DatasetRow",
+  "description": "A registered schema in the Schemas list (intake-ui-mvp-design.md §5.3).",
+  "x-generated": "2026-10-12",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/amigo-intake-api-openapi.yml#/components/schemas/DatasetRow",
+  "properties": {
+    "name": {
+      "type": "string",
+      "title": "Name",
+      "description": "Dataset slug (UI label \"Schema\")."
+    },
+    "schema_version": {
+      "type": "string",
+      "title": "Schema Version"
+    },
+    "field_count": {
+      "type": "integer",
+      "title": "Field Count"
+    },
+    "file_type": {
+      "type": "string",
+      "title": "File Type",
+      "description": "Primary/representative file type (the first accepted type)."
+    },
+    "accepted_file_types": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array",
+      "title": "Accepted File Types",
+      "description": "Document datasets: the full accepted-type set (V265). Empty for snapshot\nor legacy single-type documents (the UI falls back to ``file_type``).",
+      "default": []
+    },
+    "ingestion_mode": {
+      "type": "string",
+      "title": "Ingestion Mode",
+      "description": "`snapshot` (CSV/Excel → CDC) or `document` (PDF/docx → extraction)."
+    },
+    "limits": {
+      "$ref": "#/$defs/Limits"
+    }
+  },
+  "type": "object",
+  "required": [
+    "name",
+    "schema_version",
+    "field_count",
+    "file_type",
+    "ingestion_mode",
+    "limits"
+  ],
+  "$defs": {
+    "Limits": {
+      "properties": {
+        "max_size_mb": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Max Size Mb"
+        }
+      },
+      "type": "object",
+      "title": "Limits"
+    }
+  }
+}

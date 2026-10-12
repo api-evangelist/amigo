@@ -1,0 +1,90 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/amigo/main/json-schema/amigo-src-app-endpoints-conversation-create-conversation-request-schema.json",
+  "title": "Request",
+  "x-generated": "2026-10-12",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/amigo-conversation-api-openapi.yml#/components/schemas/src__app__endpoints__conversation__create_conversation__Request",
+  "properties": {
+    "service_id": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{24}$",
+      "title": "Service Id",
+      "description": "The identifier of the service to create a conversation in."
+    },
+    "service_version_set_name": {
+      "type": "string",
+      "title": "Service Version Set Name",
+      "description": "The version set of the service to use. If not provided, the `release` version set is used.",
+      "default": "release"
+    },
+    "initial_message": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/amigo_lib__pydantic__base_model__StrippedNonemptyString__1"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "The initial user or agent inner thought message to send to the service. If not provided, the conversation will start with an agent message."
+    },
+    "initial_message_type": {
+      "anyOf": [
+        {
+          "type": "string",
+          "enum": [
+            "user-message",
+            "external-event"
+          ]
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Initial Message Type",
+      "description": "The type of the `initial_message`. Can only be specified if `initial_message` is provided."
+    },
+    "tags": {
+      "additionalProperties": {
+        "anyOf": [
+          {
+            "$ref": "#/$defs/amigo_lib__pydantic__base_model__StrippedNonemptyString__4"
+          },
+          {
+            "type": "null"
+          }
+        ]
+      },
+      "propertyNames": {
+        "$ref": "#/$defs/StrippedNonemptyString___w__s______"
+      },
+      "type": "object",
+      "maxProperties": 20,
+      "title": "Tags",
+      "description": "A list of tags for the conversation. The key can only contain alphanumeric characters, underscores, or spaces. The value can only contain up to 100 characters.",
+      "default": {}
+    }
+  },
+  "type": "object",
+  "required": [
+    "service_id"
+  ],
+  "$defs": {
+    "StrippedNonemptyString___w__s______": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[\\w\\s_]+$"
+    },
+    "amigo_lib__pydantic__base_model__StrippedNonemptyString__1": {
+      "type": "string",
+      "minLength": 1
+    },
+    "amigo_lib__pydantic__base_model__StrippedNonemptyString__4": {
+      "type": "string",
+      "maxLength": 100,
+      "minLength": 1
+    }
+  }
+}

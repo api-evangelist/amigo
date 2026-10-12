@@ -1,0 +1,189 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/amigo/main/json-schema/amigo-audit-events-list-response-schema.json",
+  "title": "AuditEventsListResponse",
+  "x-generated": "2026-10-12",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/amigo-audit-api-openapi.yml#/components/schemas/AuditEventsListResponse",
+  "properties": {
+    "events": {
+      "items": {
+        "$ref": "#/$defs/src__routes__audit__AuditEventResponse"
+      },
+      "type": "array",
+      "title": "Events"
+    },
+    "total": {
+      "type": "integer",
+      "title": "Total"
+    },
+    "limit": {
+      "type": "integer",
+      "title": "Limit"
+    },
+    "offset": {
+      "type": "integer",
+      "title": "Offset"
+    },
+    "has_more": {
+      "type": "boolean",
+      "title": "Has More"
+    }
+  },
+  "type": "object",
+  "required": [
+    "events",
+    "total",
+    "limit",
+    "offset",
+    "has_more"
+  ],
+  "$defs": {
+    "src__routes__audit__AuditEventResponse": {
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "title": "Id",
+          "description": "Unique audit event identifier"
+        },
+        "workspace_id": {
+          "type": "string",
+          "format": "uuid",
+          "title": "Workspace Id",
+          "description": "Workspace that owns this audit event"
+        },
+        "timestamp": {
+          "type": "string",
+          "title": "Timestamp",
+          "description": "ISO-8601 timestamp of the event"
+        },
+        "service": {
+          "type": "string",
+          "title": "Service",
+          "description": "Service that produced the event"
+        },
+        "actor_entity_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "uuid"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Actor Entity Id",
+          "description": "Entity ID of the actor who performed the action"
+        },
+        "actor_credential_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "uuid"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Actor Credential Id",
+          "description": "Credential ID used by the actor"
+        },
+        "action": {
+          "type": "string",
+          "title": "Action",
+          "description": "Action that was performed (e.g. 'entity.read')"
+        },
+        "resource_type": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Resource Type",
+          "description": "Type of resource that was accessed"
+        },
+        "resource_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Resource Id",
+          "description": "ID of the accessed resource"
+        },
+        "resource_name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Resource Name",
+          "description": "Human-readable name of the accessed resource"
+        },
+        "ip_address": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Ip Address",
+          "description": "IP address of the actor"
+        },
+        "user_agent": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "User Agent",
+          "description": "User-Agent header from the request"
+        },
+        "metadata": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Metadata",
+          "description": "Additional event-specific metadata"
+        },
+        "phi_accessed": {
+          "type": "boolean",
+          "title": "Phi Accessed",
+          "description": "Whether protected health information was accessed",
+          "default": false
+        }
+      },
+      "type": "object",
+      "required": [
+        "id",
+        "workspace_id",
+        "timestamp",
+        "service",
+        "action"
+      ],
+      "title": "AuditEventResponse"
+    }
+  }
+}

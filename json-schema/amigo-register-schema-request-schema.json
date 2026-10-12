@@ -1,0 +1,146 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/amigo/main/json-schema/amigo-register-schema-request-schema.json",
+  "title": "RegisterSchemaRequest",
+  "description": "Create Schema payload (intake-ui-mvp-design.md §5.4, §5.9).\n\n``ingestion_mode`` is inferred from ``file_type`` (csv/xls/xlsx → snapshot;\nelse document) — not part of the wire contract. Snapshot datasets require\n``primary_key`` + ``schema``; document datasets take an optional\n``document_processing`` config and ignore primary_key/schema. The backend\napplies the other hidden defaults (``on_schema_change=additive``,\n``schema_version`` auto).",
+  "x-generated": "2026-10-12",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/amigo-intake-api-openapi.yml#/components/schemas/RegisterSchemaRequest",
+  "properties": {
+    "name": {
+      "$ref": "#/$defs/_DatasetSlug"
+    },
+    "file_type": {
+      "$ref": "#/$defs/_FileType"
+    },
+    "accepted_file_types": {
+      "items": {
+        "$ref": "#/$defs/_FileType"
+      },
+      "type": "array",
+      "maxItems": 16,
+      "title": "Accepted File Types",
+      "description": "Document only — the SET of accepted file types (V265, e.g.\n``[\"pdf\",\"docx\",\"md\"]``). Empty → single-type (just ``file_type``).\n``file_type`` is included as the primary. Mixing in a tabular type\n(csv/xls/xlsx) is rejected; snapshot datasets are single-type.",
+      "default": []
+    },
+    "primary_key": {
+      "items": {
+        "$ref": "#/$defs/_FieldName"
+      },
+      "type": "array",
+      "maxItems": 32,
+      "title": "Primary Key",
+      "description": "Snapshot only — the canonical PK column(s). Empty/ignored for documents.",
+      "default": []
+    },
+    "schema": {
+      "items": {
+        "$ref": "#/$defs/SchemaFieldSpec"
+      },
+      "type": "array",
+      "maxItems": 500,
+      "title": "Schema",
+      "description": "Snapshot only — canonical field list ``[{name, type}]`` (wire key ``schema``).",
+      "default": []
+    },
+    "document_processing": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/DocumentProcessingSpec"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Document only — extraction config; defaulted server-side when omitted."
+    },
+    "max_size_mb": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Max Size Mb"
+    }
+  },
+  "type": "object",
+  "required": [
+    "name",
+    "file_type"
+  ],
+  "$defs": {
+    "DocumentProcessingSpec": {
+      "properties": {
+        "retain_source": {
+          "type": "boolean",
+          "title": "Retain Source",
+          "default": true
+        },
+        "extraction_mode": {
+          "type": "string",
+          "enum": [
+            "text_extract",
+            "OCR",
+            "hybrid"
+          ],
+          "title": "Extraction Mode",
+          "default": "text_extract"
+        }
+      },
+      "type": "object",
+      "title": "DocumentProcessingSpec",
+      "description": "Processing config for a document dataset (``ingestion_mode=document``).\n\nDocuments have no schema/primary-key/CDC; this is what the contract carries\ninstead (docs/plans/intake_file_processing_pipeline.md §5.9). Page-split /\noutput-metadata rules are stored in the same jsonb and may be added later\nwithout a migration."
+    },
+    "IntakeFieldType": {
+      "type": "string",
+      "enum": [
+        "str",
+        "int",
+        "float",
+        "bool",
+        "date",
+        "datetime"
+      ],
+      "title": "IntakeFieldType",
+      "description": "Allowed ``schema[].type`` values for a registered contract.\n\nConfirmed set (intake-ui-mvp design contract point #1): scalars plus\nISO date/datetime. Coercion semantics live in :func:`_coerces`."
+    },
+    "SchemaFieldSpec": {
+      "properties": {
+        "name": {
+          "$ref": "#/$defs/_FieldName"
+        },
+        "type": {
+          "$ref": "#/$defs/IntakeFieldType"
+        }
+      },
+      "type": "object",
+      "required": [
+        "name",
+        "type"
+      ],
+      "title": "SchemaFieldSpec"
+    },
+    "_DatasetSlug": {
+      "type": "string",
+      "maxLength": 63,
+      "minLength": 2,
+      "pattern": "^[a-z0-9][a-z0-9_-]*[a-z0-9]$"
+    },
+    "_FieldName": {
+      "type": "string",
+      "maxLength": 128,
+      "minLength": 1,
+      "pattern": "^[A-Za-z_][A-Za-z0-9_]*$"
+    },
+    "_FileType": {
+      "type": "string",
+      "maxLength": 16,
+      "minLength": 1,
+      "pattern": "^[a-z0-9]+$"
+    }
+  }
+}

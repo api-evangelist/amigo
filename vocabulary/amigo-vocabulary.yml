@@ -1,0 +1,440 @@
+generated: '2026-10-12'
+method: derived
+generator: derive-vocabulary.py
+source:
+- openapi/amigo-account-api-openapi.yml
+- openapi/amigo-admin-api-openapi.yml
+- openapi/amigo-agent-definitions-api-openapi.yml
+- openapi/amigo-agent-runs-api-openapi.yml
+- openapi/amigo-agents-api-openapi.yml
+vocabulary:
+  name: Amigo Domain Vocabulary
+  description: 'Terms declared by Amigo''s own API contract: its resource groups, objects and enumerations, with the contract''s definitions.
+    Derived, not authored.'
+  version: '2026-10-12'
+  terms:
+  - term: WorkspaceResponse
+    definition: 'Object declared by the contract with fields: id, slug, name, environment, backend_org_id, region, connector_type, provisioned_at,
+      created_at, updated_at.'
+    tags:
+    - Object
+    source: openapi/amigo-account-api-openapi.yml#/components/schemas/WorkspaceResponse
+  - term: CreateWorkspaceRequest
+    definition: 'Request body for ``POST /v1/me/workspaces``. ``region`` is intentionally not exposed here — the workspace is created in the region
+      of the platform-api pod that handles the request (each region''s CD pipeline serves its own ingress host), and a workspace cannot migrate
+      between regions. The handler derives it from ``app.env.aws_region``. ``environment`` has no default: it is a load-bearing routing fi'
+    tags:
+    - Object
+    source: openapi/amigo-account-api-openapi.yml#/components/schemas/CreateWorkspaceRequest
+  - term: SyncQueryResponse
+    definition: 'Object declared by the contract with fields: execution_time_ms, result, truncated, columns.'
+    tags:
+    - Object
+    source: openapi/amigo-admin-api-openapi.yml#/components/schemas/src__app__endpoints__admin__submit_sql_query__Response
+  - term: Request
+    definition: 'Object declared by the contract with fields: sql_query, async_query.'
+    tags:
+    - Object
+    source: openapi/amigo-admin-api-openapi.yml#/components/schemas/src__app__endpoints__admin__submit_sql_query__Request
+  - term: Column
+    definition: 'Object declared by the contract with fields: name, type.'
+    tags:
+    - Object
+    source: openapi/amigo-admin-api-openapi.yml#/components/schemas/Column
+  - term: Response
+    definition: 'Object declared by the contract with fields: models.'
+    tags:
+    - Object
+    source: openapi/amigo-admin-api-openapi.yml#/components/schemas/src__app__endpoints__admin__get_models__Response
+  - term: Model
+    definition: 'Object declared by the contract with fields: name, params_model_schema.'
+    tags:
+    - Object
+    source: openapi/amigo-admin-api-openapi.yml#/components/schemas/Model
+  - term: AgentDefinitionListResponse
+    definition: 'Object declared by the contract with fields: items, has_more, continuation_token.'
+    tags:
+    - Object
+    source: openapi/amigo-agent-definitions-api-openapi.yml#/components/schemas/AgentDefinitionListResponse
+  - term: ValidationError
+    definition: 'Object declared by the contract with fields: loc, msg, type, input, ctx.'
+    tags:
+    - Object
+    source: openapi/amigo-agent-definitions-api-openapi.yml#/components/schemas/ValidationError
+  - term: AgentDefinitionVersionMeta
+    definition: 'Object declared by the contract with fields: version, body_sha256, validator_rev, has_write_tools, agent_count.'
+    tags:
+    - Object
+    source: openapi/amigo-agent-definitions-api-openapi.yml#/components/schemas/AgentDefinitionVersionMeta
+  - term: AgentDefinitionDetail
+    definition: 'Object declared by the contract with fields: definition_id, name, framework, status, versions.'
+    tags:
+    - Object
+    source: openapi/amigo-agent-definitions-api-openapi.yml#/components/schemas/AgentDefinitionDetail
+  - term: RegisterAgentDefinitionRequest
+    definition: 'Object declared by the contract with fields: name, body.'
+    tags:
+    - Object
+    source: openapi/amigo-agent-definitions-api-openapi.yml#/components/schemas/RegisterAgentDefinitionRequest
+  - term: AgentDefinitionVersionDetail
+    definition: 'Object declared by the contract with fields: version, body_sha256, validator_rev, has_write_tools, agent_count, definition_id,
+      framework, body.'
+    tags:
+    - Object
+    source: openapi/amigo-agent-definitions-api-openapi.yml#/components/schemas/AgentDefinitionVersionDetail
+  - term: HTTPValidationError
+    definition: 'Object declared by the contract with fields: detail.'
+    tags:
+    - Object
+    source: openapi/amigo-agent-definitions-api-openapi.yml#/components/schemas/HTTPValidationError
+  - term: ValidateAgentDefinitionResponse
+    definition: 'Object declared by the contract with fields: valid, framework, has_write_tools, agent_count.'
+    tags:
+    - Object
+    source: openapi/amigo-agent-definitions-api-openapi.yml#/components/schemas/ValidateAgentDefinitionResponse
+  - term: AgentDefinitionSummary
+    definition: 'Object declared by the contract with fields: definition_id, name, framework, status.'
+    tags:
+    - Object
+    source: openapi/amigo-agent-definitions-api-openapi.yml#/components/schemas/AgentDefinitionSummary
+  - term: RegisterAgentDefinitionResponse
+    definition: 'Object declared by the contract with fields: definition_id, version, created, framework, has_write_tools, agent_count, body_sha256.'
+    tags:
+    - Object
+    source: openapi/amigo-agent-definitions-api-openapi.yml#/components/schemas/RegisterAgentDefinitionResponse
+  - term: CreateAgentRunRequest
+    definition: 'Object declared by the contract with fields: service_id, version_set, framework, native, message, timeout_s.'
+    tags:
+    - Object
+    source: openapi/amigo-agent-runs-api-openapi.yml#/components/schemas/CreateAgentRunRequest
+  - term: NativeRunRef
+    definition: 'Run a customer-authored NATIVE agent definition (inc-10): a REGISTERED definition by id (``version`` omitted = latest), or an
+      INLINE body for dev/playground iteration. The definition''s own ``framework`` selects the runtime — no top-level ``framework`` needed.'
+    tags:
+    - Object
+    source: openapi/amigo-agent-runs-api-openapi.yml#/components/schemas/NativeRunRef
+  - term: WorldScope
+    definition: The world slice — ids only (the leaf stays I/O-free). This is the read/subject scope, NOT the write bound (see ``write_floor``).
+    tags:
+    - Object
+    source: openapi/amigo-agent-runs-api-openapi.yml#/components/schemas/WorldScope
+  - term: WriteFloor
+    definition: The REAL server-enforced write bound (audit G8) — advisory to render; the MCP edge enforces it regardless of what a client does.
+    tags:
+    - Object
+    source: openapi/amigo-agent-runs-api-openapi.yml#/components/schemas/WriteFloor
+  - term: Guardrails
+    definition: 'Object declared by the contract with fields: guardrails, global_boundary_constraints, global_action_guidelines.'
+    tags:
+    - Object
+    source: openapi/amigo-agent-runs-api-openapi.yml#/components/schemas/Guardrails
+  - term: ToolDescriptor
+    definition: 'Object declared by the contract with fields: name, description, input_schema.'
+    tags:
+    - Object
+    source: openapi/amigo-agent-runs-api-openapi.yml#/components/schemas/ToolDescriptor
+  - term: HarnessContext
+    definition: The neutral, retrievable session-bootstrap context for ANY framework.
+    tags:
+    - Object
+    source: openapi/amigo-agent-runs-api-openapi.yml#/components/schemas/HarnessContext
+  - term: CreateAgentRunResponse
+    definition: 'Object declared by the contract with fields: run_id, status.'
+    tags:
+    - Object
+    source: openapi/amigo-agent-runs-api-openapi.yml#/components/schemas/CreateAgentRunResponse
+  - term: AgentRunDetail
+    definition: 'Object declared by the contract with fields: run_id, status, framework, text, error, duration_ms, usage, trajectory.'
+    tags:
+    - Object
+    source: openapi/amigo-agent-runs-api-openapi.yml#/components/schemas/AgentRunDetail
+  - term: Runtime
+    definition: 'Object declared by the contract with fields: engage_model, channel_kind, language, caller_context.'
+    tags:
+    - Object
+    source: openapi/amigo-agent-runs-api-openapi.yml#/components/schemas/Runtime
+  - term: Tools
+    definition: Discovery hint — the neutral descriptors. NOT the enforcement (the MCP edge is; a remote agent discovers live schemas from the
+      server too).
+    tags:
+    - Object
+    source: openapi/amigo-agent-runs-api-openapi.yml#/components/schemas/Tools
+  - term: AgentIdentity
+    definition: Who the agent IS — platform-authored only; ``None`` for native runs (a customer's own definition carries its own identity). Named
+      ``AgentIdentity`` (not ``Identity``) to avoid colliding with the existing ``config.models.Identity`` OpenAPI schema (a same-name collision
+      would force-rename that shipped schema — a breaking spec change).
+    tags:
+    - Object
+    source: openapi/amigo-agent-runs-api-openapi.yml#/components/schemas/AgentIdentity
+  - term: Usage
+    definition: 'Object declared by the contract with fields: input_tokens, output_tokens, cached_tokens, cache_creation_tokens.'
+    tags:
+    - Object
+    source: openapi/amigo-agent-runs-api-openapi.yml#/components/schemas/Usage
+  - term: VoiceConfig
+    definition: 'Object declared by the contract with fields: voice_id, stability, similarity_boost, style, tts_provider, tts_config, language_providers,
+      session_provider.'
+    tags:
+    - Object
+    source: openapi/amigo-agents-api-openapi.yml#/components/schemas/VoiceConfig
+  - term: LanguageProviderEntry
+    definition: Per-language TTS provider configuration.
+    tags:
+    - Object
+    source: openapi/amigo-agents-api-openapi.yml#/components/schemas/LanguageProviderEntry
+  - term: CreateAgentRequest
+    definition: 'Object declared by the contract with fields: name, description.'
+    tags:
+    - Object
+    source: openapi/amigo-agents-api-openapi.yml#/components/schemas/CreateAgentRequest
+  - term: Identity
+    definition: 'Object declared by the contract with fields: name, role, developed_by, default_spoken_language, relationship_to_developer.'
+    tags:
+    - Object
+    source: openapi/amigo-agents-api-openapi.yml#/components/schemas/Identity
+  - term: PaginatedResponse[AgentResponse]
+    definition: 'Object declared by the contract with fields: items, has_more, continuation_token, total.'
+    tags:
+    - Object
+    source: openapi/amigo-agents-api-openapi.yml#/components/schemas/PaginatedResponse_AgentResponse_
+  - term: AgentVersionResponse
+    definition: 'Object declared by the contract with fields: id, workspace_id, agent_id, version, name, initials, identity, voice_config, background,
+      behaviors, communication_patterns, created_at. (1 more)'
+    tags:
+    - Object
+    source: openapi/amigo-agents-api-openapi.yml#/components/schemas/AgentVersionResponse
+  - term: CreateAgentVersionRequest
+    definition: 'Object declared by the contract with fields: name, initials, identity, voice_config, background, behaviors, communication_patterns.'
+    tags:
+    - Object
+    source: openapi/amigo-agents-api-openapi.yml#/components/schemas/CreateAgentVersionRequest
+  - term: PaginatedResponse[AgentVersionResponse]
+    definition: 'Object declared by the contract with fields: items, has_more, continuation_token, total.'
+    tags:
+    - Object
+    source: openapi/amigo-agents-api-openapi.yml#/components/schemas/PaginatedResponse_AgentVersionResponse_
+  - term: RelationshipToDeveloper
+    definition: 'Object declared by the contract with fields: ownership, type, conversation_visibility, thought_visibility.'
+    tags:
+    - Object
+    source: openapi/amigo-agents-api-openapi.yml#/components/schemas/RelationshipToDeveloper
+  - term: UpdateAgentRequest
+    definition: 'Object declared by the contract with fields: name, description.'
+    tags:
+    - Object
+    source: openapi/amigo-agents-api-openapi.yml#/components/schemas/UpdateAgentRequest
+  - term: AgentResponse
+    definition: 'Object declared by the contract with fields: id, workspace_id, name, description, latest_version, created_at, updated_at.'
+    tags:
+    - Object
+    source: openapi/amigo-agents-api-openapi.yml#/components/schemas/AgentResponse
+  - term: DataQualityResponse
+    definition: Data quality metrics — confidence distribution, review pipeline stats.
+    tags:
+    - Object
+    source: openapi/amigo-analytics-api-openapi.yml#/components/schemas/DataQualityResponse
+  - term: OperatorPerformanceResponse
+    definition: Operator escalation performance and quality comparison over time.
+    tags:
+    - Object
+    source: openapi/amigo-analytics-api-openapi.yml#/components/schemas/OperatorPerformanceResponse
+  - term: OperatorPerformanceTrendPoint
+    definition: Single time-bucket data point in the operator performance trend series.
+    tags:
+    - Object
+    source: openapi/amigo-analytics-api-openapi.yml#/components/schemas/OperatorPerformanceTrendPoint
+  - term: AgentAnalyticsResponse
+    definition: 'Object declared by the contract with fields: agents, period.'
+    tags:
+    - Object
+    source: openapi/amigo-analytics-api-openapi.yml#/components/schemas/AgentAnalyticsResponse
+  - term: CallQualityAnalyticsResponse
+    definition: Call quality score trends, distribution, and summary over time. Served from the live Delta projection ``analytics.source_call_intelligence``.
+    tags:
+    - Object
+    source: openapi/amigo-analytics-api-openapi.yml#/components/schemas/CallQualityAnalyticsResponse
+  - term: OperatorPerformanceSummary
+    definition: Aggregate operator escalation stats for the period.
+    tags:
+    - Object
+    source: openapi/amigo-analytics-api-openapi.yml#/components/schemas/OperatorPerformanceSummary
+  - term: EventBreakdownItem
+    definition: Single row in an event breakdown aggregation.
+    tags:
+    - Object
+    source: openapi/amigo-analytics-api-openapi.yml#/components/schemas/EventBreakdownItem
+  - term: CallQualityTrendPoint
+    definition: Single time-bucket data point in the call-quality trend series.
+    tags:
+    - Object
+    source: openapi/amigo-analytics-api-openapi.yml#/components/schemas/CallQualityTrendPoint
+  - term: EvalQualitySummary
+    definition: Aggregate production-eval verdict stats, overall or for one eval_key. Sourced from ``call_eval_results`` (LLM-judge + assertion
+      verdicts), which is keyed by ``conversation_id`` and therefore CHANNEL-AGNOSTIC — voice, text, SMS, email all contribute equally, unlike
+      the voice-shaped call-quality score.
+    tags:
+    - Object
+    source: openapi/amigo-analytics-api-openapi.yml#/components/schemas/EvalQualitySummary
+  - term: EvalQualityResponse
+    definition: 'Production-eval quality: overall pass-rate/score, per-eval-key breakdown, and a trend. The channel-agnostic quality surface.
+      Returns zeroed shapes (empty ``by_eval_key`` and ``trend``, null rates) when no verdicts exist for the workspace/window — the console renders
+      an empty-state rather than erroring, so this ships safely ahead of the eager-eval trigger being enabled in production.'
+    tags:
+    - Object
+    source: openapi/amigo-analytics-api-openapi.yml#/components/schemas/EvalQualityResponse
+  - term: AnalyticsDashboardResponse
+    definition: Composite dashboard — six headline KPIs, each with a delta, plus the period length. Higher-is-better for ``call_volume``, ``avg_quality``,
+      ``tool_success_rate``; higher-is-worse for ``escalation_rate``, ``avg_ttfb_ms``, ``avg_duration_s``. Consumers must color deltas by that
+      per-KPI polarity, not by delta sign alone.
+    tags:
+    - Object
+    source: openapi/amigo-analytics-api-openapi.yml#/components/schemas/AnalyticsDashboardResponse
+  - term: EvalQualityTrendPoint
+    definition: Single date-bucket data point in the eval-quality trend series.
+    tags:
+    - Object
+    source: openapi/amigo-analytics-api-openapi.yml#/components/schemas/EvalQualityTrendPoint
+  - term: CallQualityDistribution
+    definition: Call counts bucketed by quality-score band.
+    tags:
+    - Object
+    source: openapi/amigo-analytics-api-openapi.yml#/components/schemas/CallQualityDistribution
+  - term: ConfidenceBucket
+    definition: 'Object declared by the contract with fields: confidence_range, count.'
+    tags:
+    - Object
+    source: openapi/amigo-analytics-api-openapi.yml#/components/schemas/ConfidenceBucket
+  - term: CallQualitySummary
+    definition: Aggregate call-quality stats for the period.
+    tags:
+    - Object
+    source: openapi/amigo-analytics-api-openapi.yml#/components/schemas/CallQualitySummary
+  - term: EventBreakdownResponse
+    definition: 'Object declared by the contract with fields: workspace_id, period_start, period_end, by_type, by_source, total_events.'
+    tags:
+    - Object
+    source: openapi/amigo-analytics-api-openapi.yml#/components/schemas/EventBreakdownResponse
+  - term: UsageBucket
+    definition: 'Object declared by the contract with fields: event_type, event_date, count, avg_duration_seconds, total_duration_seconds.'
+    tags:
+    - Object
+    source: openapi/amigo-analytics-api-openapi.yml#/components/schemas/UsageBucket
+  - term: AnalyticsKpi
+    definition: A single headline KPI with its period-over-period change. ``value`` is left broad (int for counts, float for rates/scores/durations,
+      ``None`` when the metric has no data for the period). ``delta_pct`` is the signed percent change vs the previous equal-length period, or
+      ``None`` when a prior-period comparison is unavailable.
+    tags:
+    - Object
+    source: openapi/amigo-analytics-api-openapi.yml#/components/schemas/AnalyticsKpi
+  - term: CallStatsResponse
+    definition: 'Object declared by the contract with fields: workspace_id, period_start, period_end, total_calls, total_duration_seconds, avg_duration_seconds,
+      calls_by_date.'
+    tags:
+    - Object
+    source: openapi/amigo-analytics-api-openapi.yml#/components/schemas/CallStatsResponse
+  - term: DailyCallStat
+    definition: Per-day call volume and duration.
+    tags:
+    - Object
+    source: openapi/amigo-analytics-api-openapi.yml#/components/schemas/DailyCallStat
+  - term: UsageSummaryResponse
+    definition: 'Object declared by the contract with fields: workspace_id, period_start, period_end, buckets, total_events.'
+    tags:
+    - Object
+    source: openapi/amigo-analytics-api-openapi.yml#/components/schemas/UsageSummaryResponse
+  - term: AgentAnalyticsEntry
+    definition: 'Object declared by the contract with fields: agent_id, agent_name, total_calls, completed_calls, avg_duration_seconds, completion_rate.'
+    tags:
+    - Object
+    source: openapi/amigo-analytics-api-openapi.yml#/components/schemas/AgentAnalyticsEntry
+  - term: CreateApiKeyResponse
+    definition: 'Object declared by the contract with fields: key_id, api_key, name, role, permissions, expires_at, created_by_entity_id, created_by_credential_id.'
+    tags:
+    - Object
+    source: openapi/amigo-api-keys-api-openapi.yml#/components/schemas/CreateApiKeyResponse
+  - term: PermissionCatalogResponse
+    definition: The authoritative role→permission model for API-key creation. Serves the server-side source of truth (``DEFAULT_ROLE_DEFINITIONS``)
+      so clients (console, SDK) stop hand-copying the matrix and drifting out of sync — a drift previously shipped `Data:Query` as a viewer default
+      and made the default create flow 422. Human-facing labels/descriptions for individual permissions stay client-side (pure prese
+    tags:
+    - Object
+    source: openapi/amigo-api-keys-api-openapi.yml#/components/schemas/PermissionCatalogResponse
+  - term: PermissionEntry
+    definition: 'Object declared by the contract with fields: name, namespace, action.'
+    tags:
+    - Object
+    source: openapi/amigo-api-keys-api-openapi.yml#/components/schemas/PermissionEntry
+  - term: PaginatedResponse[ApiKeyResponse]
+    definition: 'Object declared by the contract with fields: items, has_more, continuation_token, total.'
+    tags:
+    - Object
+    source: openapi/amigo-api-keys-api-openapi.yml#/components/schemas/PaginatedResponse_ApiKeyResponse_
+  - term: ApiKeyResponse
+    definition: 'Object declared by the contract with fields: id, workspace_id, created_by_entity_id, created_by_credential_id, key_id, name,
+      role, permissions, expires_at, last_used_at, created_at, updated_at.'
+    tags:
+    - Object
+    source: openapi/amigo-api-keys-api-openapi.yml#/components/schemas/ApiKeyResponse
+  - term: CreateApiKeyRequest
+    definition: 'Object declared by the contract with fields: name, duration_days, role, permissions.'
+    tags:
+    - Object
+    source: openapi/amigo-api-keys-api-openapi.yml#/components/schemas/CreateApiKeyRequest
+  - term: RoleEntry
+    definition: 'Object declared by the contract with fields: name, priority, description, permission_names.'
+    tags:
+    - Object
+    source: openapi/amigo-api-keys-api-openapi.yml#/components/schemas/RoleEntry
+  - term: RotateApiKeyRequest
+    definition: 'Object declared by the contract with fields: duration_days.'
+    tags:
+    - Object
+    source: openapi/amigo-api-keys-api-openapi.yml#/components/schemas/RotateApiKeyRequest
+  - term: AuditEventsListResponse
+    definition: 'Object declared by the contract with fields: events, total, limit, offset, has_more.'
+    tags:
+    - Object
+    source: openapi/amigo-audit-api-openapi.yml#/components/schemas/AuditEventsListResponse
+  - term: AuditSummaryResponse
+    definition: 'Object declared by the contract with fields: total_events, phi_access_events, unique_actors, services_with_events.'
+    tags:
+    - Object
+    source: openapi/amigo-audit-api-openapi.yml#/components/schemas/AuditSummaryResponse
+  - term: AuditEventResponse
+    definition: 'Object declared by the contract with fields: id, workspace_id, timestamp, service, actor_entity_id, actor_credential_id, action,
+      resource_type, resource_id, resource_name, ip_address, user_agent. (2 more)'
+    tags:
+    - Object
+    source: openapi/amigo-audit-api-openapi.yml#/components/schemas/src__routes__audit__AuditEventResponse
+  - term: AuditExportRequest
+    definition: 'Object declared by the contract with fields: date_from, date_to, service, action, phi_only.'
+    tags:
+    - Object
+    source: openapi/amigo-audit-api-openapi.yml#/components/schemas/AuditExportRequest
+  - term: AuditExportResponse
+    definition: 'Object declared by the contract with fields: export_id, s3_key, row_count, download_url, created_at.'
+    tags:
+    - Object
+    source: openapi/amigo-audit-api-openapi.yml#/components/schemas/AuditExportResponse
+  - term: AuditExportListItem
+    definition: 'Object declared by the contract with fields: key, size, last_modified, download_url.'
+    tags:
+    - Object
+    source: openapi/amigo-audit-api-openapi.yml#/components/schemas/AuditExportListItem
+  - term: AuditExportListResponse
+    definition: 'Object declared by the contract with fields: exports.'
+    tags:
+    - Object
+    source: openapi/amigo-audit-api-openapi.yml#/components/schemas/AuditExportListResponse
+  - term: AuthInfoResponse
+    definition: 'Object declared by the contract with fields: workspace_id, key_id, name, expires_at, expires_in_seconds.'
+    tags:
+    - Object
+    source: openapi/amigo-auth-api-openapi.yml#/components/schemas/AuthInfoResponse
+  - term: InvoiceLineItem
+    definition: A single line item on an invoice. ``metering_source`` defaults to ``"production"`` for backward compatibility with invoices generated
+      before the metering_source dimension was introduced — those invoices were production-only by definition. New invoices always carry an explicit
+      value.
+    tags:
+    - Object
+    source: openapi/amigo-billing-api-openapi.yml#/components/schemas/InvoiceLineItem

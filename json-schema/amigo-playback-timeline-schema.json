@@ -1,0 +1,628 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/amigo/main/json-schema/amigo-playback-timeline-schema.json",
+  "title": "PlaybackTimeline",
+  "x-generated": "2026-10-12",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/amigo-calls-api-openapi.yml#/components/schemas/PlaybackTimeline",
+  "properties": {
+    "turns": {
+      "items": {
+        "$ref": "#/$defs/TurnTimeline"
+      },
+      "type": "array",
+      "title": "Turns"
+    },
+    "segments": {
+      "items": {
+        "$ref": "#/$defs/TimelineSegment"
+      },
+      "type": "array",
+      "title": "Segments"
+    },
+    "duration_seconds": {
+      "type": "number",
+      "title": "Duration Seconds"
+    },
+    "timebase": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/TimelineTimebase"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Canonical timebase shared by waveform, overlays, seek state, zoom, and scroll transforms."
+    },
+    "lanes": {
+      "items": {
+        "$ref": "#/$defs/TimelineLaneDefinition"
+      },
+      "type": "array",
+      "title": "Lanes",
+      "description": "Canonical actor/system lane model. Every segment lane_id resolves against this collection.",
+      "default": []
+    },
+    "total_user_speech_seconds": {
+      "type": "number",
+      "title": "Total User Speech Seconds",
+      "default": 0.0
+    },
+    "total_agent_speech_seconds": {
+      "type": "number",
+      "title": "Total Agent Speech Seconds",
+      "default": 0.0
+    },
+    "total_silence_seconds": {
+      "type": "number",
+      "title": "Total Silence Seconds",
+      "default": 0.0
+    },
+    "avg_processing_gap_ms": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Avg Processing Gap Ms"
+    },
+    "max_processing_gap_ms": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Max Processing Gap Ms"
+    },
+    "avg_perceived_latency_ms": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Avg Perceived Latency Ms"
+    }
+  },
+  "type": "object",
+  "required": [
+    "turns",
+    "segments",
+    "duration_seconds"
+  ],
+  "$defs": {
+    "TimelineActor": {
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": [
+            "agent",
+            "human",
+            "operator",
+            "system",
+            "tool"
+          ],
+          "title": "Kind"
+        },
+        "role": {
+          "type": "string",
+          "enum": [
+            "agent",
+            "caller",
+            "operator",
+            "runtime",
+            "state",
+            "tool"
+          ],
+          "title": "Role"
+        },
+        "label": {
+          "type": "string",
+          "title": "Label"
+        },
+        "participant_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Participant Id"
+        }
+      },
+      "type": "object",
+      "required": [
+        "kind",
+        "role",
+        "label"
+      ],
+      "title": "TimelineActor"
+    },
+    "TimelineLaneDefinition": {
+      "properties": {
+        "id": {
+          "type": "string",
+          "maxLength": 160,
+          "minLength": 1,
+          "title": "Id",
+          "description": "Stable canonical lane id used by timeline visualizations. Segments attach via TimelineSegment.lane_id; consumers should not re-infer lanes from CSS or pixel positions."
+        },
+        "track": {
+          "type": "string",
+          "enum": [
+            "agent",
+            "caller",
+            "operator",
+            "system",
+            "tool"
+          ],
+          "title": "Track",
+          "description": "High-level actor-semantic track for styling and grouping."
+        },
+        "label": {
+          "type": "string",
+          "title": "Label",
+          "description": "Display label for the lane."
+        },
+        "order": {
+          "type": "integer",
+          "title": "Order",
+          "description": "Stable vertical order within the timeline lane model."
+        },
+        "actor": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TimelineActor"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Actor represented by this lane when applicable."
+        }
+      },
+      "type": "object",
+      "required": [
+        "id",
+        "track",
+        "label",
+        "order"
+      ],
+      "title": "TimelineLaneDefinition"
+    },
+    "TimelineSegment": {
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "agent_speech",
+            "barge_in",
+            "caller_speech",
+            "filler_hesitation",
+            "filler_nav",
+            "greeting",
+            "interrupted_speech",
+            "processing_gap",
+            "silence",
+            "silence_check",
+            "state_transition",
+            "tool_call"
+          ],
+          "title": "Type"
+        },
+        "lane": {
+          "type": "string",
+          "enum": [
+            "agent",
+            "caller",
+            "events",
+            "operator",
+            "system",
+            "tool"
+          ],
+          "title": "Lane"
+        },
+        "track": {
+          "anyOf": [
+            {
+              "type": "string",
+              "enum": [
+                "agent",
+                "caller",
+                "operator",
+                "system",
+                "tool"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Track",
+          "description": "Actor-semantic display track for the segment. Inferred for legacy producers."
+        },
+        "lane_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "maxLength": 160,
+              "minLength": 1
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Lane Id",
+          "description": "Canonical lane id. Must match PlaybackTimeline.lanes[].id after platform normalization."
+        },
+        "order": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Order",
+          "description": "Canonical event order after platform time/lane normalization."
+        },
+        "actor": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TimelineActor"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Actor responsible for the segment. Inferred for legacy producers."
+        },
+        "start": {
+          "type": "number",
+          "title": "Start"
+        },
+        "end": {
+          "type": "number",
+          "title": "End"
+        },
+        "label": {
+          "type": "string",
+          "title": "Label"
+        },
+        "turn_index": {
+          "type": "integer",
+          "title": "Turn Index"
+        },
+        "stt_confidence": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Stt Confidence"
+        },
+        "eot_confidence": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Eot Confidence"
+        },
+        "audio_window_start": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Audio Window Start"
+        },
+        "audio_window_end": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Audio Window End"
+        },
+        "engine_ms": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Engine Ms"
+        },
+        "nav_ms": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Nav Ms"
+        },
+        "render_ms": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Render Ms"
+        },
+        "audio_ttfb_ms": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Audio Ttfb Ms"
+        },
+        "e2e_ttfb_ms": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "E2E Ttfb Ms"
+        },
+        "tool_name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Tool Name"
+        },
+        "call_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Call Id"
+        },
+        "parent_call_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Parent Call Id"
+        },
+        "integration_name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Integration Name"
+        },
+        "endpoint_name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Endpoint Name"
+        },
+        "protocol": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Protocol"
+        },
+        "succeeded": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Succeeded"
+        },
+        "duration_ms": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Duration Ms"
+        },
+        "from_state": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "From State"
+        },
+        "to_state": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "To State"
+        },
+        "emotion": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Emotion"
+        },
+        "valence": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Valence"
+        },
+        "state": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "State"
+        }
+      },
+      "type": "object",
+      "required": [
+        "type",
+        "lane",
+        "start",
+        "end",
+        "label",
+        "turn_index"
+      ],
+      "title": "TimelineSegment"
+    },
+    "TimelineTimebase": {
+      "properties": {
+        "unit": {
+          "type": "string",
+          "const": "seconds",
+          "title": "Unit",
+          "description": "Timeline offsets are always seconds.",
+          "default": "seconds"
+        },
+        "origin": {
+          "type": "string",
+          "enum": [
+            "media_start",
+            "call_start",
+            "synthetic"
+          ],
+          "title": "Origin",
+          "description": "Zero point used for segment start/end offsets.",
+          "default": "media_start"
+        },
+        "start": {
+          "type": "number",
+          "title": "Start",
+          "description": "Visible/canonical timeline range start in seconds.",
+          "default": 0.0
+        },
+        "end": {
+          "type": "number",
+          "title": "End",
+          "description": "Visible/canonical timeline range end in seconds.",
+          "default": 0.0
+        }
+      },
+      "type": "object",
+      "title": "TimelineTimebase"
+    },
+    "TurnTimeline": {
+      "properties": {
+        "turn_index": {
+          "type": "integer",
+          "title": "Turn Index"
+        },
+        "seek_to": {
+          "type": "number",
+          "title": "Seek To"
+        },
+        "active_start": {
+          "type": "number",
+          "title": "Active Start"
+        },
+        "active_end": {
+          "type": "number",
+          "title": "Active End"
+        }
+      },
+      "type": "object",
+      "required": [
+        "turn_index",
+        "seek_to",
+        "active_start",
+        "active_end"
+      ],
+      "title": "TurnTimeline"
+    }
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/amigo/main/json-schema/amigo-upload-file-response-schema.json",
+  "title": "UploadFileResponse",
+  "description": "Receipt for a successful upload via an intake link.",
+  "x-generated": "2026-10-12",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/amigo-intake-upload-api-openapi.yml#/components/schemas/UploadFileResponse",
+  "properties": {
+    "id": {
+      "type": "string",
+      "maxLength": 64,
+      "title": "Id",
+      "description": "UUID of the newly created upload row."
+    },
+    "filename": {
+      "type": "string",
+      "maxLength": 256,
+      "title": "Filename",
+      "description": "Stored filename."
+    },
+    "sha256": {
+      "type": "string",
+      "maxLength": 128,
+      "title": "Sha256",
+      "description": "SHA-256 of the uploaded bytes (lowercase hex)."
+    },
+    "size_bytes": {
+      "type": "integer",
+      "minimum": 0.0,
+      "title": "Size Bytes",
+      "description": "Stored size in bytes."
+    },
+    "scan_status": {
+      "type": "string",
+      "maxLength": 32,
+      "title": "Scan Status",
+      "description": "Virus-scan status (e.g. ``clean``, ``skipped``)."
+    },
+    "duplicate_of": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/UploadDuplicateInfo"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Set when this upload's content hash matched a prior upload; otherwise null."
+    }
+  },
+  "type": "object",
+  "required": [
+    "id",
+    "filename",
+    "sha256",
+    "size_bytes",
+    "scan_status"
+  ],
+  "$defs": {
+    "UploadDuplicateInfo": {
+      "properties": {
+        "id": {
+          "type": "string",
+          "maxLength": 64,
+          "title": "Id",
+          "description": "UUID of the existing upload row."
+        },
+        "received_at": {
+          "type": "string",
+          "maxLength": 64,
+          "title": "Received At",
+          "description": "ISO-8601 timestamp the original upload was received."
+        }
+      },
+      "type": "object",
+      "required": [
+        "id",
+        "received_at"
+      ],
+      "title": "UploadDuplicateInfo",
+      "description": "Pointer to an existing upload row when content-hash dedup fires."
+    }
+  }
+}

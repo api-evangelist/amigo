@@ -1,0 +1,220 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/amigo/main/json-schema/amigo-src-app-endpoints-dynamic-behavior-set-create-dynamic-behavior-set-request-schema.json",
+  "title": "Request",
+  "x-generated": "2026-10-12",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/amigo-dynamic-behavior-set-api-openapi.yml#/components/schemas/src__app__endpoints__dynamic_behavior_set__create_dynamic_behavior_set__Request",
+  "properties": {
+    "name": {
+      "$ref": "#/$defs/amigo_lib__pydantic__base_model__StrippedNonemptyString__1",
+      "description": "The name of the dynamic behavior set."
+    },
+    "tags": {
+      "additionalProperties": {
+        "anyOf": [
+          {
+            "$ref": "#/$defs/StrippedNonemptyString___w__s_____"
+          },
+          {
+            "type": "null"
+          }
+        ]
+      },
+      "propertyNames": {
+        "$ref": "#/$defs/StrippedNonemptyString___w__s_____"
+      },
+      "type": "object",
+      "maxProperties": 20,
+      "title": "Tags",
+      "description": "The tags of the dynamic behavior set. Both the key and the value can only contain alphanumeric characters, underscores, or spaces."
+    },
+    "applied_to_services": {
+      "items": {
+        "type": "string",
+        "pattern": "^[a-f0-9]{24}$"
+      },
+      "type": "array",
+      "title": "Applied To Services",
+      "description": "The services that the dynamic behavior set should be applied to."
+    },
+    "initial_version": {
+      "$ref": "#/$defs/src__app__endpoints__dynamic_behavior_set__create_dynamic_behavior_set__Request__InitialVersion",
+      "description": "The configuration for the initial version of the dynamic behavior set."
+    }
+  },
+  "type": "object",
+  "required": [
+    "name",
+    "tags",
+    "applied_to_services",
+    "initial_version"
+  ],
+  "$defs": {
+    "InjectInstructionAction-Input": {
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "inject-instruction",
+          "title": "Type"
+        },
+        "instruction": {
+          "$ref": "#/$defs/amigo_lib__pydantic__base_model__StrippedNonemptyString__1"
+        },
+        "overrides_instructions": {
+          "type": "boolean",
+          "title": "Overrides Instructions",
+          "description": "During injection, whether the original instruction of the state is overriden with this instruction."
+        }
+      },
+      "type": "object",
+      "required": [
+        "type",
+        "instruction",
+        "overrides_instructions"
+      ],
+      "title": "InjectInstructionAction"
+    },
+    "ResultPersistence": {
+      "type": "string",
+      "enum": [
+        "ephemeral",
+        "persisted-preferred",
+        "persisted"
+      ]
+    },
+    "StrippedNonemptyString___w__s_____": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[\\w\\s]+$"
+    },
+    "amigo_lib__pydantic__base_model__StrippedNonemptyString__1": {
+      "type": "string",
+      "minLength": 1
+    },
+    "src__app__endpoints__dynamic_behavior_set__create_dynamic_behavior_set__Request__InitialVersion": {
+      "properties": {
+        "is_active": {
+          "type": "boolean",
+          "title": "Is Active",
+          "description": "After adding this initial version, whether the dynamic behavior set should be activated."
+        },
+        "conversation_triggers": {
+          "items": {
+            "$ref": "#/$defs/amigo_lib__pydantic__base_model__StrippedNonemptyString__1"
+          },
+          "type": "array",
+          "maxItems": 50,
+          "minItems": 1,
+          "title": "Conversation Triggers",
+          "description": "The conversation triggers for the dynamic behavior set version."
+        },
+        "actions": {
+          "items": {
+            "oneOf": [
+              {
+                "$ref": "#/$defs/InjectInstructionAction-Input"
+              },
+              {
+                "$ref": "#/$defs/src__app__endpoints__dynamic_behavior_set__create_dynamic_behavior_set__Request__InitialVersion__ChangeToolCandidatesAction"
+              }
+            ]
+          },
+          "type": "array",
+          "title": "Actions",
+          "description": "The action to perform when the dynamic behavior set version is activated."
+        }
+      },
+      "type": "object",
+      "required": [
+        "is_active",
+        "conversation_triggers",
+        "actions"
+      ],
+      "title": "InitialVersion"
+    },
+    "src__app__endpoints__dynamic_behavior_set__create_dynamic_behavior_set__Request__InitialVersion__ChangeToolCandidatesAction": {
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "change-tool-candidates",
+          "title": "Type"
+        },
+        "tool_call_specs": {
+          "items": {
+            "$ref": "#/$defs/src__app__endpoints__dynamic_behavior_set__create_dynamic_behavior_set__Request__InitialVersion__ChangeToolCandidatesAction__ToolCallSpec"
+          },
+          "type": "array",
+          "title": "Tool Call Specs"
+        },
+        "overrides_existing_tool_call_specs": {
+          "type": "boolean",
+          "title": "Overrides Existing Tool Call Specs",
+          "description": "During injection, whether the existing tool call specs are overriden with these new specs."
+        }
+      },
+      "type": "object",
+      "required": [
+        "type",
+        "tool_call_specs",
+        "overrides_existing_tool_call_specs"
+      ],
+      "title": "ChangeToolCandidatesAction"
+    },
+    "src__app__endpoints__dynamic_behavior_set__create_dynamic_behavior_set__Request__InitialVersion__ChangeToolCandidatesAction__ToolCallSpec": {
+      "properties": {
+        "tool_id": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{24}$",
+          "title": "Tool Id",
+          "description": "The ID of the tool."
+        },
+        "version_constraint": {
+          "type": "string",
+          "title": "Version Constraint",
+          "description": "A [Python packaging version constraint](https://packaging.python.org/en/latest/specifications/version-specifiers/#id5) of the tool."
+        },
+        "additional_instruction": {
+          "$ref": "#/$defs/amigo_lib__pydantic__base_model__StrippedNonemptyString__1",
+          "description": "Additional instruction to be supplied to the LLM in addition to the tool's description."
+        },
+        "audio_fillers": {
+          "items": {
+            "$ref": "#/$defs/amigo_lib__pydantic__base_model__StrippedNonemptyString__1"
+          },
+          "type": "array",
+          "maxItems": 5,
+          "title": "Audio Fillers",
+          "description": "A list of audio fillers to play in audio mode if the tool is taking a long time."
+        },
+        "audio_filler_triggered_after": {
+          "type": "number",
+          "maximum": 10.0,
+          "exclusiveMinimum": 0.0,
+          "title": "Audio Filler Triggered After",
+          "description": "The number of seconds to wait before playing an audio filler."
+        },
+        "result_persistence": {
+          "$ref": "#/$defs/ResultPersistence",
+          "description": "The type of result persistence for this tool call.\n\n- If `ephemeral`, the result of the tool call is only provided to the current LLM interaction. Any future LLM interactions will not see this tool result.\n- If `persisted-preferred`, the result of the tool call is reflected in all future LLM interactions if it's less than 5000 characters long. Otherwise, it's only visible in the current LLM interaction.\n- If `persisted`, the result of the tool call is reflected in all future LLM interactions, unless it's more than 5000 characters long, in which case an error is thrown."
+        },
+        "tool_name": {
+          "$ref": "#/$defs/amigo_lib__pydantic__base_model__StrippedNonemptyString__1",
+          "description": "An identifier of the tool that will be displayed in the description of this dynamic behavior set. This could be simply the name of the tool, or one augmented with\nthe context of the dynamic behavior."
+        }
+      },
+      "type": "object",
+      "required": [
+        "tool_id",
+        "version_constraint",
+        "additional_instruction",
+        "audio_fillers",
+        "audio_filler_triggered_after",
+        "result_persistence",
+        "tool_name"
+      ],
+      "title": "ToolCallSpec"
+    }
+  }
+}

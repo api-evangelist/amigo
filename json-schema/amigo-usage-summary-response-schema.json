@@ -1,0 +1,103 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/amigo/main/json-schema/amigo-usage-summary-response-schema.json",
+  "title": "UsageSummaryResponse",
+  "x-generated": "2026-10-12",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/amigo-analytics-api-openapi.yml#/components/schemas/UsageSummaryResponse",
+  "properties": {
+    "workspace_id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Workspace Id",
+      "description": "Workspace identifier"
+    },
+    "period_start": {
+      "type": "string",
+      "format": "date",
+      "title": "Period Start",
+      "description": "Start of the reporting period"
+    },
+    "period_end": {
+      "type": "string",
+      "format": "date",
+      "title": "Period End",
+      "description": "End of the reporting period"
+    },
+    "buckets": {
+      "items": {
+        "$ref": "#/$defs/UsageBucket"
+      },
+      "type": "array",
+      "title": "Buckets",
+      "description": "Usage data grouped by event type and date"
+    },
+    "total_events": {
+      "type": "integer",
+      "title": "Total Events",
+      "description": "Total number of events in the period"
+    }
+  },
+  "type": "object",
+  "required": [
+    "workspace_id",
+    "period_start",
+    "period_end",
+    "buckets",
+    "total_events"
+  ],
+  "$defs": {
+    "UsageBucket": {
+      "properties": {
+        "event_type": {
+          "type": "string",
+          "title": "Event Type",
+          "description": "World event type"
+        },
+        "event_date": {
+          "type": "string",
+          "format": "date",
+          "title": "Event Date",
+          "description": "Date of the usage bucket"
+        },
+        "count": {
+          "type": "integer",
+          "title": "Count",
+          "description": "Number of events in this bucket"
+        },
+        "avg_duration_seconds": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Avg Duration Seconds",
+          "description": "Average event duration in seconds"
+        },
+        "total_duration_seconds": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Total Duration Seconds",
+          "description": "Total event duration in seconds"
+        }
+      },
+      "type": "object",
+      "required": [
+        "event_type",
+        "event_date",
+        "count"
+      ],
+      "title": "UsageBucket"
+    }
+  }
+}

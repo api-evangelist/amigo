@@ -1,0 +1,151 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/amigo/main/json-schema/amigo-eval-quality-response-schema.json",
+  "title": "EvalQualityResponse",
+  "description": "Production-eval quality: overall pass-rate/score, per-eval-key breakdown, and a trend.\n\nThe channel-agnostic quality surface. Returns zeroed shapes (empty ``by_eval_key``\nand ``trend``, null rates) when no verdicts exist for the workspace/window — the\nconsole renders an empty-state rather than erroring, so this ships safely ahead of\nthe eager-eval trigger being enabled in production.",
+  "x-generated": "2026-10-12",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/amigo-analytics-api-openapi.yml#/components/schemas/EvalQualityResponse",
+  "properties": {
+    "summary": {
+      "$ref": "#/$defs/EvalQualitySummary",
+      "description": "Workspace-wide aggregate for the period"
+    },
+    "by_eval_key": {
+      "items": {
+        "$ref": "#/$defs/EvalQualitySummary"
+      },
+      "type": "array",
+      "maxItems": 200,
+      "title": "By Eval Key",
+      "description": "Per-eval-key aggregates, most-evaluated first"
+    },
+    "trend": {
+      "items": {
+        "$ref": "#/$defs/EvalQualityTrendPoint"
+      },
+      "type": "array",
+      "maxItems": 2200,
+      "title": "Trend",
+      "description": "Time series of eval pass-rate/score per interval bucket"
+    }
+  },
+  "type": "object",
+  "required": [
+    "summary",
+    "by_eval_key",
+    "trend"
+  ],
+  "$defs": {
+    "EvalQualitySummary": {
+      "properties": {
+        "eval_key": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Eval Key",
+          "description": "Eval key for a per-key row; null for the overall summary"
+        },
+        "total_evals": {
+          "type": "integer",
+          "title": "Total Evals",
+          "description": "Total verdicts recorded (any status, incl. errored)"
+        },
+        "judged": {
+          "type": "integer",
+          "title": "Judged",
+          "description": "Verdicts with a non-null pass/fail outcome (denominator for pass_rate)"
+        },
+        "pass_rate": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Pass Rate",
+          "description": "Fraction of judged verdicts that passed (0.0-1.0)"
+        },
+        "avg_score": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Avg Score",
+          "description": "Mean numeric judge score across scored verdicts"
+        }
+      },
+      "type": "object",
+      "required": [
+        "total_evals",
+        "judged"
+      ],
+      "title": "EvalQualitySummary",
+      "description": "Aggregate production-eval verdict stats, overall or for one eval_key.\n\nSourced from ``call_eval_results`` (LLM-judge + assertion verdicts), which is\nkeyed by ``conversation_id`` and therefore CHANNEL-AGNOSTIC — voice, text,\nSMS, email all contribute equally, unlike the voice-shaped call-quality score."
+    },
+    "EvalQualityTrendPoint": {
+      "properties": {
+        "date": {
+          "type": "string",
+          "format": "date",
+          "title": "Date",
+          "description": "Date bucket (granularity follows `interval`)"
+        },
+        "total_evals": {
+          "type": "integer",
+          "title": "Total Evals",
+          "description": "Total verdicts in this bucket"
+        },
+        "judged": {
+          "type": "integer",
+          "title": "Judged",
+          "description": "Verdicts with a non-null pass/fail outcome in this bucket"
+        },
+        "pass_rate": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Pass Rate",
+          "description": "Fraction of judged verdicts that passed in this bucket"
+        },
+        "avg_score": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Avg Score",
+          "description": "Mean numeric judge score in this bucket"
+        }
+      },
+      "type": "object",
+      "required": [
+        "date",
+        "total_evals",
+        "judged"
+      ],
+      "title": "EvalQualityTrendPoint",
+      "description": "Single date-bucket data point in the eval-quality trend series."
+    }
+  }
+}

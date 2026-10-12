@@ -1,0 +1,791 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/amigo/main/json-schema/amigo-conversation-detail-schema.json",
+  "title": "ConversationDetail",
+  "x-generated": "2026-10-12",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/amigo-conversations-api-openapi.yml#/components/schemas/ConversationDetail",
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Id"
+    },
+    "channel_kind": {
+      "$ref": "#/$defs/ChannelKind"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "closed",
+        "completed",
+        "in-progress",
+        "failed",
+        "paused"
+      ],
+      "title": "Status"
+    },
+    "lifecycle": {
+      "type": "string",
+      "enum": [
+        "active",
+        "dormant",
+        "closed"
+      ],
+      "title": "Lifecycle"
+    },
+    "entity_id": {
+      "anyOf": [
+        {
+          "type": "string",
+          "format": "uuid"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Entity Id"
+    },
+    "service_id": {
+      "anyOf": [
+        {
+          "type": "string",
+          "format": "uuid"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Service Id"
+    },
+    "direction": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Direction"
+    },
+    "turn_count": {
+      "type": "integer",
+      "title": "Turn Count",
+      "default": 0
+    },
+    "duration_seconds": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Duration Seconds"
+    },
+    "created_at": {
+      "type": "string",
+      "title": "Created At"
+    },
+    "updated_at": {
+      "type": "string",
+      "title": "Updated At"
+    },
+    "call_sid": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Call Sid"
+    },
+    "caller_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Caller Id"
+    },
+    "phone_number": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Phone Number"
+    },
+    "quality_score": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Quality Score"
+    },
+    "has_recording": {
+      "anyOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Has Recording"
+    },
+    "completion_reason": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Completion Reason"
+    },
+    "escalation_status": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Escalation Status"
+    },
+    "final_state": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Final State"
+    },
+    "source": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Source"
+    },
+    "turns": {
+      "items": {
+        "$ref": "#/$defs/ConversationTurn"
+      },
+      "type": "array",
+      "title": "Turns",
+      "default": []
+    },
+    "plan": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Plan"
+    },
+    "voice": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/VoiceDetail"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  },
+  "type": "object",
+  "required": [
+    "id",
+    "channel_kind",
+    "status",
+    "lifecycle",
+    "created_at",
+    "updated_at"
+  ],
+  "$defs": {
+    "ChannelKind": {
+      "type": "string",
+      "enum": [
+        "voice",
+        "sms",
+        "whatsapp",
+        "email",
+        "web",
+        "imessage"
+      ],
+      "title": "ChannelKind",
+      "description": "HSM execution channel type.\n\nDetermines how the HSM engine communicates with end users.\nEach kind maps to one or more providers."
+    },
+    "ContentPartPayload": {
+      "properties": {
+        "type": {
+          "type": "string",
+          "maxLength": 64,
+          "minLength": 1,
+          "pattern": "^[a-z][a-z0-9._-]*$",
+          "title": "Type",
+          "default": "text"
+        },
+        "text": {
+          "anyOf": [
+            {
+              "type": "string",
+              "maxLength": 10000
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Text"
+        },
+        "url": {
+          "anyOf": [
+            {
+              "type": "string",
+              "maxLength": 2048
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Url"
+        },
+        "media_type": {
+          "anyOf": [
+            {
+              "type": "string",
+              "maxLength": 128
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Media Type"
+        },
+        "provider_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "maxLength": 256
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Provider Id"
+        },
+        "metadata": {
+          "additionalProperties": true,
+          "type": "object",
+          "maxProperties": 50,
+          "title": "Metadata"
+        }
+      },
+      "type": "object",
+      "title": "ContentPartPayload",
+      "description": "HTTP/WebSocket shape for a modality-neutral conversation content part."
+    },
+    "ConversationToolCallDetail": {
+      "properties": {
+        "tool_name": {
+          "type": "string",
+          "title": "Tool Name"
+        },
+        "call_id": {
+          "type": "string",
+          "title": "Call Id"
+        },
+        "input": {
+          "additionalProperties": true,
+          "type": "object",
+          "title": "Input"
+        },
+        "result": {
+          "type": "string",
+          "title": "Result",
+          "default": ""
+        },
+        "succeeded": {
+          "type": "boolean",
+          "title": "Succeeded",
+          "default": true
+        },
+        "duration_ms": {
+          "anyOf": [
+            {
+              "type": "number",
+              "maximum": 3600000.0,
+              "minimum": 0.0
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Duration Ms",
+          "description": "Wall-clock tool execution time in milliseconds, measured at the engage_step call site. Omitted (null) on legacy turns that did not capture timing."
+        },
+        "error_message": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Error Message",
+          "description": "Failure detail recorded for the tool call when ``succeeded`` is false. Null on successful calls or when no message was captured."
+        }
+      },
+      "type": "object",
+      "required": [
+        "tool_name",
+        "call_id"
+      ],
+      "title": "ConversationToolCallDetail"
+    },
+    "ConversationTurn": {
+      "properties": {
+        "turn_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "uuid"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Turn Id",
+          "description": "Stable identifier of the user exchange this message belongs to, derived deterministically from (conversation_id, turn_index) — identical across ``POST /turns`` responses and re-reads of the conversation history. User and agent messages from the same exchange share this value. Null on messages that precede the first user turn (proactive greetings, channel-event preludes)."
+        },
+        "turn_index": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 0.0
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Turn Index",
+          "description": "Zero-based ordinal of the user exchange this message belongs to (0 = first user turn). Derived server-side from the conversation's user-turn count — never stored. Null exactly when ``turn_id`` is null."
+        },
+        "role": {
+          "type": "string",
+          "enum": [
+            "agent",
+            "user",
+            "system"
+          ],
+          "title": "Role"
+        },
+        "text": {
+          "type": "string",
+          "title": "Text"
+        },
+        "timestamp": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Timestamp"
+        },
+        "channel": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ChannelKind"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Channel this turn occurred on. A conversation that switched channels has a self-describing per-turn history; null on turns written before per-turn attribution or on channel-less internal turns."
+        },
+        "content": {
+          "items": {
+            "$ref": "#/$defs/ContentPartPayload"
+          },
+          "type": "array",
+          "title": "Content",
+          "default": []
+        },
+        "tool_calls": {
+          "items": {
+            "$ref": "#/$defs/ConversationToolCallDetail"
+          },
+          "type": "array",
+          "title": "Tool Calls",
+          "description": "Tool calls executed during this (agent) turn. Populated only when the request opts in via ``include_tool_calls=true``; empty otherwise and on turns that did not invoke tools.",
+          "default": []
+        },
+        "selected_action_description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Selected Action Description",
+          "description": "Description of the context-graph action selected for this turn. Null means no action was selected or no selected action was recorded."
+        },
+        "state_transition": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ConversationTurnStateTransition"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Context-graph state transition that occurred during this turn. Null means no transition took place or no transition was recorded. Deprecated: use state_transitions instead. If multiple transitions were recorded, this field reports the first source state and final destination state.",
+          "deprecated": true
+        },
+        "state_transitions": {
+          "items": {
+            "$ref": "#/$defs/ConversationTurnStateTransition"
+          },
+          "type": "array",
+          "title": "State Transitions",
+          "description": "Ordered context-graph state transitions that occurred during this turn.",
+          "default": []
+        },
+        "available_actions": {
+          "items": {
+            "$ref": "#/$defs/ConversationTurnAvailableAction"
+          },
+          "type": "array",
+          "title": "Available Actions",
+          "description": "Action choices available in the turn's resolved context-graph state. Empty when actions cannot be resolved or the resolved state is not an action state.",
+          "default": []
+        }
+      },
+      "type": "object",
+      "required": [
+        "role",
+        "text"
+      ],
+      "title": "ConversationTurn"
+    },
+    "ConversationTurnAvailableAction": {
+      "properties": {
+        "description": {
+          "type": "string",
+          "title": "Description",
+          "description": "Human-readable description of an action available in the turn's state."
+        }
+      },
+      "type": "object",
+      "required": [
+        "description"
+      ],
+      "title": "ConversationTurnAvailableAction"
+    },
+    "ConversationTurnStateTransition": {
+      "properties": {
+        "from": {
+          "type": "string",
+          "title": "From",
+          "description": "Source context-graph state before the turn's state transition."
+        },
+        "to": {
+          "type": "string",
+          "title": "To",
+          "description": "Destination context-graph state after the turn's state transition."
+        }
+      },
+      "type": "object",
+      "required": [
+        "from",
+        "to"
+      ],
+      "title": "ConversationTurnStateTransition"
+    },
+    "VoiceDetail": {
+      "properties": {
+        "recording_path": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Recording Path"
+        },
+        "twilio_recording_sid": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Twilio Recording Sid"
+        },
+        "twilio_recording_duration": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Twilio Recording Duration"
+        },
+        "has_recording": {
+          "type": "boolean",
+          "title": "Has Recording",
+          "default": false
+        },
+        "verified_transcript": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Verified Transcript"
+        },
+        "transcript_accuracy": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Transcript Accuracy"
+        },
+        "emotional_summary": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Emotional Summary"
+        },
+        "barge_in_events": {
+          "items": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "type": "array",
+          "title": "Barge In Events",
+          "default": []
+        },
+        "states_visited": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "title": "States Visited",
+          "default": []
+        },
+        "participants": {
+          "items": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "type": "array",
+          "title": "Participants",
+          "default": []
+        },
+        "config": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Config"
+        },
+        "call_analysis": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Call Analysis"
+        },
+        "forwarding": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Forwarding"
+        },
+        "escalation": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Escalation"
+        },
+        "safety": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Safety"
+        },
+        "quality_breakdown": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Quality Breakdown"
+        },
+        "risk_summary": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Risk Summary"
+        },
+        "latency_summary": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Latency Summary"
+        },
+        "conversation_metrics": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Conversation Metrics"
+        },
+        "tool_summary": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Tool Summary"
+        },
+        "safety_summary": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Safety Summary"
+        },
+        "operator_summary": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Operator Summary"
+        }
+      },
+      "type": "object",
+      "title": "VoiceDetail"
+    }
+  }
+}

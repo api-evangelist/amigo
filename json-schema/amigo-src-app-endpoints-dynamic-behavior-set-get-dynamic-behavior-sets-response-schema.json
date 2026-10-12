@@ -1,0 +1,175 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/amigo/main/json-schema/amigo-src-app-endpoints-dynamic-behavior-set-get-dynamic-behavior-sets-response-schema.json",
+  "title": "Response",
+  "x-generated": "2026-10-12",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/amigo-dynamic-behavior-set-api-openapi.yml#/components/schemas/src__app__endpoints__dynamic_behavior_set__get_dynamic_behavior_sets__Response",
+  "properties": {
+    "dynamic_behavior_sets": {
+      "items": {
+        "$ref": "#/$defs/DynamicBehaviorSetInstance"
+      },
+      "type": "array",
+      "title": "Dynamic Behavior Sets",
+      "description": "The retrieved dynamic behavior sets."
+    },
+    "has_more": {
+      "type": "boolean",
+      "title": "Has More",
+      "description": "Whether there are more dynamic behavior sets to retrieve."
+    },
+    "continuation_token": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Continuation Token",
+      "description": "The continuation token to use to retrieve the next set of dynamic behavior sets."
+    },
+    "filter_values": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/src__app__endpoints__dynamic_behavior_set__get_dynamic_behavior_sets__Response__FilterValues"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "For each filter that this endpoint supports that can take on dynamic values, this field includes what these values are. This is only provided for the first page in the pagination results.\n\nNote that the values are counted assuming the authenticated user has access to all the dynamic behavior sets, so they might differ from how many sets are actually\nretrieved."
+    }
+  },
+  "type": "object",
+  "required": [
+    "dynamic_behavior_sets",
+    "has_more",
+    "continuation_token",
+    "filter_values"
+  ],
+  "$defs": {
+    "DynamicBehaviorSetInstance": {
+      "properties": {
+        "id": {
+          "type": "string",
+          "title": "Id"
+        },
+        "name": {
+          "type": "string",
+          "title": "Name"
+        },
+        "is_active": {
+          "type": "boolean",
+          "title": "Is Active"
+        },
+        "applied_to_services": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "title": "Applied To Services"
+        },
+        "tags": {
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "type": "object",
+          "title": "Tags"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time",
+          "title": "Created At"
+        },
+        "creator": {
+          "$ref": "#/$defs/amigo_lib__mongo__collections__dynamic_behavior_set__DynamicBehaviorSet__UserInfo"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time",
+          "title": "Updated At"
+        },
+        "updated_by": {
+          "$ref": "#/$defs/amigo_lib__mongo__collections__dynamic_behavior_set__DynamicBehaviorSet__UserInfo"
+        }
+      },
+      "type": "object",
+      "required": [
+        "id",
+        "name",
+        "is_active",
+        "applied_to_services",
+        "tags",
+        "created_at",
+        "creator",
+        "updated_at",
+        "updated_by"
+      ],
+      "title": "DynamicBehaviorSetInstance"
+    },
+    "amigo_lib__mongo__collections__dynamic_behavior_set__DynamicBehaviorSet__UserInfo": {
+      "properties": {
+        "org_id": {
+          "type": "string",
+          "title": "Org Id"
+        },
+        "user_id": {
+          "type": "string",
+          "title": "User Id"
+        }
+      },
+      "type": "object",
+      "required": [
+        "org_id",
+        "user_id"
+      ],
+      "title": "UserInfo"
+    },
+    "src__app__endpoints__dynamic_behavior_set__get_dynamic_behavior_sets__Response__FilterValues": {
+      "properties": {
+        "applied_to_services_ids": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "title": "Applied To Services Ids",
+          "description": "A set of service IDs that have dynamic behavior sets applied to the service."
+        },
+        "creators": {
+          "items": {
+            "$ref": "#/$defs/amigo_lib__mongo__collections__dynamic_behavior_set__DynamicBehaviorSet__UserInfo"
+          },
+          "type": "array",
+          "title": "Creators",
+          "description": "A set of creator infos that created the dynamic behavior sets under the current filters."
+        },
+        "tags": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "title": "Tags",
+          "description": "A set of tag keys that exist in the dynamic behavior sets under the current filters."
+        }
+      },
+      "type": "object",
+      "required": [
+        "applied_to_services_ids",
+        "creators",
+        "tags"
+      ],
+      "title": "FilterValues"
+    }
+  }
+}

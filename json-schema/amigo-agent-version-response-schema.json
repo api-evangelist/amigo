@@ -1,0 +1,268 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/amigo/main/json-schema/amigo-agent-version-response-schema.json",
+  "title": "AgentVersionResponse",
+  "x-generated": "2026-10-12",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/amigo-agents-api-openapi.yml#/components/schemas/AgentVersionResponse",
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Id"
+    },
+    "workspace_id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Workspace Id"
+    },
+    "agent_id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Agent Id"
+    },
+    "version": {
+      "type": "integer",
+      "title": "Version"
+    },
+    "name": {
+      "type": "string",
+      "title": "Name"
+    },
+    "initials": {
+      "type": "string",
+      "title": "Initials"
+    },
+    "identity": {
+      "$ref": "#/$defs/Identity"
+    },
+    "voice_config": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/VoiceConfig"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "background": {
+      "type": "string",
+      "title": "Background"
+    },
+    "behaviors": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array",
+      "title": "Behaviors"
+    },
+    "communication_patterns": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array",
+      "title": "Communication Patterns"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Created At"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Updated At"
+    }
+  },
+  "type": "object",
+  "required": [
+    "id",
+    "workspace_id",
+    "agent_id",
+    "version",
+    "name",
+    "initials",
+    "identity",
+    "voice_config",
+    "background",
+    "behaviors",
+    "communication_patterns",
+    "created_at",
+    "updated_at"
+  ],
+  "$defs": {
+    "Identity": {
+      "properties": {
+        "name": {
+          "type": "string",
+          "title": "Name"
+        },
+        "role": {
+          "type": "string",
+          "title": "Role"
+        },
+        "developed_by": {
+          "type": "string",
+          "title": "Developed By"
+        },
+        "default_spoken_language": {
+          "type": "string",
+          "title": "Default Spoken Language"
+        },
+        "relationship_to_developer": {
+          "$ref": "#/$defs/RelationshipToDeveloper"
+        }
+      },
+      "type": "object",
+      "required": [
+        "name",
+        "role",
+        "developed_by",
+        "default_spoken_language"
+      ],
+      "title": "Identity"
+    },
+    "LanguageProviderEntry": {
+      "properties": {
+        "provider": {
+          "type": "string",
+          "enum": [
+            "cartesia",
+            "elevenlabs",
+            "groq"
+          ],
+          "title": "Provider"
+        },
+        "config": {
+          "additionalProperties": true,
+          "type": "object",
+          "maxProperties": 20,
+          "title": "Config"
+        }
+      },
+      "type": "object",
+      "required": [
+        "provider"
+      ],
+      "title": "LanguageProviderEntry",
+      "description": "Per-language TTS provider configuration."
+    },
+    "RelationshipToDeveloper": {
+      "properties": {
+        "ownership": {
+          "type": "string",
+          "title": "Ownership"
+        },
+        "type": {
+          "type": "string",
+          "title": "Type"
+        },
+        "conversation_visibility": {
+          "type": "string",
+          "title": "Conversation Visibility"
+        },
+        "thought_visibility": {
+          "type": "string",
+          "title": "Thought Visibility"
+        }
+      },
+      "type": "object",
+      "required": [
+        "ownership",
+        "type",
+        "conversation_visibility",
+        "thought_visibility"
+      ],
+      "title": "RelationshipToDeveloper"
+    },
+    "VoiceConfig": {
+      "properties": {
+        "voice_id": {
+          "type": "string",
+          "title": "Voice Id"
+        },
+        "stability": {
+          "type": "number",
+          "title": "Stability",
+          "default": 0
+        },
+        "similarity_boost": {
+          "type": "number",
+          "title": "Similarity Boost",
+          "default": 0
+        },
+        "style": {
+          "type": "number",
+          "title": "Style",
+          "default": 0
+        },
+        "tts_provider": {
+          "anyOf": [
+            {
+              "type": "string",
+              "enum": [
+                "cartesia",
+                "elevenlabs",
+                "groq"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Tts Provider"
+        },
+        "tts_config": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Tts Config"
+        },
+        "language_providers": {
+          "anyOf": [
+            {
+              "additionalProperties": {
+                "$ref": "#/$defs/LanguageProviderEntry"
+              },
+              "type": "object",
+              "maxProperties": 10
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Language Providers"
+        },
+        "session_provider": {
+          "anyOf": [
+            {
+              "type": "string",
+              "enum": [
+                "amigo",
+                "gpt_realtime",
+                "gpt_live"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Session Provider"
+        }
+      },
+      "type": "object",
+      "required": [
+        "voice_id"
+      ],
+      "title": "VoiceConfig"
+    }
+  }
+}

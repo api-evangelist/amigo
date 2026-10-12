@@ -1,0 +1,209 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/amigo/main/json-schema/amigo-call-eval-results-response-schema.json",
+  "title": "CallEvalResultsResponse",
+  "x-generated": "2026-10-12",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/amigo-evaluations-api-openapi.yml#/components/schemas/CallEvalResultsResponse",
+  "properties": {
+    "conversation_id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Conversation Id"
+    },
+    "results": {
+      "items": {
+        "$ref": "#/$defs/CallEvalResult"
+      },
+      "type": "array",
+      "title": "Results"
+    }
+  },
+  "type": "object",
+  "required": [
+    "conversation_id",
+    "results"
+  ],
+  "$defs": {
+    "CallEvalResult": {
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "title": "Id"
+        },
+        "workspace_id": {
+          "type": "string",
+          "format": "uuid",
+          "title": "Workspace Id"
+        },
+        "service_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "uuid"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Service Id"
+        },
+        "conversation_id": {
+          "type": "string",
+          "format": "uuid",
+          "title": "Conversation Id"
+        },
+        "call_sid": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Call Sid"
+        },
+        "eval_key": {
+          "type": "string",
+          "maxLength": 128,
+          "title": "Eval Key"
+        },
+        "eval_type": {
+          "type": "string",
+          "enum": [
+            "assertion",
+            "metric"
+          ],
+          "title": "Eval Type"
+        },
+        "assertion_kind": {
+          "anyOf": [
+            {
+              "type": "string",
+              "maxLength": 128
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Assertion Kind"
+        },
+        "metric_key": {
+          "anyOf": [
+            {
+              "type": "string",
+              "maxLength": 128
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Metric Key"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "passed",
+            "failed",
+            "pending",
+            "skipped",
+            "error"
+          ],
+          "title": "Status"
+        },
+        "passed": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Passed"
+        },
+        "score": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Score"
+        },
+        "expected": {
+          "title": "Expected"
+        },
+        "actual": {
+          "title": "Actual"
+        },
+        "rationale": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Rationale"
+        },
+        "justification": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Justification"
+        },
+        "cited_turns": {
+          "items": {},
+          "type": "array",
+          "title": "Cited Turns"
+        },
+        "computed_at": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "date-time"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Computed At"
+        },
+        "created_at": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "date-time"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Created At"
+        }
+      },
+      "type": "object",
+      "required": [
+        "workspace_id",
+        "conversation_id",
+        "eval_key",
+        "eval_type",
+        "status"
+      ],
+      "title": "CallEvalResult",
+      "description": "One eval verdict for one production call, keyed by ``conversation_id``.\nMirrors the sim eval-result shape. ``justification`` and ``cited_turns`` come\nfrom the justified ai_query metric compute. PHI: ``justification`` / ``actual``\ncan echo live transcript content; never log them."
+    }
+  }
+}

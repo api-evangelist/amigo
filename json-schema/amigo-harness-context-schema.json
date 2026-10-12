@@ -1,0 +1,282 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/amigo/main/json-schema/amigo-harness-context-schema.json",
+  "title": "HarnessContext",
+  "description": "The neutral, retrievable session-bootstrap context for ANY framework.",
+  "x-generated": "2026-10-12",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/amigo-agent-runs-api-openapi.yml#/components/schemas/HarnessContext",
+  "properties": {
+    "context_version": {
+      "type": "integer",
+      "title": "Context Version",
+      "default": 1
+    },
+    "config_fingerprint": {
+      "type": "string",
+      "title": "Config Fingerprint",
+      "default": ""
+    },
+    "source": {
+      "type": "string",
+      "title": "Source",
+      "default": ""
+    },
+    "identity": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/AgentIdentity"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "world_scope": {
+      "$ref": "#/$defs/WorldScope"
+    },
+    "tools": {
+      "$ref": "#/$defs/Tools"
+    },
+    "guardrails": {
+      "$ref": "#/$defs/Guardrails"
+    },
+    "write_floor": {
+      "$ref": "#/$defs/WriteFloor"
+    },
+    "runtime": {
+      "$ref": "#/$defs/Runtime"
+    }
+  },
+  "type": "object",
+  "required": [
+    "world_scope",
+    "tools",
+    "guardrails",
+    "write_floor",
+    "runtime"
+  ],
+  "$defs": {
+    "AgentIdentity": {
+      "properties": {
+        "entry_actor_name": {
+          "type": "string",
+          "title": "Entry Actor Name",
+          "default": ""
+        },
+        "name": {
+          "type": "string",
+          "title": "Name",
+          "default": ""
+        },
+        "role": {
+          "type": "string",
+          "title": "Role",
+          "default": ""
+        },
+        "developed_by": {
+          "type": "string",
+          "title": "Developed By",
+          "default": ""
+        },
+        "instructions": {
+          "type": "string",
+          "title": "Instructions",
+          "default": ""
+        },
+        "initial_state": {
+          "type": "string",
+          "title": "Initial State",
+          "default": ""
+        }
+      },
+      "type": "object",
+      "title": "AgentIdentity",
+      "description": "Who the agent IS — platform-authored only; ``None`` for native runs\n(a customer's own definition carries its own identity). Named\n``AgentIdentity`` (not ``Identity``) to avoid colliding with the existing\n``config.models.Identity`` OpenAPI schema (a same-name collision would\nforce-rename that shipped schema — a breaking spec change)."
+    },
+    "Guardrails": {
+      "properties": {
+        "guardrails": {
+          "items": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "type": "array",
+          "title": "Guardrails",
+          "default": []
+        },
+        "global_boundary_constraints": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "title": "Global Boundary Constraints",
+          "default": []
+        },
+        "global_action_guidelines": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "title": "Global Action Guidelines",
+          "default": []
+        }
+      },
+      "type": "object",
+      "title": "Guardrails"
+    },
+    "Runtime": {
+      "properties": {
+        "engage_model": {
+          "type": "string",
+          "title": "Engage Model",
+          "default": ""
+        },
+        "channel_kind": {
+          "type": "string",
+          "title": "Channel Kind",
+          "default": ""
+        },
+        "language": {
+          "type": "string",
+          "title": "Language",
+          "default": ""
+        },
+        "caller_context": {
+          "type": "string",
+          "title": "Caller Context",
+          "default": ""
+        }
+      },
+      "type": "object",
+      "title": "Runtime"
+    },
+    "ToolDescriptor": {
+      "properties": {
+        "name": {
+          "type": "string",
+          "title": "Name"
+        },
+        "description": {
+          "type": "string",
+          "title": "Description",
+          "default": ""
+        },
+        "input_schema": {
+          "additionalProperties": true,
+          "type": "object",
+          "title": "Input Schema",
+          "default": {}
+        }
+      },
+      "type": "object",
+      "required": [
+        "name"
+      ],
+      "title": "ToolDescriptor"
+    },
+    "Tools": {
+      "properties": {
+        "descriptors": {
+          "items": {
+            "$ref": "#/$defs/ToolDescriptor"
+          },
+          "type": "array",
+          "title": "Descriptors",
+          "default": []
+        },
+        "read_tool_names": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "title": "Read Tool Names",
+          "default": []
+        },
+        "write_tool_names": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "title": "Write Tool Names",
+          "default": []
+        }
+      },
+      "type": "object",
+      "title": "Tools",
+      "description": "Discovery hint — the neutral descriptors. NOT the enforcement (the MCP\nedge is; a remote agent discovers live schemas from the server too)."
+    },
+    "WorldScope": {
+      "properties": {
+        "workspace_id": {
+          "type": "string",
+          "format": "uuid",
+          "title": "Workspace Id"
+        },
+        "scoped_entity_ids": {
+          "items": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "type": "array",
+          "title": "Scoped Entity Ids",
+          "default": []
+        },
+        "allow_create": {
+          "type": "boolean",
+          "title": "Allow Create",
+          "default": false
+        }
+      },
+      "type": "object",
+      "required": [
+        "workspace_id"
+      ],
+      "title": "WorldScope",
+      "description": "The world slice — ids only (the leaf stays I/O-free). This is the\nread/subject scope, NOT the write bound (see ``write_floor``)."
+    },
+    "WriteFloor": {
+      "properties": {
+        "enforced_at": {
+          "type": "string",
+          "title": "Enforced At",
+          "default": "mcp-world-tools-edge"
+        },
+        "requires_entity_anchor": {
+          "type": "boolean",
+          "title": "Requires Entity Anchor",
+          "default": true
+        },
+        "clinical_write_principal": {
+          "type": "string",
+          "title": "Clinical Write Principal",
+          "default": "provider-only"
+        },
+        "clinical_write_scope": {
+          "type": "string",
+          "title": "Clinical Write Scope",
+          "default": "any-entity-in-workspace"
+        },
+        "enrichment_write_scope": {
+          "type": "string",
+          "title": "Enrichment Write Scope",
+          "default": "caller-anchor-only"
+        },
+        "unanchored_or_api_key_writes": {
+          "type": "string",
+          "title": "Unanchored Or Api Key Writes",
+          "default": "none"
+        },
+        "allow_create": {
+          "type": "boolean",
+          "title": "Allow Create",
+          "default": false
+        }
+      },
+      "type": "object",
+      "title": "WriteFloor",
+      "description": "The REAL server-enforced write bound (audit G8) — advisory to render;\nthe MCP edge enforces it regardless of what a client does."
+    }
+  }
+}

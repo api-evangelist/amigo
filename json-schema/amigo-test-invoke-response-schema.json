@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/amigo/main/json-schema/amigo-test-invoke-response-schema.json",
+  "title": "TestInvokeResponse",
+  "description": "Response shape for ``POST /v1/{ws}/functions/{name}/test``.\n\nStructural superset of :class:`InvokeResponse`. Adds ``status`` and\n``error`` so the DC can render the executor's failure detail inline\nrather than a generic \"Invocation failed.\" The underlying invoke\nuses the same path; ``status`` / ``error`` are filled in by\n``service.test`` after catching any ``HTTPException`` (503) from the\nexecutor, so the route never bubbles a 5xx for a logical SQL\nfailure — it's still a 200 with ``status=fail`` so the caller can\nshow the message.\n\nInvariant (enforced by :func:`_check_error_when_fail`):\n``status == \"fail\" → error is not None and len(error) > 0``.",
+  "x-generated": "2026-10-12",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/amigo-functions-api-openapi.yml#/components/schemas/TestInvokeResponse",
+  "properties": {
+    "result": {
+      "title": "Result"
+    },
+    "duration_ms": {
+      "type": "number",
+      "title": "Duration Ms",
+      "default": 0.0
+    },
+    "row_count": {
+      "type": "integer",
+      "title": "Row Count",
+      "default": 0
+    },
+    "status": {
+      "type": "string",
+      "title": "Status",
+      "default": "pass"
+    },
+    "error": {
+      "anyOf": [
+        {
+          "type": "string",
+          "maxLength": 2000
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Error"
+    },
+    "test_duration_ms": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Test Duration Ms"
+    }
+  },
+  "type": "object"
+}

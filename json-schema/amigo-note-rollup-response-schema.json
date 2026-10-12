@@ -1,0 +1,133 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/amigo/main/json-schema/amigo-note-rollup-response-schema.json",
+  "title": "NoteRollupResponse",
+  "x-generated": "2026-10-12",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/amigo-m42-api-openapi.yml#/components/schemas/NoteRollupResponse",
+  "properties": {
+    "workspace_id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Workspace Id"
+    },
+    "total_notes": {
+      "type": "integer",
+      "title": "Total Notes"
+    },
+    "cohort_mean_risk": {
+      "type": "number",
+      "title": "Cohort Mean Risk"
+    },
+    "sentiment_distribution": {
+      "items": {
+        "$ref": "#/$defs/NoteRollupCategoryEntry"
+      },
+      "type": "array",
+      "title": "Sentiment Distribution"
+    },
+    "top_symptoms": {
+      "items": {
+        "$ref": "#/$defs/NoteRollupCategoryEntry"
+      },
+      "type": "array",
+      "title": "Top Symptoms"
+    },
+    "top_concerns": {
+      "items": {
+        "$ref": "#/$defs/NoteRollupCategoryEntry"
+      },
+      "type": "array",
+      "title": "Top Concerns"
+    },
+    "top_medications": {
+      "items": {
+        "$ref": "#/$defs/NoteRollupCategoryEntry"
+      },
+      "type": "array",
+      "title": "Top Medications"
+    },
+    "sdoh": {
+      "$ref": "#/$defs/NoteRollupSdoh"
+    }
+  },
+  "type": "object",
+  "required": [
+    "workspace_id",
+    "total_notes",
+    "cohort_mean_risk",
+    "sentiment_distribution",
+    "top_symptoms",
+    "top_concerns",
+    "top_medications",
+    "sdoh"
+  ],
+  "$defs": {
+    "NoteRollupCategoryEntry": {
+      "properties": {
+        "value": {
+          "type": "string",
+          "title": "Value"
+        },
+        "n": {
+          "type": "integer",
+          "title": "N"
+        },
+        "pct": {
+          "type": "number",
+          "title": "Pct"
+        },
+        "mean_risk": {
+          "type": "number",
+          "title": "Mean Risk"
+        },
+        "risk_lift": {
+          "type": "number",
+          "title": "Risk Lift"
+        }
+      },
+      "type": "object",
+      "required": [
+        "value",
+        "n",
+        "pct",
+        "mean_risk",
+        "risk_lift"
+      ],
+      "title": "NoteRollupCategoryEntry"
+    },
+    "NoteRollupSdoh": {
+      "properties": {
+        "activity": {
+          "items": {
+            "$ref": "#/$defs/NoteRollupCategoryEntry"
+          },
+          "type": "array",
+          "title": "Activity"
+        },
+        "smoking": {
+          "items": {
+            "$ref": "#/$defs/NoteRollupCategoryEntry"
+          },
+          "type": "array",
+          "title": "Smoking"
+        },
+        "diet": {
+          "items": {
+            "$ref": "#/$defs/NoteRollupCategoryEntry"
+          },
+          "type": "array",
+          "title": "Diet"
+        }
+      },
+      "type": "object",
+      "required": [
+        "activity",
+        "smoking",
+        "diet"
+      ],
+      "title": "NoteRollupSdoh"
+    }
+  }
+}

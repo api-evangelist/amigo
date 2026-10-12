@@ -1,0 +1,309 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/amigo/main/json-schema/amigo-turn-stream-event-schema.json",
+  "title": "TurnStreamEvent",
+  "x-generated": "2026-10-12",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/amigo-conversations-api-openapi.yml#/components/schemas/TurnStreamEvent",
+  "oneOf": [
+    {
+      "$ref": "#/$defs/TurnTokenEvent"
+    },
+    {
+      "$ref": "#/$defs/TurnToolCallStartedEvent"
+    },
+    {
+      "$ref": "#/$defs/TurnToolCallCompletedEvent"
+    },
+    {
+      "$ref": "#/$defs/TurnThinkingEvent"
+    },
+    {
+      "$ref": "#/$defs/TurnMessageEvent"
+    },
+    {
+      "$ref": "#/$defs/TurnDoneEvent"
+    },
+    {
+      "$ref": "#/$defs/TurnErrorEvent"
+    }
+  ],
+  "$defs": {
+    "TurnDoneEvent": {
+      "properties": {
+        "event": {
+          "const": "done",
+          "default": "done",
+          "title": "Event",
+          "type": "string"
+        },
+        "conversation_id": {
+          "format": "uuid",
+          "title": "Conversation Id",
+          "type": "string"
+        },
+        "status": {
+          "title": "Status",
+          "type": "string"
+        },
+        "turn_count": {
+          "title": "Turn Count",
+          "type": "integer"
+        },
+        "background_pending": {
+          "default": false,
+          "description": "True when the streamed response is only an acknowledgement and the final assistant answer must be collected with the durable background-delivery protocol.",
+          "title": "Background Pending",
+          "type": "boolean"
+        },
+        "delivery_protocol_version": {
+          "anyOf": [
+            {
+              "const": 2,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Version of the durable background-delivery protocol supported by the serving agent. Clients may retry receipt-backed polls only after observing version 2.",
+          "title": "Delivery Protocol Version"
+        },
+        "turn_id": {
+          "anyOf": [
+            {
+              "format": "uuid",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Identifier of the user exchange this turn belongs to — identical to the ``turn_id`` on the non-streaming ``POST /turns`` response and on this conversation's history turns, so a streaming client can anchor durable per-turn artifacts (e.g. feedback) without a follow-up read. Stamped by platform-api at the proxy boundary (agent-engine frames do not carry it). Null when the conversation has no user exchange yet (a greeting kickoff stream on a fresh conversation).",
+          "title": "Turn Id"
+        },
+        "turn_index": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Zero-based ordinal of the user exchange (0 = first user turn). Derived server-side; null exactly when ``turn_id`` is null.",
+          "title": "Turn Index"
+        }
+      },
+      "required": [
+        "conversation_id",
+        "status",
+        "turn_count"
+      ],
+      "title": "TurnDoneEvent",
+      "type": "object"
+    },
+    "TurnErrorEvent": {
+      "description": "Terminal error frame on the turn stream.\n\nCarries a stable ``code`` so SDK consumers can branch deterministically\nwithout parsing free-form ``message`` text. ``retryable`` tells the\nconsumer whether issuing the same turn again is likely to succeed.\n``status_code`` is the upstream HTTP status when the error originated\nfrom a downstream service (agent-engine), and is otherwise omitted.",
+      "properties": {
+        "event": {
+          "const": "error",
+          "default": "error",
+          "title": "Event",
+          "type": "string"
+        },
+        "message": {
+          "title": "Message",
+          "type": "string"
+        },
+        "code": {
+          "default": "unknown",
+          "enum": [
+            "upstream_error",
+            "stream_interrupted",
+            "client_error",
+            "unknown"
+          ],
+          "title": "Code",
+          "type": "string"
+        },
+        "retryable": {
+          "default": false,
+          "title": "Retryable",
+          "type": "boolean"
+        },
+        "status_code": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Status Code"
+        }
+      },
+      "required": [
+        "message"
+      ],
+      "title": "TurnErrorEvent",
+      "type": "object"
+    },
+    "TurnMessageEvent": {
+      "properties": {
+        "event": {
+          "const": "message",
+          "default": "message",
+          "title": "Event",
+          "type": "string"
+        },
+        "role": {
+          "title": "Role",
+          "type": "string"
+        },
+        "text": {
+          "title": "Text",
+          "type": "string"
+        }
+      },
+      "required": [
+        "role",
+        "text"
+      ],
+      "title": "TurnMessageEvent",
+      "type": "object"
+    },
+    "TurnThinkingEvent": {
+      "properties": {
+        "event": {
+          "const": "thinking",
+          "default": "thinking",
+          "title": "Event",
+          "type": "string"
+        },
+        "tier": {
+          "title": "Tier",
+          "type": "integer"
+        },
+        "tier_name": {
+          "title": "Tier Name",
+          "type": "string"
+        }
+      },
+      "required": [
+        "tier",
+        "tier_name"
+      ],
+      "title": "TurnThinkingEvent",
+      "type": "object"
+    },
+    "TurnTokenEvent": {
+      "properties": {
+        "event": {
+          "const": "token",
+          "default": "token",
+          "title": "Event",
+          "type": "string"
+        },
+        "text": {
+          "title": "Text",
+          "type": "string"
+        }
+      },
+      "required": [
+        "text"
+      ],
+      "title": "TurnTokenEvent",
+      "type": "object"
+    },
+    "TurnToolCallCompletedEvent": {
+      "properties": {
+        "event": {
+          "const": "tool_call_completed",
+          "default": "tool_call_completed",
+          "title": "Event",
+          "type": "string"
+        },
+        "tool_name": {
+          "maxLength": 256,
+          "title": "Tool Name",
+          "type": "string"
+        },
+        "call_id": {
+          "maxLength": 256,
+          "title": "Call Id",
+          "type": "string"
+        },
+        "result": {
+          "title": "Result",
+          "type": "string"
+        },
+        "succeeded": {
+          "title": "Succeeded",
+          "type": "boolean"
+        },
+        "duration_ms": {
+          "anyOf": [
+            {
+              "maximum": 3600000.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Wall-clock tool execution time in milliseconds, measured at the engage_step call site. Null when the upstream did not report timing (legacy/test paths).",
+          "title": "Duration Ms"
+        }
+      },
+      "required": [
+        "tool_name",
+        "call_id",
+        "result",
+        "succeeded"
+      ],
+      "title": "TurnToolCallCompletedEvent",
+      "type": "object"
+    },
+    "TurnToolCallStartedEvent": {
+      "properties": {
+        "event": {
+          "const": "tool_call_started",
+          "default": "tool_call_started",
+          "title": "Event",
+          "type": "string"
+        },
+        "tool_name": {
+          "maxLength": 256,
+          "title": "Tool Name",
+          "type": "string"
+        },
+        "call_id": {
+          "maxLength": 256,
+          "title": "Call Id",
+          "type": "string"
+        },
+        "input": {
+          "title": "Input",
+          "type": "string"
+        }
+      },
+      "required": [
+        "tool_name",
+        "call_id",
+        "input"
+      ],
+      "title": "TurnToolCallStartedEvent",
+      "type": "object"
+    }
+  }
+}

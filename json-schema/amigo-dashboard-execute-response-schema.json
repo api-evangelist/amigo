@@ -1,0 +1,75 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/amigo/main/json-schema/amigo-dashboard-execute-response-schema.json",
+  "title": "DashboardExecuteResponse",
+  "x-generated": "2026-10-12",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/amigo-dashboards-api-openapi.yml#/components/schemas/DashboardExecuteResponse",
+  "properties": {
+    "dashboard_id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Dashboard Id"
+    },
+    "results": {
+      "items": {
+        "$ref": "#/$defs/PanelResultResponse"
+      },
+      "type": "array",
+      "title": "Results"
+    }
+  },
+  "type": "object",
+  "required": [
+    "dashboard_id",
+    "results"
+  ],
+  "$defs": {
+    "PanelResultResponse": {
+      "properties": {
+        "panel_id": {
+          "type": "string",
+          "title": "Panel Id",
+          "description": "Panel identifier from the definition"
+        },
+        "columns": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "title": "Columns",
+          "description": "Column names"
+        },
+        "rows": {
+          "items": {
+            "items": {},
+            "type": "array"
+          },
+          "type": "array",
+          "title": "Rows",
+          "description": "Result rows"
+        },
+        "error": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Error",
+          "description": "Error message if query failed"
+        }
+      },
+      "type": "object",
+      "required": [
+        "panel_id",
+        "columns",
+        "rows"
+      ],
+      "title": "PanelResultResponse"
+    }
+  }
+}

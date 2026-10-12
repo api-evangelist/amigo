@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/amigo/main/json-schema/amigo-link-info-response-schema.json",
+  "title": "LinkInfoResponse",
+  "description": "Public metadata for an intake upload link, returned to the forms app.",
+  "x-generated": "2026-10-12",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/amigo-intake-upload-api-openapi.yml#/components/schemas/LinkInfoResponse",
+  "properties": {
+    "display_name": {
+      "$ref": "#/$defs/DescriptionString",
+      "description": "Human-readable display name (falls back to customer slug)."
+    },
+    "customer_slug": {
+      "type": "string",
+      "maxLength": 128,
+      "title": "Customer Slug",
+      "description": "Stable URL-safe customer identifier."
+    },
+    "max_upload_bytes": {
+      "type": "integer",
+      "minimum": 0.0,
+      "title": "Max Upload Bytes",
+      "description": "Maximum allowed upload size in bytes."
+    },
+    "allowed_content_types": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array",
+      "maxItems": 64,
+      "title": "Allowed Content Types",
+      "description": "Allowed Content-Type values for uploads, sorted lexicographically."
+    }
+  },
+  "type": "object",
+  "required": [
+    "display_name",
+    "customer_slug",
+    "max_upload_bytes"
+  ],
+  "$defs": {
+    "DescriptionString": {
+      "type": "string",
+      "maxLength": 2000
+    }
+  }
+}

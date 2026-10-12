@@ -1,0 +1,147 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/amigo/main/json-schema/amigo-intake-file-row-schema.json",
+  "title": "IntakeFileRow",
+  "description": "A file in the Files list (intake-ui-mvp-design.md §5.1).",
+  "x-generated": "2026-10-12",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/amigo-intake-api-openapi.yml#/components/schemas/IntakeFileRow",
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Id",
+      "description": "file_id — used for download."
+    },
+    "filename": {
+      "type": "string",
+      "title": "Filename"
+    },
+    "dataset": {
+      "type": "string",
+      "title": "Dataset",
+      "description": "Schema slug (UI label \"Schema\")."
+    },
+    "schema_version": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Schema Version",
+      "description": "The contract version this file validated against (e.g. ``v1``)."
+    },
+    "status": {
+      "$ref": "#/$defs/_FileStatus"
+    },
+    "error_reason": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Error Reason",
+      "description": "Null unless rejected/failed."
+    },
+    "size_bytes": {
+      "type": "integer",
+      "title": "Size Bytes"
+    },
+    "ingested_at": {
+      "type": "string",
+      "title": "Ingested At",
+      "description": "ISO-8601 timestamp the file was received."
+    },
+    "document_id": {
+      "anyOf": [
+        {
+          "type": "string",
+          "format": "uuid"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Document Id",
+      "description": "The document this version belongs to (§5.9). Null for snapshot/CSV rows;\nset for documents — the console groups versions by it and the version chain."
+    },
+    "version": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Version",
+      "description": "The file's version number (per-document for documents, per-dataset for\nsnapshot). Lets the UI render a document's version history."
+    },
+    "source_type": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Source Type",
+      "description": "Origin of the document this version belongs to — ``manual`` for console\nuploads, ``google_shared_drive`` for the Drive connector (V269). Null for\nsnapshot/CSV rows."
+    },
+    "source_file_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Source File Id",
+      "description": "The source's stable external id (e.g. the Google Drive file id) for the\ndocument. Lets the console show provenance and confirm a re-synced file\nbumped the *same* document. Null for manual uploads and snapshot rows."
+    },
+    "source_folder_path": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Source Folder Path",
+      "description": "Where the file lived within the mapped Drive folder tree (V279) — the\nrelative path, folder names joined by ``/`` (e.g. ``clinical/notes``); ``''``\nat the mapped root. Lets the console show the original folder structure. Null\nfor manual uploads and snapshot rows."
+    }
+  },
+  "type": "object",
+  "required": [
+    "id",
+    "filename",
+    "dataset",
+    "status",
+    "size_bytes",
+    "ingested_at"
+  ],
+  "$defs": {
+    "_FileStatus": {
+      "type": "string",
+      "enum": [
+        "received",
+        "scanned",
+        "processing",
+        "curated",
+        "rejected",
+        "failed",
+        "held"
+      ]
+    }
+  }
+}

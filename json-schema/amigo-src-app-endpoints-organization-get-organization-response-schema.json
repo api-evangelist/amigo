@@ -1,0 +1,111 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/amigo/main/json-schema/amigo-src-app-endpoints-organization-get-organization-response-schema.json",
+  "title": "Response",
+  "x-generated": "2026-10-12",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/amigo-organization-api-openapi.yml#/components/schemas/src__app__endpoints__organization__get_organization__Response",
+  "properties": {
+    "org_id": {
+      "type": "string",
+      "title": "Org Id",
+      "description": "Unique identifier of the organization."
+    },
+    "org_name": {
+      "type": "string",
+      "title": "Org Name",
+      "description": "A human friendly name of the organization."
+    },
+    "default_user_preferences": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Preferences-Output"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Default user preferences for new users in this organization. This field is only populated if this endpoint is called with user authentication credentials,\nand the authenticated user has the `Organization:GetOrganizationDetails` permission."
+    },
+    "tenant_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Tenant Id",
+      "description": "The tenant ID of the organization. This field is only populated if the authenticated user has the `Organization:GetOrganizationDetails` permission."
+    }
+  },
+  "type": "object",
+  "required": [
+    "org_id",
+    "org_name",
+    "default_user_preferences",
+    "tenant_id"
+  ],
+  "$defs": {
+    "Preferences-Output": {
+      "properties": {
+        "enable_response_recommendation": {
+          "type": "boolean",
+          "title": "Enable Response Recommendation",
+          "description": "Whether to automatically recommend responses to the user if the user hasn't replied to the coach for a while.",
+          "default": false
+        },
+        "preferred_language": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Preferred Language",
+          "description": "The preferred language to use for the user. This field must be in the ISO 639-3 format. The agent will attempt to converse\nwith the user in this language. If not set, the agent's default spoken language is used."
+        },
+        "conversations_visible_to_admins": {
+          "type": "boolean",
+          "title": "Conversations Visible To Admins",
+          "description": "Whether the user's conversations are visible to the admins.",
+          "default": true
+        },
+        "user_model_visible_to_admins": {
+          "type": "boolean",
+          "title": "User Model Visible To Admins",
+          "description": "Whether the user's user model is visible to the admins.",
+          "default": true
+        },
+        "timezone": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Timezone",
+          "description": "The user's timezone in the IANA tz database format for all users in this organization. If not specified, UTC is used."
+        },
+        "audio_keyterms": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "title": "Audio Keyterms",
+          "description": "A list of keyterms that are easy to get wrong during audio transcriptions that tend to occur commonly in audio sessions for this user.",
+          "default": []
+        }
+      },
+      "type": "object",
+      "title": "Preferences",
+      "description": "Preferences that the user can set to customize their experience."
+    }
+  }
+}
