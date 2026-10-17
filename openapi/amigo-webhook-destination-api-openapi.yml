@@ -523,53 +523,24 @@ paths:
           description: The user has exceeded the rate limit of 5 requests per minute for this endpoint.
 components:
   schemas:
-    src__app__endpoints__webhook_destination__update_webhook_destination__Request:
+    src__app__endpoints__webhook_destination__get_webhook_destinations__Response:
       properties:
-        retry_attempts:
-          anyOf:
-          - type: integer
-            maximum: 5.0
-            exclusiveMinimum: 0.0
-          - type: 'null'
-          title: Retry Attempts
-          description: The number of attempts to retry sending the webhook event in case of failure. If not specified, this field is not updated.
-        accepted_types:
-          anyOf:
-          - items:
-              $ref: '#/components/schemas/WebhookType'
-            type: array
-          - type: 'null'
-          title: Accepted Types
-          description: A list of webhook types to receive. If not specified, this field is not updated.
+        webhook_destinations:
+          items:
+            $ref: '#/components/schemas/WebhookDestination'
+          type: array
+          title: Webhook Destinations
+          description: The retrieved webhook destinations.
       type: object
-      title: Request
-    WebhookDeliveryStatus:
-      type: string
-      enum:
-      - success
-      - failed
+      required:
+      - webhook_destinations
+      title: Response
     WebhookType:
       type: string
       enum:
       - conversation-post-processing-complete
       - api-key-expiration-soon
       - agent-framework-resource-updated
-    DeliveryAttempt:
-      properties:
-        delivery_time:
-          type: string
-          format: date-time
-          title: Delivery Time
-          description: The time of the delivery attempt in UTC.
-        status_code:
-          type: integer
-          title: Status Code
-          description: The HTTP status code of the delivery attempt.
-      type: object
-      required:
-      - delivery_time
-      - status_code
-      title: DeliveryAttempt
     src__app__endpoints__webhook_destination__create_webhook_destination__Request:
       properties:
         url:
@@ -596,6 +567,107 @@ components:
       - url
       - accepted_types
       title: Request
+    WebhookDestination:
+      properties:
+        id:
+          type: string
+          title: Id
+        url:
+          type: string
+          title: Url
+          description: The URL to which the webhook events are sent.
+        secret_generated_at:
+          type: string
+          format: date-time
+          title: Secret Generated At
+          description: The UTC time at which the webhook secret was generated.
+        retry_attempts:
+          type: integer
+          title: Retry Attempts
+          description: The number of attempts to retry sending the webhook event in case of failure.
+        accepted_types:
+          items:
+            type: string
+          type: array
+          title: Accepted Types
+          description: A list of webhook types to receive.
+      type: object
+      required:
+      - id
+      - url
+      - secret_generated_at
+      - retry_attempts
+      - accepted_types
+      title: WebhookDestination
+    src__app__endpoints__webhook_destination__update_webhook_destination__Request:
+      properties:
+        retry_attempts:
+          anyOf:
+          - type: integer
+            maximum: 5.0
+            exclusiveMinimum: 0.0
+          - type: 'null'
+          title: Retry Attempts
+          description: The number of attempts to retry sending the webhook event in case of failure. If not specified, this field is not updated.
+        accepted_types:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/WebhookType'
+            type: array
+          - type: 'null'
+          title: Accepted Types
+          description: A list of webhook types to receive. If not specified, this field is not updated.
+      type: object
+      title: Request
+    src__app__endpoints__webhook_destination__create_webhook_destination__Response:
+      properties:
+        webhook_destination_id:
+          type: string
+          title: Webhook Destination Id
+          description: The ID of the created webhook destination.
+        secret:
+          type: string
+          title: Secret
+          description: The secret used to sign the webhook event. This is only visible once and cannot be retrieved later.
+      type: object
+      required:
+      - webhook_destination_id
+      - secret
+      title: Response
+    src__app__endpoints__webhook_destination__rotate_webhook_destination_secret__Response:
+      properties:
+        secret:
+          type: string
+          title: Secret
+          description: 'The new secret used to sign the webhook event. This is only visible once and cannot be retrieved later. For the next 30 minutes, the webhook will be signed by both
+
+            the old and the new secret.'
+        dual_signing_stops_at:
+          type: string
+          format: date-time
+          title: Dual Signing Stops At
+          description: A UTC time where the dual-signing behavior stops. After this time, webhooks will only be signed using the new secret from this endpoint.
+      type: object
+      required:
+      - secret
+      - dual_signing_stops_at
+      title: Response
+    DeliveryAttempt:
+      properties:
+        delivery_time:
+          type: string
+          format: date-time
+          title: Delivery Time
+          description: The time of the delivery attempt in UTC.
+        status_code:
+          type: integer
+          title: Status Code
+          description: The HTTP status code of the delivery attempt.
+      type: object
+      required:
+      - delivery_time
+      - status_code
+      title: DeliveryAttempt
     WebhookDeliveryInstance:
       properties:
         id:
@@ -639,83 +711,11 @@ components:
       - dual_signed
       - created_at
       title: WebhookDeliveryInstance
-    src__app__endpoints__webhook_destination__get_webhook_destinations__Response:
-      properties:
-        webhook_destinations:
-          items:
-            $ref: '#/components/schemas/WebhookDestination'
-          type: array
-          title: Webhook Destinations
-          description: The retrieved webhook destinations.
-      type: object
-      required:
-      - webhook_destinations
-      title: Response
-    WebhookDestination:
-      properties:
-        id:
-          type: string
-          title: Id
-        url:
-          type: string
-          title: Url
-          description: The URL to which the webhook events are sent.
-        secret_generated_at:
-          type: string
-          format: date-time
-          title: Secret Generated At
-          description: The UTC time at which the webhook secret was generated.
-        retry_attempts:
-          type: integer
-          title: Retry Attempts
-          description: The number of attempts to retry sending the webhook event in case of failure.
-        accepted_types:
-          items:
-            type: string
-          type: array
-          title: Accepted Types
-          description: A list of webhook types to receive.
-      type: object
-      required:
-      - id
-      - url
-      - secret_generated_at
-      - retry_attempts
-      - accepted_types
-      title: WebhookDestination
-    src__app__endpoints__webhook_destination__create_webhook_destination__Response:
-      properties:
-        webhook_destination_id:
-          type: string
-          title: Webhook Destination Id
-          description: The ID of the created webhook destination.
-        secret:
-          type: string
-          title: Secret
-          description: The secret used to sign the webhook event. This is only visible once and cannot be retrieved later.
-      type: object
-      required:
-      - webhook_destination_id
-      - secret
-      title: Response
-    src__app__endpoints__webhook_destination__rotate_webhook_destination_secret__Response:
-      properties:
-        secret:
-          type: string
-          title: Secret
-          description: 'The new secret used to sign the webhook event. This is only visible once and cannot be retrieved later. For the next 30 minutes, the webhook will be signed by both
-
-            the old and the new secret.'
-        dual_signing_stops_at:
-          type: string
-          format: date-time
-          title: Dual Signing Stops At
-          description: A UTC time where the dual-signing behavior stops. After this time, webhooks will only be signed using the new secret from this endpoint.
-      type: object
-      required:
-      - secret
-      - dual_signing_stops_at
-      title: Response
+    WebhookDeliveryStatus:
+      type: string
+      enum:
+      - success
+      - failed
     src__app__endpoints__webhook_destination__get_webhook_deliveries__Response:
       properties:
         webhook_deliveries:

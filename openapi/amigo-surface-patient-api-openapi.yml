@@ -532,70 +532,27 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
-    SaveFieldResponse:
+    OcrRequest:
       properties:
-        status:
+        image:
           type: string
-          const: saved
-          title: Status
-          default: saved
-      type: object
-      title: SaveFieldResponse
-      description: Acknowledgement returned when a field is auto-saved.
-    AvailabilityDate:
-      properties:
-        date:
-          type: string
-          maxLength: 16
-          title: Date
-        slots:
-          items:
-            $ref: '#/components/schemas/AvailabilitySlot'
-          type: array
-          maxItems: 200
-          title: Slots
+          maxLength: 10000000
+          minLength: 1
+          title: Image
+          description: Base64-encoded image data
+        target_fields:
+          anyOf:
+          - items:
+              type: string
+            type: array
+            maxItems: 50
+          - type: 'null'
+          title: Target Fields
+          description: Optional list of field keys to extract
       type: object
       required:
-      - date
-      title: AvailabilityDate
-    LookupResponse:
-      properties:
-        results:
-          items:
-            additionalProperties: true
-            type: object
-          type: array
-          maxItems: 200
-          title: Results
-      type: object
-      title: LookupResponse
-      description: Autocompletion results for a surface lookup field.
-    ValidationError:
-      properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-        input:
-          title: Input
-        ctx:
-          type: object
-          title: Context
-      type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
+      - image
+      title: OcrRequest
     PatientSurfaceSpec:
       properties:
         title:
@@ -676,6 +633,50 @@ components:
         force FastAPI to namespace both classes and rename the existing
 
         ``SurfaceSpec`` schema in the committed openapi.json).'
+    AvailabilityDate:
+      properties:
+        date:
+          type: string
+          maxLength: 16
+          title: Date
+        slots:
+          items:
+            $ref: '#/components/schemas/AvailabilitySlot'
+          type: array
+          maxItems: 200
+          title: Slots
+      type: object
+      required:
+      - date
+      title: AvailabilityDate
+    OcrResponse:
+      properties:
+        extracted_fields:
+          additionalProperties: true
+          type: object
+          title: Extracted Fields
+        confidence:
+          type: number
+          maximum: 1.0
+          minimum: 0.0
+          title: Confidence
+      type: object
+      required:
+      - confidence
+      title: OcrResponse
+      description: Structured field extraction result for an uploaded image.
+    LookupResponse:
+      properties:
+        results:
+          items:
+            additionalProperties: true
+            type: object
+          type: array
+          maxItems: 200
+          title: Results
+      type: object
+      title: LookupResponse
+      description: Autocompletion results for a surface lookup field.
     FieldSaveRequest:
       properties:
         value:
@@ -685,6 +686,60 @@ components:
       required:
       - value
       title: FieldSaveRequest
+    SaveFieldResponse:
+      properties:
+        status:
+          type: string
+          const: saved
+          title: Status
+          default: saved
+      type: object
+      title: SaveFieldResponse
+      description: Acknowledgement returned when a field is auto-saved.
+    HealFieldResponse:
+      properties:
+        corrected_value:
+          type: string
+          maxLength: 4000
+          title: Corrected Value
+        explanation:
+          anyOf:
+          - type: string
+            maxLength: 2000
+          - type: 'null'
+          title: Explanation
+        confidence:
+          type: number
+          maximum: 1.0
+          minimum: 0.0
+          title: Confidence
+      type: object
+      required:
+      - corrected_value
+      - confidence
+      title: HealFieldResponse
+    BookingResponse:
+      properties:
+        status:
+          type: string
+          const: pending
+          title: Status
+          description: Booking lifecycle status.
+        message:
+          type: string
+          maxLength: 512
+          title: Message
+        slot_id:
+          type: string
+          maxLength: 256
+          title: Slot Id
+      type: object
+      required:
+      - status
+      - message
+      - slot_id
+      title: BookingResponse
+      description: Acknowledgement returned when a booking request is accepted.
     AvailabilitySlot:
       properties:
         id:
@@ -723,64 +778,6 @@ components:
       required:
       - slot_id
       title: BookingRequest
-    OcrResponse:
-      properties:
-        extracted_fields:
-          additionalProperties: true
-          type: object
-          title: Extracted Fields
-        confidence:
-          type: number
-          maximum: 1.0
-          minimum: 0.0
-          title: Confidence
-      type: object
-      required:
-      - confidence
-      title: OcrResponse
-      description: Structured field extraction result for an uploaded image.
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
-    AvailabilityResponse:
-      properties:
-        dates:
-          items:
-            $ref: '#/components/schemas/AvailabilityDate'
-          type: array
-          maxItems: 64
-          title: Dates
-      type: object
-      title: AvailabilityResponse
-      description: Available appointment slots grouped by date.
-    HealFieldResponse:
-      properties:
-        corrected_value:
-          type: string
-          maxLength: 4000
-          title: Corrected Value
-        explanation:
-          anyOf:
-          - type: string
-            maxLength: 2000
-          - type: 'null'
-          title: Explanation
-        confidence:
-          type: number
-          maximum: 1.0
-          minimum: 0.0
-          title: Confidence
-      type: object
-      required:
-      - corrected_value
-      - confidence
-      title: HealFieldResponse
     SurfaceErrorResponse:
       properties:
         error_code:
@@ -823,6 +820,37 @@ components:
         validator. ``details`` is set when a request body fails server-side
 
         validation.'
+    SurfaceSpecResponse:
+      properties:
+        surface_id:
+          anyOf:
+          - type: string
+            maxLength: 64
+          - type: 'null'
+          title: Surface Id
+        entity_id:
+          anyOf:
+          - type: string
+            maxLength: 64
+          - type: 'null'
+          title: Entity Id
+        status:
+          anyOf:
+          - type: string
+            maxLength: 64
+          - type: 'null'
+          title: Status
+        spec:
+          $ref: '#/components/schemas/PatientSurfaceSpec'
+        saved_values:
+          additionalProperties: true
+          type: object
+          title: Saved Values
+      type: object
+      required:
+      - spec
+      title: SurfaceSpecResponse
+      description: Surface render bundle returned to forms-app SSR.
     HealFieldRequest:
       properties:
         key:
@@ -858,80 +886,52 @@ components:
       - field_type
       - label
       title: HealFieldRequest
-    BookingResponse:
+    AvailabilityResponse:
       properties:
-        status:
+        dates:
+          items:
+            $ref: '#/components/schemas/AvailabilityDate'
+          type: array
+          maxItems: 64
+          title: Dates
+      type: object
+      title: AvailabilityResponse
+      description: Available appointment slots grouped by date.
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
           type: string
-          const: pending
-          title: Status
-          description: Booking lifecycle status.
-        message:
-          type: string
-          maxLength: 512
           title: Message
-        slot_id:
+        type:
           type: string
-          maxLength: 256
-          title: Slot Id
-      type: object
-      required:
-      - status
-      - message
-      - slot_id
-      title: BookingResponse
-      description: Acknowledgement returned when a booking request is accepted.
-    OcrRequest:
-      properties:
-        image:
-          type: string
-          maxLength: 10000000
-          minLength: 1
-          title: Image
-          description: Base64-encoded image data
-        target_fields:
-          anyOf:
-          - items:
-              type: string
-            type: array
-            maxItems: 50
-          - type: 'null'
-          title: Target Fields
-          description: Optional list of field keys to extract
-      type: object
-      required:
-      - image
-      title: OcrRequest
-    SurfaceSpecResponse:
-      properties:
-        surface_id:
-          anyOf:
-          - type: string
-            maxLength: 64
-          - type: 'null'
-          title: Surface Id
-        entity_id:
-          anyOf:
-          - type: string
-            maxLength: 64
-          - type: 'null'
-          title: Entity Id
-        status:
-          anyOf:
-          - type: string
-            maxLength: 64
-          - type: 'null'
-          title: Status
-        spec:
-          $ref: '#/components/schemas/PatientSurfaceSpec'
-        saved_values:
-          additionalProperties: true
+          title: Error Type
+        input:
+          title: Input
+        ctx:
           type: object
-          title: Saved Values
+          title: Context
       type: object
       required:
-      - spec
-      title: SurfaceSpecResponse
-      description: Surface render bundle returned to forms-app SSR.
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
   securitySchemes:
     BearerAuth:
       type: http

@@ -79,6 +79,27 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
+    VoiceJudgeRecentResponse:
+      properties:
+        service_id:
+          type: string
+          format: uuid
+          title: Service Id
+        count:
+          type: integer
+          minimum: 0.0
+          title: Count
+        items:
+          items:
+            $ref: '#/components/schemas/VoiceJudgeResultRow'
+          type: array
+          title: Items
+      type: object
+      required:
+      - service_id
+      - count
+      - items
+      title: VoiceJudgeRecentResponse
     VoiceJudgeResultRow:
       properties:
         call_sid:
@@ -188,15 +209,6 @@ components:
       - call_sid
       title: VoiceJudgeResultRow
       description: One call's voice-judge scoring, as stored in the Delta output table.
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
     ValidationError:
       properties:
         loc:
@@ -223,27 +235,15 @@ components:
       - msg
       - type
       title: ValidationError
-    VoiceJudgeRecentResponse:
+    HTTPValidationError:
       properties:
-        service_id:
-          type: string
-          format: uuid
-          title: Service Id
-        count:
-          type: integer
-          minimum: 0.0
-          title: Count
-        items:
+        detail:
           items:
-            $ref: '#/components/schemas/VoiceJudgeResultRow'
+            $ref: '#/components/schemas/ValidationError'
           type: array
-          title: Items
+          title: Detail
       type: object
-      required:
-      - service_id
-      - count
-      - items
-      title: VoiceJudgeRecentResponse
+      title: HTTPValidationError
   securitySchemes:
     BearerAuth:
       type: http

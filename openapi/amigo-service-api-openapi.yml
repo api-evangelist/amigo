@@ -465,132 +465,11 @@ paths:
           description: The user has exceeded the rate limit of 20 requests per minute for this endpoint.
 components:
   schemas:
-    src__app__endpoints__service__get_services__Response__FilterValues:
-      properties:
-        tags:
-          items:
-            type: string
-          type: array
-          title: Tags
-          description: A list of tags of the services.
-      type: object
-      required:
-      - tags
-      title: FilterValues
-    src__app__endpoints__service__get_services__Response:
-      properties:
-        services:
-          items:
-            $ref: '#/components/schemas/ServiceInstance'
-          type: array
-          title: Services
-          description: The services that are found.
-        has_more:
-          type: boolean
-          title: Has More
-          description: Whether there are more services to retrieve.
-        continuation_token:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Continuation Token
-          description: A token to supply to the next request to retrieve the next page of services. Only populated if `has_more` is `True`.
-        filter_values:
-          anyOf:
-          - $ref: '#/components/schemas/src__app__endpoints__service__get_services__Response__FilterValues'
-          - type: 'null'
-          description: 'For each filter that this endpoint supports that can take on dynamic values, this field includes what these values are. This is only provided for the first page in the pagination results.
-
-
-            Note that the values are counted assuming the authenticated user has access to all the services, so they might differ from how many services are actually
-
-            retrieved.'
-      type: object
-      required:
-      - services
-      - has_more
-      - continuation_token
-      - filter_values
-      title: Response
-    amigo_lib__mongo__collections__service__Service__UserInfo:
-      properties:
-        org_id:
-          type: string
-          title: Org Id
-        user_id:
-          type: string
-          title: User Id
-      type: object
-      required:
-      - org_id
-      - user_id
-      title: UserInfo
-    StrippedNonemptyString_a-z-_____a-z-____0_2____:
+    StrippedNonemptyString_A-Za-z0-9_-______MaxLen_max_length_40_:
       type: string
+      maxLength: 40
       minLength: 1
-      pattern: ^[a-z-]+( [a-z-]+){0,2}$
-    src__app__endpoints__service__update_service__Request:
-      properties:
-        name:
-          anyOf:
-          - $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
-          - type: 'null'
-          description: The name of the service. Only updated if not-null.
-        description:
-          anyOf:
-          - $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
-          - type: 'null'
-          description: A description of this `Service`. Only updates if not-null.
-        is_active:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          title: Is Active
-          description: 'The activeness of the service. Only updated if not-null.
-
-
-            If set to `True` and the service is currently inactive, no other service with the same name can be active.
-
-
-            If set to `False` and the service is currently active, it is deactivated. This will error if the service is used in a simulation unit test.'
-        agent_id:
-          anyOf:
-          - type: string
-            pattern: ^[a-f0-9]{24}$
-          - type: 'null'
-          title: Agent Id
-          description: The ID of the agent that this service uses. Only updated if not-null.
-        service_hierarchical_state_machine_id:
-          anyOf:
-          - type: string
-            pattern: ^[a-f0-9]{24}$
-          - type: 'null'
-          title: Service Hierarchical State Machine Id
-          description: The ID of the service hierarchical state machine that this service uses. Only updated if not-null.
-        tags:
-          anyOf:
-          - additionalProperties:
-              anyOf:
-              - $ref: '#/components/schemas/StrippedNonemptyString___w__s_____'
-              - type: 'null'
-            propertyNames:
-              $ref: '#/components/schemas/StrippedNonemptyString___w__s_____'
-            type: object
-            maxProperties: 20
-          - type: 'null'
-          title: Tags
-          description: The tags of this service. Only updated if not-null.
-        keyterms:
-          anyOf:
-          - items:
-              $ref: '#/components/schemas/StrippedNonemptyString_a-z-_____a-z-____0_2____'
-            type: array
-            maxItems: 20
-          - type: 'null'
-          title: Keyterms
-          description: A list of keyterms that are easy to get wrong during audio transcriptions that tend to occur commonly in audio sessions using this service. Only updated if not-null.
-      type: object
-      title: Request
+      pattern: ^[A-Za-z0-9_-]+$
     ServiceInstance:
       properties:
         id:
@@ -655,6 +534,20 @@ components:
       - creator
       - updated_by
       title: ServiceInstance
+    LLMConfig-Input:
+      properties:
+        llm_name:
+          $ref: '#/components/schemas/LLMType'
+        params:
+          additionalProperties: true
+          type: object
+          title: Params
+          description: LLM-specific parameters to use.
+          default: {}
+      type: object
+      required:
+      - llm_name
+      title: LLMConfig
     LLMType:
       type: string
       enum:
@@ -678,36 +571,19 @@ components:
       - aws_claude-opus-4-6
       - google_gemini-2.5-pro
       - google_gemini-2.5-flash
-    StrippedNonemptyString_A-Za-z0-9_-______MaxLen_max_length_40_:
-      type: string
-      maxLength: 40
-      minLength: 1
-      pattern: ^[A-Za-z0-9_-]+$
-    Tag:
+    amigo_lib__mongo__collections__service__Service__UserInfo:
       properties:
-        key:
+        org_id:
           type: string
-          title: Key
-        value:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Value
+          title: Org Id
+        user_id:
+          type: string
+          title: User Id
       type: object
       required:
-      - key
-      - value
-      title: Tag
-    src__app__endpoints__service__create_service__Response:
-      properties:
-        id:
-          type: string
-          title: Id
-          description: The ID of the newly created service.
-      type: object
-      required:
-      - id
-      title: Response
+      - org_id
+      - user_id
+      title: UserInfo
     src__app__endpoints__service__create_service__Request:
       properties:
         service_hierarchical_state_machine_id:
@@ -765,31 +641,72 @@ components:
       - keyterms
       - tags
       title: Request
-    VersionSet-Input:
+    src__app__endpoints__service__update_service__Request:
       properties:
-        agent_version_number:
+        name:
           anyOf:
-          - type: integer
+          - $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
           - type: 'null'
-          title: Agent Version Number
-          description: The version number of the agent to be used. If None, the latest agent version will be used.
-        service_hierarchical_state_machine_version_number:
+          description: The name of the service. Only updated if not-null.
+        description:
           anyOf:
-          - type: integer
+          - $ref: '#/components/schemas/amigo_lib__pydantic__base_model__StrippedNonemptyString__1'
           - type: 'null'
-          title: Service Hierarchical State Machine Version Number
-          description: The version number of the state machine to be used. If None, the latest state machine version will be used.
-        llm_model_preferences:
-          additionalProperties:
-            $ref: '#/components/schemas/LLMConfig-Input'
-          type: object
-          title: Llm Model Preferences
+          description: A description of this `Service`. Only updates if not-null.
+        is_active:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Active
+          description: 'The activeness of the service. Only updated if not-null.
+
+
+            If set to `True` and the service is currently inactive, no other service with the same name can be active.
+
+
+            If set to `False` and the service is currently active, it is deactivated. This will error if the service is used in a simulation unit test.'
+        agent_id:
+          anyOf:
+          - type: string
+            pattern: ^[a-f0-9]{24}$
+          - type: 'null'
+          title: Agent Id
+          description: The ID of the agent that this service uses. Only updated if not-null.
+        service_hierarchical_state_machine_id:
+          anyOf:
+          - type: string
+            pattern: ^[a-f0-9]{24}$
+          - type: 'null'
+          title: Service Hierarchical State Machine Id
+          description: The ID of the service hierarchical state machine that this service uses. Only updated if not-null.
+        tags:
+          anyOf:
+          - additionalProperties:
+              anyOf:
+              - $ref: '#/components/schemas/StrippedNonemptyString___w__s_____'
+              - type: 'null'
+            propertyNames:
+              $ref: '#/components/schemas/StrippedNonemptyString___w__s_____'
+            type: object
+            maxProperties: 20
+          - type: 'null'
+          title: Tags
+          description: The tags of this service. Only updated if not-null.
+        keyterms:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/StrippedNonemptyString_a-z-_____a-z-____0_2____'
+            type: array
+            maxItems: 20
+          - type: 'null'
+          title: Keyterms
+          description: A list of keyterms that are easy to get wrong during audio transcriptions that tend to occur commonly in audio sessions using this service. Only updated if not-null.
       type: object
-      required:
-      - agent_version_number
-      - service_hierarchical_state_machine_version_number
-      - llm_model_preferences
-      title: VersionSet
+      title: Request
+    StrippedNonemptyString___w__s_____:
+      type: string
+      minLength: 1
+      pattern: ^[\w\s]+$
     LLMConfig-Output:
       properties:
         llm_name:
@@ -815,20 +732,70 @@ components:
       required:
       - version_set
       title: Request
-    LLMConfig-Input:
+    VersionSet-Input:
       properties:
-        llm_name:
-          $ref: '#/components/schemas/LLMType'
-        params:
-          additionalProperties: true
+        agent_version_number:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Agent Version Number
+          description: The version number of the agent to be used. If None, the latest agent version will be used.
+        service_hierarchical_state_machine_version_number:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Service Hierarchical State Machine Version Number
+          description: The version number of the state machine to be used. If None, the latest state machine version will be used.
+        llm_model_preferences:
+          additionalProperties:
+            $ref: '#/components/schemas/LLMConfig-Input'
           type: object
-          title: Params
-          description: LLM-specific parameters to use.
-          default: {}
+          title: Llm Model Preferences
       type: object
       required:
-      - llm_name
-      title: LLMConfig
+      - agent_version_number
+      - service_hierarchical_state_machine_version_number
+      - llm_model_preferences
+      title: VersionSet
+    StrippedNonemptyString_a-z-_____a-z-____0_2____:
+      type: string
+      minLength: 1
+      pattern: ^[a-z-]+( [a-z-]+){0,2}$
+    src__app__endpoints__service__get_services__Response:
+      properties:
+        services:
+          items:
+            $ref: '#/components/schemas/ServiceInstance'
+          type: array
+          title: Services
+          description: The services that are found.
+        has_more:
+          type: boolean
+          title: Has More
+          description: Whether there are more services to retrieve.
+        continuation_token:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Continuation Token
+          description: A token to supply to the next request to retrieve the next page of services. Only populated if `has_more` is `True`.
+        filter_values:
+          anyOf:
+          - $ref: '#/components/schemas/src__app__endpoints__service__get_services__Response__FilterValues'
+          - type: 'null'
+          description: 'For each filter that this endpoint supports that can take on dynamic values, this field includes what these values are. This is only provided for the first page in the pagination results.
+
+
+            Note that the values are counted assuming the authenticated user has access to all the services, so they might differ from how many services are actually
+
+            retrieved.'
+      type: object
+      required:
+      - services
+      - has_more
+      - continuation_token
+      - filter_values
+      title: Response
     VersionSet-Output:
       properties:
         agent_version_number:
@@ -861,10 +828,43 @@ components:
     amigo_lib__pydantic__base_model__StrippedNonemptyString__1:
       type: string
       minLength: 1
-    StrippedNonemptyString___w__s_____:
-      type: string
-      minLength: 1
-      pattern: ^[\w\s]+$
+    src__app__endpoints__service__get_services__Response__FilterValues:
+      properties:
+        tags:
+          items:
+            type: string
+          type: array
+          title: Tags
+          description: A list of tags of the services.
+      type: object
+      required:
+      - tags
+      title: FilterValues
+    src__app__endpoints__service__create_service__Response:
+      properties:
+        id:
+          type: string
+          title: Id
+          description: The ID of the newly created service.
+      type: object
+      required:
+      - id
+      title: Response
+    Tag:
+      properties:
+        key:
+          type: string
+          title: Key
+        value:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Value
+      type: object
+      required:
+      - key
+      - value
+      title: Tag
   securitySchemes:
     Bearer-Authorization:
       type: http

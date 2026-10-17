@@ -280,153 +280,22 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
-    PaginatedResponse_ProductionEvalDefinition_:
+    CallEvalResultsResponse:
       properties:
-        items:
+        conversation_id:
+          type: string
+          format: uuid
+          title: Conversation Id
+        results:
           items:
-            $ref: '#/components/schemas/ProductionEvalDefinition'
+            $ref: '#/components/schemas/CallEvalResult'
           type: array
-          title: Items
-        has_more:
-          type: boolean
-          title: Has More
-        continuation_token:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Continuation Token
-        total:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Total
+          title: Results
       type: object
       required:
-      - items
-      - has_more
-      title: PaginatedResponse[ProductionEvalDefinition]
-    CreateProductionEvalDefinitionRequest:
-      properties:
-        eval_key:
-          type: string
-          maxLength: 128
-          minLength: 1
-          title: Eval Key
-        eval_type:
-          type: string
-          enum:
-          - assertion
-          - metric
-          title: Eval Type
-        service_id:
-          anyOf:
-          - type: string
-            format: uuid
-          - type: 'null'
-          title: Service Id
-        assertion_kind:
-          anyOf:
-          - type: string
-            maxLength: 128
-          - type: 'null'
-          title: Assertion Kind
-        metric_key:
-          anyOf:
-          - type: string
-            maxLength: 128
-          - type: 'null'
-          title: Metric Key
-        expected:
-          title: Expected
-        params:
-          additionalProperties: true
-          type: object
-          title: Params
-        active:
-          type: boolean
-          title: Active
-          default: true
-      type: object
-      required:
-      - eval_key
-      - eval_type
-      title: CreateProductionEvalDefinitionRequest
-    ValidationError:
-      properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-        input:
-          title: Input
-        ctx:
-          type: object
-          title: Context
-      type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
-    UpdateProductionEvalDefinitionRequest:
-      properties:
-        service_id:
-          anyOf:
-          - type: string
-            format: uuid
-          - type: 'null'
-          title: Service Id
-        eval_key:
-          anyOf:
-          - type: string
-            maxLength: 128
-            minLength: 1
-          - type: 'null'
-          title: Eval Key
-        eval_type:
-          anyOf:
-          - type: string
-            enum:
-            - assertion
-            - metric
-          - type: 'null'
-          title: Eval Type
-        assertion_kind:
-          anyOf:
-          - type: string
-            maxLength: 128
-          - type: 'null'
-          title: Assertion Kind
-        metric_key:
-          anyOf:
-          - type: string
-            maxLength: 128
-          - type: 'null'
-          title: Metric Key
-        expected:
-          title: Expected
-        params:
-          anyOf:
-          - additionalProperties: true
-            type: object
-          - type: 'null'
-          title: Params
-        active:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          title: Active
-      type: object
-      title: UpdateProductionEvalDefinitionRequest
+      - conversation_id
+      - results
+      title: CallEvalResultsResponse
     CallEvalResult:
       properties:
         id:
@@ -613,6 +482,153 @@ components:
         phrase string for assertions, or a ``{gte|lte|equals|...}`` threshold for
 
         metric-evals.'
+    UpdateProductionEvalDefinitionRequest:
+      properties:
+        service_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Service Id
+        eval_key:
+          anyOf:
+          - type: string
+            maxLength: 128
+            minLength: 1
+          - type: 'null'
+          title: Eval Key
+        eval_type:
+          anyOf:
+          - type: string
+            enum:
+            - assertion
+            - metric
+          - type: 'null'
+          title: Eval Type
+        assertion_kind:
+          anyOf:
+          - type: string
+            maxLength: 128
+          - type: 'null'
+          title: Assertion Kind
+        metric_key:
+          anyOf:
+          - type: string
+            maxLength: 128
+          - type: 'null'
+          title: Metric Key
+        expected:
+          title: Expected
+        params:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Params
+        active:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Active
+      type: object
+      title: UpdateProductionEvalDefinitionRequest
+    CreateProductionEvalDefinitionRequest:
+      properties:
+        eval_key:
+          type: string
+          maxLength: 128
+          minLength: 1
+          title: Eval Key
+        eval_type:
+          type: string
+          enum:
+          - assertion
+          - metric
+          title: Eval Type
+        service_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Service Id
+        assertion_kind:
+          anyOf:
+          - type: string
+            maxLength: 128
+          - type: 'null'
+          title: Assertion Kind
+        metric_key:
+          anyOf:
+          - type: string
+            maxLength: 128
+          - type: 'null'
+          title: Metric Key
+        expected:
+          title: Expected
+        params:
+          additionalProperties: true
+          type: object
+          title: Params
+        active:
+          type: boolean
+          title: Active
+          default: true
+      type: object
+      required:
+      - eval_key
+      - eval_type
+      title: CreateProductionEvalDefinitionRequest
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    PaginatedResponse_ProductionEvalDefinition_:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/ProductionEvalDefinition'
+          type: array
+          title: Items
+        has_more:
+          type: boolean
+          title: Has More
+        continuation_token:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Continuation Token
+        total:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Total
+      type: object
+      required:
+      - items
+      - has_more
+      title: PaginatedResponse[ProductionEvalDefinition]
     HTTPValidationError:
       properties:
         detail:
@@ -622,22 +638,6 @@ components:
           title: Detail
       type: object
       title: HTTPValidationError
-    CallEvalResultsResponse:
-      properties:
-        conversation_id:
-          type: string
-          format: uuid
-          title: Conversation Id
-        results:
-          items:
-            $ref: '#/components/schemas/CallEvalResult'
-          type: array
-          title: Results
-      type: object
-      required:
-      - conversation_id
-      - results
-      title: CallEvalResultsResponse
   securitySchemes:
     BearerAuth:
       type: http

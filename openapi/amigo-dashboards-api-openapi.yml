@@ -301,6 +301,123 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
+    PaginatedResponse_DashboardDefinitionResponse_:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/DashboardDefinitionResponse'
+          type: array
+          title: Items
+        has_more:
+          type: boolean
+          title: Has More
+        continuation_token:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Continuation Token
+        total:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Total
+      type: object
+      required:
+      - items
+      - has_more
+      title: PaginatedResponse[DashboardDefinitionResponse]
+    PanelResultResponse:
+      properties:
+        panel_id:
+          type: string
+          title: Panel Id
+          description: Panel identifier from the definition
+        columns:
+          items:
+            type: string
+          type: array
+          title: Columns
+          description: Column names
+        rows:
+          items:
+            items: {}
+            type: array
+          type: array
+          title: Rows
+          description: Result rows
+        error:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Error
+          description: Error message if query failed
+      type: object
+      required:
+      - panel_id
+      - columns
+      - rows
+      title: PanelResultResponse
+    UpdateDashboardRequest:
+      properties:
+        slug:
+          anyOf:
+          - type: string
+            maxLength: 128
+            minLength: 2
+            pattern: ^[a-z0-9][a-z0-9\-]*$
+          - type: 'null'
+          title: Slug
+        title:
+          anyOf:
+          - $ref: '#/components/schemas/NameString'
+          - type: 'null'
+        description:
+          anyOf:
+          - $ref: '#/components/schemas/DescriptionString'
+          - type: 'null'
+        page_context:
+          anyOf:
+          - type: string
+            enum:
+            - home
+            - patients
+            - calls
+            - data
+            - analytics
+            - pipeline
+            - operators
+            - surfaces
+            - compliance
+            - custom
+          - type: 'null'
+          title: Page Context
+        panels:
+          anyOf:
+          - items:
+              additionalProperties: true
+              type: object
+            type: array
+            maxItems: 50
+          - type: 'null'
+          title: Panels
+        filters:
+          anyOf:
+          - items:
+              additionalProperties: true
+              type: object
+            type: array
+            maxItems: 20
+          - type: 'null'
+          title: Filters
+        refresh_interval:
+          anyOf:
+          - type: integer
+            maximum: 86400.0
+            minimum: 10.0
+          - type: 'null'
+          title: Refresh Interval
+      type: object
+      title: UpdateDashboardRequest
     DashboardDefinitionResponse:
       properties:
         id:
@@ -443,6 +560,35 @@ components:
     DescriptionString:
       type: string
       maxLength: 2000
+    NameString:
+      type: string
+      maxLength: 256
+      minLength: 1
+    DashboardExecuteResponse:
+      properties:
+        dashboard_id:
+          type: string
+          format: uuid
+          title: Dashboard Id
+        results:
+          items:
+            $ref: '#/components/schemas/PanelResultResponse'
+          type: array
+          title: Results
+      type: object
+      required:
+      - dashboard_id
+      - results
+      title: DashboardExecuteResponse
+    ExecutePanelRequest:
+      properties:
+        filter_values:
+          additionalProperties: true
+          type: object
+          title: Filter Values
+          description: Filter values to apply to panel queries
+      type: object
+      title: ExecutePanelRequest
     ValidationError:
       properties:
         loc:
@@ -469,117 +615,6 @@ components:
       - msg
       - type
       title: ValidationError
-    DashboardExecuteResponse:
-      properties:
-        dashboard_id:
-          type: string
-          format: uuid
-          title: Dashboard Id
-        results:
-          items:
-            $ref: '#/components/schemas/PanelResultResponse'
-          type: array
-          title: Results
-      type: object
-      required:
-      - dashboard_id
-      - results
-      title: DashboardExecuteResponse
-    ExecutePanelRequest:
-      properties:
-        filter_values:
-          additionalProperties: true
-          type: object
-          title: Filter Values
-          description: Filter values to apply to panel queries
-      type: object
-      title: ExecutePanelRequest
-    UpdateDashboardRequest:
-      properties:
-        slug:
-          anyOf:
-          - type: string
-            maxLength: 128
-            minLength: 2
-            pattern: ^[a-z0-9][a-z0-9\-]*$
-          - type: 'null'
-          title: Slug
-        title:
-          anyOf:
-          - $ref: '#/components/schemas/NameString'
-          - type: 'null'
-        description:
-          anyOf:
-          - $ref: '#/components/schemas/DescriptionString'
-          - type: 'null'
-        page_context:
-          anyOf:
-          - type: string
-            enum:
-            - home
-            - patients
-            - calls
-            - data
-            - analytics
-            - pipeline
-            - operators
-            - surfaces
-            - compliance
-            - custom
-          - type: 'null'
-          title: Page Context
-        panels:
-          anyOf:
-          - items:
-              additionalProperties: true
-              type: object
-            type: array
-            maxItems: 50
-          - type: 'null'
-          title: Panels
-        filters:
-          anyOf:
-          - items:
-              additionalProperties: true
-              type: object
-            type: array
-            maxItems: 20
-          - type: 'null'
-          title: Filters
-        refresh_interval:
-          anyOf:
-          - type: integer
-            maximum: 86400.0
-            minimum: 10.0
-          - type: 'null'
-          title: Refresh Interval
-      type: object
-      title: UpdateDashboardRequest
-    PaginatedResponse_DashboardDefinitionResponse_:
-      properties:
-        items:
-          items:
-            $ref: '#/components/schemas/DashboardDefinitionResponse'
-          type: array
-          title: Items
-        has_more:
-          type: boolean
-          title: Has More
-        continuation_token:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Continuation Token
-        total:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Total
-      type: object
-      required:
-      - items
-      - has_more
-      title: PaginatedResponse[DashboardDefinitionResponse]
     HTTPValidationError:
       properties:
         detail:
@@ -589,41 +624,6 @@ components:
           title: Detail
       type: object
       title: HTTPValidationError
-    PanelResultResponse:
-      properties:
-        panel_id:
-          type: string
-          title: Panel Id
-          description: Panel identifier from the definition
-        columns:
-          items:
-            type: string
-          type: array
-          title: Columns
-          description: Column names
-        rows:
-          items:
-            items: {}
-            type: array
-          type: array
-          title: Rows
-          description: Result rows
-        error:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Error
-          description: Error message if query failed
-      type: object
-      required:
-      - panel_id
-      - columns
-      - rows
-      title: PanelResultResponse
-    NameString:
-      type: string
-      maxLength: 256
-      minLength: 1
   securitySchemes:
     BearerAuth:
       type: http

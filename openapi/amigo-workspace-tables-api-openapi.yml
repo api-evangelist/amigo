@@ -204,234 +204,7 @@ paths:
           title: Workspace Id
 components:
   schemas:
-    RenameColumnAction:
-      properties:
-        op:
-          type: string
-          const: rename_column
-          title: Op
-        from:
-          $ref: '#/components/schemas/IdentifierString'
-        to:
-          $ref: '#/components/schemas/IdentifierString'
-      type: object
-      required:
-      - op
-      - from
-      - to
-      title: RenameColumnAction
-    DropConstraintAction:
-      properties:
-        op:
-          type: string
-          const: drop_constraint
-          title: Op
-        name:
-          $ref: '#/components/schemas/IdentifierString'
-      type: object
-      required:
-      - op
-      - name
-      title: DropConstraintAction
-    Column-Input:
-      properties:
-        name:
-          $ref: '#/components/schemas/IdentifierString'
-        type:
-          $ref: '#/components/schemas/ColumnType'
-        nullable:
-          type: boolean
-          title: Nullable
-          default: true
-        default:
-          anyOf:
-          - $ref: '#/components/schemas/Default'
-          - type: 'null'
-      type: object
-      required:
-      - name
-      - type
-      title: Column
-    DropIndexAction:
-      properties:
-        op:
-          type: string
-          const: drop_index
-          title: Op
-        index_name:
-          $ref: '#/components/schemas/IdentifierString'
-      type: object
-      required:
-      - op
-      - index_name
-      title: DropIndexAction
-    ValidationError:
-      properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-        input:
-          title: Input
-        ctx:
-          type: object
-          title: Context
-      type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
-    src__routes__workspace_tables__update_workspace_table__Response:
-      properties:
-        id:
-          type: string
-          format: uuid
-          title: Id
-        workspace_id:
-          type: string
-          format: uuid
-          title: Workspace Id
-        table_name:
-          type: string
-          title: Table Name
-        physical_name:
-          type: string
-          title: Physical Name
-      type: object
-      required:
-      - id
-      - workspace_id
-      - table_name
-      - physical_name
-      title: Response
-    AddColumnAction:
-      properties:
-        op:
-          type: string
-          const: add_column
-          title: Op
-        column:
-          $ref: '#/components/schemas/Column-Input'
-      type: object
-      required:
-      - op
-      - column
-      title: AddColumnAction
-    IdentifierString:
-      type: string
-      maxLength: 63
-      minLength: 1
-      pattern: ^[a-z][a-z0-9_]{0,62}$
-    DropColumnDefaultAction:
-      properties:
-        op:
-          type: string
-          const: drop_column_default
-          title: Op
-        name:
-          $ref: '#/components/schemas/IdentifierString'
-      type: object
-      required:
-      - op
-      - name
-      title: DropColumnDefaultAction
-    DropColumnAction:
-      properties:
-        op:
-          type: string
-          const: drop_column
-          title: Op
-        name:
-          $ref: '#/components/schemas/IdentifierString'
-      type: object
-      required:
-      - op
-      - name
-      title: DropColumnAction
-    src__routes__workspace_tables__execute_workspace_query__Request:
-      properties:
-        sql:
-          type: string
-          maxLength: 16384
-          minLength: 1
-          title: Sql
-          description: 'One SQL statement: SELECT / WITH ... SELECT / INSERT / UPDATE /
-
-            DELETE. Multi-statement, DDL, and session-state commands (SET ROLE,
-
-            RESET, SET SESSION AUTHORIZATION) reject with 422 at the Pydantic
-
-            boundary. ``pg_*`` function calls reject with 400 at execute time
-
-            (no grant).'
-      type: object
-      required:
-      - sql
-      title: Request
-    src__routes__workspace_tables__list_workspace_tables__Response__Item:
-      properties:
-        id:
-          type: string
-          format: uuid
-          title: Id
-        workspace_id:
-          type: string
-          format: uuid
-          title: Workspace Id
-        table_name:
-          type: string
-          title: Table Name
-        physical_name:
-          type: string
-          title: Physical Name
-        created_at:
-          type: string
-          format: date-time
-          title: Created At
-      type: object
-      required:
-      - id
-      - workspace_id
-      - table_name
-      - physical_name
-      - created_at
-      title: Item
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
-    SetColumnDefaultAction:
-      properties:
-        op:
-          type: string
-          const: set_column_default
-          title: Op
-        name:
-          $ref: '#/components/schemas/IdentifierString'
-        default:
-          $ref: '#/components/schemas/Default'
-      type: object
-      required:
-      - op
-      - name
-      - default
-      title: SetColumnDefaultAction
-    Index-Output:
+    Constraint:
       properties:
         name:
           type: string
@@ -439,12 +212,12 @@ components:
         definition:
           type: string
           title: Definition
-          description: '``pg_indexes.indexdef`` — the full CREATE INDEX statement.'
+          description: '``pg_get_constraintdef(oid)`` — the postgres-rendered definition.'
       type: object
       required:
       - name
       - definition
-      title: Index
+      title: Constraint
     ColumnType:
       type: string
       enum:
@@ -459,69 +232,6 @@ components:
       - time
       - jsonb
       - bytea
-    src__routes__workspace_tables__list_workspace_tables__Response:
-      properties:
-        items:
-          items:
-            $ref: '#/components/schemas/src__routes__workspace_tables__list_workspace_tables__Response__Item'
-          type: array
-          title: Items
-      type: object
-      required:
-      - items
-      title: Response
-    Index-Input:
-      properties:
-        columns:
-          items:
-            $ref: '#/components/schemas/IdentifierString'
-          type: array
-          maxItems: 32
-          minItems: 1
-          title: Columns
-      type: object
-      required:
-      - columns
-      title: Index
-    SetColumnNullableAction:
-      properties:
-        op:
-          type: string
-          const: set_column_nullable
-          title: Op
-        name:
-          $ref: '#/components/schemas/IdentifierString'
-        nullable:
-          type: boolean
-          title: Nullable
-      type: object
-      required:
-      - op
-      - name
-      - nullable
-      title: SetColumnNullableAction
-    src__routes__workspace_tables__execute_workspace_query__Response:
-      properties:
-        columns:
-          items:
-            type: string
-          type: array
-          title: Columns
-        rows:
-          items:
-            additionalProperties: true
-            type: object
-          type: array
-          title: Rows
-        row_count:
-          type: integer
-          title: Row Count
-      type: object
-      required:
-      - columns
-      - rows
-      - row_count
-      title: Response
     src__routes__workspace_tables__update_workspace_table__Request:
       properties:
         actions:
@@ -550,6 +260,172 @@ components:
       required:
       - actions
       title: Request
+    Column-Output:
+      properties:
+        name:
+          type: string
+          title: Name
+        data_type:
+          type: string
+          title: Data Type
+          description: 'Postgres-side type as reported by ``information_schema.columns``
+
+            (e.g. ``uuid``, ``text``, ``timestamp with time zone``).'
+        is_nullable:
+          type: boolean
+          title: Is Nullable
+        default:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Default
+          description: Postgres-side default expression text, or NULL if no DEFAULT.
+      type: object
+      required:
+      - name
+      - data_type
+      - is_nullable
+      - default
+      title: Column
+    SetColumnDefaultAction:
+      properties:
+        op:
+          type: string
+          const: set_column_default
+          title: Op
+        name:
+          $ref: '#/components/schemas/IdentifierString'
+        default:
+          $ref: '#/components/schemas/Default'
+      type: object
+      required:
+      - op
+      - name
+      - default
+      title: SetColumnDefaultAction
+    src__routes__workspace_tables__list_workspace_tables__Response__Item:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        workspace_id:
+          type: string
+          format: uuid
+          title: Workspace Id
+        table_name:
+          type: string
+          title: Table Name
+        physical_name:
+          type: string
+          title: Physical Name
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+      type: object
+      required:
+      - id
+      - workspace_id
+      - table_name
+      - physical_name
+      - created_at
+      title: Item
+    src__routes__workspace_tables__execute_workspace_query__Response:
+      properties:
+        columns:
+          items:
+            type: string
+          type: array
+          title: Columns
+        rows:
+          items:
+            additionalProperties: true
+            type: object
+          type: array
+          title: Rows
+        row_count:
+          type: integer
+          title: Row Count
+      type: object
+      required:
+      - columns
+      - rows
+      - row_count
+      title: Response
+    AddColumnAction:
+      properties:
+        op:
+          type: string
+          const: add_column
+          title: Op
+        column:
+          $ref: '#/components/schemas/Column-Input'
+      type: object
+      required:
+      - op
+      - column
+      title: AddColumnAction
+    RenameColumnAction:
+      properties:
+        op:
+          type: string
+          const: rename_column
+          title: Op
+        from:
+          $ref: '#/components/schemas/IdentifierString'
+        to:
+          $ref: '#/components/schemas/IdentifierString'
+      type: object
+      required:
+      - op
+      - from
+      - to
+      title: RenameColumnAction
+    IdentifierString:
+      type: string
+      maxLength: 63
+      minLength: 1
+      pattern: ^[a-z][a-z0-9_]{0,62}$
+    DropColumnAction:
+      properties:
+        op:
+          type: string
+          const: drop_column
+          title: Op
+        name:
+          $ref: '#/components/schemas/IdentifierString'
+      type: object
+      required:
+      - op
+      - name
+      title: DropColumnAction
+    AlterAction:
+      anyOf:
+      - $ref: '#/components/schemas/AddColumnAction'
+      - $ref: '#/components/schemas/DropColumnAction'
+      - $ref: '#/components/schemas/RenameColumnAction'
+      - $ref: '#/components/schemas/ChangeColumnTypeAction'
+      - $ref: '#/components/schemas/SetColumnNullableAction'
+      - $ref: '#/components/schemas/SetColumnDefaultAction'
+      - $ref: '#/components/schemas/DropColumnDefaultAction'
+      - $ref: '#/components/schemas/AddUniqueAction'
+      - $ref: '#/components/schemas/DropConstraintAction'
+      - $ref: '#/components/schemas/AddIndexAction'
+      - $ref: '#/components/schemas/DropIndexAction'
+    DropIndexAction:
+      properties:
+        op:
+          type: string
+          const: drop_index
+          title: Op
+        index_name:
+          $ref: '#/components/schemas/IdentifierString'
+      type: object
+      required:
+      - op
+      - index_name
+      title: DropIndexAction
     ChangeColumnTypeAction:
       properties:
         op:
@@ -566,114 +442,26 @@ components:
       - name
       - new_type
       title: ChangeColumnTypeAction
-    AlterAction:
-      anyOf:
-      - $ref: '#/components/schemas/AddColumnAction'
-      - $ref: '#/components/schemas/DropColumnAction'
-      - $ref: '#/components/schemas/RenameColumnAction'
-      - $ref: '#/components/schemas/ChangeColumnTypeAction'
-      - $ref: '#/components/schemas/SetColumnNullableAction'
-      - $ref: '#/components/schemas/SetColumnDefaultAction'
-      - $ref: '#/components/schemas/DropColumnDefaultAction'
-      - $ref: '#/components/schemas/AddUniqueAction'
-      - $ref: '#/components/schemas/DropConstraintAction'
-      - $ref: '#/components/schemas/AddIndexAction'
-      - $ref: '#/components/schemas/DropIndexAction'
-    src__routes__workspace_tables__create_workspace_table__Response:
+    src__routes__workspace_tables__execute_workspace_query__Request:
       properties:
-        id:
+        sql:
           type: string
-          format: uuid
-          title: Id
-        workspace_id:
-          type: string
-          format: uuid
-          title: Workspace Id
-        table_name:
-          type: string
-          title: Table Name
-        physical_name:
-          type: string
-          title: Physical Name
-      type: object
-      required:
-      - id
-      - workspace_id
-      - table_name
-      - physical_name
-      title: Response
-    AddIndexAction:
-      properties:
-        op:
-          type: string
-          const: add_index
-          title: Op
-        index_name:
-          $ref: '#/components/schemas/IdentifierString'
-        columns:
-          items:
-            $ref: '#/components/schemas/IdentifierString'
-          type: array
-          maxItems: 32
-          minItems: 1
-          title: Columns
-      type: object
-      required:
-      - op
-      - index_name
-      - columns
-      title: AddIndexAction
-    Default:
-      properties:
-        kind:
-          type: string
-          enum:
-          - literal
-          - uuid_v4
-          - now
-          - current_date
-          title: Kind
-        value:
-          anyOf:
-          - type: string
-          - type: integer
-          - type: number
-          - type: boolean
-          - additionalProperties: true
-            type: object
-          - type: 'null'
-          title: Value
-          description: 'Only meaningful for ``kind="literal"``. Other kinds ignore it.
+          maxLength: 16384
+          minLength: 1
+          title: Sql
+          description: 'One SQL statement: SELECT / WITH ... SELECT / INSERT / UPDATE /
 
-            A ``dict`` value is rendered as a JSONB literal — pair it with a
+            DELETE. Multi-statement, DDL, and session-state commands (SET ROLE,
 
-            ``jsonb`` column.'
+            RESET, SET SESSION AUTHORIZATION) reject with 422 at the Pydantic
+
+            boundary. ``pg_*`` function calls reject with 400 at execute time
+
+            (no grant).'
       type: object
       required:
-      - kind
-      title: Default
-    AddUniqueAction:
-      properties:
-        op:
-          type: string
-          const: add_unique
-          title: Op
-        columns:
-          items:
-            $ref: '#/components/schemas/IdentifierString'
-          type: array
-          maxItems: 32
-          minItems: 1
-          title: Columns
-        constraint_name:
-          anyOf:
-          - $ref: '#/components/schemas/IdentifierString'
-          - type: 'null'
-      type: object
-      required:
-      - op
-      - columns
-      title: AddUniqueAction
+      - sql
+      title: Request
     src__routes__workspace_tables__get_workspace_table__Response:
       properties:
         id:
@@ -720,6 +508,168 @@ components:
       - indexes
       - constraints
       title: Response
+    Column-Input:
+      properties:
+        name:
+          $ref: '#/components/schemas/IdentifierString'
+        type:
+          $ref: '#/components/schemas/ColumnType'
+        nullable:
+          type: boolean
+          title: Nullable
+          default: true
+        default:
+          anyOf:
+          - $ref: '#/components/schemas/Default'
+          - type: 'null'
+      type: object
+      required:
+      - name
+      - type
+      title: Column
+    Index-Input:
+      properties:
+        columns:
+          items:
+            $ref: '#/components/schemas/IdentifierString'
+          type: array
+          maxItems: 32
+          minItems: 1
+          title: Columns
+      type: object
+      required:
+      - columns
+      title: Index
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    AddUniqueAction:
+      properties:
+        op:
+          type: string
+          const: add_unique
+          title: Op
+        columns:
+          items:
+            $ref: '#/components/schemas/IdentifierString'
+          type: array
+          maxItems: 32
+          minItems: 1
+          title: Columns
+        constraint_name:
+          anyOf:
+          - $ref: '#/components/schemas/IdentifierString'
+          - type: 'null'
+      type: object
+      required:
+      - op
+      - columns
+      title: AddUniqueAction
+    Index-Output:
+      properties:
+        name:
+          type: string
+          title: Name
+        definition:
+          type: string
+          title: Definition
+          description: '``pg_indexes.indexdef`` — the full CREATE INDEX statement.'
+      type: object
+      required:
+      - name
+      - definition
+      title: Index
+    AddIndexAction:
+      properties:
+        op:
+          type: string
+          const: add_index
+          title: Op
+        index_name:
+          $ref: '#/components/schemas/IdentifierString'
+        columns:
+          items:
+            $ref: '#/components/schemas/IdentifierString'
+          type: array
+          maxItems: 32
+          minItems: 1
+          title: Columns
+      type: object
+      required:
+      - op
+      - index_name
+      - columns
+      title: AddIndexAction
+    src__routes__workspace_tables__update_workspace_table__Response:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        workspace_id:
+          type: string
+          format: uuid
+          title: Workspace Id
+        table_name:
+          type: string
+          title: Table Name
+        physical_name:
+          type: string
+          title: Physical Name
+      type: object
+      required:
+      - id
+      - workspace_id
+      - table_name
+      - physical_name
+      title: Response
+    DropColumnDefaultAction:
+      properties:
+        op:
+          type: string
+          const: drop_column_default
+          title: Op
+        name:
+          $ref: '#/components/schemas/IdentifierString'
+      type: object
+      required:
+      - op
+      - name
+      title: DropColumnDefaultAction
+    src__routes__workspace_tables__list_workspace_tables__Response:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/src__routes__workspace_tables__list_workspace_tables__Response__Item'
+          type: array
+          title: Items
+      type: object
+      required:
+      - items
+      title: Response
     src__routes__workspace_tables__create_workspace_table__Request:
       properties:
         table_name:
@@ -757,47 +707,97 @@ components:
       - table_name
       - columns
       title: Request
-    Column-Output:
+    Default:
       properties:
-        name:
+        kind:
           type: string
-          title: Name
-        data_type:
-          type: string
-          title: Data Type
-          description: 'Postgres-side type as reported by ``information_schema.columns``
-
-            (e.g. ``uuid``, ``text``, ``timestamp with time zone``).'
-        is_nullable:
-          type: boolean
-          title: Is Nullable
-        default:
+          enum:
+          - literal
+          - uuid_v4
+          - now
+          - current_date
+          title: Kind
+        value:
           anyOf:
           - type: string
+          - type: integer
+          - type: number
+          - type: boolean
+          - additionalProperties: true
+            type: object
           - type: 'null'
-          title: Default
-          description: Postgres-side default expression text, or NULL if no DEFAULT.
+          title: Value
+          description: 'Only meaningful for ``kind="literal"``. Other kinds ignore it.
+
+            A ``dict`` value is rendered as a JSONB literal — pair it with a
+
+            ``jsonb`` column.'
       type: object
       required:
-      - name
-      - data_type
-      - is_nullable
-      - default
-      title: Column
-    Constraint:
+      - kind
+      title: Default
+    DropConstraintAction:
       properties:
+        op:
+          type: string
+          const: drop_constraint
+          title: Op
         name:
-          type: string
-          title: Name
-        definition:
-          type: string
-          title: Definition
-          description: '``pg_get_constraintdef(oid)`` — the postgres-rendered definition.'
+          $ref: '#/components/schemas/IdentifierString'
       type: object
       required:
+      - op
       - name
-      - definition
-      title: Constraint
+      title: DropConstraintAction
+    src__routes__workspace_tables__create_workspace_table__Response:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        workspace_id:
+          type: string
+          format: uuid
+          title: Workspace Id
+        table_name:
+          type: string
+          title: Table Name
+        physical_name:
+          type: string
+          title: Physical Name
+      type: object
+      required:
+      - id
+      - workspace_id
+      - table_name
+      - physical_name
+      title: Response
+    SetColumnNullableAction:
+      properties:
+        op:
+          type: string
+          const: set_column_nullable
+          title: Op
+        name:
+          $ref: '#/components/schemas/IdentifierString'
+        nullable:
+          type: boolean
+          title: Nullable
+      type: object
+      required:
+      - op
+      - name
+      - nullable
+      title: SetColumnNullableAction
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
   securitySchemes:
     BearerAuth:
       type: http

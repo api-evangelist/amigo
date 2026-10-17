@@ -476,331 +476,6 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
-    RunGuidanceRequest:
-      properties:
-        operator_id:
-          type: string
-          format: uuid
-          title: Operator Id
-        message:
-          type: string
-          maxLength: 5000
-          minLength: 1
-          title: Message
-      type: object
-      required:
-      - operator_id
-      - message
-      title: RunGuidanceRequest
-      description: 'Operator guidance for a live run. ``operator_id`` is in the body because this
-
-        router is not under ``/operators/{operator_id}`` — it is bound to the authenticated
-
-        caller by ``_enforce_operator_identity`` (no impersonation).'
-    ValidationError:
-      properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-        input:
-          title: Input
-        ctx:
-          type: object
-          title: Context
-      type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
-    RunAccessTokenRequest:
-      properties:
-        operator_id:
-          type: string
-          format: uuid
-          title: Operator Id
-      type: object
-      required:
-      - operator_id
-      title: RunAccessTokenRequest
-    RunAuthoredTurnResponse:
-      properties:
-        run_id:
-          type: string
-          format: uuid
-          title: Run Id
-        staged:
-          type: boolean
-          title: Staged
-      type: object
-      required:
-      - run_id
-      - staged
-      title: RunAuthoredTurnResponse
-    RunSwitchModeResponse:
-      properties:
-        run_id:
-          type: string
-          format: uuid
-          title: Run Id
-        mode:
-          type: string
-          enum:
-          - listen
-          - takeover
-          title: Mode
-      type: object
-      required:
-      - run_id
-      - mode
-      title: RunSwitchModeResponse
-    RunSwitchModeRequest:
-      properties:
-        operator_id:
-          type: string
-          format: uuid
-          title: Operator Id
-        participant_call_sid:
-          type: string
-          maxLength: 64
-          title: Participant Call Sid
-        mode:
-          type: string
-          enum:
-          - listen
-          - takeover
-          title: Mode
-      type: object
-      required:
-      - operator_id
-      - participant_call_sid
-      - mode
-      title: RunSwitchModeRequest
-    TrajectoryStep:
-      properties:
-        seq:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Seq
-        kind:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Kind
-        actor:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Actor
-        state:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: State
-        tool_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Tool Name
-        tool_input_summary:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Tool Input Summary
-        tool_result_summary:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Tool Result Summary
-        tool_succeeded:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          title: Tool Succeeded
-        decision_from_state:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Decision From State
-        decision_to_state:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Decision To State
-        effective_at:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Effective At
-      type: object
-      title: TrajectoryStep
-      description: 'One structural step of a framework run''s trajectory. Fields are best-effort
-
-        (only those the step actually carries are present), all optional, and free ``str``
-
-        for the same read-model resilience the ``Run`` descriptive fields use.'
-    TakeoverEligibility:
-      properties:
-        eligible:
-          type: boolean
-          title: Eligible
-        mode_options:
-          items:
-            type: string
-            enum:
-            - listen
-            - takeover
-          type: array
-          title: Mode Options
-          default: []
-        reason:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Reason
-      type: object
-      required:
-      - eligible
-      title: TakeoverEligibility
-      description: 'Whether an operator can take a run over, and how — the channel-neutral signal the
-
-        console keys on instead of a per-channel heuristic.
-
-
-        ``eligible`` = an operator may take this run over right now. ``mode_options`` = the
-
-        takeover modes valid for the run''s channel (voice exposes ``listen`` + ``takeover``;
-
-        other channels none yet). ``reason`` = a short, human-facing explanation when NOT
-
-        eligible (e.g. ``"run is not live"``, ``"channel not yet supported"``), so the
-
-        console can render an honest disabled-state tooltip rather than a bare greyed button.
-
-        Server-computed (see ``Run.takeover``) so eligibility rules live in one place and the
-
-        console never re-derives them.'
-    RunsSummaryResponse:
-      properties:
-        total:
-          type: integer
-          title: Total
-        live:
-          type: integer
-          title: Live
-        running:
-          type: integer
-          title: Running
-        paused:
-          type: integer
-          title: Paused
-        completed:
-          type: integer
-          title: Completed
-        failed:
-          type: integer
-          title: Failed
-        timed_out:
-          type: integer
-          title: Timed Out
-        by_status:
-          additionalProperties:
-            type: integer
-          type: object
-          title: By Status
-        by_kind:
-          additionalProperties:
-            type: integer
-          type: object
-          title: By Kind
-      type: object
-      required:
-      - total
-      - live
-      - running
-      - paused
-      - completed
-      - failed
-      - timed_out
-      - by_status
-      - by_kind
-      title: RunsSummaryResponse
-      description: 'Aggregate run counts for the Runs page summary strip.
-
-
-        Honest workspace totals the paginated list cannot derive client-side (it only
-
-        holds the loaded page). ``by_status`` carries the full canonical breakdown
-
-        (incl. any status beyond the named convenience fields); ``by_kind`` splits
-
-        framework vs conversation. ``live`` = running + paused.'
-    RunsResponse:
-      properties:
-        items:
-          items:
-            $ref: '#/components/schemas/Run'
-          type: array
-          title: Items
-        has_more:
-          type: boolean
-          title: Has More
-        continuation_token:
-          title: Continuation Token
-      type: object
-      required:
-      - items
-      - has_more
-      title: RunsResponse
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
-    RunHandbackResponse:
-      properties:
-        run_id:
-          type: string
-          format: uuid
-          title: Run Id
-        success:
-          type: boolean
-          title: Success
-      type: object
-      required:
-      - run_id
-      - success
-      title: RunHandbackResponse
-    RunTrajectoryResponse:
-      properties:
-        steps:
-          items:
-            $ref: '#/components/schemas/TrajectoryStep'
-          type: array
-          title: Steps
-        truncated:
-          type: boolean
-          title: Truncated
-      type: object
-      required:
-      - steps
-      - truncated
-      title: RunTrajectoryResponse
     Run:
       properties:
         run_id:
@@ -951,6 +626,322 @@ components:
         carry a ``channel`` and no ``framework``; framework runs carry a ``framework`` and
 
         no ``channel`` — enforced below.'
+    RunTrajectoryResponse:
+      properties:
+        steps:
+          items:
+            $ref: '#/components/schemas/TrajectoryStep'
+          type: array
+          title: Steps
+        truncated:
+          type: boolean
+          title: Truncated
+      type: object
+      required:
+      - steps
+      - truncated
+      title: RunTrajectoryResponse
+    RunGuidanceRequest:
+      properties:
+        operator_id:
+          type: string
+          format: uuid
+          title: Operator Id
+        message:
+          type: string
+          maxLength: 5000
+          minLength: 1
+          title: Message
+      type: object
+      required:
+      - operator_id
+      - message
+      title: RunGuidanceRequest
+      description: 'Operator guidance for a live run. ``operator_id`` is in the body because this
+
+        router is not under ``/operators/{operator_id}`` — it is bound to the authenticated
+
+        caller by ``_enforce_operator_identity`` (no impersonation).'
+    RunSwitchModeResponse:
+      properties:
+        run_id:
+          type: string
+          format: uuid
+          title: Run Id
+        mode:
+          type: string
+          enum:
+          - listen
+          - takeover
+          title: Mode
+      type: object
+      required:
+      - run_id
+      - mode
+      title: RunSwitchModeResponse
+    RunHandbackResponse:
+      properties:
+        run_id:
+          type: string
+          format: uuid
+          title: Run Id
+        success:
+          type: boolean
+          title: Success
+      type: object
+      required:
+      - run_id
+      - success
+      title: RunHandbackResponse
+    RunAuthoredTurnResponse:
+      properties:
+        run_id:
+          type: string
+          format: uuid
+          title: Run Id
+        staged:
+          type: boolean
+          title: Staged
+      type: object
+      required:
+      - run_id
+      - staged
+      title: RunAuthoredTurnResponse
+    RunHandbackRequest:
+      properties:
+        operator_id:
+          type: string
+          format: uuid
+          title: Operator Id
+      type: object
+      required:
+      - operator_id
+      title: RunHandbackRequest
+    RunsResponse:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/Run'
+          type: array
+          title: Items
+        has_more:
+          type: boolean
+          title: Has More
+        continuation_token:
+          title: Continuation Token
+      type: object
+      required:
+      - items
+      - has_more
+      title: RunsResponse
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    TrajectoryStep:
+      properties:
+        seq:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Seq
+        kind:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Kind
+        actor:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Actor
+        state:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: State
+        tool_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Tool Name
+        tool_input_summary:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Tool Input Summary
+        tool_result_summary:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Tool Result Summary
+        tool_succeeded:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Tool Succeeded
+        decision_from_state:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Decision From State
+        decision_to_state:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Decision To State
+        effective_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Effective At
+      type: object
+      title: TrajectoryStep
+      description: 'One structural step of a framework run''s trajectory. Fields are best-effort
+
+        (only those the step actually carries are present), all optional, and free ``str``
+
+        for the same read-model resilience the ``Run`` descriptive fields use.'
+    TakeoverEligibility:
+      properties:
+        eligible:
+          type: boolean
+          title: Eligible
+        mode_options:
+          items:
+            type: string
+            enum:
+            - listen
+            - takeover
+          type: array
+          title: Mode Options
+          default: []
+        reason:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Reason
+      type: object
+      required:
+      - eligible
+      title: TakeoverEligibility
+      description: 'Whether an operator can take a run over, and how — the channel-neutral signal the
+
+        console keys on instead of a per-channel heuristic.
+
+
+        ``eligible`` = an operator may take this run over right now. ``mode_options`` = the
+
+        takeover modes valid for the run''s channel (voice exposes ``listen`` + ``takeover``;
+
+        other channels none yet). ``reason`` = a short, human-facing explanation when NOT
+
+        eligible (e.g. ``"run is not live"``, ``"channel not yet supported"``), so the
+
+        console can render an honest disabled-state tooltip rather than a bare greyed button.
+
+        Server-computed (see ``Run.takeover``) so eligibility rules live in one place and the
+
+        console never re-derives them.'
+    RunSwitchModeRequest:
+      properties:
+        operator_id:
+          type: string
+          format: uuid
+          title: Operator Id
+        participant_call_sid:
+          type: string
+          maxLength: 64
+          title: Participant Call Sid
+        mode:
+          type: string
+          enum:
+          - listen
+          - takeover
+          title: Mode
+      type: object
+      required:
+      - operator_id
+      - participant_call_sid
+      - mode
+      title: RunSwitchModeRequest
+    RunsSummaryResponse:
+      properties:
+        total:
+          type: integer
+          title: Total
+        live:
+          type: integer
+          title: Live
+        running:
+          type: integer
+          title: Running
+        paused:
+          type: integer
+          title: Paused
+        completed:
+          type: integer
+          title: Completed
+        failed:
+          type: integer
+          title: Failed
+        timed_out:
+          type: integer
+          title: Timed Out
+        by_status:
+          additionalProperties:
+            type: integer
+          type: object
+          title: By Status
+        by_kind:
+          additionalProperties:
+            type: integer
+          type: object
+          title: By Kind
+      type: object
+      required:
+      - total
+      - live
+      - running
+      - paused
+      - completed
+      - failed
+      - timed_out
+      - by_status
+      - by_kind
+      title: RunsSummaryResponse
+      description: 'Aggregate run counts for the Runs page summary strip.
+
+
+        Honest workspace totals the paginated list cannot derive client-side (it only
+
+        holds the loaded page). ``by_status`` carries the full canonical breakdown
+
+        (incl. any status beyond the named convenience fields); ``by_kind`` splits
+
+        framework vs conversation. ``live`` = running + paused.'
     RunTakeoverRequest:
       properties:
         operator_id:
@@ -968,77 +959,15 @@ components:
       required:
       - operator_id
       title: RunTakeoverRequest
-    RunGuidanceResponse:
+    HTTPValidationError:
       properties:
-        status:
-          type: string
-          enum:
-          - delivered
-          - queued_no_subscriber
-          - deduplicated
-          - failed
-          - unknown
-          title: Status
-          description: Delivery status
-        run_id:
-          type: string
-          format: uuid
-          title: Run Id
-          description: Run the guidance was sent to
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
       type: object
-      required:
-      - status
-      - run_id
-      title: RunGuidanceResponse
-    RunHandbackRequest:
-      properties:
-        operator_id:
-          type: string
-          format: uuid
-          title: Operator Id
-      type: object
-      required:
-      - operator_id
-      title: RunHandbackRequest
-    RunAccessTokenResponse:
-      properties:
-        token:
-          type: string
-          title: Token
-        identity:
-          type: string
-          title: Identity
-        conference_sid:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Conference Sid
-        connect_params:
-          additionalProperties:
-            type: string
-          type: object
-          title: Connect Params
-      type: object
-      required:
-      - token
-      - identity
-      title: RunAccessTokenResponse
-    RunAuthoredTurnRequest:
-      properties:
-        operator_id:
-          type: string
-          format: uuid
-          title: Operator Id
-        text:
-          type: string
-          maxLength: 4000
-          minLength: 1
-          title: Text
-      type: object
-      required:
-      - operator_id
-      - text
-      title: RunAuthoredTurnRequest
+      title: HTTPValidationError
     RunTakeoverResponse:
       properties:
         run_id:
@@ -1066,6 +995,77 @@ components:
       - run_id
       - mode
       title: RunTakeoverResponse
+    RunAccessTokenRequest:
+      properties:
+        operator_id:
+          type: string
+          format: uuid
+          title: Operator Id
+      type: object
+      required:
+      - operator_id
+      title: RunAccessTokenRequest
+    RunAuthoredTurnRequest:
+      properties:
+        operator_id:
+          type: string
+          format: uuid
+          title: Operator Id
+        text:
+          type: string
+          maxLength: 4000
+          minLength: 1
+          title: Text
+      type: object
+      required:
+      - operator_id
+      - text
+      title: RunAuthoredTurnRequest
+    RunAccessTokenResponse:
+      properties:
+        token:
+          type: string
+          title: Token
+        identity:
+          type: string
+          title: Identity
+        conference_sid:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Conference Sid
+        connect_params:
+          additionalProperties:
+            type: string
+          type: object
+          title: Connect Params
+      type: object
+      required:
+      - token
+      - identity
+      title: RunAccessTokenResponse
+    RunGuidanceResponse:
+      properties:
+        status:
+          type: string
+          enum:
+          - delivered
+          - queued_no_subscriber
+          - deduplicated
+          - failed
+          - unknown
+          title: Status
+          description: Delivery status
+        run_id:
+          type: string
+          format: uuid
+          title: Run Id
+          description: Run the guidance was sent to
+      type: object
+      required:
+      - status
+      - run_id
+      title: RunGuidanceResponse
   securitySchemes:
     BearerAuth:
       type: http

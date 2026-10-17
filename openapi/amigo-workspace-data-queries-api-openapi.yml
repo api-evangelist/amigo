@@ -258,59 +258,6 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
-    src__routes__workspace_data_queries__invoke_workspace_data_query__Response:
-      properties:
-        result:
-          items:
-            additionalProperties: true
-            type: object
-          type: array
-          title: Result
-        duration_ms:
-          type: number
-          title: Duration Ms
-          default: 0.0
-        row_count:
-          type: integer
-          title: Row Count
-          default: 0
-      type: object
-      title: Response
-    ValidationError:
-      properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-        input:
-          title: Input
-        ctx:
-          type: object
-          title: Context
-      type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
-    src__routes__workspace_data_queries__invoke_workspace_data_query__Request:
-      properties:
-        input:
-          additionalProperties: true
-          type: object
-          title: Input
-          description: Caller arguments matching the declared parameters.
-      type: object
-      title: Request
     src__routes__workspace_data_queries__update_workspace_data_query__Request:
       properties:
         name:
@@ -401,6 +348,133 @@ components:
         so a bad payload surfaces as a Pydantic 422 with the standard wire
 
         shape — no try/except in the handler.'
+    src__routes__workspace_data_queries__invoke_workspace_data_query__Request:
+      properties:
+        input:
+          additionalProperties: true
+          type: object
+          title: Input
+          description: Caller arguments matching the declared parameters.
+      type: object
+      title: Request
+    src__routes__workspace_data_queries__update_workspace_data_query__Request__Parameter:
+      properties:
+        name:
+          type: string
+          maxLength: 64
+          minLength: 1
+          pattern: ^[a-z][a-z0-9_]*$
+          title: Name
+        type:
+          type: string
+          enum:
+          - string
+          - integer
+          - number
+          - boolean
+          title: Type
+        description:
+          type: string
+          maxLength: 512
+          minLength: 1
+          title: Description
+        default:
+          anyOf:
+          - type: string
+          - type: integer
+          - type: number
+          - type: boolean
+          - type: 'null'
+          title: Default
+      additionalProperties: false
+      type: object
+      required:
+      - name
+      - type
+      - description
+      title: Parameter
+      description: Strict write-side validator for one declared parameter.
+    src__routes__workspace_data_queries__list_workspace_data_queries__Response:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/src__routes__workspace_data_queries__list_workspace_data_queries__Response__Item'
+          type: array
+          title: Items
+        has_more:
+          type: boolean
+          title: Has More
+        continuation_token:
+          title: Continuation Token
+      type: object
+      required:
+      - items
+      - has_more
+      title: Response
+    src__routes__workspace_data_queries__invoke_workspace_data_query__Response:
+      properties:
+        result:
+          items:
+            additionalProperties: true
+            type: object
+          type: array
+          title: Result
+        duration_ms:
+          type: number
+          title: Duration Ms
+          default: 0.0
+        row_count:
+          type: integer
+          title: Row Count
+          default: 0
+      type: object
+      title: Response
+    src__routes__workspace_data_queries__list_workspace_data_queries__Response__Item:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        name:
+          type: string
+          title: Name
+        description:
+          type: string
+          title: Description
+        sql_template:
+          type: string
+          title: Sql Template
+        parameter_count:
+          type: integer
+          title: Parameter Count
+        timeout_ms:
+          type: integer
+          title: Timeout Ms
+        last_invoked_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Last Invoked At
+        deployed_at:
+          type: string
+          format: date-time
+          title: Deployed At
+        deployed_by:
+          type: string
+          format: uuid
+          title: Deployed By
+      type: object
+      required:
+      - id
+      - name
+      - description
+      - sql_template
+      - parameter_count
+      - timeout_ms
+      - deployed_at
+      - deployed_by
+      title: Item
     src__routes__workspace_data_queries__create_workspace_data_query__Request__Parameter:
       properties:
         name:
@@ -490,52 +564,6 @@ components:
         raises if a caller omits a required argument, otherwise substitutes
 
         the stored default.'
-    src__routes__workspace_data_queries__update_workspace_data_query__Request__Parameter:
-      properties:
-        name:
-          type: string
-          maxLength: 64
-          minLength: 1
-          pattern: ^[a-z][a-z0-9_]*$
-          title: Name
-        type:
-          type: string
-          enum:
-          - string
-          - integer
-          - number
-          - boolean
-          title: Type
-        description:
-          type: string
-          maxLength: 512
-          minLength: 1
-          title: Description
-        default:
-          anyOf:
-          - type: string
-          - type: integer
-          - type: number
-          - type: boolean
-          - type: 'null'
-          title: Default
-      additionalProperties: false
-      type: object
-      required:
-      - name
-      - type
-      - description
-      title: Parameter
-      description: Strict write-side validator for one declared parameter.
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
     WorkspaceDataQueryItem:
       properties:
         id:
@@ -601,69 +629,41 @@ components:
         from ``parameters[]``. UI consumers can build the JSON Schema view
 
         locally if they need it.'
-    src__routes__workspace_data_queries__list_workspace_data_queries__Response:
+    ValidationError:
       properties:
-        items:
+        loc:
           items:
-            $ref: '#/components/schemas/src__routes__workspace_data_queries__list_workspace_data_queries__Response__Item'
+            anyOf:
+            - type: string
+            - type: integer
           type: array
-          title: Items
-        has_more:
-          type: boolean
-          title: Has More
-        continuation_token:
-          title: Continuation Token
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
       type: object
       required:
-      - items
-      - has_more
-      title: Response
-    src__routes__workspace_data_queries__list_workspace_data_queries__Response__Item:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    HTTPValidationError:
       properties:
-        id:
-          type: string
-          format: uuid
-          title: Id
-        name:
-          type: string
-          title: Name
-        description:
-          type: string
-          title: Description
-        sql_template:
-          type: string
-          title: Sql Template
-        parameter_count:
-          type: integer
-          title: Parameter Count
-        timeout_ms:
-          type: integer
-          title: Timeout Ms
-        last_invoked_at:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Last Invoked At
-        deployed_at:
-          type: string
-          format: date-time
-          title: Deployed At
-        deployed_by:
-          type: string
-          format: uuid
-          title: Deployed By
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
       type: object
-      required:
-      - id
-      - name
-      - description
-      - sql_template
-      - parameter_count
-      - timeout_ms
-      - deployed_at
-      - deployed_by
-      title: Item
+      title: HTTPValidationError
   securitySchemes:
     BearerAuth:
       type: http

@@ -218,17 +218,20 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
-    SuggestionsResponse:
+    SessionResponse:
       properties:
-        suggestions:
-          items:
-            type: string
-          type: array
-          title: Suggestions
+        id:
+          type: string
+          title: Id
+        created_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Created At
       type: object
       required:
-      - suggestions
-      title: SuggestionsResponse
+      - id
+      title: SessionResponse
     SchemaResponse:
       properties:
         lakebase_tables:
@@ -262,6 +265,29 @@ components:
       - uc_functions
       - ai_functions
       title: SchemaResponse
+    SqlQueryRequest:
+      properties:
+        sql:
+          type: string
+          maxLength: 50000
+          minLength: 1
+          title: Sql
+          description: Read-only SQL query against Databricks.
+      type: object
+      required:
+      - sql
+      title: SqlQueryRequest
+    SuggestionsResponse:
+      properties:
+        suggestions:
+          items:
+            type: string
+          type: array
+          title: Suggestions
+      type: object
+      required:
+      - suggestions
+      title: SuggestionsResponse
     SqlQueryResponse:
       properties:
         results:
@@ -284,6 +310,15 @@ components:
           title: Error
       type: object
       title: SqlQueryResponse
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
     ValidationError:
       properties:
         loc:
@@ -310,41 +345,6 @@ components:
       - msg
       - type
       title: ValidationError
-    SqlQueryRequest:
-      properties:
-        sql:
-          type: string
-          maxLength: 50000
-          minLength: 1
-          title: Sql
-          description: Read-only SQL query against Databricks.
-      type: object
-      required:
-      - sql
-      title: SqlQueryRequest
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
-    SessionResponse:
-      properties:
-        id:
-          type: string
-          title: Id
-        created_at:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Created At
-      type: object
-      required:
-      - id
-      title: SessionResponse
     ChatRequest:
       properties:
         message:

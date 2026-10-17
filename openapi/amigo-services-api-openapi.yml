@@ -392,40 +392,10 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
-    UpsertVersionSetRequest:
-      properties:
-        version_set:
-          $ref: '#/components/schemas/VersionSet-Input'
-      type: object
-      required:
-      - version_set
-      title: UpsertVersionSetRequest
-    ValidationError:
-      properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-        input:
-          title: Input
-        ctx:
-          type: object
-          title: Context
-      type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
+    SearchString:
+      type: string
+      maxLength: 200
+      minLength: 1
     TextTurnResponse:
       properties:
         text:
@@ -440,37 +410,55 @@ components:
 
 
         Returned only on 200; 204 indicates the engine elected silence.'
-    VersionSet-Input:
+    LanguageProviderEntry:
       properties:
-        agent_version_number:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Agent Version Number
-        context_graph_version_number:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Context Graph Version Number
-        llm_model_preferences:
-          additionalProperties:
-            $ref: '#/components/schemas/LLMConfig'
-          type: object
-          title: Llm Model Preferences
-        turn_runtime:
+        provider:
           type: string
           enum:
-          - native
-          - openai-agents
-          title: Turn Runtime
-          default: native
+          - cartesia
+          - elevenlabs
+          - groq
+          title: Provider
+        config:
+          additionalProperties: true
+          type: object
+          maxProperties: 20
+          title: Config
       type: object
-      title: VersionSet
-      description: Pins agent, state machine, and LLM model versions for a service.
-    PhoneE164:
-      type: string
-      maxLength: 16
-      minLength: 2
+      required:
+      - provider
+      title: LanguageProviderEntry
+      description: Per-language TTS provider configuration.
+    Body_voice-turn:
+      properties:
+        audio:
+          type: string
+          contentMediaType: application/octet-stream
+          title: Audio
+        phone_number:
+          type: string
+          maxLength: 16
+          pattern: ^\+[1-9]\d{1,14}$
+          title: Phone Number
+      type: object
+      required:
+      - audio
+      - phone_number
+      title: Body_voice-turn
+    ServiceTag:
+      properties:
+        key:
+          type: string
+          title: Key
+        value:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Value
+      type: object
+      required:
+      - key
+      title: ServiceTag
     CreateServiceRequest:
       properties:
         name:
@@ -540,296 +528,6 @@ components:
       - agent_id
       - context_graph_id
       title: CreateServiceRequest
-    SearchString:
-      type: string
-      maxLength: 200
-      minLength: 1
-    ServiceResponse:
-      properties:
-        id:
-          type: string
-          format: uuid
-          title: Id
-        workspace_id:
-          type: string
-          format: uuid
-          title: Workspace Id
-        name:
-          type: string
-          title: Name
-        description:
-          type: string
-          title: Description
-        agent_id:
-          type: string
-          format: uuid
-          title: Agent Id
-        context_graph_id:
-          type: string
-          format: uuid
-          title: Context Graph Id
-        agent_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Agent Name
-        context_graph_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Context Graph Name
-        keyterms:
-          items:
-            type: string
-          type: array
-          title: Keyterms
-        is_active:
-          type: boolean
-          title: Is Active
-        version_sets:
-          additionalProperties:
-            $ref: '#/components/schemas/VersionSet-Output'
-          type: object
-          title: Version Sets
-        tags:
-          items:
-            $ref: '#/components/schemas/ServiceTag'
-          type: array
-          title: Tags
-        tool_capacity:
-          type: integer
-          title: Tool Capacity
-        channel_type:
-          type: string
-          enum:
-          - voice
-          - text
-          title: Channel Type
-          default: voice
-        environment:
-          type: string
-          enum:
-          - sandbox
-          - production
-          title: Environment
-          default: production
-        voice_config:
-          anyOf:
-          - $ref: '#/components/schemas/ServiceVoiceConfig-Output'
-          - type: 'null'
-        is_system:
-          type: boolean
-          title: Is System
-          default: false
-        created_at:
-          type: string
-          format: date-time
-          title: Created At
-        updated_at:
-          type: string
-          format: date-time
-          title: Updated At
-      type: object
-      required:
-      - id
-      - workspace_id
-      - name
-      - description
-      - agent_id
-      - context_graph_id
-      - keyterms
-      - is_active
-      - version_sets
-      - tags
-      - tool_capacity
-      - created_at
-      - updated_at
-      title: ServiceResponse
-    ServiceTag:
-      properties:
-        key:
-          type: string
-          title: Key
-        value:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Value
-      type: object
-      required:
-      - key
-      title: ServiceTag
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
-    LLMConfig:
-      properties:
-        llm_name:
-          type: string
-          title: Llm Name
-        params:
-          additionalProperties: true
-          type: object
-          title: Params
-        experience_controls:
-          anyOf:
-          - $ref: '#/components/schemas/LLMExperienceControls'
-          - type: 'null'
-      type: object
-      required:
-      - llm_name
-      title: LLMConfig
-    PaginatedResponse_ServiceResponse_:
-      properties:
-        items:
-          items:
-            $ref: '#/components/schemas/ServiceResponse'
-          type: array
-          title: Items
-        has_more:
-          type: boolean
-          title: Has More
-        continuation_token:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Continuation Token
-        total:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Total
-      type: object
-      required:
-      - items
-      - has_more
-      title: PaginatedResponse[ServiceResponse]
-    NameString:
-      type: string
-      maxLength: 256
-      minLength: 1
-    LanguageProviderEntry:
-      properties:
-        provider:
-          type: string
-          enum:
-          - cartesia
-          - elevenlabs
-          - groq
-          title: Provider
-        config:
-          additionalProperties: true
-          type: object
-          maxProperties: 20
-          title: Config
-      type: object
-      required:
-      - provider
-      title: LanguageProviderEntry
-      description: Per-language TTS provider configuration.
-    Body_voice-turn:
-      properties:
-        audio:
-          type: string
-          contentMediaType: application/octet-stream
-          title: Audio
-        phone_number:
-          type: string
-          maxLength: 16
-          pattern: ^\+[1-9]\d{1,14}$
-          title: Phone Number
-      type: object
-      required:
-      - audio
-      - phone_number
-      title: Body_voice-turn
-    UpdateServiceRequest:
-      properties:
-        name:
-          anyOf:
-          - $ref: '#/components/schemas/NameString'
-          - type: 'null'
-        description:
-          anyOf:
-          - $ref: '#/components/schemas/DescriptionString'
-          - type: 'null'
-        agent_id:
-          anyOf:
-          - type: string
-            format: uuid
-          - type: 'null'
-          title: Agent Id
-        context_graph_id:
-          anyOf:
-          - type: string
-            format: uuid
-          - type: 'null'
-          title: Context Graph Id
-        keyterms:
-          anyOf:
-          - items:
-              type: string
-              maxLength: 128
-              minLength: 1
-            type: array
-            maxItems: 500
-          - type: 'null'
-          title: Keyterms
-        is_active:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          title: Is Active
-        version_sets:
-          anyOf:
-          - additionalProperties:
-              $ref: '#/components/schemas/VersionSet-Input'
-            type: object
-          - type: 'null'
-          title: Version Sets
-        tags:
-          anyOf:
-          - items:
-              $ref: '#/components/schemas/ServiceTag'
-            type: array
-            maxItems: 50
-          - type: 'null'
-          title: Tags
-        tool_capacity:
-          anyOf:
-          - type: integer
-            maximum: 10.0
-            minimum: 1.0
-          - type: 'null'
-          title: Tool Capacity
-        channel_type:
-          anyOf:
-          - type: string
-            enum:
-            - voice
-            - text
-          - type: 'null'
-          title: Channel Type
-        environment:
-          anyOf:
-          - type: string
-            enum:
-            - sandbox
-            - production
-          - type: 'null'
-          title: Environment
-        voice_config:
-          anyOf:
-          - $ref: '#/components/schemas/ServiceVoiceConfig-Input'
-          - type: 'null'
-      type: object
-      title: UpdateServiceRequest
     ServiceVoiceConfig-Input:
       properties:
         tts_model:
@@ -1160,6 +858,246 @@ components:
         Each field is optional — None means inherit from the layer above
 
         (workspace VoiceSettings → env vars → hardcoded defaults).'
+    DescriptionString:
+      type: string
+      maxLength: 2000
+    UpdateServiceRequest:
+      properties:
+        name:
+          anyOf:
+          - $ref: '#/components/schemas/NameString'
+          - type: 'null'
+        description:
+          anyOf:
+          - $ref: '#/components/schemas/DescriptionString'
+          - type: 'null'
+        agent_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Agent Id
+        context_graph_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Context Graph Id
+        keyterms:
+          anyOf:
+          - items:
+              type: string
+              maxLength: 128
+              minLength: 1
+            type: array
+            maxItems: 500
+          - type: 'null'
+          title: Keyterms
+        is_active:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Active
+        version_sets:
+          anyOf:
+          - additionalProperties:
+              $ref: '#/components/schemas/VersionSet-Input'
+            type: object
+          - type: 'null'
+          title: Version Sets
+        tags:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/ServiceTag'
+            type: array
+            maxItems: 50
+          - type: 'null'
+          title: Tags
+        tool_capacity:
+          anyOf:
+          - type: integer
+            maximum: 10.0
+            minimum: 1.0
+          - type: 'null'
+          title: Tool Capacity
+        channel_type:
+          anyOf:
+          - type: string
+            enum:
+            - voice
+            - text
+          - type: 'null'
+          title: Channel Type
+        environment:
+          anyOf:
+          - type: string
+            enum:
+            - sandbox
+            - production
+          - type: 'null'
+          title: Environment
+        voice_config:
+          anyOf:
+          - $ref: '#/components/schemas/ServiceVoiceConfig-Input'
+          - type: 'null'
+      type: object
+      title: UpdateServiceRequest
+    PaginatedResponse_ServiceResponse_:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/ServiceResponse'
+          type: array
+          title: Items
+        has_more:
+          type: boolean
+          title: Has More
+        continuation_token:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Continuation Token
+        total:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Total
+      type: object
+      required:
+      - items
+      - has_more
+      title: PaginatedResponse[ServiceResponse]
+    PhoneE164:
+      type: string
+      maxLength: 16
+      minLength: 2
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    ServiceResponse:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        workspace_id:
+          type: string
+          format: uuid
+          title: Workspace Id
+        name:
+          type: string
+          title: Name
+        description:
+          type: string
+          title: Description
+        agent_id:
+          type: string
+          format: uuid
+          title: Agent Id
+        context_graph_id:
+          type: string
+          format: uuid
+          title: Context Graph Id
+        agent_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Agent Name
+        context_graph_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Context Graph Name
+        keyterms:
+          items:
+            type: string
+          type: array
+          title: Keyterms
+        is_active:
+          type: boolean
+          title: Is Active
+        version_sets:
+          additionalProperties:
+            $ref: '#/components/schemas/VersionSet-Output'
+          type: object
+          title: Version Sets
+        tags:
+          items:
+            $ref: '#/components/schemas/ServiceTag'
+          type: array
+          title: Tags
+        tool_capacity:
+          type: integer
+          title: Tool Capacity
+        channel_type:
+          type: string
+          enum:
+          - voice
+          - text
+          title: Channel Type
+          default: voice
+        environment:
+          type: string
+          enum:
+          - sandbox
+          - production
+          title: Environment
+          default: production
+        voice_config:
+          anyOf:
+          - $ref: '#/components/schemas/ServiceVoiceConfig-Output'
+          - type: 'null'
+        is_system:
+          type: boolean
+          title: Is System
+          default: false
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+      type: object
+      required:
+      - id
+      - workspace_id
+      - name
+      - description
+      - agent_id
+      - context_graph_id
+      - keyterms
+      - is_active
+      - version_sets
+      - tags
+      - tool_capacity
+      - created_at
+      - updated_at
+      title: ServiceResponse
     VersionSet-Output:
       properties:
         agent_version_number:
@@ -1187,33 +1125,6 @@ components:
       type: object
       title: VersionSet
       description: Pins agent, state machine, and LLM model versions for a service.
-    DescriptionString:
-      type: string
-      maxLength: 2000
-    TextTurnRequest:
-      properties:
-        phone_number:
-          type: string
-          maxLength: 16
-          pattern: ^\+[1-9]\d{1,14}$
-          title: Phone Number
-        agent_phone:
-          type: string
-          maxLength: 16
-          pattern: ^\+[1-9]\d{1,14}$
-          title: Agent Phone
-        text:
-          type: string
-          maxLength: 8192
-          minLength: 1
-          title: Text
-      type: object
-      required:
-      - phone_number
-      - agent_phone
-      - text
-      title: TextTurnRequest
-      description: Request body for ``POST /v1/{ws}/services/{service_id}/text-turn``.
     ServiceForwardingConfig:
       properties:
         forward_to:
@@ -1391,6 +1302,95 @@ components:
         Token budgets are intentionally excluded so version sets do not reintroduce
 
         accidental response truncation.'
+    LLMConfig:
+      properties:
+        llm_name:
+          type: string
+          title: Llm Name
+        params:
+          additionalProperties: true
+          type: object
+          title: Params
+        experience_controls:
+          anyOf:
+          - $ref: '#/components/schemas/LLMExperienceControls'
+          - type: 'null'
+      type: object
+      required:
+      - llm_name
+      title: LLMConfig
+    UpsertVersionSetRequest:
+      properties:
+        version_set:
+          $ref: '#/components/schemas/VersionSet-Input'
+      type: object
+      required:
+      - version_set
+      title: UpsertVersionSetRequest
+    VersionSet-Input:
+      properties:
+        agent_version_number:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Agent Version Number
+        context_graph_version_number:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Context Graph Version Number
+        llm_model_preferences:
+          additionalProperties:
+            $ref: '#/components/schemas/LLMConfig'
+          type: object
+          title: Llm Model Preferences
+        turn_runtime:
+          type: string
+          enum:
+          - native
+          - openai-agents
+          title: Turn Runtime
+          default: native
+      type: object
+      title: VersionSet
+      description: Pins agent, state machine, and LLM model versions for a service.
+    NameString:
+      type: string
+      maxLength: 256
+      minLength: 1
+    TextTurnRequest:
+      properties:
+        phone_number:
+          type: string
+          maxLength: 16
+          pattern: ^\+[1-9]\d{1,14}$
+          title: Phone Number
+        agent_phone:
+          type: string
+          maxLength: 16
+          pattern: ^\+[1-9]\d{1,14}$
+          title: Agent Phone
+        text:
+          type: string
+          maxLength: 8192
+          minLength: 1
+          title: Text
+      type: object
+      required:
+      - phone_number
+      - agent_phone
+      - text
+      title: TextTurnRequest
+      description: Request body for ``POST /v1/{ws}/services/{service_id}/text-turn``.
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
   securitySchemes:
     BearerAuth:
       type: http

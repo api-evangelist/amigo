@@ -72,6 +72,39 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
+    ConnectorHealthResponse:
+      properties:
+        sources:
+          items:
+            $ref: '#/components/schemas/ConnectorHealthItem'
+          type: array
+          maxItems: 500
+          title: Sources
+        as_of:
+          type: string
+          format: date-time
+          title: As Of
+          description: Server clock at query time (UTC).
+        read_model_status:
+          type: string
+          enum:
+          - ready
+          - empty
+          - unavailable
+          title: Read Model Status
+          description: ready = Lakebase projection returned rows; empty = no summary rows; unavailable = read failed.
+        read_model_synced_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Read Model Synced At
+          description: Most recent platform.connector_health_summary synced_at value in this response.
+      type: object
+      required:
+      - as_of
+      - read_model_status
+      title: ConnectorHealthResponse
     LoopLatencyPointItem:
       properties:
         hour:
@@ -94,69 +127,6 @@ components:
       - hour
       - count
       title: LoopLatencyPointItem
-    ValidationError:
-      properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-        input:
-          title: Input
-        ctx:
-          type: object
-          title: Context
-      type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
-    LoopLatencyResponse:
-      properties:
-        as_of:
-          type: string
-          format: date-time
-          title: As Of
-          description: Server clock at query time (UTC).
-        window_hours:
-          type: integer
-          title: Window Hours
-        overall_count:
-          type: integer
-          title: Overall Count
-          description: Total pairs across the window.
-        overall_p50_seconds:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Overall P50 Seconds
-          description: Median latency across the whole window; null if no pairs.
-        sparkline:
-          items:
-            $ref: '#/components/schemas/LoopLatencyPointItem'
-          type: array
-          maxItems: 168
-          title: Sparkline
-        truncated:
-          type: boolean
-          title: Truncated
-          description: True when the underlying query hit the row cap; p50 is computed over the truncated sample.
-          default: false
-      type: object
-      required:
-      - as_of
-      - window_hours
-      - overall_count
-      title: LoopLatencyResponse
     ConnectorHealthItem:
       properties:
         source:
@@ -203,39 +173,69 @@ components:
       - last_ingested_at
       - freshness
       title: ConnectorHealthItem
-    ConnectorHealthResponse:
+    LoopLatencyResponse:
       properties:
-        sources:
-          items:
-            $ref: '#/components/schemas/ConnectorHealthItem'
-          type: array
-          maxItems: 500
-          title: Sources
         as_of:
           type: string
           format: date-time
           title: As Of
           description: Server clock at query time (UTC).
-        read_model_status:
-          type: string
-          enum:
-          - ready
-          - empty
-          - unavailable
-          title: Read Model Status
-          description: ready = Lakebase projection returned rows; empty = no summary rows; unavailable = read failed.
-        read_model_synced_at:
+        window_hours:
+          type: integer
+          title: Window Hours
+        overall_count:
+          type: integer
+          title: Overall Count
+          description: Total pairs across the window.
+        overall_p50_seconds:
           anyOf:
-          - type: string
-            format: date-time
+          - type: number
           - type: 'null'
-          title: Read Model Synced At
-          description: Most recent platform.connector_health_summary synced_at value in this response.
+          title: Overall P50 Seconds
+          description: Median latency across the whole window; null if no pairs.
+        sparkline:
+          items:
+            $ref: '#/components/schemas/LoopLatencyPointItem'
+          type: array
+          maxItems: 168
+          title: Sparkline
+        truncated:
+          type: boolean
+          title: Truncated
+          description: True when the underlying query hit the row cap; p50 is computed over the truncated sample.
+          default: false
       type: object
       required:
       - as_of
-      - read_model_status
-      title: ConnectorHealthResponse
+      - window_hours
+      - overall_count
+      title: LoopLatencyResponse
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
     HTTPValidationError:
       properties:
         detail:

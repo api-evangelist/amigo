@@ -352,59 +352,103 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
-    ValidationError:
+    SkillContextGraphReference:
       properties:
-        loc:
+        context_graph_id:
+          type: string
+          format: uuid
+          title: Context Graph Id
+        context_graph_name:
+          type: string
+          title: Context Graph Name
+        version:
+          type: integer
+          title: Version
+        states:
           items:
-            anyOf:
-            - type: string
-            - type: integer
+            $ref: '#/components/schemas/SkillStateReference'
           type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-        input:
-          title: Input
-        ctx:
-          type: object
-          title: Context
+          title: States
       type: object
       required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
-    _ToolMockKey:
-      type: string
-      maxLength: 128
-      minLength: 1
-    src__models__StaticToolDef:
-      properties:
-        name:
-          type: string
-          title: Name
-        description:
-          type: string
-          title: Description
-        input_schema:
-          additionalProperties: true
-          type: object
-          title: Input Schema
-      type: object
-      required:
-      - name
-      - description
-      - input_schema
-      title: StaticToolDef
-      description: A built-in tool available to companion agents.
+      - context_graph_id
+      - context_graph_name
+      - version
+      - states
+      title: SkillContextGraphReference
     SearchString:
       type: string
       maxLength: 200
       minLength: 1
+    src__models__IntegrationToolRef:
+      properties:
+        integration:
+          type: string
+          title: Integration
+        endpoint:
+          type: string
+          title: Endpoint
+      type: object
+      required:
+      - integration
+      - endpoint
+      title: IntegrationToolRef
+      description: Reference to an integration endpoint by integration + endpoint name.
+    SkillReferencesResponse:
+      properties:
+        skill_id:
+          type: string
+          format: uuid
+          title: Skill Id
+        skill_slug:
+          type: string
+          title: Skill Slug
+        context_graph_references:
+          items:
+            $ref: '#/components/schemas/SkillContextGraphReference'
+          type: array
+          title: Context Graph References
+        service_references:
+          items:
+            type: string
+            format: uuid
+          type: array
+          title: Service References
+      type: object
+      required:
+      - skill_id
+      - skill_slug
+      - context_graph_references
+      - service_references
+      title: SkillReferencesResponse
+    BackgroundString:
+      type: string
+      maxLength: 10000
+    PaginatedResponse_SkillResponse_:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/SkillResponse'
+          type: array
+          title: Items
+        has_more:
+          type: boolean
+          title: Has More
+        continuation_token:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Continuation Token
+        total:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Total
+      type: object
+      required:
+      - items
+      - has_more
+      title: PaginatedResponse[SkillResponse]
     TestSkillRequest:
       properties:
         input:
@@ -425,41 +469,6 @@ components:
       required:
       - input
       title: TestSkillRequest
-    _ToolMockValue:
-      type: string
-      maxLength: 16384
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
-    NameString:
-      type: string
-      maxLength: 256
-      minLength: 1
-    StaticToolDef-Input:
-      properties:
-        name:
-          type: string
-          title: Name
-        description:
-          type: string
-          title: Description
-        input_schema:
-          additionalProperties: true
-          type: object
-          title: Input Schema
-      type: object
-      required:
-      - name
-      - description
-      - input_schema
-      title: StaticToolDef
-      description: A built-in tool available to companion agents.
     SubToolLog:
       properties:
         tool_name:
@@ -496,36 +505,183 @@ components:
       - succeeded
       - round
       title: SubToolLog
-    BackgroundString:
-      type: string
-      maxLength: 10000
-    SkillReferencesResponse:
+    IntegrationToolRef-Input:
       properties:
-        skill_id:
+        integration:
           type: string
-          format: uuid
-          title: Skill Id
-        skill_slug:
+          title: Integration
+        endpoint:
           type: string
-          title: Skill Slug
-        context_graph_references:
-          items:
-            $ref: '#/components/schemas/SkillContextGraphReference'
-          type: array
-          title: Context Graph References
-        service_references:
-          items:
-            type: string
-            format: uuid
-          type: array
-          title: Service References
+          title: Endpoint
       type: object
       required:
-      - skill_id
-      - skill_slug
-      - context_graph_references
-      - service_references
-      title: SkillReferencesResponse
+      - integration
+      - endpoint
+      title: IntegrationToolRef
+      description: Reference to an integration endpoint by integration + endpoint name.
+    DescriptionString:
+      type: string
+      maxLength: 2000
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    CreateSkillRequest:
+      properties:
+        slug:
+          type: string
+          maxLength: 63
+          minLength: 2
+          pattern: ^[a-z0-9][a-z0-9_-]*[a-z0-9]$
+          title: Slug
+        name:
+          $ref: '#/components/schemas/NameString'
+        description:
+          $ref: '#/components/schemas/DescriptionString'
+        system_prompt:
+          anyOf:
+          - $ref: '#/components/schemas/BackgroundString'
+          - type: 'null'
+        input_schema:
+          additionalProperties: true
+          type: object
+          title: Input Schema
+        result_schema:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Result Schema
+        model:
+          type: string
+          maxLength: 128
+          minLength: 1
+          title: Model
+          default: claude-sonnet-4-6
+        max_tokens:
+          type: integer
+          maximum: 200000.0
+          minimum: 1.0
+          title: Max Tokens
+          default: 4096
+        max_result_chars:
+          type: integer
+          maximum: 200000.0
+          minimum: 1.0
+          title: Max Result Chars
+          default: 2000
+        max_input_tokens:
+          anyOf:
+          - type: integer
+            maximum: 2000000.0
+            minimum: 1.0
+          - type: 'null'
+          title: Max Input Tokens
+        timeout_s:
+          type: number
+          maximum: 900.0
+          minimum: 0.1
+          title: Timeout S
+          default: 60.0
+        thinking_effort:
+          anyOf:
+          - type: string
+            enum:
+            - low
+            - medium
+            - high
+          - type: 'null'
+          title: Thinking Effort
+        temperature:
+          anyOf:
+          - type: number
+            maximum: 1.0
+            minimum: 0.0
+          - type: 'null'
+          title: Temperature
+          description: Anthropic sampling temperature (0-1). Ignored on models that reject sampling params (Opus 4.7+/Fable, which 400 otherwise). Set at most one of temperature/top_p -- Claude 4+ rejects both; the runtime keeps temperature and drops top_p.
+        top_p:
+          anyOf:
+          - type: number
+            maximum: 1.0
+            minimum: 0.0
+          - type: 'null'
+          title: Top P
+          description: Anthropic nucleus sampling (0-1). Ignored on sampling-param-rejecting models; see temperature.
+        enable_caching:
+          type: boolean
+          title: Enable Caching
+          default: true
+        enable_citations:
+          type: boolean
+          title: Enable Citations
+          default: false
+        use_structured_output:
+          type: boolean
+          title: Use Structured Output
+          default: false
+        integration_tools:
+          items:
+            $ref: '#/components/schemas/IntegrationToolRef-Input'
+          type: array
+          maxItems: 50
+          title: Integration Tools
+        static_tools:
+          items:
+            $ref: '#/components/schemas/StaticToolDef-Input'
+          type: array
+          maxItems: 50
+          title: Static Tools
+        enabled:
+          type: boolean
+          title: Enabled
+          default: true
+        max_agent_turns:
+          type: integer
+          maximum: 200.0
+          minimum: 1.0
+          title: Max Agent Turns
+          default: 20
+        checkpoint_enabled:
+          type: boolean
+          title: Checkpoint Enabled
+          default: true
+        approval_required:
+          type: boolean
+          title: Approval Required
+          default: false
+      type: object
+      required:
+      - slug
+      - name
+      - description
+      - input_schema
+      title: CreateSkillRequest
+    _ToolMockValue:
+      type: string
+      maxLength: 16384
     UpdateSkillRequest:
       properties:
         name:
@@ -667,20 +823,48 @@ components:
           title: Approval Required
       type: object
       title: UpdateSkillRequest
-    src__models__IntegrationToolRef:
+    _ToolMockKey:
+      type: string
+      maxLength: 128
+      minLength: 1
+    StaticToolDef-Input:
       properties:
-        integration:
+        name:
           type: string
-          title: Integration
-        endpoint:
+          title: Name
+        description:
           type: string
-          title: Endpoint
+          title: Description
+        input_schema:
+          additionalProperties: true
+          type: object
+          title: Input Schema
       type: object
       required:
-      - integration
-      - endpoint
-      title: IntegrationToolRef
-      description: Reference to an integration endpoint by integration + endpoint name.
+      - name
+      - description
+      - input_schema
+      title: StaticToolDef
+      description: A built-in tool available to companion agents.
+    src__models__StaticToolDef:
+      properties:
+        name:
+          type: string
+          title: Name
+        description:
+          type: string
+          title: Description
+        input_schema:
+          additionalProperties: true
+          type: object
+          title: Input Schema
+      type: object
+      required:
+      - name
+      - description
+      - input_schema
+      title: StaticToolDef
+      description: A built-in tool available to companion agents.
     SkillStateReference:
       properties:
         state_name:
@@ -694,6 +878,10 @@ components:
       - state_name
       - tool_spec_category
       title: SkillStateReference
+    NameString:
+      type: string
+      maxLength: 256
+      minLength: 1
     TestSkillResponse:
       properties:
         result:
@@ -742,33 +930,6 @@ components:
       - rounds
       - sub_tool_logs
       title: TestSkillResponse
-    DescriptionString:
-      type: string
-      maxLength: 2000
-    SkillContextGraphReference:
-      properties:
-        context_graph_id:
-          type: string
-          format: uuid
-          title: Context Graph Id
-        context_graph_name:
-          type: string
-          title: Context Graph Name
-        version:
-          type: integer
-          title: Version
-        states:
-          items:
-            $ref: '#/components/schemas/SkillStateReference'
-          type: array
-          title: States
-      type: object
-      required:
-      - context_graph_id
-      - context_graph_name
-      - version
-      - states
-      title: SkillContextGraphReference
     SkillResponse:
       properties:
         id:
@@ -906,176 +1067,15 @@ components:
       - created_at
       - updated_at
       title: SkillResponse
-    IntegrationToolRef-Input:
+    HTTPValidationError:
       properties:
-        integration:
-          type: string
-          title: Integration
-        endpoint:
-          type: string
-          title: Endpoint
-      type: object
-      required:
-      - integration
-      - endpoint
-      title: IntegrationToolRef
-      description: Reference to an integration endpoint by integration + endpoint name.
-    PaginatedResponse_SkillResponse_:
-      properties:
-        items:
+        detail:
           items:
-            $ref: '#/components/schemas/SkillResponse'
+            $ref: '#/components/schemas/ValidationError'
           type: array
-          title: Items
-        has_more:
-          type: boolean
-          title: Has More
-        continuation_token:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Continuation Token
-        total:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Total
+          title: Detail
       type: object
-      required:
-      - items
-      - has_more
-      title: PaginatedResponse[SkillResponse]
-    CreateSkillRequest:
-      properties:
-        slug:
-          type: string
-          maxLength: 63
-          minLength: 2
-          pattern: ^[a-z0-9][a-z0-9_-]*[a-z0-9]$
-          title: Slug
-        name:
-          $ref: '#/components/schemas/NameString'
-        description:
-          $ref: '#/components/schemas/DescriptionString'
-        system_prompt:
-          anyOf:
-          - $ref: '#/components/schemas/BackgroundString'
-          - type: 'null'
-        input_schema:
-          additionalProperties: true
-          type: object
-          title: Input Schema
-        result_schema:
-          anyOf:
-          - additionalProperties: true
-            type: object
-          - type: 'null'
-          title: Result Schema
-        model:
-          type: string
-          maxLength: 128
-          minLength: 1
-          title: Model
-          default: claude-sonnet-4-6
-        max_tokens:
-          type: integer
-          maximum: 200000.0
-          minimum: 1.0
-          title: Max Tokens
-          default: 4096
-        max_result_chars:
-          type: integer
-          maximum: 200000.0
-          minimum: 1.0
-          title: Max Result Chars
-          default: 2000
-        max_input_tokens:
-          anyOf:
-          - type: integer
-            maximum: 2000000.0
-            minimum: 1.0
-          - type: 'null'
-          title: Max Input Tokens
-        timeout_s:
-          type: number
-          maximum: 900.0
-          minimum: 0.1
-          title: Timeout S
-          default: 60.0
-        thinking_effort:
-          anyOf:
-          - type: string
-            enum:
-            - low
-            - medium
-            - high
-          - type: 'null'
-          title: Thinking Effort
-        temperature:
-          anyOf:
-          - type: number
-            maximum: 1.0
-            minimum: 0.0
-          - type: 'null'
-          title: Temperature
-          description: Anthropic sampling temperature (0-1). Ignored on models that reject sampling params (Opus 4.7+/Fable, which 400 otherwise). Set at most one of temperature/top_p -- Claude 4+ rejects both; the runtime keeps temperature and drops top_p.
-        top_p:
-          anyOf:
-          - type: number
-            maximum: 1.0
-            minimum: 0.0
-          - type: 'null'
-          title: Top P
-          description: Anthropic nucleus sampling (0-1). Ignored on sampling-param-rejecting models; see temperature.
-        enable_caching:
-          type: boolean
-          title: Enable Caching
-          default: true
-        enable_citations:
-          type: boolean
-          title: Enable Citations
-          default: false
-        use_structured_output:
-          type: boolean
-          title: Use Structured Output
-          default: false
-        integration_tools:
-          items:
-            $ref: '#/components/schemas/IntegrationToolRef-Input'
-          type: array
-          maxItems: 50
-          title: Integration Tools
-        static_tools:
-          items:
-            $ref: '#/components/schemas/StaticToolDef-Input'
-          type: array
-          maxItems: 50
-          title: Static Tools
-        enabled:
-          type: boolean
-          title: Enabled
-          default: true
-        max_agent_turns:
-          type: integer
-          maximum: 200.0
-          minimum: 1.0
-          title: Max Agent Turns
-          default: 20
-        checkpoint_enabled:
-          type: boolean
-          title: Checkpoint Enabled
-          default: true
-        approval_required:
-          type: boolean
-          title: Approval Required
-          default: false
-      type: object
-      required:
-      - slug
-      - name
-      - description
-      - input_schema
-      title: CreateSkillRequest
+      title: HTTPValidationError
   securitySchemes:
     BearerAuth:
       type: http

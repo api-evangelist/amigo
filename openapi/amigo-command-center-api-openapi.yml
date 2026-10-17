@@ -37,96 +37,32 @@ paths:
           title: Workspace Id
 components:
   schemas:
-    PipelineMetrics:
+    DataQualityMetrics:
       properties:
-        sources_total:
+        pending_reviews:
           type: integer
-          title: Sources Total
+          title: Pending Reviews
           default: 0
-        sources_healthy:
-          type: integer
-          title: Sources Healthy
-          default: 0
-        sources_degraded:
-          type: integer
-          title: Sources Degraded
-          default: 0
-        sources_failing:
-          type: integer
-          title: Sources Failing
-          default: 0
-        events_last_hour:
-          type: integer
-          title: Events Last Hour
-          default: 0
-        outbound_pending:
-          type: integer
-          title: Outbound Pending
-          default: 0
-        outbound_failed:
-          type: integer
-          title: Outbound Failed
-          default: 0
-        connector_status:
-          type: string
-          enum:
-          - healthy
-          - degraded
-          - unavailable
-          title: Connector Status
-          default: unavailable
-      type: object
-      title: PipelineMetrics
-    VoiceMetrics:
-      properties:
-        active_calls:
-          type: integer
-          title: Active Calls
-          default: 0
-        active_escalated:
-          type: integer
-          title: Active Escalated
-          default: 0
-        calls_today:
-          type: integer
-          title: Calls Today
-          default: 0
-        avg_quality_score_today:
+        approval_rate_7d:
           anyOf:
           - type: number
           - type: 'null'
-          title: Avg Quality Score Today
-        escalation_rate_today:
-          type: number
-          title: Escalation Rate Today
-          default: 0.0
+          title: Approval Rate 7D
+        avg_confidence:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Avg Confidence
+        entities_total:
+          type: integer
+          title: Entities Total
+          default: 0
+        entities_merged_7d:
+          type: integer
+          title: Entities Merged 7D
+          default: 0
       type: object
-      title: VoiceMetrics
-    CommandCenterAlert:
-      properties:
-        level:
-          type: string
-          enum:
-          - info
-          - warning
-          - critical
-          title: Level
-        code:
-          type: string
-          title: Code
-        message:
-          type: string
-          title: Message
-        section:
-          type: string
-          title: Section
-      type: object
-      required:
-      - level
-      - code
-      - message
-      - section
-      title: CommandCenterAlert
+      title: DataQualityMetrics
     CommandCenterResponse:
       properties:
         workspace_id:
@@ -185,6 +121,46 @@ components:
       - workspace_id
       - generated_at
       title: CommandCenterResponse
+    PipelineMetrics:
+      properties:
+        sources_total:
+          type: integer
+          title: Sources Total
+          default: 0
+        sources_healthy:
+          type: integer
+          title: Sources Healthy
+          default: 0
+        sources_degraded:
+          type: integer
+          title: Sources Degraded
+          default: 0
+        sources_failing:
+          type: integer
+          title: Sources Failing
+          default: 0
+        events_last_hour:
+          type: integer
+          title: Events Last Hour
+          default: 0
+        outbound_pending:
+          type: integer
+          title: Outbound Pending
+          default: 0
+        outbound_failed:
+          type: integer
+          title: Outbound Failed
+          default: 0
+        connector_status:
+          type: string
+          enum:
+          - healthy
+          - degraded
+          - unavailable
+          title: Connector Status
+          default: unavailable
+      type: object
+      title: PipelineMetrics
     IdentityMetrics:
       properties:
         active_api_keys:
@@ -213,32 +189,56 @@ components:
           title: Mfa Coverage Pct
       type: object
       title: IdentityMetrics
-    DataQualityMetrics:
+    VoiceMetrics:
       properties:
-        pending_reviews:
+        active_calls:
           type: integer
-          title: Pending Reviews
+          title: Active Calls
           default: 0
-        approval_rate_7d:
+        active_escalated:
+          type: integer
+          title: Active Escalated
+          default: 0
+        calls_today:
+          type: integer
+          title: Calls Today
+          default: 0
+        avg_quality_score_today:
           anyOf:
           - type: number
           - type: 'null'
-          title: Approval Rate 7D
-        avg_confidence:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Avg Confidence
-        entities_total:
-          type: integer
-          title: Entities Total
-          default: 0
-        entities_merged_7d:
-          type: integer
-          title: Entities Merged 7D
-          default: 0
+          title: Avg Quality Score Today
+        escalation_rate_today:
+          type: number
+          title: Escalation Rate Today
+          default: 0.0
       type: object
-      title: DataQualityMetrics
+      title: VoiceMetrics
+    CommandCenterAlert:
+      properties:
+        level:
+          type: string
+          enum:
+          - info
+          - warning
+          - critical
+          title: Level
+        code:
+          type: string
+          title: Code
+        message:
+          type: string
+          title: Message
+        section:
+          type: string
+          title: Section
+      type: object
+      required:
+      - level
+      - code
+      - message
+      - section
+      title: CommandCenterAlert
   securitySchemes:
     BearerAuth:
       type: http

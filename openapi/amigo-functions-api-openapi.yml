@@ -289,6 +289,86 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
+    RegisteredFunctionResponse:
+      properties:
+        name:
+          type: string
+          title: Name
+        function_type:
+          type: string
+          title: Function Type
+        returns_kind:
+          type: string
+          title: Returns Kind
+        description:
+          type: string
+          title: Description
+          default: ''
+        when_to_use:
+          type: string
+          title: When To Use
+          default: ''
+        parameters:
+          items:
+            additionalProperties: true
+            type: object
+          type: array
+          title: Parameters
+        sql_template:
+          type: string
+          title: Sql Template
+        input_schema:
+          additionalProperties: true
+          type: object
+          title: Input Schema
+        examples:
+          items:
+            additionalProperties: true
+            type: object
+          type: array
+          title: Examples
+        timeout_ms:
+          type: integer
+          title: Timeout Ms
+          default: 30000
+        last_test_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Last Test At
+        last_test_status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Last Test Status
+        last_test_error:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Last Test Error
+        last_test_duration_ms:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Last Test Duration Ms
+        deployed_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Deployed At
+        deployed_by:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Deployed By
+      type: object
+      required:
+      - name
+      - function_type
+      - returns_kind
+      - sql_template
+      title: RegisteredFunctionResponse
+      description: Single row from ``platform.functions``.
     platform_lib__platform_functions__models__Parameter:
       properties:
         name:
@@ -346,32 +426,58 @@ components:
         silently break tool selection — the registration layer rejects
 
         empty strings.'
-    ValidationError:
+    TestInvokeResponse:
       properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
+        result:
+          title: Result
+        duration_ms:
+          type: number
+          title: Duration Ms
+          default: 0.0
+        row_count:
+          type: integer
+          title: Row Count
+          default: 0
+        status:
           type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-        input:
-          title: Input
-        ctx:
-          type: object
-          title: Context
+          title: Status
+          default: pass
+        error:
+          anyOf:
+          - type: string
+            maxLength: 2000
+          - type: 'null'
+          title: Error
+        test_duration_ms:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Test Duration Ms
       type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
+      title: TestInvokeResponse
+      description: 'Response shape for ``POST /v1/{ws}/functions/{name}/test``.
+
+
+        Structural superset of :class:`InvokeResponse`. Adds ``status`` and
+
+        ``error`` so the DC can render the executor''s failure detail inline
+
+        rather than a generic "Invocation failed." The underlying invoke
+
+        uses the same path; ``status`` / ``error`` are filled in by
+
+        ``service.test`` after catching any ``HTTPException`` (503) from the
+
+        executor, so the route never bubbles a 5xx for a logical SQL
+
+        failure — it''s still a 200 with ``status=fail`` so the caller can
+
+        show the message.
+
+
+        Invariant (enforced by :func:`_check_error_when_fail`):
+
+        ``status == "fail" → error is not None and len(error) > 0``.'
     InvokeResponse:
       properties:
         result:
@@ -401,32 +507,25 @@ components:
       - items
       - count
       title: RegisteredFunctionListResponse
-    FunctionExample:
+    InvokeRequest:
       properties:
         input:
           additionalProperties: true
           type: object
           title: Input
-        output:
-          title: Output
-        description:
-          type: string
-          title: Description
-          default: ''
-      additionalProperties: false
+          description: Caller arguments matching input_schema.
       type: object
-      required:
-      - input
-      - output
-      title: FunctionExample
-      description: 'One example call, surfaced to the LLM and the DC test panel.
-
-
-        Examples are first-class metadata, not buried in a UC ``COMMENT``
-
-        clause the way Databricks'' native authoring requires. The DC
-
-        tool-picker shows them; the LLM tool spec includes them inline.'
+      title: InvokeRequest
+      description: Invoke a registered function with caller-supplied args.
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
     RegisteredFunction:
       properties:
         name:
@@ -563,157 +662,58 @@ components:
         column name in the result rows; ``type`` maps to a Databricks
 
         SQL type via the same ``ParameterType`` Literal we use for inputs.'
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
-    InvokeRequest:
+    FunctionExample:
       properties:
         input:
           additionalProperties: true
           type: object
           title: Input
-          description: Caller arguments matching input_schema.
-      type: object
-      title: InvokeRequest
-      description: Invoke a registered function with caller-supplied args.
-    RegisteredFunctionResponse:
-      properties:
-        name:
-          type: string
-          title: Name
-        function_type:
-          type: string
-          title: Function Type
-        returns_kind:
-          type: string
-          title: Returns Kind
+        output:
+          title: Output
         description:
           type: string
           title: Description
           default: ''
-        when_to_use:
-          type: string
-          title: When To Use
-          default: ''
-        parameters:
-          items:
-            additionalProperties: true
-            type: object
-          type: array
-          title: Parameters
-        sql_template:
-          type: string
-          title: Sql Template
-        input_schema:
-          additionalProperties: true
-          type: object
-          title: Input Schema
-        examples:
-          items:
-            additionalProperties: true
-            type: object
-          type: array
-          title: Examples
-        timeout_ms:
-          type: integer
-          title: Timeout Ms
-          default: 30000
-        last_test_at:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Last Test At
-        last_test_status:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Last Test Status
-        last_test_error:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Last Test Error
-        last_test_duration_ms:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Last Test Duration Ms
-        deployed_at:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Deployed At
-        deployed_by:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Deployed By
+      additionalProperties: false
       type: object
       required:
-      - name
-      - function_type
-      - returns_kind
-      - sql_template
-      title: RegisteredFunctionResponse
-      description: Single row from ``platform.functions``.
-    TestInvokeResponse:
+      - input
+      - output
+      title: FunctionExample
+      description: 'One example call, surfaced to the LLM and the DC test panel.
+
+
+        Examples are first-class metadata, not buried in a UC ``COMMENT``
+
+        clause the way Databricks'' native authoring requires. The DC
+
+        tool-picker shows them; the LLM tool spec includes them inline.'
+    ValidationError:
       properties:
-        result:
-          title: Result
-        duration_ms:
-          type: number
-          title: Duration Ms
-          default: 0.0
-        row_count:
-          type: integer
-          title: Row Count
-          default: 0
-        status:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
           type: string
-          title: Status
-          default: pass
-        error:
-          anyOf:
-          - type: string
-            maxLength: 2000
-          - type: 'null'
-          title: Error
-        test_duration_ms:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Test Duration Ms
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
       type: object
-      title: TestInvokeResponse
-      description: 'Response shape for ``POST /v1/{ws}/functions/{name}/test``.
-
-
-        Structural superset of :class:`InvokeResponse`. Adds ``status`` and
-
-        ``error`` so the DC can render the executor''s failure detail inline
-
-        rather than a generic "Invocation failed." The underlying invoke
-
-        uses the same path; ``status`` / ``error`` are filled in by
-
-        ``service.test`` after catching any ``HTTPException`` (503) from the
-
-        executor, so the route never bubbles a 5xx for a logical SQL
-
-        failure — it''s still a 200 with ``status=fail`` so the caller can
-
-        show the message.
-
-
-        Invariant (enforced by :func:`_check_error_when_fail`):
-
-        ``status == "fail" → error is not None and len(error) > 0``.'
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
   securitySchemes:
     BearerAuth:
       type: http

@@ -369,6 +369,31 @@ paths:
           title: Workspace Id
 components:
   schemas:
+    TestCredentialIdsRequest:
+      properties:
+        credential_ids:
+          items:
+            type: string
+            format: uuid
+          type: array
+          maxItems: 100
+          title: Credential Ids
+      type: object
+      required:
+      - credential_ids
+      title: TestCredentialIdsRequest
+    TestCallerNumbersRequest:
+      properties:
+        numbers:
+          items:
+            type: string
+          type: array
+          maxItems: 100
+          title: Numbers
+      type: object
+      required:
+      - numbers
+      title: TestCallerNumbersRequest
     WorkspaceResponse:
       properties:
         id:
@@ -424,99 +449,6 @@ components:
       - created_at
       - updated_at
       title: WorkspaceResponse
-    SlugString:
-      type: string
-      maxLength: 63
-      minLength: 2
-      pattern: ^[a-z0-9][a-z0-9-]*[a-z0-9]$
-    TestCredentialIdsResponse:
-      properties:
-        credential_ids:
-          items:
-            type: string
-            format: uuid
-          type: array
-          title: Credential Ids
-      type: object
-      required:
-      - credential_ids
-      title: TestCredentialIdsResponse
-    ValidationError:
-      properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-        input:
-          title: Input
-        ctx:
-          type: object
-          title: Context
-      type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
-    TestCredentialIdsRequest:
-      properties:
-        credential_ids:
-          items:
-            type: string
-            format: uuid
-          type: array
-          maxItems: 100
-          title: Credential Ids
-      type: object
-      required:
-      - credential_ids
-      title: TestCredentialIdsRequest
-    TestCallerNumbersRequest:
-      properties:
-        numbers:
-          items:
-            type: string
-          type: array
-          maxItems: 100
-          title: Numbers
-      type: object
-      required:
-      - numbers
-      title: TestCallerNumbersRequest
-    PaginatedResponse_WorkspaceResponse_:
-      properties:
-        items:
-          items:
-            $ref: '#/components/schemas/WorkspaceResponse'
-          type: array
-          title: Items
-        has_more:
-          type: boolean
-          title: Has More
-        continuation_token:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Continuation Token
-        total:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Total
-      type: object
-      required:
-      - items
-      - has_more
-      title: PaginatedResponse[WorkspaceResponse]
     ArchiveWorkspaceRequest:
       properties:
         slug:
@@ -525,6 +457,14 @@ components:
       required:
       - slug
       title: ArchiveWorkspaceRequest
+    ProvisionResponse:
+      properties:
+        workspace:
+          $ref: '#/components/schemas/WorkspaceResponse'
+      type: object
+      required:
+      - workspace
+      title: ProvisionResponse
     UpdateWorkspaceRequest:
       properties:
         name:
@@ -566,6 +506,39 @@ components:
           title: Connector Type
       type: object
       title: UpdateWorkspaceRequest
+    SlugString:
+      type: string
+      maxLength: 63
+      minLength: 2
+      pattern: ^[a-z0-9][a-z0-9-]*[a-z0-9]$
+    StrippedNonemptyString:
+      type: string
+      minLength: 1
+    PaginatedResponse_WorkspaceResponse_:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/WorkspaceResponse'
+          type: array
+          title: Items
+        has_more:
+          type: boolean
+          title: Has More
+        continuation_token:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Continuation Token
+        total:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Total
+      type: object
+      required:
+      - items
+      - has_more
+      title: PaginatedResponse[WorkspaceResponse]
     ConvertEnvironmentRequest:
       properties:
         target:
@@ -581,26 +554,6 @@ components:
       - target
       - confirm_slug
       title: ConvertEnvironmentRequest
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
-    ProvisionResponse:
-      properties:
-        workspace:
-          $ref: '#/components/schemas/WorkspaceResponse'
-      type: object
-      required:
-      - workspace
-      title: ProvisionResponse
-    StrippedNonemptyString:
-      type: string
-      minLength: 1
     TestCallerNumbersResponse:
       properties:
         numbers:
@@ -631,6 +584,53 @@ components:
       - target
       - warnings
       title: EnvironmentCheckResponse
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    TestCredentialIdsResponse:
+      properties:
+        credential_ids:
+          items:
+            type: string
+            format: uuid
+          type: array
+          title: Credential Ids
+      type: object
+      required:
+      - credential_ids
+      title: TestCredentialIdsResponse
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
   securitySchemes:
     BearerAuth:
       type: http

@@ -180,43 +180,6 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
-    RejectProposalRequest:
-      properties:
-        reason:
-          type: string
-          maxLength: 1000
-          minLength: 1
-          title: Reason
-      type: object
-      required:
-      - reason
-      title: RejectProposalRequest
-    ValidationError:
-      properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-        input:
-          title: Input
-        ctx:
-          type: object
-          title: Context
-      type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
     ExternalWriteProposal:
       properties:
         id:
@@ -354,15 +317,17 @@ components:
         permission-gated (ReviewQueue); never log it. ``connector_type``/``fhir_*``/
 
         ``status``/``idempotency_key`` are opaque strings; the ids are uuid.'
-    HTTPValidationError:
+    RejectProposalRequest:
       properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
+        reason:
+          type: string
+          maxLength: 1000
+          minLength: 1
+          title: Reason
       type: object
-      title: HTTPValidationError
+      required:
+      - reason
+      title: RejectProposalRequest
     PaginatedResponse_ExternalWriteProposal_:
       properties:
         items:
@@ -388,6 +353,41 @@ components:
       - items
       - has_more
       title: PaginatedResponse[ExternalWriteProposal]
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
   securitySchemes:
     BearerAuth:
       type: http
